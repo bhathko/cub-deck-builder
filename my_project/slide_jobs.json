@@ -1,0 +1,534 @@
+{
+  "run_status": "slides_recorded",
+  "deck_name": "my_project",
+  "selected_backend": "built-in image tool",
+  "sample_generation_method": {
+    "backend_used": "built-in image tool",
+    "tool_name": "image_gen",
+    "mode": "generate",
+    "prompt_source": "2026/07/17 Codex 對話中的已核准 Slide 5 內嵌提示，內容來自 outline.md、style_guide.md、page_types.md 與已檢視的本機參考圖片。",
+    "size": "16:9 landscape; requested 1920x1080; built-in output size",
+    "quality": "built-in default",
+    "model_config": "Codex built-in image generation backend; exact model and quality controls not exposed",
+    "approved_sample_path": "origin_image/slide_05.png",
+    "selected_source": "D:/Users/00597533/.codex/generated_images/019f6ddb-1a78-7ce1-9097-3394ea8c2bad/exec-1c6fd7c1-27c4-4bba-ab37-d1f33b8cb7e4.png",
+    "input_context_preparation": "Parent inspected all local inputs with view_image. Built-in image_gen was called in generate mode with referenced_image_paths for content_bg.png, cathay_logo.png, info_before_after_item_compare.png, and data_kpi_bar_callout_dashboard.png.",
+    "handoff_rule": "Every slide worker must use the same built-in image_gen generate path with local inputs made visible by view_image or inherited conversation context. Return a blocker if unavailable; do not switch to CLI, local rendering, Pillow, SVG, HTML/CSS/canvas, or PowerPoint screenshot generation."
+  },
+  "max_concurrent_slides": 3,
+  "slides": [
+    {
+      "slide_id": "slide_01",
+      "number": 1,
+      "title": "年度工作簡報",
+      "job": "prompts/slide_01.json",
+      "out": "origin_image/slide_01.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/cover_bg_context.png",
+          "role": "strict input asset and full-slide cover background",
+          "fidelity": "preserve the supplied background edge-to-edge; do not replace it with another background"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve the logo exactly and place it small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/cover.png",
+          "role": "cover layout and typography reference",
+          "fidelity": "match the visible cover composition and spacing while replacing template text with this slide's exact content"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_01_worker",
+        "agent_nickname": "slide_01_worker",
+        "prompt": "prompts/slide_01.json",
+        "prompt_sha256": "e58a1f11d492034749f45190226e1be95915f664975dca7dd0935ad57419539a",
+        "dispatched_at": "2026-07-17T03:55:14Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_01_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e36-8732-7330-8894-b39cd7e0761e\\exec-2f952136-8fb0-4c7b-b582-9ef0d3a4f759.png",
+        "selected_source_sha256": "aa00716f54c525f4bb6d9c7c0cd7c21c5b8c78ea9eb9b54de2f809e7bfa1a008",
+        "final_image": "origin_image/slide_01.png",
+        "final_image_sha256": "aa00716f54c525f4bb6d9c7c0cd7c21c5b8c78ea9eb9b54de2f809e7bfa1a008",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "繁體中文標題、日期與報告人清晰正確；指定背景與 Logo 保留，無頁碼、截斷或重疊。",
+        "recorded_at": "2026-07-17T03:59:02Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_02",
+      "number": 2,
+      "title": "目錄",
+      "job": "prompts/slide_02.json",
+      "out": "origin_image/slide_02.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/content_bg.png",
+          "role": "strict input asset and full-slide content background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve exactly and place small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/content.png",
+          "role": "agenda page layout reference",
+          "fidelity": "match its visible left title and right numbered-list hierarchy, not its placeholder text"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_02_worker",
+        "agent_nickname": "slide_02_worker",
+        "prompt": "prompts/slide_02.json",
+        "prompt_sha256": "7ec7151d1fc309c1272d655a9eb262824417288c4c786ea92daa81ee83d1cc86",
+        "dispatched_at": "2026-07-17T03:55:44Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_02_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e36-fde1-7412-ae61-7d9fb7dd70f1\\exec-62a1bc0f-3e38-4eee-ad66-bbed189ce595.png",
+        "selected_source_sha256": "13664f553769d6d4305854be1833882855df31db1ba3e12e03ba805d01b9567d",
+        "final_image": "origin_image/slide_02.png",
+        "final_image_sha256": "13664f553769d6d4305854be1833882855df31db1ba3e12e03ba805d01b9567d",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "四項議程與三段副標正確清晰；背景、Logo、頁碼 2 與整體樣式均符合要求。",
+        "recorded_at": "2026-07-17T03:59:02Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_03",
+      "number": 3,
+      "title": "年度工作總覽",
+      "job": "prompts/slide_03.json",
+      "out": "origin_image/slide_03.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/content_bg.png",
+          "role": "strict input asset and full-slide content background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve exactly and place small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/vision_goal/vision_goal_center_balance.png",
+          "role": "vision-goal layout reference",
+          "fidelity": "use as style and composition inspiration only; replace all placeholder text"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_03_worker",
+        "agent_nickname": "slide_03_worker",
+        "prompt": "prompts/slide_03.json",
+        "prompt_sha256": "9415371fa28abc74643230b412a34e20d4fa51b86983c6e3a5b606a9528c123b",
+        "dispatched_at": "2026-07-17T03:56:16Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_03_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e37-7c25-79f1-bf01-59a0f7fd9515\\exec-89a84901-c8d8-4f4d-859b-e8e46bc5a082.png",
+        "selected_source_sha256": "a6d92371c4e7761e9f46348a018c472a94a5076bf54c4b0521ad680d383128f9",
+        "final_image": "origin_image/slide_03.png",
+        "final_image_sha256": "a6d92371c4e7761e9f46348a018c472a94a5076bf54c4b0521ad680d383128f9",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "標題、副標、核心任務、年度目標、兩個專案名稱與四組 KPI 正確清晰；背景、Logo 與頁碼 3 符合要求。",
+        "recorded_at": "2026-07-17T03:59:23Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_04",
+      "number": 4,
+      "title": "專案一：營運數據治理與決策儀表板",
+      "job": "prompts/slide_04.json",
+      "out": "origin_image/slide_04.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/content_bg.png",
+          "role": "strict input asset and full-slide content background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve exactly and place small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/info/info_horizontal_explanation_rows.png",
+          "role": "workflow information layout reference",
+          "fidelity": "use its visible row and card hierarchy as inspiration only"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_04_worker",
+        "agent_nickname": "slide_04_worker",
+        "prompt": "prompts/slide_04.json",
+        "prompt_sha256": "17bc7cc8830372c24b656fe51c9917d96b39425f5e53eb1f272c3720ba6c73db",
+        "dispatched_at": "2026-07-17T04:00:12Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_04_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e3b-0d1f-7083-ab9a-49df1dde4c61\\exec-849b849e-f25a-415d-8f29-76aba13d63bb.png",
+        "selected_source_sha256": "6ae34d55dd05eacc18c6339962e2891d5390adccf62050677cef7ed36ab30530",
+        "final_image": "origin_image/slide_04.png",
+        "final_image_sha256": "6ae34d55dd05eacc18c6339962e2891d5390adccf62050677cef7ed36ab30530",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "三階段流程、全部痛點／作法／成果文字正確清晰；背景、Logo 與頁碼 4 完整，無截斷。",
+        "recorded_at": "2026-07-17T04:03:03Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_05",
+      "number": 5,
+      "title": "數據治理的價值來自前後差異",
+      "job": "prompts/slide_05.json",
+      "out": "origin_image/slide_05.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        }
+      ],
+      "requires_context_images": true,
+      "status": "accepted",
+      "dispatch": null,
+      "result": {
+        "final_image": "origin_image/slide_05.png",
+        "accepted_sample": true
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_06",
+      "number": 6,
+      "title": "三種建置方案需要在速度、成本與可維護性間取捨",
+      "job": "prompts/slide_06.json",
+      "out": "origin_image/slide_06.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/content_bg.png",
+          "role": "strict input asset and full-slide content background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve exactly and place small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/evaluation/evaluation_option_score_pros_cons.png",
+          "role": "option evaluation layout reference",
+          "fidelity": "use its visible comparison hierarchy as inspiration and emphasize the selected middle option"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_06_worker",
+        "agent_nickname": "slide_06_worker",
+        "prompt": "prompts/slide_06.json",
+        "prompt_sha256": "df98d5f48bcd8bf49b7200a997d7ee283d2d362fbfb7908ba78e9fb06805f1c3",
+        "dispatched_at": "2026-07-17T04:00:58Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_06_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e3b-adca-7c90-b53e-2099fa535333\\exec-6cc2e570-358d-45f9-a3a6-d425f1f8a659.png",
+        "selected_source_sha256": "5b0fd8ac57cc85e42c0784bad9f4564a0d27a32571caf0050d8ddf4961fc0201",
+        "final_image": "origin_image/slide_06.png",
+        "final_image_sha256": "5b0fd8ac57cc85e42c0784bad9f4564a0d27a32571caf0050d8ddf4961fc0201",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "標題、副標、三方案優缺點、方案 B 推薦與 Q2–Q4 里程碑完整正確；背景、Logo、頁碼 6 符合要求。",
+        "recorded_at": "2026-07-17T04:04:25Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_07",
+      "number": 7,
+      "title": "專案二：服務體驗升級與組織能力演進",
+      "job": "prompts/slide_07.json",
+      "out": "origin_image/slide_07.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/content_bg.png",
+          "role": "strict input asset and full-slide content background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve exactly and place small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/story/story_chapter_statement.png",
+          "role": "story progression layout reference",
+          "fidelity": "use as a style and narrative-layout reference only"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_07_worker",
+        "agent_nickname": "slide_07_worker",
+        "prompt": "prompts/slide_07.json",
+        "prompt_sha256": "1f01b3638a0a1f3dda46c89658d1002041baba32b16e34f67465cc5750d2de20",
+        "dispatched_at": "2026-07-17T04:01:42Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_07_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e3c-7086-74d0-8cdd-76714af2e10c\\exec-b8b265a1-2c5d-47dc-9b74-669389bbf3da.png",
+        "selected_source_sha256": "95401e5d19dc40d2ad3e35ec51fc0ebe92decd56062df3c296556e7bd92dbd24",
+        "final_image": "origin_image/slide_07.png",
+        "final_image_sha256": "95401e5d19dc40d2ad3e35ec51fc0ebe92decd56062df3c296556e7bd92dbd24",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "標題、副標、三項痛點、過去／現在／未來敘述與三項成果完整正確；背景、Logo、頁碼 7 均符合要求。",
+        "recorded_at": "2026-07-17T04:05:20Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_08",
+      "number": 8,
+      "title": "服務能力需要從個人經驗演進為組織系統",
+      "job": "prompts/slide_08.json",
+      "out": "origin_image/slide_08.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/content_bg.png",
+          "role": "strict input asset and full-slide content background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve exactly and place small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/pyramid/pyramid_layered_maturity_detail.png",
+          "role": "five-level maturity pyramid layout reference",
+          "fidelity": "follow the visible layered-pyramid and right-side explanation rhythm, replacing placeholders with exact content"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_08_worker",
+        "agent_nickname": "slide_08_worker",
+        "prompt": "prompts/slide_08.json",
+        "prompt_sha256": "aa2f0596f71acfbd9364d43b0c6620d754a12d223c1c9e8f0c2d211bf033c5ed",
+        "dispatched_at": "2026-07-17T04:06:27Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_08_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e40-bccb-7112-a3f6-f832fd54cd57\\exec-8894e37f-1f4d-4a9f-a51f-b1e73b3a63a0.png",
+        "selected_source_sha256": "928752f66cd36b975caebbd072953c15302e917609be51161b14399c7712b43a",
+        "final_image": "origin_image/slide_08.png",
+        "final_image_sha256": "928752f66cd36b975caebbd072953c15302e917609be51161b14399c7712b43a",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "標題、副標、五層名稱與說明依正確由下至上順序完整呈現；背景、Logo、頁碼 8 正確。",
+        "recorded_at": "2026-07-17T04:09:04Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_09",
+      "number": 9,
+      "title": "年度時程與里程碑",
+      "job": "prompts/slide_09.json",
+      "out": "origin_image/slide_09.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/content_bg.png",
+          "role": "strict input asset and full-slide content background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "assets/logos/cathay_logo.png",
+          "role": "strict input asset and Cathay logo",
+          "fidelity": "preserve exactly and place small at bottom-left"
+        },
+        {
+          "path": "style_reference/rendered_examples/stage/stage_multi_year_gantt_summary.png",
+          "role": "dual-track timeline layout reference",
+          "fidelity": "use the visible timeline hierarchy and restrained corporate treatment as inspiration only"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_09_worker",
+        "agent_nickname": "slide_09_worker",
+        "prompt": "prompts/slide_09.json",
+        "prompt_sha256": "124a6dcb9df87881369921e0c3da3356121b43c64e5741a35503ae54e7975e91",
+        "dispatched_at": "2026-07-17T04:07:05Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_09_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e41-55b2-7293-949a-88389dfe8f54\\exec-e9628479-a135-46f5-a9c5-296c82930050.png",
+        "selected_source_sha256": "bf366dd3ac42c56cdf0e0105a0b3031f5dd3a9cffef5bcac50f1368808ce3ed0",
+        "final_image": "origin_image/slide_09.png",
+        "final_image_sha256": "bf366dd3ac42c56cdf0e0105a0b3031f5dd3a9cffef5bcac50f1368808ce3ed0",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "標題、副標、Q1–Q4、兩條專案軌道、八個里程碑與五步年度循環正確清晰；背景、Logo、頁碼 9 符合要求。",
+        "recorded_at": "2026-07-17T04:09:46Z"
+      },
+      "blocker": null
+    },
+    {
+      "slide_id": "slide_10",
+      "number": 10,
+      "title": "Thank you",
+      "job": "prompts/slide_10.json",
+      "out": "origin_image/slide_10.png",
+      "input_images": [
+        {
+          "path": "origin_image/slide_05.png",
+          "role": "approved sample slide style reference",
+          "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+        },
+        {
+          "path": "assets/backgrounds/cover_bg_context.png",
+          "role": "strict input asset and full-slide closing background",
+          "fidelity": "preserve the supplied background edge-to-edge"
+        },
+        {
+          "path": "style_reference/rendered_examples/closing.png",
+          "role": "closing layout and typography reference",
+          "fidelity": "match the visible sparse composition closely and replace no other content"
+        }
+      ],
+      "requires_context_images": true,
+      "status": "recorded",
+      "dispatch": {
+        "agent_id": "/root/slide_10_worker",
+        "agent_nickname": "slide_10_worker",
+        "prompt": "prompts/slide_10.json",
+        "prompt_sha256": "c502326f25b54f1c8efdf2e9b88c00c9af4cbb652343c70824d5785f4ee679d5",
+        "dispatched_at": "2026-07-17T04:07:50Z"
+      },
+      "result": {
+        "agent_id": "/root/slide_10_worker",
+        "backend_used": "built-in image tool",
+        "selected_source": "D:\\Users\\00597533\\.codex\\generated_images\\019f6e41-f747-7282-951c-ba13fc5d81ea\\exec-6e009d09-dbb7-4ca5-982d-9320ccaffee1.png",
+        "selected_source_sha256": "507d69c61570d35bf06721c6cb9b243896cdf0ec8d92a974c2e8457506011869",
+        "final_image": "origin_image/slide_10.png",
+        "final_image_sha256": "507d69c61570d35bf06721c6cb9b243896cdf0ec8d92a974c2e8457506011869",
+        "expected_backend": "built-in image tool",
+        "expected_backend_labels": [
+          "built-in image tool",
+          "image_gen"
+        ],
+        "sample_generation_method_matched": true,
+        "qa_note": "Only the exact text Thank you is visible; supplied closing background retained with no page number, logo, names, date, bullets, or extra text.",
+        "recorded_at": "2026-07-17T04:11:27Z"
+      },
+      "blocker": null
+    }
+  ],
+  "updated_at": "2026-07-17T04:11:27Z"
+}

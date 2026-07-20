@@ -1,0 +1,59 @@
+{
+  "slide": 6,
+  "title": "三種建置方案需要在速度、成本與可維護性間取捨",
+  "prompt": "# Codex PPT Slide Image Prompt\n\n## Canvas\n{\n  \"type\": \"16:9 full-slide PowerPoint image\",\n  \"language\": \"Traditional Chinese\",\n  \"slide_number\": 6,\n  \"render_slide_number\": false\n}\n\n## Deck Goal\n向內部主管與專案協作同仁說明年度工作重點、兩項大型專案、年度里程碑與後續行動，支持資源配置與方案決策。\n\n## Required Background\n{\n  \"deck_context\": {\n    \"source_summary\": \"本簡報回顧年度工作，聚焦營運數據治理與服務體驗升級兩項大型專案，說明目標、建置方案、預期成效、能力成熟度，以及 Q1 至 Q4 的雙軌里程碑。\",\n    \"core_claim\": \"年度工作要從單點交付轉向可衡量、可追蹤、可複製的管理系統，讓決策更快、服務更穩、團隊能力更能延續。\",\n    \"audience\": \"內部主管、專案協作同仁\",\n    \"canonical_terms\": [\n      \"營運數據治理與決策儀表板\",\n      \"服務體驗升級與組織能力演進\",\n      \"核心指標字典\",\n      \"服務標準化\",\n      \"知識文件化\",\n      \"流程協作化\",\n      \"能力可複製\",\n      \"持續優化\"\n    ],\n    \"annual_projects\": [\n      \"專案一：營運數據治理與決策儀表板\",\n      \"專案二：服務體驗升級與組織能力演進\"\n    ],\n    \"annual_rhythm\": [\n      \"盤點問題\",\n      \"建立標準\",\n      \"推廣落地\",\n      \"追蹤成效\",\n      \"回饋優化\"\n    ]\n  },\n  \"slide_local_context\": {\n    \"required_background\": {\n      \"subtitle\": \"建議採用分階段建置，先完成核心指標，再擴充自動化能力。\",\n      \"options\": [\n        {\n          \"name\": \"方案 A｜手動報表標準化\",\n          \"advantage\": \"導入最快、成本最低\",\n          \"disadvantage\": \"仍需人工維護，長期效率有限\"\n        },\n        {\n          \"name\": \"方案 B｜半自動儀表板\",\n          \"advantage\": \"可快速整合核心資料，兼顧彈性與效率\",\n          \"disadvantage\": \"需要明確資料責任人與維護流程\"\n        },\n        {\n          \"name\": \"方案 C｜完整資料平台\",\n          \"advantage\": \"擴充性最好，適合長期治理\",\n          \"disadvantage\": \"建置成本高，導入週期較長\"\n        }\n      ],\n      \"recommendation\": [\n        \"Q2 採用方案 B 啟動\",\n        \"Q3 驗證指標與使用情境\",\n        \"Q4 評估是否升級到完整資料平台\"\n      ]\n    }\n  }\n}\n\n## Global Style\n{\n  \"name\": \"Cathay light corporate template\",\n  \"visual_direction\": \"沿用提供的淺色企業模板：淡灰白背景、柔和青綠與淡紫光暈、細緻白色幾何線框、俐落資訊層級與大量留白。\",\n  \"color_palette\": {\n    \"primary_text\": \"#344252\",\n    \"secondary_text\": \"#68727E\",\n    \"accent_green\": \"#58D494\",\n    \"accent_purple\": \"#848BF2\",\n    \"accent_blue\": \"#4AB7F9\",\n    \"panel\": \"white or translucent white\",\n    \"background\": \"light gray-white with subtle mint, cyan, and lavender glow\"\n  },\n  \"typography\": \"Microsoft JhengHei-like Traditional Chinese sans-serif; bold large dark titles, medium-gray subtitles, concise body copy, large KPI numerals, sharp readable glyphs.\",\n  \"texture_and_finish\": \"soft translucent corporate template, subtle gradients, thin light-gray panel borders, restrained rounded corners, polished and airy rather than decorative.\",\n  \"fixed_elements\": \"Use the exact supplied Cathay logo at bottom-left on slides 1-9 except closing slide 10; render the correct page number at bottom-right on content slides 2-9 only; no page number on cover or closing.\",\n  \"deck_consistency\": \"Keep the approved sample's palette, typography, spacing, panel treatment, footer placement, and corporate mood across the deck while varying the composition according to cover, agenda, goal map, workflow, comparison, evaluation, story, pyramid, timeline, and closing roles.\",\n  \"content_rules\": \"Use only facts from slides.md. Do not invent metrics, labels, photos, citations, icons with unclear meaning, or unrelated decorative objects. Keep Traditional Chinese text exact and legible.\"\n}\n\n## Input Images\n\n- Image 1: origin_image/slide_05.png — approved sample slide style reference; Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role.\n- Image 2: assets/backgrounds/content_bg.png — strict input asset and full-slide content background; preserve the supplied background edge-to-edge\n- Image 3: assets/logos/cathay_logo.png — strict input asset and Cathay logo; preserve exactly and place small at bottom-left\n- Image 4: style_reference/rendered_examples/evaluation/evaluation_option_score_pros_cons.png — option evaluation layout reference; use its visible comparison hierarchy as inspiration and emphasize the selected middle option\n\n\n## Slide\n{\n  \"number\": 6,\n  \"title\": \"三種建置方案需要在速度、成本與可維護性間取捨\",\n  \"role\": \"decision comparison and recommendation\",\n  \"intent\": \"比較三種建置方案並明確推薦分階段採用方案 B。\"\n}\n\n## Text\n{\n  \"title\": \"三種建置方案需要在速度、成本與可維護性間取捨\",\n  \"key_points\": [\n    \"建議採用分階段建置，先完成核心指標，再擴充自動化能力\",\n    \"方案 A：手動報表標準化\",\n    \"方案 B：半自動儀表板\",\n    \"方案 C：完整資料平台\",\n    \"Q2 採用方案 B 啟動、Q3 驗證指標與使用情境、Q4 評估是否升級\"\n  ],\n  \"speaker_focus\": null\n}\n\n## Layout\n{\n  \"role\": \"decision comparison\",\n  \"intent\": \"用三欄卡片讓主管快速讀出各方案取捨，並以綠色強調方案 B。\",\n  \"composition\": \"Title and subtitle at top. Three equal option cards A, B, C across the main body, each with one advantage and one disadvantage. Highlight B with a green recommended badge or stronger border. Add a compact Q2-Q4 recommendation strip along the bottom.\",\n  \"content_zones\": \"title/subtitle; three option cards; bottom recommendation timeline; footer\",\n  \"variation_rule\": \"Use three-column evaluation cards, not the prior Before/After layout.\",\n  \"relationship_to_previous_slide\": \"decision page after evidence\",\n  \"spacing\": \"short pros and cons with ample card padding\"\n}\n\n## Visual Elements\n{\n  \"main_visual\": \"three option cards with plan B visibly recommended\",\n  \"supporting_elements\": \"small Q2, Q3, Q4 milestone strip\"\n}\n\n## Constraints\n[\n  \"Render each option name, advantage, disadvantage, and the three recommendation milestones exactly.\",\n  \"Use the exact supplied content background and logo.\",\n  \"Render page number 6 at bottom-right.\",\n  \"Do not invent scores, costs, dates, or extra criteria.\"\n]\n\n## Style Reference Rule\nUse Image 1 as the approved sample-slide style reference. Match its palette, typography mood, density, texture, and overall visual identity. Do not copy its exact layout unless this slide's layout explicitly asks for it.\n\n## Input Image Handling Rules\nFor any input image marked as a strict input asset, include it visibly and preserve its content. Do not redraw, replace, relabel, or invent a similar figure. Scale and crop only as needed for composition while keeping the important labels, arrows, data, and relationships recognizable.\n\n## Universal Constraints\n- The final image itself must contain the title and key points.\n- Render Chinese text exactly and legibly; avoid garbled characters.\n- Keep the confirmed deck style consistent while varying layout by slide role.\n- No watermark, unrelated logo, or extra slide number.\n",
+  "out": "slide_06.png",
+  "input_images": [
+    {
+      "path": "origin_image/slide_05.png",
+      "role": "approved sample slide style reference",
+      "fidelity": "Match palette, Traditional Chinese typography mood, information density, translucent panels, footer treatment, and light Cathay corporate visual identity only; vary layout by slide role."
+    },
+    {
+      "path": "assets/backgrounds/content_bg.png",
+      "role": "strict input asset and full-slide content background",
+      "fidelity": "preserve the supplied background edge-to-edge"
+    },
+    {
+      "path": "assets/logos/cathay_logo.png",
+      "role": "strict input asset and Cathay logo",
+      "fidelity": "preserve exactly and place small at bottom-left"
+    },
+    {
+      "path": "style_reference/rendered_examples/evaluation/evaluation_option_score_pros_cons.png",
+      "role": "option evaluation layout reference",
+      "fidelity": "use its visible comparison hierarchy as inspiration and emphasize the selected middle option"
+    }
+  ],
+  "requires_context_images": true,
+  "expected_backend": "built-in image tool",
+  "sample_generation_method": {
+    "backend_used": "built-in image tool",
+    "tool_name": "image_gen",
+    "mode": "generate",
+    "prompt_source": "2026/07/17 Codex 對話中的已核准 Slide 5 內嵌提示，內容來自 outline.md、style_guide.md、page_types.md 與已檢視的本機參考圖片。",
+    "size": "16:9 landscape; requested 1920x1080; built-in output size",
+    "quality": "built-in default",
+    "model_config": "Codex built-in image generation backend; exact model and quality controls not exposed",
+    "approved_sample_path": "origin_image/slide_05.png",
+    "selected_source": "D:/Users/00597533/.codex/generated_images/019f6ddb-1a78-7ce1-9097-3394ea8c2bad/exec-1c6fd7c1-27c4-4bba-ab37-d1f33b8cb7e4.png",
+    "input_context_preparation": "Parent inspected all local inputs with view_image. Built-in image_gen was called in generate mode with referenced_image_paths for content_bg.png, cathay_logo.png, info_before_after_item_compare.png, and data_kpi_bar_callout_dashboard.png.",
+    "handoff_rule": "Every slide worker must use the same built-in image_gen generate path with local inputs made visible by view_image or inherited conversation context. Return a blocker if unavailable; do not switch to CLI, local rendering, Pillow, SVG, HTML/CSS/canvas, or PowerPoint screenshot generation."
+  },
+  "generation_contract": {
+    "must_use_selected_image_backend": true,
+    "must_match_sample_generation_method": true,
+    "forbidden_final_image_methods": [
+      "local drawing/rendering scripts",
+      "Pillow-generated slides",
+      "SVG/HTML/CSS/canvas screenshots",
+      "python-pptx/PptxGenJS/native PPT layout screenshots",
+      "manually composited text/image overlays"
+    ],
+    "must_return": [
+      "backend_used",
+      "selected_source",
+      "qa_note"
+    ]
+  }
+}
