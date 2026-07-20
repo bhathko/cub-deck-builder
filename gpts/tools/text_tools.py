@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""text_tools — 文字框的搜尋、替換(保留樣式)與 CJK 溢出估算。
+
+設計重點:
+- 替換文字時 deepcopy 原本第一個 run 的 rPr / 段落的 pPr,字級、顏色、粗細、
+  對齊全部保留 → 「模板改字」不會把樣式改跑。
+- 沙箱沒有中文字體,無法真量測;estimate_overflow 用「CJK 字寬 ≈ 1em、
+  半形 ≈ 0.55em、行高 ≈ 1.3em」啟發式估算,寬鬆容忍(超過 8% 才判溢出)。
+- 所有函式都吃 shape 物件,群組請先用 iter_text_shapes 展開。
+"""
+from __future__ import annotations
+
+import copy
+import math
+
+from pptx.enum.shapes import MSO_SHAPE_TYPE
+from pptx.oxml.ns import qn
+from pptx.util import Pt
+
+EMU_PER_PT = 12700
+DEFAULT_FONT_PT = 18.0
+LINE_SPACING = 1.3
+OVERFLOW_TOLERANCE = 1.08  # 估算誤差容忍
+
+
+def iter_text_shapes(shapes):
+    """遞迴走訪(含群組內層),yield 所有帶 text_frame 的 shape。"""
+    for shp in shapes:
+        if shp.shape_type == MSO_SHAPE_TYPE.GROUP:
+            yield from iter_text_shapes(shp.shapes)
+        elif getattr(shp, "has_text_frame", False):
+            yield shp
+
+
+def shape_text(shape) -> str:
+    return shape.text_frame.text if getattr(shape, "has_text_frame", False) else ""
+
+
+def find_text_shapes(slide, contains=None, name=None, shape_id=None):
+    """依條件找文字框,回傳 list。條件可複合(AND)。"""
+    out = []
+    for shp in iter_text_shapes(slide.shapes):
+        if shape_id is not None and shp.shape_id != shape_id:
+            continue
+        if name is not None and shp.name != name:
+            continue
+        if contains is not None and contains not in shape_text(shp):
+            continue
+        out.append(shp)
+    return out
+
+
+def set_text_keep_style(shape, text) -> None:
+    """替換整個 text_frame 的文字,沿用原第一段/第一 run 的樣式。支援 \\n 多行。"""
+    tf = shape.text_frame
+    first_p = tf.paragraphs[0]._p
+    pPr_tpl = first_p.find(qn("a:pPr"))
+    rPr_tpl = None
+    first_r = first_p.find(qn("a:r"))
+    if first_r is not None:
+        rPr_tpl = first_r.find(qn("a:rPr"))
+    # 沒 run 時退而求其次:用 endParaRPr 當樣式模板
+    if rPr_tpl is None:
+        end_pr = first_p.find(qn("a:endParaRPr"))
+        if end_pr is not None:
+            rPr_tpl = copy.deepcopy(end_pr)
+            rPr_tpl.tag = qn("a:rPr")
+
+    tf.clear()
+    lines = str(text).split("\n")
+    for i, line in enumerate(lines):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        if pPr_tpl is not None:
+            old = p._p.find(qn("a:pPr"))
+            if old is not None:
+                p._p.remove(old)
+            p._p.insert(0, copy.deepcopy(pPr_tpl))
+        run = p.add_run()
+        run.text = line
+        if rPr_tpl is not None:
+            run._r.insert(list(run._r).index(run._r.find(qn("a:t"))), copy.deepcopy(rPr_tpl))
+
+
+def _char_units(s: str) -> float:
+    """以 em 為單位的估算寬度:CJK≈1,半形≈0.55。"""
+    return sum(1.0 if ord(c) > 0x2E80 else 0.55 for c in s)
+
+
+def _first_run_size_pt(shape) -> float:
+    for para in shape.text_frame.paragraphs:
+        for run in para.runs:
+            if run.font.size is not None:
+                return run.font.size.pt
+    return DEFAULT_FONT_PT
+
+
+def estimate_overflow(shape, text=None, size_pt=None):
+    """估算 text(預設取現有文字)在 shape 內是否放得下。
+
+    回傳 dict:{fits, lines, needed_pt, avail_pt, size_pt}
+    """
+    tf = shape.text_frame
+    text = shape_text(shape) if text is None else str(text)
+    size_pt = size_pt or _first_run_size_pt(shape)
+
+    # 直排文字(vert 屬性)無法用橫排邏輯估算,一律視為放得下
+    if tf._bodyPr.get("vert") not in (None, "horz"):
+        return {"fits": True, "lines": 1, "needed_pt": 0.0, "avail_pt": 0.0,
+                "size_pt": size_pt}
+
+    ml = tf.margin_left if tf.margin_left is not None else 91440
+    mr = tf.margin_right if tf.margin_right is not None else 91440
+    mt = tf.margin_top if tf.margin_top is not None else 45720
+    mb = tf.margin_bottom if tf.margin_bottom is not None else 45720
+
+    avail_w_pt = max((shape.width - ml - mr) / EMU_PER_PT, 1.0)
+    avail_h_pt = max((shape.height - mt - mb) / EMU_PER_PT, 1.0)
+
+    cap_em = avail_w_pt / size_pt  # 一行放得下幾個 em
+    # 窄到一行只放得下約一個字 = 刻意的直式堆疊設計(如「優點」側標),不估
+    if cap_em < 1.6:
+        return {"fits": True, "lines": len(text), "needed_pt": 0.0,
+                "avail_pt": round(avail_h_pt, 1), "size_pt": size_pt}
+    lines = 0
+    for hard_line in text.split("\n"):
+        units = _char_units(hard_line)
+        lines += max(1, math.ceil(units / max(cap_em, 0.1)))
+    needed_pt = lines * size_pt * LINE_SPACING
+    # 單行文字在 PowerPoint 不會被裁切(框高偏小只是視覺貼邊),不算溢出;
+    # 真正的問題是換行後行數超出框高 → 文字溢到卡片外。
+    return {
+        "fits": lines <= 1 or needed_pt <= avail_h_pt * OVERFLOW_TOLERANCE,
+        "lines": lines,
+        "needed_pt": round(needed_pt, 1),
+        "avail_pt": round(avail_h_pt, 1),
+        "size_pt": size_pt,
+    }
+
+
+def shrink_to_fit(shape, min_pt: float = 14.0) -> float:
+    """溢出時逐階(-2pt)縮小全部 run 字級,直到放得下或到 min_pt。回傳最終字級。"""
+    size = _first_run_size_pt(shape)
+    while size > min_pt and not estimate_overflow(shape, size_pt=size)["fits"]:
+        size -= 2
+    if size != _first_run_size_pt(shape):
+        for para in shape.text_frame.paragraphs:
+            for run in para.runs:
+                run.font.size = Pt(max(size, min_pt))
+    return max(size, min_pt)

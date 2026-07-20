@@ -1,93 +1,29 @@
-# ppt_ai2 — 年度工作簡報產生器
+# ppt_ai2 — GPTs 簡報產生器建置包
 
-把 `my_project/source/slides.md` 的內容，產出 **Cathay 淺色企業風、繁體中文、16:9** 的簡報。
+把「合規的 slide_spec.json(或大綱內容)→ 公司規範的 16:9 繁中簡報」做成
+ChatGPT GPTs,讓團隊直接使用。**一切都在 [`gpts/`](gpts/) 目錄**:
 
-內容單一真相來源（SSOT）＝ `my_project/source/slides.md`。**嚴禁發明其中沒有的數字、指標、KPI、標籤、專案名、日期。**
+| 入口 | 內容 |
+|---|---|
+| [`gpts/README.md`](gpts/README.md) | 建置手冊:上傳什麼、怎麼設定、驗收測試、回饋流程 |
+| [`gpts/WORKLOG.md`](gpts/WORKLOG.md) | 決策紀錄與已知風險,**接手維護必讀** |
+| [`gpts/instructions.md`](gpts/instructions.md) | GPTs 系統指示(含版本代號) |
+| `gpts/knowledge/` | 上傳 GPTs 的 10 個知識檔(規則、模板、素材、工具包)——**規則的單一真相來源** |
+| `gpts/tools/` | 工具腳本源碼(渲染、驗證、自檢;改完要重打包 tools.zip) |
+| `gpts/examples/` | 試用範例 JSON ×4 + 實測產出 pptx |
+| `gpts/assets_src/` | 素材源檔(背景/logo;改完重打包 knowledge/assets.zip) |
 
----
+## 本機快速驗證(需 Python 3 + python-pptx)
 
-## 兩條產出路徑
+照 `gpts/WORKLOG.md` §7.1 的沙箱做法:建一個模擬 /mnt/data 的暫存目錄,
+把 `gpts/assets_src` 複製進去改名為 `assets`、連同 `gpts/tools/`、
+`gpts/knowledge/validate_slide_spec_gpts.py`、`light_template.pptx` 一起放入,
+然後跑 `gpts/tools/README_TOOLS.md` 的三步指令(驗證 → 產檔 → 自檢)。
+spec 內的素材路徑(`assets/backgrounds/...`)是以該目錄為根解析的。
 
-### 🟢 主力：`baoyu-slide-deck`（圖生圖，跑在 Codex）
+## 歷史
 
-給**參考圖 + 內容** → Codex 內建 `imagegen` 逐頁生圖 → 合併成 `.pptx` / `.pdf`。
-適合設計師做「簡單、視覺化」的簡報，設計師只需維護內容與參考圖。
-**已鎖定只用 Codex 生圖**（公司政策，不允許 Codex 以外的工具）。
-
-### 🟡 Fallback：native-pptx / hybrid（跑在本機 Python）
-
-若 baoyu 的**繁體中文字糊掉**，改走這條：用 `python-pptx` / `Pillow` 以程式畫版面與文字
-→ 中文零錯字、原生可編輯。**目前為備援**，待 baoyu 繁中實測過關前保留、不刪。
-
----
-
-## 檔案結構
-
-```text
-ppt_ai2/
-├── README.md                         # 本檔
-├── AGENTS.md                         # agent 流程契約（單一真相；Codex 原生讀取）
-├── CLAUDE.md                         # → 指向 AGENTS.md（Claude Code 讀取）
-├── .agents/skills/
-│   └── baoyu-slide-deck/             # 🟢 主力：圖生圖簡報 skill（Codex-only、已 node 化）
-├── my_project/                       # 簡報本體：內容 + 品牌
-│   ├── source/slides.md              #   內容 SSOT
-│   ├── outline.md  speech.md         #   大綱、講稿
-│   ├── slide_spec.json               #   內容↔渲染中間層（fallback 用）
-│   ├── slide_spec.bad.example.json   #   驗證器回歸樣本
-│   ├── deck_spec.json                #   舊管線遺留（保留待萃取）
-│   ├── assets/                       #   品牌素材：背景、logo
-│   └── style_reference/              #   風格指南、頁型庫、模板、範例圖
-└── fallback/                         # 🟡 native-pptx / 閘門工具（備援）
-    ├── generate_review_deck.py       #   python-pptx → 可編輯 pptx
-    ├── generate_preview_only.py      #   Pillow → 預覽 PNG（需 Windows 字型）
-    ├── validate_slide_spec.py        #   spec 收斂閘門（燒圖前先跑）
-    └── slide_spec.schema.json
-```
-
----
-
-## 怎麼用（主力：Codex）
-
-**前置**：Codex CLI（要有 `imagegen`）+ Node.js v18+（合併用；skill 首次會自動 `npm install`）。
-
-在專案目錄開 Codex，貼一段自然語言請求觸發 skill，例如：
-
-```text
-用 baoyu-slide-deck 產生 2 頁簡報，語言繁體中文，16:9。
-風格參考圖：my_project/assets/backgrounds/content_bg.png
-內容只能用下列文字，不可自行發明數字或標籤：
-- 第 1 頁：主標「年度工作總覽」，副標「年度工作從穩定交付轉向可衡量改善」。
-- 第 2 頁 KPI：跨部門大型專案 2 項、年度里程碑 12 個、報表處理時間節省 40%、服務回應一致性提升 30%。
-生圖用 Codex 內建 imagegen。
-```
-
-產完檢查 `outputs/…/*.png` 的**繁中字/數字**是否清楚正確。
-
----
-
-## 怎麼用（fallback：本機 Python）
-
-```bash
-# 1) 燒圖前先過閘門，exit 0（PASS）才續
-python3 fallback/validate_slide_spec.py
-python3 fallback/validate_slide_spec.py --strict                              # 嚴格模式
-python3 fallback/validate_slide_spec.py my_project/slide_spec.bad.example.json # 看閘門抓錯
-
-# 2) 產原生可編輯 pptx
-python3 fallback/generate_review_deck.py
-
-# 3) 產預覽 PNG（需 Windows 字型 msjh.ttc）
-python3 fallback/generate_preview_only.py
-```
-
-> fallback 腳本請從 **專案根目錄** 執行（內部用相對路徑找 `my_project/`）。
-
----
-
-## 硬規則（完整見 [`AGENTS.md`](AGENTS.md)）
-
-- **內容 SSOT ＝ `my_project/source/slides.md`**，不可發明其中沒有的事實。
-- **生圖只准用 Codex `imagegen`**；缺席就回報 blocker，不得偷換 Cursor / baoyu-image-gen 等工具。
-- **污染防護**：一次產多頁時，只有當頁內容是權威，前面的產出只能當風格參考、禁止複製。
-- **fallback 硬閘門**：跑 `validate_slide_spec.py` PASS 才可 render。
+本 repo 原有兩條產 PPT 管線(Codex `baoyu-slide-deck` 圖生圖主力、`fallback/`
+spec 閘門備援),2026-07-20 轉向 GPTs 建置包並移除舊管線目錄
+(`.agents/`、`fallback/`、`my_project/`)。舊管線的可用資產
+(驗證器、頁型庫、模板、風格規範、素材)都已收進 `gpts/` 持續維護。

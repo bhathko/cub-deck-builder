@@ -1,0 +1,81 @@
+{
+  "deck": {
+    "deck_name": "demo_minimal",
+    "language": "Traditional Chinese",
+    "slide_count": 4
+  },
+  "slides": [
+    {
+      "number": 1,
+      "page_type": "cover",
+      "title": "季度回顧簡報",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "main_title": "季度回顧簡報",
+        "subtitle": "品牌設計",
+        "date": "2026/07/20",
+        "presenters": "報告人:Rita"
+      }
+    },
+    {
+      "number": 2,
+      "page_type": "agenda",
+      "title": "目錄",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "items": [
+          { "number": "01", "title": "本季重點", "subtitle": "目標達成情況與主要成果" },
+          { "number": "02", "title": "專案進度", "subtitle": "兩項主要專案的現況與交付" },
+          { "number": "03", "title": "下季計畫" }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "page_type": "info_three_column_category",
+      "title": "本季重點回顧",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "subtitle": "三個面向的進展摘要",
+        "columns": [
+          {
+            "heading": "品牌視覺",
+            "points": ["完成官網改版主視覺", "建立設計元件庫第一版"]
+          },
+          {
+            "heading": "行銷支援",
+            "points": ["支援兩檔活動主視覺", "產出社群貼文模板一套"]
+          },
+          {
+            "heading": "流程優化",
+            "points": ["導入設計審稿流程", "縮短平均交付週期"]
+          }
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "page_type": "closing",
+      "title": "封底",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg.png"
+      },
+      "slots": {
+        "main_title": "Thank you"
+      }
+    }
+  ]
+}

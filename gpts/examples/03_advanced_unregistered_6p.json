@@ -1,0 +1,120 @@
+{
+  "deck": {
+    "deck_name": "demo_advanced",
+    "language": "Traditional Chinese",
+    "slide_count": 6
+  },
+  "slides": [
+    {
+      "number": 1,
+      "page_type": "cover",
+      "title": "服務優化提案",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg_context.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "main_title": "服務優化提案",
+        "subtitle": "客服團隊",
+        "date": "2026/07/20",
+        "presenters": "報告人:Zoey、Nia"
+      }
+    },
+    {
+      "number": 2,
+      "page_type": "agenda",
+      "title": "目錄",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "items": [
+          { "number": "01", "title": "改善循環機制", "subtitle": "以 PDCA 建立持續改善節奏" },
+          { "number": "02", "title": "年度目標架構", "subtitle": "一個核心與五個支撐目標" },
+          { "number": "03", "title": "改善前後對比", "subtitle": "關鍵指標的預期變化" }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "page_type": "cycle_four_point_loop",
+      "title": "以 PDCA 建立持續改善節奏",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "subtitle": "每月一輪,問題不過月",
+        "center_theme": "服務品質改善循環",
+        "steps": [
+          { "number": "1", "name": "規劃", "description": "盤點客訴主題,選定當月改善題目" },
+          { "number": "2", "name": "執行", "description": "更新回應腳本並同步至知識庫" },
+          { "number": "3", "name": "查核", "description": "抽查回應品質,對照滿意度變化" },
+          { "number": "4", "name": "行動", "description": "固化有效做法,無效項目下輪調整" }
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "page_type": "vision_goal_hub_spoke",
+      "title": "年度目標架構",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "subtitle": "一個核心目標,五個支撐方向",
+        "center": "服務體驗升級",
+        "goals": [
+          { "title": "回應一致", "description": "統一回應腳本與用語規範" },
+          { "title": "知識共享", "description": "建立可搜尋的知識庫" },
+          { "title": "分級服務", "description": "依問題複雜度分流處理" },
+          { "title": "能力複製", "description": "新人訓練教材標準化" },
+          { "title": "持續改善", "description": "月度檢視與滾動調整" }
+        ]
+      }
+    },
+    {
+      "number": 5,
+      "page_type": "data_two_group_metric_comparison",
+      "title": "改善前後的預期差異",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "subtitle": "以回應效率與一致性為主要衡量點",
+        "before": {
+          "heading": "改善前",
+          "points": ["平均回應時間:4 小時", "回應內容:各自撰寫", "新人上手:約 3 個月"]
+        },
+        "after": {
+          "heading": "改善後",
+          "points": ["平均回應時間:1 小時", "回應內容:統一腳本", "新人上手:約 1 個月"]
+        },
+        "kpis": [
+          { "label": "回應時間縮短", "value": "75%" },
+          { "label": "回應一致性提升", "value": "30%" }
+        ]
+      }
+    },
+    {
+      "number": 6,
+      "page_type": "closing",
+      "title": "封底",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg.png"
+      },
+      "slots": {
+        "main_title": "Thank you"
+      }
+    }
+  ]
+}
