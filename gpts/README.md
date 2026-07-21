@@ -14,7 +14,7 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 閘門分兩級:`page_types_registry.md` 裡的 **10 種註冊頁型**走完整槽位契約檢查;
 `page_types.md` 頁型庫的**其他 40+ 種頁型**也可以用,驗證器對它們只做基本檢查,
 容量由模型比照 page_types.md 自律。
-使用者不會寫 JSON 也沒關係:對 GPTs 要空白骨架,或輸入 `/outline-to-ppt` 後貼上段落大綱。後者會保存來源、只選完整註冊頁型、產生並嚴格驗證 JSON,接著直接渲染與 QA;只有來源不足或閘門失敗才停止。
+使用者不會寫 JSON 也沒關係:**直接貼上段落大綱就會自動走一鍵產檔**(`/outline-to-ppt` 是同義觸發詞,可打可不打;想逐步確認要明講)。一鍵流程會保存來源、只選完整註冊頁型、產生並嚴格驗證 JSON,接著直接渲染與 QA;缺個別資料以「待補充」佔位繼續,只有來源不足或三輪修正後閘門仍失敗才停止。
 
 ## 工具層(`tools/` → `knowledge/tools.zip`)
 
@@ -83,7 +83,7 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
    - ❌ Web Browsing(關,避免內容混入外部資料)
    - ❌ DALL·E / 圖片生成(關;此流程完全不生圖)
 6. **Conversation starters** 建議:
-   - 「`/outline-to-ppt` 接著貼上段落大綱,一次產出 JSON 與 PPT」
+   - 「直接貼上段落大綱,一次產出 JSON 與 PPT(不需任何指令)」
    - 「這是我的 slide_spec.json,幫我產出 PPT」
    - 「給我一份 slide_spec.json 空白骨架,頁型:封面、目錄、三欄說明、封底」
    - 「slide_spec.json 要怎麼寫?有哪些頁型可以用?」
@@ -118,8 +118,9 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 4. 再測一份自己寫的 JSON(建議刻意包含一頁未註冊頁型,如 `cycle_four_point_loop`,
    以及一個故意超字數的欄位),確認:超字數那頁被驗證器擋下並回報清楚的修正建議;
    修正後能產檔,且未註冊頁型的版面有按模板對應頁重建。
-5. 測試一鍵大綱流程:輸入 `/outline-to-ppt`,再貼上真正未切頁的
-   `examples/05_outline_to_ppt_source.md` 全文。確認 GPTs 不要求中途確認,且:
+5. 測試一鍵大綱流程:**不打任何指令**,直接貼上真正未切頁的
+   `examples/05_outline_to_ppt_source.md` 全文(另用 `/outline-to-ppt` 前綴重測一次,
+   行為必須相同)。確認 GPTs 不要求中途確認,且:
    - 環境先出現 `/mnt/data/assets/` 與 `/mnt/data/tools/`
    - 驗證命令同時含 `--slides --registered-only --strict`
    - 本次原文與 `slides.md` 都覆寫舊檔,沒有混入前次執行內容
@@ -144,7 +145,10 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
    - 在來源未出現的槽位加入 `88%`,確認稽核與 validator 都拒絕且不交付 PPTX
    - 用暫存測資讓來源只有 `50`、輸出為 `5`,確認精確 token 稽核拒絕；validator 目前
      的子字串比對可能通過此例,這是已知限制,不可宣稱 validator 完整硬擋
-7. 測試模式隔離:先完成一次 outline 流程並保留 `/mnt/data/slides.md`,接著直供 JSON。
+7. 測試修正循環(反「一擋就停」):在來源塞一段刻意超過欄位字數上限的長句重跑,
+   確認 GPT 被閘門擋下後**對照 README_TOOLS 修法表自動縮短/拆頁並整條重跑管線**,
+   而不是宣稱「無法繼續」;三輪內修好照常交付,並回報修了什麼。
+8. 測試模式隔離:先完成一次 outline 流程並保留 `/mnt/data/slides.md`,接著直供 JSON。
    直供模式必須產生本次獨一且已確認不存在的 `direct_json_<run-id>.no-slides` 路徑,
    只以 `--slides` 指向它,不得加 `--registered-only` 或 `--strict`,並確認 exit 0、
    顯示「來源追溯:關」與缺來源 WARN；不得誤用舊 `slides.md`。若加 `--strict`,該 WARN

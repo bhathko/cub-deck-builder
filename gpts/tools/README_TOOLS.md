@@ -50,6 +50,26 @@ render_plan.json 只放未涵蓋的頁,其餘頁不用列:
 - `text` 逐字取自 slide_spec.json,禁止改寫。內容比模板少 → `delete` 多餘形狀。
 - 產檔時加上 `--plan /mnt/data/render_plan.json`。
 
+## 錯誤→修法對照表(FAIL 不是終點:對照修正 → 整條重跑,最多三輪)
+
+| 錯誤訊息特徵 | 允許的修法 |
+| --- | --- |
+| `字數 N 超過上限 M` | 縮短該欄文字(不改原意、數字原樣保留)或拆頁 |
+| `項目數 N 不符版型規定(min–max)` | 超出→依原文重要性刪到上限;不足→用「待補充」補到下限,不得捏造 |
+| `疑似捏造數字 'X'` | 多半是縮寫時動到數字:恢復來源原句,或整句移除/改「待補充」 |
+| `文字與來源相似度低` | 放棄改寫,改回原文逐字摘錄後再必要縮短 |
+| `缺少必填欄位` | 來源有→填來源原文;來源沒有→填「待補充」;整頁無來源→刪頁或換頁型 |
+| 頁碼 / `slide_count` / 連續頁號錯 | 重跑 make_skeleton 產骨架再搬內容,或直接修 number/slide_count |
+| 素材檔找不到 | 改回骨架預設的內建素材路徑(assets/backgrounds、assets/logos) |
+| audit:title 未逐字 / deck_name 不等 | title 改用該頁來源區塊的原句;deck_name 設為第一內容頁 title |
+| audit:slides.md 某行非逐字片段 | 該行從 outline_source_current.txt 重新逐字摘錄(不得改原文檔) |
+| audit:數字 token 無精確對應 | 同捏造數字處理;禁止改 slides.md 來遷就 spec |
+| render:UNMATCHED / AMBIGUOUS | inspect --page N 重查,只改該條 plan 的 match(id 優先,撞多筆加 nth) |
+| render:FillError(註冊頁型) | 唯一不修的錯:停止並回報維護者(模板改版問題) |
+
+每輪 = 修正 → 整條重跑 run_pipeline。三輪內禁止宣稱「無法繼續」、禁止跳過失敗
+階段、禁止退回手動逐步執行;三輪後仍 FAIL 才停止並白話回報。
+
 ## 鐵律(避免無謂循環)
 
 1. **修輸入不修產出**:render_deck 每次整檔重生。UNMATCHED/AMBIGUOUS/qa FAIL
