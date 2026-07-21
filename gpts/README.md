@@ -78,10 +78,15 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 3. **Instructions**:貼上 `instructions.md` 分隔線以下的全文。
 4. **Knowledge**:上傳上表 11 個檔案(`knowledge/` 內全部;GPTs 上限 20 個檔,
    還有餘裕)。
-5. **Capabilities**:
+5. **Capabilities 與 Model**:
    - ✅ **Code Interpreter & Data Analysis**(必開,整個流程靠它)
    - ❌ Web Browsing(關,避免內容混入外部資料)
    - ❌ DALL·E / 圖片生成(關;此流程完全不生圖)
+   - ⚠ **Recommended Model 務必指定最強可用模型**(2026-07-21 實測:指定
+     GPT-5.6 Pro 後全流程完美)。未指定時使用者端可能路由到輕量模型,會出現
+     FEEDBACK #1/#2 的整套失敗行為:不看 /mnt/data 就宣稱做不到、反要使用者
+     上傳工具、改用 python-pptx 手產、拋選項選單。instructions 的 v1.10/v1.11
+     防線就是為弱模型情境保留的,不可因強模型表現好而移除。
 6. **Conversation starters** 建議:
    - 「直接貼上段落大綱,一次產出 JSON 與 PPT(不需任何指令)」
    - 「這是我的 slide_spec.json,幫我產出 PPT」
