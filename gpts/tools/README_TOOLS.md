@@ -11,20 +11,23 @@ data_two_group_metric_comparison / evaluation_option_score_pros_cons /
 pyramid_layered_maturity_detail → 自動填入模板頁(fills.py 寫死 shape id)。
 **整份 spec 都是註冊頁型時,流程只有三條指令,你不產任何中間檔。**
 
-## 標準流程(每一步 exit 0 才走下一步)
+## 標準流程 = 一條指令(run_pipeline 依序跑 稽核→驗證→渲染→QA,任一 FAIL 即停)
 
 ```bash
-# 1) spec 閘門(內容模式:GPT 從使用者原文代擬 spec 時,必須另存 slides.md
-#    並加 --slides /mnt/data/slides.md,啟動捏造數字硬擋)
-python /mnt/data/validate_slide_spec_gpts.py --spec /mnt/data/slide_spec.json --asset-dir /mnt/data
+# 內容/outline 模式(帶 --slides 自動啟用 audit_provenance + --registered-only --strict)
+python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
+  --slides /mnt/data/slides.md --source /mnt/data/outline_source_current.txt \
+  --asset-dir /mnt/data --out /mnt/data/deck.pptx
 
-# 2) 產檔(全註冊頁型 → 不需要 --plan)
-python /mnt/data/tools/render_deck.py --spec /mnt/data/slide_spec.json \
-  --template /mnt/data/light_template.pptx --asset-dir /mnt/data --out /mnt/data/deck.pptx
-
-# 3) 產檔後自檢,PASS 才交付
-python /mnt/data/tools/qa_check.py --spec /mnt/data/slide_spec.json --pptx /mnt/data/deck.pptx
+# 純 JSON 直供模式(不帶 --slides → 自動以獨一不存在路徑關閉追溯,不帶 strict)
+python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
+  --asset-dir /mnt/data --out /mnt/data/deck.pptx
 ```
+
+- 出錯就看「管線停止於階段 N」那一段輸出,修對應輸入後**整條重跑同一指令**(冪等)。
+- 含未涵蓋頁型:先加 `--validate-only` 過閘門 → 寫 render_plan → 加 `--plan` 完整重跑。
+- 個別工具(validator / render_deck / qa_check)仍可單獨執行除錯,指令同管線輸出的
+  `$` 行;但正式產檔一律走 run_pipeline,不要手動串步驟。
 
 使用者要骨架:`python /mnt/data/tools/make_skeleton.py --types cover,agenda,...,closing --out ...`
 

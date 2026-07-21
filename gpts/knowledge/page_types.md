@@ -1,23 +1,30 @@
 ## 參考頁型
-- 封面：參考 `style_reference/rendered_examples/cover.png`
-- 目錄頁:參考`style_reference/rendered_examples/content.png`
-- 故事情節頁型：
-  - 章節轉場 / 雙標題留白：參考 `style_reference/light_template.pptx` 第 10 頁
-  - 情境照片 + 五個重點：參考 `style_reference/light_template.pptx` 第 11 頁
-- 數據比較頁型：參考 `style_reference/light_template.pptx` 第 25-31 頁
-- 方案評估頁型：參考 `style_reference/light_template.pptx` 第 32-33 頁
-- 循環頁型：參考 `style_reference/light_template.pptx` 第 34-37 頁
-- 金字塔頁型：參考 `style_reference/light_template.pptx` 第 53-54 頁
-- 封底：參考 `style_reference/rendered_examples/closing.png`
+版面唯一準則是知識庫的 `light_template.pptx`(沙箱路徑 `/mnt/data/light_template.pptx`)。
+封面(cover)、目錄(agenda)、封底(closing)與其餘 10 種已註冊頁型由
+render_deck/fills 全自動產出;本檔其他頁型以下方各節標注的模板頁為準,
+走 render_plan 複製改字,寫 plan 前先用 `inspect_template.py --page N` 盤點。
+- 故事情節頁型:模板第 10-11 頁
+- 數據比較頁型:模板第 25-31 頁
+- 方案評估頁型:模板第 32-33 頁
+- 循環頁型:模板第 34-37 頁
+- 金字塔頁型:模板第 53-54 頁
+- 其餘分類見各頁型條目的「來源模板」行
 
 ## 版型選擇原則
-- 若頁型寫 `auto`，請依照內容結構從 `style_reference/page_types.md` 選擇最適合的版型
-- 若內容沒有明顯對應任何既有頁型，不可自行發明新的視覺風格；請先分析 `style_reference/light_template.pptx` 與 `style_reference/rendered_examples/` 內既有頁面的設計元素，再用這些元素重新拼湊成可編輯版面。
-- 未明確匹配頁型時，可重組的模板元素包含：白底細灰線圓角卡片、深色標題列、#58D494 重點標籤、#848BF2 / #4AB7F9 輔助標籤、淡綠色主題帶、箭頭階段列、垂直分類標籤、細灰分隔線、圓形節點、簡潔 icon 節點、表格格線與內容卡片。
-- 未明確匹配頁型時，不可使用模板外的新色系、新背景、新陰影風格、新插畫風格或大面積裝飾圖；整體比例、留白、線寬、圓角、字級與配色必須接近模板既有頁面。
-- 即使是拼湊版型，文字、卡片、表格、線條、箭頭、icon 節點與圖形也必須維持 PowerPoint 可編輯物件，不可把整頁或主要內容輸出成圖片。
-- 套用任何模板頁時，必須依照簡報實際內容判斷要保留哪些模板元素；若模板提供 3 個重點、卡片、欄位、icon、數字、標籤或圖表系列，但內容只提供 2 個，必須移除多餘的第 3 個元素，不可留下空白框、空白圖示、空白表格欄位，也不可自行生成內容硬塞進去。
-- 移除多餘元素後，必須重新調整剩餘元素的位置、寬度、間距與對齊，讓整體版面仍然平衡；可將剩餘元素置中、等距重排、放大或改成左右 / 上下對稱配置，但不可看起來像模板沒填完。
+- 若頁型寫 `auto`，請依照內容結構從本檔頁型庫選擇最適合的版型。
+- 若內容沒有明顯對應任何既有頁型：先選頁型庫中結構最接近的頁型；仍不合適就回報
+  使用者，由使用者決定改寫內容或換頁型。**不可自行發明新版面、不可拼湊模板元素
+  組成新頁面、不可使用模板沒有的視覺風格**——版面唯一來源是 `light_template.pptx`
+  的既有頁面，未涵蓋頁型一律走 render_plan 複製對應模板頁改字。
+- 不可使用模板外的新色系、新背景、新陰影風格、新插畫風格或大面積裝飾圖；整體
+  比例、留白、線寬、圓角、字級與配色一律沿用被複製的模板頁。
+- 文字、卡片、表格、線條、箭頭、icon 節點與圖形必須維持 PowerPoint 可編輯物件，
+  不可把整頁或主要內容輸出成圖片。
+- 套用模板頁時，若模板提供 3 個重點、卡片、欄位、icon、數字、標籤或圖表系列，
+  但內容只提供 2 個，必須用 render_plan 的 delete 條目移除多餘元素，不可留下
+  空白框、空白圖示、空白表格欄位，也不可自行生成內容硬塞進去。
+- 工具只支援「改字」與「刪除」，不支援移動或縮放重排；若刪除多餘元素後版面
+  明顯失衡（例如三欄剩一欄），改選項目數更接近內容的頁型，不要硬用。
 - 若頁型範圍寫「故事情節類」，優先從以下版型選擇：
   - 若內容是章節開場、故事段落轉場、左右兩個短標題或一句核心敘事，優先使用 `story_chapter_statement`
   - 若內容有情境圖片、場景描述、案例開場，且下方需要 4-5 個 icon 重點摘要，優先使用 `story_photo_icon_takeaways`
@@ -88,8 +95,8 @@
 - 整體仍需遵守模板風格：淡色背景、細線、低陰影或無陰影、小圓角、#344252 深色文字、#58D494 重點色，以及固定左下 logo / 右下頁碼規則。
 
 ### story_chapter_statement
-- 參考圖片： `style_reference/rendered_examples/story/story_chapter_statement.png`
-- 來源模板：`style_reference/light_template.pptx` 第 10 頁，僅供追溯，不作為主要引用
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
+- 來源模板：`light_template.pptx` 第 10 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 10` 盤點形狀)
 - 適用情境：用來做故事段落開場、章節轉場、議題鋪陳或簡短情境標題頁，適合在進入一組內容前先給一句敘事提示。
 - 視覺結構：使用模板淡色背景；左上與上方偏中位置各放一組短標題文字，版面大面積留白；左下保留 logo，右下保留頁碼。
 - 內容容量：
@@ -99,8 +106,7 @@
 - 使用限制：適合極簡轉場，不適合放圖片、卡片或長段文字；若需要情境照片與多個重點，改用 `story_photo_icon_takeaways`。
 
 ### story_photo_icon_takeaways
-- 參考圖片：`style_reference/rendered_examples/story/story_photo_icon_takeaways.png`
-- 來源模板：`style_reference/light_template.pptx` 第 11 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 11 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 11` 盤點形狀)
 - 適用情境：用來呈現一個情境、案例、使用者故事、問題場景或專案背景，並在下方用 4-5 個 icon 重點整理關鍵觀察。
 - 視覺結構：上半部為橫向滿版照片區，照片上覆蓋深色半透明遮罩，左側放白色故事標題與敘事句；下半部為白底區塊，橫向排列 5 個 icon 節點，每個節點包含 icon、短標題與 1-2 行補充文字。
 - 內容容量：
@@ -112,8 +118,7 @@
 
 ## 願景目標頁型
 ### vision_goal_rings
-- 參考圖片：`style_reference/rendered_examples/vision_goal/vision_goal_rings.png`
-- 來源模板：`style_reference/light_template.pptx` 第 12 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 12 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 12` 盤點形狀)
 - 適用情境：用來呈現 3 個層級的願景、目標或策略主軸。
 - 視覺結構：右側大型 #58D494 同心圓，左側放主標題與說明文字，三條水平導引線連到不同圈層。
 - 內容容量：
@@ -123,8 +128,7 @@
 - 使用限制：不要放超過 3 個層級；文字要短，重點放在層級關係。
 
 ### vision_goal_hub_spoke
-- 參考圖片：`style_reference/rendered_examples/vision_goal/vision_goal_hub_spoke.png`
-- 來源模板：`style_reference/light_template.pptx`  第 13 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 13 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 13` 盤點形狀)
 - 適用情境：用來呈現 1 個核心願景，周圍展開 5-6 個支撐目標。
 - 視覺結構：中央 #344252 圓形作為核心主題，周圍左右分布多個 #58D494 Icon 節點與說明文字。
 - 內容容量：
@@ -134,8 +138,8 @@
 - 使用限制：適合並列目標，不適合流程或先後順序。
 
 ### vision_goal_center_balance
-- 參考圖片：`style_reference/rendered_examples/vision_goal/vision_goal_center_balance.png`
-- 來源模板：`style_reference/light_template.pptx` 第 14 頁，僅供追溯，不作為主要引用
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
+- 來源模板：`light_template.pptx` 第 14 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 14` 盤點形狀)
 - 適用情境：用來呈現一個核心目標，以及左右兩側的支撐能力、原則或行動方向。
 - 視覺結構：中央 #344252 圓形，背景有淡灰圓環，左右兩側分布短文字標籤。
 - 內容容量：
@@ -145,8 +149,7 @@
 - 使用限制：每個重點盡量控制在 8-12 個中文字內。
 
 ### vision_goal_pyramid
-- 參考圖片：`style_reference/rendered_examples/vision_goal/vision_goal_pyramid.png`
-- 來源模板：`style_reference/light_template.pptx`  第 15 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 15 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 15` 盤點形狀)
 - 適用情境：用來呈現階層式目標、策略金字塔、成熟度路徑或優先級。
 - 視覺結構：中央 #58D494 金字塔，左右兩側放對應說明與支撐項目。
 - 內容容量：
@@ -155,8 +158,7 @@
 - 使用限制：適合有上下層級的內容；不要拿來呈現平行清單。
 
 ### vision_goal_keyword_orbit
-- 參考圖片：`style_reference/rendered_examples/vision_goal/vision_goal_keyword_orbit.png`
-- 來源模板：`style_reference/light_template.pptx`  第 16 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 16 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 16` 盤點形狀)
 - 適用情境：用來呈現一個願景中心，以及周圍多個關鍵詞、價值主張或設計原則。
 - 視覺結構：中央  #344252 圓形，左側放 #848BF2 短句，右側 #4AB7F9 放短句，形成環繞式概念網。
 - 內容容量：
@@ -173,8 +175,8 @@
 - 資訊說明頁文字通常較多，所有標題、卡片、列點、表格與圖形仍需維持 PowerPoint 可編輯物件。
 
 ### info_three_column_category
-- 參考圖片：`style_reference/rendered_examples/info/info_three_column_category.png`
-- 來源模板：`style_reference/light_template.pptx` 第 17 頁，僅供追溯，不作為主要引用
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
+- 來源模板：`light_template.pptx` 第 17 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 17` 盤點形狀)
 - 適用情境：用來呈現 3 個並列面向、方案或模組，並在每個面向下用相同類別列做比較說明。
 - 視覺結構：畫面分成 3 欄，每欄上方為深色標題列；左側有垂直類別文字作為 row 標籤；每欄包含上方淺色說明區與下方深色重點列點區，右上可放子項目導覽標籤。
 - 內容容量：
@@ -186,8 +188,7 @@
 - 使用限制：適合三欄對照；每欄內容量要接近，避免某一欄文字過長造成版面失衡。
 
 ### info_sidebar_grid
-- 參考圖片：`style_reference/rendered_examples/info/info_sidebar_grid.png`
-- 來源模板：`style_reference/light_template.pptx` 第 18 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 18 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 18` 盤點形狀)
 - 適用情境：用來說明一個大主題下的多個子模組、功能項、規則或資訊分類。
 - 視覺結構：左側為大型 #58D494 直式主題區；中間有多個綠框小標籤作為分類導引；右側以白色資訊格組成不規則網格，頂部可有一條淡綠色主題帶，右上可放子項目導覽標籤。
 - 內容容量：
@@ -199,8 +200,7 @@
 - 使用限制：適合資訊整理與模組說明；若每格需要長段落，建議拆成多頁。
 
 ### info_icon_bubble_cluster
-- 參考圖片：`style_reference/rendered_examples/info/info_icon_bubble_cluster.png`
-- 來源模板：`style_reference/light_template.pptx` 第 19 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 19 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 19` 盤點形狀)
 - 適用情境：用來呈現多個概念、特色、能力、服務項目或注意事項，適合每項都有 icon 輔助理解的內容。
 - 視覺結構：畫面中分布 5 個半圓 / 圓形資訊節點，節點使用 #58D494 與 #344252 交錯；每個節點包含 icon、標題與短說明，右上可放子項目導覽標籤。
 - 內容容量：
@@ -211,8 +211,7 @@
 - 使用限制：適合短句與概念展示，不適合長文或需要嚴格比較的內容；icon 風格需與模板一致。
 
 ### info_card_grid
-- 參考圖片：`style_reference/rendered_examples/info/info_card_grid.png`
-- 來源模板：`style_reference/light_template.pptx` 第 20 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 20 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 20` 盤點形狀)
 - 適用情境：用來平鋪多個資訊點、規則、功能、風險、檢核項或說明卡片。
 - 視覺結構：上方為主標題，標題中的重點字可用 #58D494；中間為 2 列 x 4 欄資訊卡片，卡片外框可使用 #58D494 與 #848BF2 分組，右上可放子項目導覽標籤。
 - 內容容量：
@@ -223,8 +222,7 @@
 - 使用限制：卡片文字必須短；若卡片少於 4 張，建議改用更聚焦的左右版面或中心式版面。
 
 ### info_center_hub_support
-- 參考圖片：`style_reference/rendered_examples/info/info_center_hub_support.png`
-- 來源模板：`style_reference/light_template.pptx` 第 21 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 21 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 21` 盤點形狀)
 - 適用情境：用來說明一個核心概念與周邊支援項目、輸入輸出、前後端協作或左右兩側補充資訊。
 - 視覺結構：中央為 #344252 大型圓形核心主題，左右各有次要圓形或支援區，兩側另有清單式小卡，底部可放一列補充項目；右上可放子項目導覽標籤。
 - 內容容量：
@@ -236,8 +234,7 @@
 - 使用限制：適合核心與支援關係，不適合呈現時間順序；中心主題要短，避免圓形內文字過多。
 
 ### info_horizontal_explanation_rows
-- 參考圖片：`style_reference/rendered_examples/info/info_horizontal_explanation_rows.png`
-- 來源模板：`style_reference/light_template.pptx` 第 22 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 22 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 22` 盤點形狀)
 - 適用情境：用來說明同一主題下的多個條目，例如規範、條件、流程說明、欄位定義或常見問題。
 - 視覺結構：上方有一條淡綠色主題帶；左側有垂直類別標示；內容區由 4-5 條橫向列組成，每列左側為短標籤，右側為長說明文字或列點，右上可放子項目導覽標籤。
 - 內容容量：
@@ -248,8 +245,7 @@
 - 使用限制：適合條列式說明；不適合多欄比較。每列說明需控制在 1-2 行。
 
 ### info_dual_column_detail_matrix
-- 參考圖片：`style_reference/rendered_examples/info/info_dual_column_detail_matrix.png`
-- 來源模板：`style_reference/light_template.pptx` 第 23 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 23 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 23` 盤點形狀)
 - 適用情境：用來做左右兩組資訊的深入對照，例如兩類使用者、兩種方案、兩個流程、兩組責任分工或兩套規則。
 - 視覺結構：畫面上半部為左右兩大欄，左欄以 #848BF2 標示，右欄以 #58D494 標示；每欄包含多列項目標題與說明文字；下方有 4 張補充卡片，右上可放子項目導覽標籤。
 - 內容容量：
@@ -260,8 +256,7 @@
 - 使用限制：適合左右對照；若不是對照型內容，不建議使用。文字很多時應優先刪減或拆頁。
 
 ### info_before_after_item_compare
-- 參考圖片：`style_reference/rendered_examples/info/info_before_after_item_compare.png`
-- 來源模板：`style_reference/light_template.pptx` 第 24 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 24 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 24` 盤點形狀)
 - 適用情境：用來呈現轉換前後、左右兩方案、兩群受眾、兩個系統或兩種模式的比較。
 - 視覺結構：左右兩個大區塊，中間以箭頭表示轉換或對照；左側區塊使用 #58D494，右側區塊使用 #4AB7F9；每側有 3 個項目卡，每張卡包含項目名稱與列點說明，右上可放子項目導覽標籤。
 - 內容容量：
@@ -281,8 +276,7 @@
 - 數字格式要一致，同一頁中的小數位、百分比、千分位、單位與顏色使用必須統一；重點數字可用 #58D494、#848BF2 或 #4AB7F9，但不可新增模板外色系。
 
 ### data_line_trend_comparison
-- 參考圖片：`style_reference/rendered_examples/data_compare/data_line_trend_comparison.png`
-- 來源模板：`style_reference/light_template.pptx` 第 25 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 25 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 25` 盤點形狀)
 - 適用情境：用來比較 1-2 組指標在多個時間點上的趨勢，例如月度表現、轉換率、使用量、滿意度或兩方案表現差異。
 - 視覺結構：上半部為折線趨勢圖，右上角放圖例，圖中可標示 1 個關鍵節點；下半部為 3 列說明區，每列包含左側 row 標題與多個短說明欄位。
 - 內容容量：
@@ -294,8 +288,7 @@
 - 使用限制：適合趨勢比較，不適合放大量分類；若只有單一時間點數字，改用 `data_three_number_kpis` 或 `data_kpi_bar_callout_dashboard`。若只有 1 組折線，必須移除多餘圖例並調整標註位置。
 
 ### data_table_kpi_chart_insights
-- 參考圖片：`style_reference/rendered_examples/data_compare/data_table_kpi_chart_insights.png`
-- 來源模板：`style_reference/light_template.pptx` 第 26 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 26 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 26` 盤點形狀)
 - 適用情境：用來同時呈現明細表格、KPI 摘要、柱狀圖與洞察說明，適合資料成果總覽、指標盤點或分析頁。
 - 視覺結構：上方為橫向表格；下方左側放 2 個重點數字卡，中間放柱狀圖，右側放 2-3 張洞察說明卡。
 - 內容容量：
@@ -307,8 +300,7 @@
 - 使用限制：資訊量較高，文字必須短；若沒有表格，不要保留上方空表格，可改用 `data_kpi_bar_callout_dashboard`。若洞察只有 2 組，刪除第 3 張洞察卡並讓兩張卡上下平均分布。
 
 ### data_kpi_bar_callout_dashboard
-- 參考圖片：`style_reference/rendered_examples/data_compare/data_kpi_bar_callout_dashboard.png`
-- 來源模板：`style_reference/light_template.pptx` 第 27 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 27 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 27` 盤點形狀)
 - 適用情境：用來突出一個成果亮點、改善幅度、成長率或關鍵指標，並用柱狀圖與左側 KPI 卡片提供佐證。
 - 視覺結構：左側為 3 張白底細線 KPI 卡片，中間為柱狀圖，右上以 #58D494 對話框標示成長率或重點成果。
 - 內容容量：
@@ -320,8 +312,7 @@
 - 使用限制：適合單一亮點頁；若沒有明確成長率或成果標註，移除對話框並重新置中圖表。KPI 少於 3 張時，剩餘卡片需上下置中或增加高度，不可留下空卡片。
 
 ### data_dual_percentage_balance
-- 參考圖片：`style_reference/rendered_examples/data_compare/data_dual_percentage_balance.png`
-- 來源模板：`style_reference/light_template.pptx` 第 28 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 28 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 28` 盤點形狀)
 - 適用情境：用來比較兩個百分比、占比、達成率、成熟度或左右兩組對象的差異，並補充兩側說明文字。
 - 視覺結構：中央放 2 個大型圓形百分比（左側圓形底色為 #848BF2 ，右側圓形底色為 #58D494 ），左側與右側各放 2-3 組短說明，每組前面都會搭配與百分比底色一樣的光圈點（左側為 #848BF2 外圈搭配 rgba(132, 139, 242, 0.15)  ，右側為 #58D494 外圈搭配 rgba(88, 212, 148, 0.15) ），背景使用淡色交疊橢圓與細線節點形成平衡感。
 - 內容容量：
@@ -333,8 +324,8 @@
 - 使用限制：兩個核心數字必須可比較；若只有一個百分比，不適合使用此版型。左右說明數量不同時，需重新對齊節點與文字，不可單側留下空白節點，左右側列點若是少於 3 項需移除多餘的項目，若是高於 3 項則須再新增，新增時一樣要注意整體布局的平衡。
 
 ### data_two_group_metric_comparison
-- 參考圖片：`style_reference/rendered_examples/data_compare/data_two_group_metric_comparison.png`
-- 來源模板：`style_reference/light_template.pptx` 第 29 頁，僅供追溯，不作為主要引用
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
+- 來源模板：`light_template.pptx` 第 29 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 29` 盤點形狀)
 - 適用情境：用來比較兩個方案、兩組客群、轉換前後、改善前後或左右兩個指標集合，適合呈現差異與方向性。
 - 視覺結構：左右各 1 張大型白底數據卡，中間以灰色箭頭表示轉換或對照；左卡使用 #58D494 標題列，右卡使用 #848BF2 標題列，每張卡內放 2 個重點數字與 2-3 行說明。
 - 內容容量：
@@ -346,8 +337,7 @@
 - 使用限制：適合兩組比較，不適合三組以上；若不是前後轉換而只是並列比較，可弱化或移除中央箭頭。左右內容量需接近，避免其中一側過空。
 
 ### data_three_number_kpis
-- 參考圖片：`style_reference/rendered_examples/data_compare/data_three_number_kpis.png`
-- 來源模板：`style_reference/light_template.pptx` 第 30 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 30 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 30` 盤點形狀)
 - 適用情境：用來快速呈現 2-3 個最重要的 KPI、成果數字、規模指標或管理摘要。
 - 視覺結構：畫面中央橫向排列大型數字，分別使用 #848BF2、#58D494、#4AB7F9；每個數字下方有短標題與 1-2 行說明文字。
 - 內容容量：
@@ -357,8 +347,7 @@
 - 使用限制：每個 KPI 必須是獨立且重要的數字；若只有 1 個 KPI，應改用成果亮點頁或搭配說明卡。若只有 2 個 KPI，刪除第 3 個並讓 2 個數字左右置中等距排列，不可留下第三個空位。
 
 ### data_three_radar_score_comparison
-- 參考圖片：`style_reference/rendered_examples/data_compare/data_three_radar_score_comparison.png`
-- 來源模板：`style_reference/light_template.pptx` 第 31 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 31 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 31` 盤點形狀)
 - 適用情境：用來比較 2-3 個對象在多個維度上的分數、能力成熟度、方案評估、產品特性或服務表現。
 - 視覺結構：橫向排列 3 張雷達圖，每張上方有色塊標題，中間顯示大型分數，周圍標示 4-6 個評估維度；三張圖分別使用 #848BF2、#58D494、#4AB7F9。
 - 內容容量：
@@ -378,8 +367,7 @@
 - 若評估項目數少於模板列數，必須刪除多餘列並重新分配垂直間距；若評估項目數較多，需新增同樣風格的列或拆頁，不能壓縮到文字難以閱讀。
 
 ### evaluation_vs_criteria_matrix
-- 參考圖片：`style_reference/rendered_examples/evaluation/evaluation_vs_criteria_matrix.png`
-- 來源模板：`style_reference/light_template.pptx` 第 32 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 32 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 32` 盤點形狀)
 - 適用情境：用來呈現兩個方案、兩個項目、兩種模式或兩個選擇之間的逐項比較，適合策略選擇、工具選型、合作方案比較或設計取捨說明。
 - 視覺結構：左右兩側各放一個方案標題，中間以 `VS` 作為對照焦點；下方多列橫向比較，每列左側與右側放方案描述，中間用白底圓角標籤標示評估準則或結論，部分列可用 #58D494 獎盃或是皇冠 icon 標示優勢。
 - 內容容量：
@@ -392,8 +380,8 @@
 - 使用限制：只適合兩方案比較；若要比較 3 個方案，改用 `evaluation_option_score_pros_cons` 或表格。中央標籤要短，避免超過 6-8 個中文字，方案內的評估項目樹若與模板內的不一樣，要記得新增或是減少數量。
 
 ### evaluation_option_score_pros_cons
-- 參考圖片：`style_reference/rendered_examples/evaluation/evaluation_option_score_pros_cons.png`
-- 來源模板：`style_reference/light_template.pptx` 第 33 頁，僅供追溯，不作為主要引用
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
+- 來源模板：`light_template.pptx` 第 33 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 33` 盤點形狀)
 - 適用情境：用來比較 2-3 個候選方案、廠商、工具、產品、設計版本或提案，並同時呈現評分、優點與缺點。
 - 視覺結構：畫面分成 3 欄方案卡；每欄上方有圖片 / 縮圖與分數標籤（分數最高的底色為 #58D494 文字顏色為 #ffffff ，並且要比其他分數還大一些），中段為優點列點，下段為缺點或注意事項列點；左側用垂直文字標示「優點」與「缺點」區域。
 - 內容容量：
@@ -414,8 +402,7 @@
 - 循環步驟名稱要短，建議 4-8 個中文字；每個步驟說明以 1-2 行為主，詳細內容應拆成下一頁或改用資訊說明頁型。
 
 ### cycle_three_node_process
-- 參考圖片：`style_reference/rendered_examples/cycle/cycle_three_node_process.png`
-- 來源模板：`style_reference/light_template.pptx` 第 34 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 34 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 34` 盤點形狀)
 - 適用情境：用來呈現 3 個主要節點形成的循環關係，例如蒐集、分析、行動，或規劃、執行、回饋。
 - 視覺結構：中央為 #344252 核心主題區，周圍有 3 個圓形節點並以淡灰循環箭頭串接；左右兩側可放 #58D494 標籤式補充項目或輸入輸出說明。
 - 內容容量：
@@ -427,8 +414,7 @@
 - 使用限制：固定適合 3 節點循環；若內容是 4 個步驟，改用 `cycle_four_point_loop`。左右補充標籤若沒有內容，必須移除並讓循環圖置中。
 
 ### cycle_four_point_loop
-- 參考圖片：`style_reference/rendered_examples/cycle/cycle_four_point_loop.png`
-- 來源模板：`style_reference/light_template.pptx` 第 35 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 35 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 35` 盤點形狀)
 - 適用情境：用來呈現 4 個循環步驟、PDCA、管理閉環、迭代改善、服務循環或週期性作業。
 - 視覺結構：中央為大型 #58D494 循環箭頭，中央放主題文字；左右兩側各放 2 組步驟說明，每組以小型綠色編號標籤開頭並搭配短說明。
 - 內容容量：
@@ -439,8 +425,7 @@
 - 使用限制：最適合 4 步驟循環；若只有 3 步驟，改用 `cycle_three_node_process`。四個步驟文字量要接近，避免單側過重。
 
 ### cycle_dual_core_feedback
-- 參考圖片：`style_reference/rendered_examples/cycle/cycle_dual_core_feedback.png`
-- 來源模板：`style_reference/light_template.pptx` 第 36 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 36 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 36` 盤點形狀)
 - 適用情境：用來呈現兩個核心之間的互動、交換、協作、回饋或相互促進，例如供需雙方、前後台協作、策略與執行閉環。
 - 視覺結構：中央左右各放一個大型圓形核心（左側主色為 #344252 右側主色為 #58D494），兩者之間用雙向箭頭或沙漏型圖形表示交換；左側與右側各放 2-3 組補充說明，與核心節點用細線或節點連接。
 - 內容容量：
@@ -453,8 +438,7 @@
 - 使用限制：適合雙核心關係，不適合單一路徑流程。左右補充項目數量不同時，需重新對齊節點，不能留下空白節點或失衡文字區。
 
 ### cycle_multi_step_loop
-- 參考圖片：`style_reference/rendered_examples/cycle/cycle_multi_step_loop.png`
-- 來源模板：`style_reference/light_template.pptx` 第 37 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 37 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 37` 盤點形狀)
 - 適用情境：用來呈現 6-10 個步驟的完整循環、迭代流程、治理閉環、服務旅程或週期性管理機制。
 - 視覺結構：中央為橫向圓角矩形循環路徑，節點以深色圓形數字標示，步驟說明分布在路徑上下方，中央放循環主題文字。
 - 內容容量：
@@ -473,8 +457,7 @@
 - 每層標題要短，建議 2-6 個中文字；每層補充說明以 1-2 句為主。若單層內容太多，應拆成下一頁或改用結構圖 / 資訊說明頁型。
 
 ### pyramid_three_level_center_explanation
-- 參考圖片：`style_reference/rendered_examples/pyramid/pyramid_three_level_center_explanation.png`
-- 來源模板：`style_reference/light_template.pptx` 第 53 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 53 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 53` 盤點形狀)
 - 適用情境：用來呈現 3 層核心架構、策略優先級、能力堆疊、目標層級或價值主張，並在左右兩側補充每一層的說明。
 - 視覺結構：中央為 #58D494 透明度分層金字塔，分成上中下 3 層；每層內放短標題，左右兩側各對應一組說明文字，重點字可使用 #58D494。
 - 內容容量：
@@ -486,8 +469,8 @@
 - 使用限制：適合 3 層關係；若層級超過 3 層，改用 `pyramid_layered_maturity_detail`。左右說明需與層級對齊，不能形成隨意散落的文字。
 
 ### pyramid_layered_maturity_detail
-- 參考圖片：`style_reference/rendered_examples/pyramid/pyramid_layered_maturity_detail.png`
-- 來源模板：`style_reference/light_template.pptx` 第 54 頁，僅供追溯，不作為主要引用
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
+- 來源模板：`light_template.pptx` 第 54 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 54` 盤點形狀)
 - 適用情境：用來呈現 4-5 層成熟度、能力建設、策略堆疊、治理分層、產品路線或由基礎到高階的演進架構。
 - 視覺結構：左側為斜向分層金字塔，每層使用由深色到 #58D494 的色階，層級標題放在斜面上；中間對每層放一行說明文字；右側放 2 張白底細線說明卡片，用來補充重點觀察、管理原則或執行提醒。
 - 內容容量：
@@ -500,8 +483,7 @@
 
 ## 時程說明頁型
 ### stage_timeline_progress
-- 參考圖片：`style_reference/rendered_examples/stage/stage_timeline_progress.png`
-- 來源模板：`style_reference/light_template.pptx` 第 38 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 38 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 38` 盤點形狀)
 - 適用情境：用來呈現單一路線的時間軸、重要里程碑、目前進度與後續規劃。
 - 視覺結構：下方橫向時間軸由 #58D494 漸變到 #848BF2，左至右標示月份或區間；時間軸上方與下方放 3 個里程碑節點；右側放一塊「進行中 / 後續規劃」說明區。
 - 內容容量：
@@ -513,8 +495,7 @@
 - 使用限制：適合線性時程，不適合多工作流併行；里程碑文字要短，避免讓時間軸節點過密。
 
 ### stage_phase_swimlane
-- 參考圖片：`style_reference/rendered_examples/stage/stage_phase_swimlane.png`
-- 來源模板：`style_reference/light_template.pptx` 第 39 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 39 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 39` 盤點形狀)
 - 適用情境：用來呈現 3 個階段的執行安排，並同時比較每個階段的工作項目與角色分工。
 - 視覺結構：畫面分成 3 欄階段；左側用直排標籤標示 row 類別（如執行項目、角色）；每欄上方為白色工作項目卡片，下方為白色角色/說明卡片；底部用深色到綠色的分段箭頭標出階段名稱。
 - 內容容量：
@@ -526,8 +507,7 @@
 - 使用限制：固定以 3 個階段最穩定；若階段超過 3 個，建議改用 `stage_period_cards` 或 `stage_monthly_gantt`。
 
 ### stage_year_cards
-- 參考圖片：`style_reference/rendered_examples/stage/stage_year_cards.png`
-- 來源模板：`style_reference/light_template.pptx` 第 40 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 40 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 40` 盤點形狀)
 - 適用情境：用來呈現 3 個年度、3 個策略階段或 3 個版本演進，並突出其中一個主要年度或目標階段。
 - 視覺結構：上方是一條年度線，分成左中右 3 個年份節點；下方 3 欄卡片，中央卡片以 #58D494 外框強調；每欄包含深色重點區塊與白色細項區塊。
 - 內容容量：
@@ -539,8 +519,7 @@
 - 使用限制：最適合 3 欄比較；中央欄通常代表當前年度、主推階段或目標狀態，不建議所有欄位都同等強調。
 
 ### stage_period_cards
-- 參考圖片：`style_reference/rendered_examples/stage/stage_period_cards.png`
-- 來源模板：`style_reference/light_template.pptx` 第 41 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 41 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 41` 盤點形狀)
 - 適用情境：用來呈現 4 個期間、季度、波段或專案步驟，每段都有上方摘要與下方詳細內容。
 - 視覺結構：上方橫向箭頭分成 4 個期間節點；每個節點下方有短標題與一段說明；下半部是 4 張細節卡片，其中一張可用 #58D494 標示為 NEW 或目前重點。
 - 內容容量：
@@ -551,8 +530,7 @@
 - 使用限制：適合四段式安排；每張卡片文字不可過多，卡片內最多 2 組小項目較清楚。
 
 ### stage_horizon_matrix
-- 參考圖片：`style_reference/rendered_examples/stage/stage_horizon_matrix.png`
-- 來源模板：`style_reference/light_template.pptx` 第 42 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 42 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 42` 盤點形狀)
 - 適用情境：用來比較短期、中期、長期策略，或用時間視角整理不同分類的工作內容。
 - 視覺結構：矩陣式版面，橫向 3 欄為短期 / 中期 / 長期，左側直向為多個分類；欄位標題分別以深色、#58D494、#848BF2 標示；內容格為白色圓角卡片，重要文字可用 #58D494 強調。
 - 內容容量：
@@ -564,8 +542,7 @@
 - 使用限制：適合比較型內容，不適合長段描述；若分類超過 4 列或每格超過 3 點，建議拆成多頁。
 
 ### stage_year_transition_architecture
-- 參考圖片：`style_reference/rendered_examples/stage/stage_year_transition_architecture.png`
-- 來源模板：`style_reference/light_template.pptx` 第 43 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 43 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 43` 盤點形狀)
 - 適用情境：用來說明從現況年度走向目標年度的轉型藍圖，尤其適合左側放現況問題或策略說明，右側放目標架構。
 - 視覺結構：上方用 #848BF2 到 #58D494 的箭頭連接 2025 與 2026；左側是文字說明區，右側是目標架構區，包含一條綠色標題帶與多個架構節點。
 - 內容容量：
@@ -578,8 +555,7 @@
 - 使用限制：適合「現況到未來」的轉型敘事；右側架構節點要短，不適合放完整流程細節。
 
 ### stage_multi_year_gantt_summary
-- 參考圖片：`style_reference/rendered_examples/stage/stage_multi_year_gantt_summary.png`
-- 來源模板：`style_reference/light_template.pptx` 第 44 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 44 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 44` 盤點形狀)
 - 適用情境：用來呈現跨多年 roadmap、重大時程節點與多工作流的高階安排。
 - 視覺結構：上方是 2025-2030 的年度刻度與階段節點；中段用多條橫向任務條呈現不同年度的工作安排；下段以工作流或主題列呈現較長期的任務區段。
 - 內容容量：
@@ -591,8 +567,7 @@
 - 使用限制：適合高階 roadmap，不適合呈現每日或每週細節；任務名稱需短，時間條不可過多以免難以閱讀。
 
 ### stage_vertical_timeline_detail
-- 參考圖片：`style_reference/rendered_examples/stage/stage_vertical_timeline_detail.png`
-- 來源模板：`style_reference/light_template.pptx` 第 45 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 45 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 45` 盤點形狀)
 - 適用情境：用來呈現多個連續階段，並在右側放大說明其中的重點、成果或注意事項。
 - 視覺結構：左側為垂直時間軸，含 5-6 個階段節點與日期區間；右側為大型白色說明框，內含 2 個重點段落；底部有一條補充結論或提醒欄。
 - 內容容量：
@@ -603,8 +578,7 @@
 - 使用限制：適合「階段很多，但只需詳細說明其中重點」的情境；左側階段名稱應短，右側列點避免超過 2 組。
 
 ### stage_monthly_gantt
-- 參考圖片：`style_reference/rendered_examples/stage/stage_monthly_gantt.png`
-- 來源模板：`style_reference/light_template.pptx` 第 46 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 46 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 46` 盤點形狀)
 - 適用情境：用來呈現 12 個月份的任務排程、專案甘特圖、活動檔期或多工作流進度。
 - 視覺結構：上方為 1-12 月綠色月份列；左側為工作流或分類標題；右側是多列甘特圖網格，任務以藍色或綠色短條呈現，重點時間點以垂直綠線標記。
 - 內容容量：
@@ -624,8 +598,7 @@
 - 若階段數超過 4 個，優先考慮 `phase_step_ladder_cards` 或拆成多頁；若階段數超過 6 個，通常應改用時程說明或表格頁型。
 
 ### phase_concept_three_column_explanation
-- 參考圖片：`style_reference/rendered_examples/phase/phase_concept_three_column_explanation.png`
-- 來源模板：`style_reference/light_template.pptx` 第 47 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 47 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 47` 盤點形狀)
 - 適用情境：用來說明一個核心概念如何展開成 3 個階段、面向、推進主軸或能力層次，適合概念導入與階段架構總覽。
 - 視覺結構：左側以大型淡綠圓弧與藍色圓形呈現核心概念，旁邊可放 3 個品牌 / 關鍵標籤；右側分成 3 欄，每欄上方有階段標題，下方放重點說明、列點或短段落。
 - 內容容量：
@@ -639,8 +612,7 @@
 - 使用限制：適合概念分解，不適合精準流程或日期安排；三欄內容量應接近，避免單欄過重。
 
 ### phase_before_now_future_transition
-- 參考圖片：`style_reference/rendered_examples/phase/phase_before_now_future_transition.png`
-- 來源模板：`style_reference/light_template.pptx` 第 48 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 48 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 48` 盤點形狀)
 - 適用情境：用來呈現 Before / Now / Future、過去 / 現在 / 未來、現況改善到未來目標的三段式轉換。
 - 視覺結構：上方以 Before、Now、Future 三段箭頭貫穿全頁；下方分成 3 張大型卡片，左側描述過去狀態，中間以 #58D494 強調目前進展與關鍵數字，右側描述未來目標與交付成果。
 - 內容容量：
@@ -653,8 +625,7 @@
 - 使用限制：中間 Now 通常是視覺焦點；若三段都同等重要，可改用 `phase_three_column_action_cards`。
 
 ### phase_four_step_workflow_matrix
-- 參考圖片：`style_reference/rendered_examples/phase/phase_four_step_workflow_matrix.png`
-- 來源模板：`style_reference/light_template.pptx` 第 49 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 49 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 49` 盤點形狀)
 - 適用情境：用來呈現 4 個連續階段、作業步驟、審核流程或方案推進，並用不同 row 類別說明每一步的內容差異。
 - 視覺結構：上方是 4 段 #58D494 箭頭階段列；左側有垂直 row 標籤；中央是 4 欄 x 3 列的說明矩陣，部分欄位可用括號或分支線表示選項；底部可放一條深色補充說明。
 - 內容容量：
@@ -666,8 +637,7 @@
 - 使用限制：適合步驟差異清楚的內容；每格文字不可過長。若要強調時間軸或月份，改用時程說明頁型。
 
 ### phase_three_column_action_cards
-- 參考圖片：`style_reference/rendered_examples/phase/phase_three_column_action_cards.png`
-- 來源模板：`style_reference/light_template.pptx` 第 50 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 50 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 50` 盤點形狀)
 - 適用情境：用來呈現 3 個階段、3 種作法、3 個推進策略或 3 個方案層次，且每個階段都需要列點與段落說明。
 - 視覺結構：畫面分成 3 欄卡片；每欄上方有箭頭式階段標題，卡片內上半部放列點重點，下半部放段落說明；左側以垂直文字標示內容層級。
 - 內容容量：
@@ -680,8 +650,7 @@
 - 使用限制：適合三段式策略與行動說明；若需要比較過去、現在、未來，優先使用 `phase_before_now_future_transition`。
 
 ### phase_input_process_output_flow
-- 參考圖片：`style_reference/rendered_examples/phase/phase_input_process_output_flow.png`
-- 來源模板：`style_reference/light_template.pptx` 第 51 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 51 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 51` 盤點形狀)
 - 適用情境：用來呈現從左側輸入、中央處理、右側輸出或落地成果的轉換流程，適合說明方法、資料、需求、行動如何被整理成結果。
 - 視覺結構：左側放輸入重點與項目卡片，中間以灰色箭頭導向垂直堆疊的處理步驟，右側以大型淺色容器呈現 3 組輸出成果，每組包含綠色標籤與列點。
 - 內容容量：
@@ -693,8 +662,7 @@
 - 使用限制：適合單向轉換流程；若流程本身有明確 4 個步驟與 row 類別，優先使用 `phase_four_step_workflow_matrix`。
 
 ### phase_step_ladder_cards
-- 參考圖片：`style_reference/rendered_examples/phase/phase_step_ladder_cards.png`
-- 來源模板：`style_reference/light_template.pptx` 第 52 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 52 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 52` 盤點形狀)
 - 適用情境：用來呈現 4 個遞進步驟、導入階段、成熟度階梯、能力養成路徑或逐步展開的行動安排。
 - 視覺結構：由左下到右上排列 4 張階梯式卡片，每張卡片上方有編號與箭頭，卡片高度逐步上升；每張卡內包含階段標題、短說明、列點與一行重點文字。
 - 內容容量：
@@ -716,8 +684,7 @@
 - 若內容同時包含「結構關係」與「時程」，優先判斷主要訊息：重點是架構關係時使用結構圖頁型，重點是時間推進時改用時程說明頁型。
 
 ### structure_system_overview_table
-- 參考圖片：`style_reference/rendered_examples/structure/structure_system_overview_table.png`
-- 來源模板：`style_reference/light_template.pptx` 第 55 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 55 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 55` 盤點形狀)
 - 適用情境：用來呈現系統總覽、治理架構、流程架構、服務架構或多層模組組成，適合需要同時看見分類、模組與底部項目摘要的內容。
 - 視覺結構：上方放主標題與一段摘要說明；左側使用深色垂直分類軸；中央上半部為 3 個主要模組欄位，每欄包含標題、說明與列點；底部為 4 欄項目摘要列。
 - 內容容量：
@@ -729,8 +696,7 @@
 - 使用限制：適合密度較高的架構總覽；不適合放長篇敘述。若主要模組少於 3 個，建議改用 `structure_relation_map` 或 `info_center_hub_support`。
 
 ### structure_hierarchy_matrix
-- 參考圖片：`style_reference/rendered_examples/structure/structure_hierarchy_matrix.png`
-- 來源模板：`style_reference/light_template.pptx` 第 56 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 56 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 56` 盤點形狀)
 - 適用情境：用來呈現階層式架構、屋頂式主題架構、分類矩陣、能力地圖或產品 / 專案組成關係。
 - 視覺結構：中央上方以 #58D494 透明度 80% 屋頂形狀放核心主題；左側有多列 #58D494 分類標籤；中間是階層式資訊格與多欄項目說明；右側有 3 張補充說明卡片。
 - 內容容量：
@@ -743,8 +709,7 @@
 - 使用限制：適合有上下層級與分類交叉的內容；中央格子文字必須短，避免每格超過 2 行。
 
 ### structure_org_chart_roles
-- 參考圖片：`style_reference/rendered_examples/structure/structure_org_chart_roles.png`
-- 來源模板：`style_reference/light_template.pptx` 第 57 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 57 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 57` 盤點形狀)
 - 適用情境：用來呈現組織圖、專案團隊、角色分工、工作小組、負責人與會議 / 任務摘要。
 - 視覺結構：左側為組織架構圖，上方放組織或專案名稱與時間註記，中間為組長或主責角色，下方展開 3 個分組；右側為直向資訊區，放項目名稱、狀態、會議或任務摘要。
 - 內容容量：
@@ -756,8 +721,7 @@
 - 使用限制：適合角色與分工說明；成員清單不要過長。若分組超過 4 組，建議拆頁或改為表格型版面。
 
 ### structure_relation_map
-- 參考圖片：`style_reference/rendered_examples/structure/structure_relation_map.png`
-- 來源模板：`style_reference/light_template.pptx` 第 58 頁，僅供追溯，不作為主要引用
+- 來源模板：`light_template.pptx` 第 58 頁(render_plan 的 `template_page`;寫 plan 前先 `inspect_template.py --page 58` 盤點形狀)
 - 適用情境：用來呈現中心系統、平台、產品、流程圖或圖片，並說明四周 A-D 節點與左右兩側補充資訊的關聯。
 - 視覺結構：中央為大型圖片或系統佔位框，周圍放 A-D 四個節點標記；左右兩側各有垂直標籤與說明區，上方可放左右兩組摘要文字，下方左右各有 2 張資訊卡片。
 - 內容容量：

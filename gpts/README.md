@@ -18,11 +18,13 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 
 ## 工具層(`tools/` → `knowledge/tools.zip`)
 
-產檔的機械動作全部由七個預寫檔案執行,模型只在「未涵蓋頁型」時手產一份小小的
+產檔的機械動作全部由九支預寫腳本執行,模型只在「未涵蓋頁型」時手產一份小小的
 `render_plan.json`——這是「精準 + 省 token + 不進 QA 死循環」的核心設計:
 
 | 腳本                  | 角色                                                                |
 | --------------------- | ------------------------------------------------------------------- |
+| `run_pipeline.py`     | **產檔單一入口**:稽核→驗證→渲染→QA 一條指令跑完,任一階段 FAIL 即停  |
+| `audit_provenance.py` | 程式化工作流稽核:title/deck_name 逐字、精確數字 token、來源完整性    |
 | `pptx_toolkit.py`     | 投影片複製(含 rels 重映射,圖不破)/刪除/排序/清 Section              |
 | `text_tools.py`       | 群組內層文字替換(保留原字級顏色)、CJK 溢出估算、縮字                |
 | `fills.py`            | **10 種註冊頁型的確定性填充引擎**:5 種自動填入模板頁(shape id 寫死) |
@@ -58,7 +60,7 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 | `knowledge/slide_spec.example.json`     | 通過驗證的完整範例                                                       | 上傳到 Knowledge                 |
 | `knowledge/slide_spec.bad.example.json` | 會 FAIL 的範例(驗收測試用)                                               | 上傳到 Knowledge                 |
 | `knowledge/assets.zip`                  | 背景圖 ×3 + logo                                                         | 上傳到 Knowledge                 |
-| `knowledge/tools.zip`                   | 工具腳本 ×7 + 速查卡(源碼在 `tools/`)                                    | 上傳到 Knowledge                 |
+| `knowledge/tools.zip`                   | 工具腳本 ×9 + 速查卡(源碼在 `tools/`)                                    | 上傳到 Knowledge                 |
 | `examples/01_*.json`–`04_*.json`        | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
 | `examples/02_full_10p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
 | `examples/05_outline_to_ppt_source.md`  | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
@@ -165,11 +167,11 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 
 ## 誠實的限制(建議原文轉達給主管)
 
-1. **閘門是「指示強制」不是「系統強制」。** 模型理論上可能偷懶跳過驗證。緩解:
-   指示要求它貼出驗證器與 QA 輸出,使用者驗收時認各自的「結果…PASS」行;沒看到就
-   要求重跑。
-   要 100% 系統強制,得改用 GPTs Actions 接自家 API(把驗證+渲染放伺服器端),
-   工程量另計。
+1. **閘門是「指示強制」不是「系統強制」。** 模型理論上可能偷懶跳過驗證。
+   GPTs Actions(伺服器端 100% 系統強制)**因公司政策禁用**,所以強制上限就是
+   Code Interpreter 內的確定性腳本。緩解:產檔一律走單一入口 `run_pipeline.py`
+   (稽核/驗證/渲染/QA 綁在一條指令裡,跳過閘門=連唯一指令都沒跑,極易察覺);
+   使用者驗收時認完整輸出末尾的「管線結果:PASS」行,沒看到就要求重跑。
 2. **視覺一致性:機械部分已確定化,判斷部分仍靠模型。** 複製頁、換字、刪頁、
    排序、頁碼、五種內建版面都由 tools 腳本固定執行,不再漂移;模型剩下的自由度
    只在未涵蓋頁型的 render_plan(哪個框填哪段字),錯了是改一條 plan 重跑。

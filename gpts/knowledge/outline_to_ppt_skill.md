@@ -59,6 +59,8 @@ path separators` 警告並回非零結束碼，但檔案仍會正確解出。環
 - `/mnt/data/assets/backgrounds/cover_bg_context.png`
 - `/mnt/data/assets/logos/cathay_logo.png`
 - `/mnt/data/tools/make_skeleton.py`
+- `/mnt/data/tools/audit_provenance.py`
+- `/mnt/data/tools/run_pipeline.py`
 - `/mnt/data/tools/render_deck.py`
 - `/mnt/data/tools/qa_check.py`
 - `/mnt/data/validate_slide_spec_gpts.py`
@@ -126,20 +128,25 @@ JSON，不得殘留任何 `【欄位名】待填`；「待補充」是合法的�
 對應的 `slides.md` 區塊。不要要求來源另列「簡報名稱」，也不得保留骨架預設值
 `my_deck`。
 
-### 4. 驗證前工作流稽核
+### 4. 驗證前工作流稽核(程式化)
 
-這一節是模型必做的**工作流稽核**，不是 validator 的程式保證。逐項檢查：
+稽核由確定性腳本執行，**不要手動做這些比對**：
 
-1. 逐頁比對 `slides.md` 區塊與 `/mnt/data/outline_source_current.txt`；每個區塊內的
-   每一段來源摘錄都必須是該檔案中的逐字片段，不得改寫、補寫或使用舊回合內容。
-2. 每頁頂層 `slides[].title` 都逐字出現在該頁的本次來源區塊；唯一例外是
-   `closing` 固定值 `Thank you`。
-3. `deck.deck_name` 完全等於第一頁真正內容頁的來源支援 `title`；該頁不得為
-   `cover`、`agenda` 或 `closing`。
-4. 遞迴檢查 `deck.deck_name`、每頁頂層 `title` 與 `slots` 內所有內容字串；以
-   `\d+(?:\.\d+)?` 取出每個數字 token，逐一要求相同 token 出現在對應的本次
-   來源區塊。必須做 token 精確比對；來源的 `50` 不得支援輸出的 `5`，來源的
-   `2026` 也不得支援輸出的 `2`。
+```bash
+python /mnt/data/tools/audit_provenance.py \
+  --spec /mnt/data/slide_spec.json \
+  --slides /mnt/data/slides.md \
+  --source /mnt/data/outline_source_current.txt
+```
+
+它硬性檢查四件事：①`slides.md` 每個區塊的每一行都是本次原文檔的逐字片段（不得
+改寫、補寫或混入舊回合）；②每頁頂層 `slides[].title` 逐字出現在該頁來源區塊
+（`closing` 固定值 `Thank you` 豁免）；③`deck.deck_name` 完全等於第一頁真正
+內容頁的 `title`；④`deck_name`、每頁 `title` 與 `slots` 所有字串的**精確數字
+token**——來源的 `50` 不得支援輸出的 `5`（佔位符先剔除再比對）。
+
+腳本管不到、仍由你負責的判斷：切頁與頁型選擇是否合理、佔位符是否只用在第 2 節
+允許的情境、為符合字數的縮短是否改變原意。
 
 可不依來源產生的值只有：`agenda` 的順序編號、數據比較頁固定標題
 `改善前`/`改善後`、`closing` 固定值 `Thank you`，以及草稿佔位符「待補充」
@@ -147,55 +154,43 @@ JSON，不得殘留任何 `【欄位名】待填`；「待補充」是合法的�
 文字，不得把佔位符與自創的數字或事實混在同一格。語意性的 `recommended`、
 `recommendation` 或其他建議內容不在例外內，必須有來源支持。
 
-validator 會程式化追溯已註冊頁型契約中啟用 provenance 的 `slots`，但不追溯頂層
-`slides[].title` 或 `deck.deck_name`；其數字檢查目前也是子字串比對。因此即使下一步
-validator 通過，也不能省略本節稽核。任一項失敗時，刪除不受支持的內容或重新切頁；
-不得為了通過而把新文字補進 `slides.md`。
+validator 不追溯頂層 `slides[].title` 或 `deck.deck_name`，數字也只做子字串比對；
+`audit_provenance.py` 補上的正是這些缺口，因此本稽核不可省略（下一節的
+run_pipeline 會自動把它跑在第一階段，單獨執行是為了填 JSON 時快速迭代）。
+稽核 FAIL 時，刪除不受支持的內容或重新切頁；不得為了通過而把新文字補進
+`slides.md`。
 
-### 5. 嚴格驗證與有限修正
+### 5. 管線執行與有限修正
 
-執行：
+用單一入口一次跑完全部閘門與產檔（不要手動逐步串接）：
 
 ```bash
-python /mnt/data/validate_slide_spec_gpts.py \
+python /mnt/data/tools/run_pipeline.py \
   --spec /mnt/data/slide_spec.json \
   --slides /mnt/data/slides.md \
-  --asset-dir /mnt/data \
-  --registered-only \
-  --strict
-```
-
-只有結束碼為 0，且輸出包含一行以 `結果：PASS` 開頭的文字，才可繼續。最多自動
-修正三輪。只可修正頁碼設定、內建素材路徑、`slide_count`、連續頁號、必填物件、
-清單數量、字數、拆頁或改用另一個同樣受原文支援的已註冊頁型。每次修正後都要重跑
-驗證前工作流稽核。禁止為了通過驗證而補寫內容。
-
-三輪後仍失敗，就停止並用白話列出剩餘錯誤；不要交付 JSON，也不要渲染簡報。
-
-### 6. 渲染與品質檢查
-
-驗證通過後執行：
-
-```bash
-python /mnt/data/tools/render_deck.py \
-  --spec /mnt/data/slide_spec.json \
-  --template /mnt/data/light_template.pptx \
+  --source /mnt/data/outline_source_current.txt \
   --asset-dir /mnt/data \
   --out /mnt/data/deck.pptx
 ```
 
-渲染結束碼為 0 後執行：
+管線依序執行 audit_provenance → validator（自動帶 `--slides --registered-only
+--strict`）→ render_deck → qa_check；任一階段結束碼非 0 就地停止，不產出半成品。
+只有完整輸出最後印出 `管線結果:PASS` 才算成功。
 
-```bash
-python /mnt/data/tools/qa_check.py \
-  --spec /mnt/data/slide_spec.json \
-  --pptx /mnt/data/deck.pptx
-```
+FAIL 時讀「管線停止於階段 N」該段輸出，修正對應輸入後**整條重跑同一指令**
+（管線冪等，重跑即整檔重生）。最多自動修正三輪。只可修正頁碼設定、內建素材
+路徑、`slide_count`、連續頁號、必填物件、清單數量、字數、拆頁、佔位符使用或
+改用另一個同樣受原文支援的已註冊頁型。禁止為了通過驗證而補寫內容。
+
+三輪後仍失敗，就停止並用白話列出剩餘錯誤；不要交付 JSON，也不要渲染簡報。
+
+### 6. 品質檢查判定
 
 品質檢查允許先輸出 `WARN`。只有品質檢查結束碼為 0，且完整輸出中**包含一行**以
 `結果:PASS` 開頭的文字，才可交付；不得要求整段輸出以 PASS 開頭。若是規格或頁型
-選擇造成品質檢查失敗，回到規格步驟修正後整檔重生。若已註冊頁型出現 `FillError`
-或模板問題，回報維護者；禁止改走複製計畫繞過。
+選擇造成品質檢查失敗，回到規格步驟修正後整條重跑管線。若已註冊頁型出現
+`FillError` 或模板問題，回報維護者；禁止改走複製計畫繞過，也禁止退回手動逐步
+執行來跳過失敗階段。
 
 ### 7. 交付
 

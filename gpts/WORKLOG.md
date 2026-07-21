@@ -86,7 +86,7 @@
 - 檔案形式的判斷準則:**模型要讀的 → 獨立文件(走檢索);程式要讀的 →
   可打包 zip(走沙箱檔案系統)**。assets.zip/tools.zip 因此打包(省檔位、
   保留目錄結構、更新原子性),規則文件因此散放。
-- instructions 開頭埋版本字串(目前 `v1.4-20260721`),發版時更新。
+- instructions 開頭埋版本字串(目前 `v1.8-20260721`),發版時更新。
 
 ## 5. 早期風險(2026-07-20 實測後全數解除)
 
@@ -97,7 +97,8 @@
 4. ~~deepcopy 複製投影片是最可能翻車的環節~~ **已解除**:固化成
    `tools/pptx_toolkit.py` 的 `clone_slide()`,帶圖頁複製實測通過。
 5. **閘門是指示強制,非系統強制**:模型可能跳過驗證。緩解=要求貼 PASS 輸出;
-   終極解=GPTs Actions 接自家 API(工程量另計)。
+   ~~終極解=GPTs Actions 接自家 API~~(2026-07-21 確認 **Actions 因公司政策
+   禁用**,強制上限=沙箱內確定性腳本;v1.8 以 run_pipeline 單一入口緩解)。
 6. bad example 的違規點在「無 slides.md + 兩級閘門」下仍會 FAIL(實測 7 ERROR)。
 
 ## 6. 同步鐵律(改規則時)
@@ -191,9 +192,9 @@ recommended/recommendation 以底部一行呈現。
 其他:
 - [ ] 第一次實際部署到 GPT Builder + 跑完驗收(工具鏈本機已全數實測通過,
       但 ChatGPT 沙箱環境尚未驗過)。
-- [ ] 評估 GPTs Actions 方案(伺服器端驗證+渲染,100% 系統強制閘門)。
+- ~~評估 GPTs Actions 方案~~(2026-07-21 否決:公司政策禁用 Actions,不再提議)。
 - [ ] 選配:wireframe_preview.py(PIL+OFL 中文字型畫線框示意,緩解無預覽痛點)。
-- [ ] **裝 git + 首次 commit(最高優先,見 §11 的教訓)。**
+- ~~裝 git + 首次 commit~~(已完成:2026-07-21 起以 git 保護,見 commit 歷史)。
 
 ## 9. 維護提醒(工具層)
 
@@ -330,7 +331,7 @@ v1.7 拆開這兩件事:
   加封殺「沒有穩定的工具鏈」話術;Step 0 改為**每次產檔前**檢查關鍵檔案,
   沙箱中途重置導致檔案消失時重解壓即可,不得當成工具鏈故障。
 
-### 13.3 同步影響
+### 13.3 同步影響(v1.7 部分)
 
 validator 有改(佔位符白名單)→ 需重新上傳 `validate_slide_spec_gpts.py`;
 PAGE_TYPES 契約未動 → schema enum 與 registry 頁型節不需改,但 registry 補了
@@ -338,3 +339,36 @@ PAGE_TYPES 契約未動 → schema enum 與 registry 頁型節不需改,但 regi
 重打包,Builder 端仍需刪舊傳新)。發版時 Builder 需更新:instructions 全文 +
 validate_slide_spec_gpts.py + outline_to_ppt_skill.md + page_types_registry.md +
 assets.zip,共 11 檔照清單核對。
+
+## 14. 管線單一入口 + page_types 清理(v1.8,2026-07-21)
+
+前提:使用者確認 **GPTs Actions 因公司政策禁用**——伺服器端系統強制閘門永久
+出局,強制上限=Code Interpreter 內的確定性腳本。因此把「模型串多步」壓到最低:
+
+- **`tools/run_pipeline.py`(產檔單一入口)**:一條指令依序跑
+  audit_provenance → validator → render_deck → qa_check,任一階段非 0 即停。
+  模式自動判定:帶 `--slides` = outline 模式(自動 `--registered-only --strict`,
+  帶 `--source` 加開來源完整性檢查);不帶 = 直供 JSON(自動以 tempfile 產生的
+  獨一不存在路徑關閉追溯,不帶 strict)。`--validate-only` 供未涵蓋頁型先過
+  閘門再寫 plan;`--plan` 透傳給 render_deck。模型的工作塌縮成
+  「填 JSON → 跑一個指令 → 轉述報告」。
+- **`tools/audit_provenance.py`(稽核程式化)**:skill §4 原本靠模型自律的四項
+  稽核變成硬閘門——slides.md 逐行是原文逐字片段、頂層 title 逐字、deck_name=
+  第一內容頁 title、精確數字 token(實測「來源 50/輸出 5」validator 子字串放行、
+  本工具 exit 1 硬擋)。佔位符規則 import 自 validator(單一來源,同 make_skeleton
+  慣例:兩檔需同在 /mnt/data 或父目錄)。
+- **page_types.md 大掃除**:刪 49 行不存在的 `style_reference/rendered_examples`
+  參考圖引用;49 行來源模板改指向知識庫 `light_template.pptx` + inspect/plan 用法;
+  6 個已註冊頁型加「容量以 registry/validator 為準」標記防雙源漂移;**刪除
+  「可拼湊模板元素組新版面」舊管線授權**(牴觸規則 5 與使用者硬底線),改為
+  「選最接近頁型→仍不合就回報使用者」,並明寫工具只支援改字與刪除、不支援重排。
+- instructions v1.8:規則 6 要求用 CI 讀 skill **全文**(防知識檢索只回片段);
+  Step 2-5 併為管線入口流程。README_TOOLS 標準流程改為 run_pipeline 單指令;
+  skill §4/§5/§6 改為腳本稽核 + 管線執行。
+
+本機驗證:audit 正例 PASS;5-vs-50 與 title/deck_name 注入 exit 1;pipeline
+outline 模式 4/4 PASS(佔位符 spec 產出 3 頁)、直供模式 examples 01 3/3 PASS、
+04 停於 validator exit 1。tools.zip 需重打包(9 支腳本),Builder 需重傳
+tools.zip + page_types.md + outline_to_ppt_skill.md + instructions。
+
+**狀態:本機完成;GPT Builder 同步與驗收仍待執行。**
