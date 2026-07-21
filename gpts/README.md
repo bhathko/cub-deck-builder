@@ -66,6 +66,7 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 | `examples/05_outline_to_ppt_source.md`  | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
 | `examples/demo_output_*.pptx`           | 本機實測產出,眼見為憑                                                    | 不上傳                           |
 | `assets_src/`                           | 素材可編輯源檔;重打包 assets.zip 時需先把資料夾改名/複製為 `assets` 再壓 | 不上傳,留在 repo                 |
+| `給設計師的白話說明.md`                 | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
 | `FEEDBACK.md`                           | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
 | `WORKLOG.md`                            | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
