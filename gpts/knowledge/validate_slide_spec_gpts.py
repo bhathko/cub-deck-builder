@@ -19,6 +19,9 @@ fallback/validate_slide_spec.py 已移除);改契約時同步 slide_spec.schema.
 抗幻覺核心 = provenance 追溯：
   - 數字：內容槽位裡的每個數字都必須在該頁原文出現（高精準抓捏造 KPI）→ ERROR
   - 文字：字元 bigram 覆蓋率 < 門檻 → WARN（寬鬆，容忍改寫）
+  - 草稿佔位符（「待補充」「待確認」「待定」「TBD」）不視為內容事實，
+    先剔除再追溯：整格只有佔位符 → 直接通過；佔位符以外的殘餘文字照常檢查。
+    支援「先出草稿、之後補資料」的工作流；佔位符本身不含數字，捏造實值仍會被擋。
 
 用法（在 Code Interpreter 中）：
   python /mnt/data/validate_slide_spec_gpts.py \
@@ -43,6 +46,11 @@ DEFAULT_SLIDES = Path("/mnt/data/slides.md")
 DEFAULT_ASSET_DIR = Path("/mnt/data")
 
 COVERAGE_THRESHOLD = 0.55  # 文字 bigram 覆蓋率低於此值 → 疑似未依來源
+
+# 草稿佔位符：使用者授權「先出結構、之後補資料」。這些字串不算內容事實，
+# provenance 追溯前先剔除。改動清單時同步 outline_to_ppt_skill.md 與
+# page_types_registry.md 的佔位符說明。
+PLACEHOLDER_RE = re.compile(r"待補充|待確認|待定|TBD", re.IGNORECASE)
 
 # ---------------------------------------------------------------------------
 # Page-type registry：每種版型的槽位契約。新增版型 = 在此加一筆 + 更新 schema enum。
@@ -247,6 +255,11 @@ def numbers(s: str) -> list:
     return NUM_RE.findall(_nfkc(s))
 
 
+def strip_placeholders(s: str) -> str:
+    """剔除草稿佔位符後回傳殘餘文字；殘餘為空代表整格都是佔位符，免追溯。"""
+    return PLACEHOLDER_RE.sub("", _nfkc(s))
+
+
 def block_digits(block: str) -> str:
     return _nfkc(block)
 
@@ -301,13 +314,15 @@ def validate_value(val, slot, path, block, rep: Report):
         if n > slot["max_chars"]:
             rep.error(path, f"字數 {n} 超過上限 {slot['max_chars']}：「{val[:24]}…」")
         if slot.get("provenance", True) and block is not None:
-            bd = block_digits(block)
-            for num in numbers(val):
-                if num not in bd:
-                    rep.error(path, f"疑似捏造數字 {num!r}（來源頁原文找不到）：「{val}」")
-            cov = coverage(val, block)
-            if cov < COVERAGE_THRESHOLD:
-                rep.warn(path, f"文字與來源相似度低 {cov:.2f} < {COVERAGE_THRESHOLD}，可能未依 slides.md：「{val}」")
+            checked = strip_placeholders(val)
+            if norm(checked):
+                bd = block_digits(block)
+                for num in numbers(checked):
+                    if num not in bd:
+                        rep.error(path, f"疑似捏造數字 {num!r}（來源頁原文找不到）：「{val}」")
+                cov = coverage(checked, block)
+                if cov < COVERAGE_THRESHOLD:
+                    rep.warn(path, f"文字與來源相似度低 {cov:.2f} < {COVERAGE_THRESHOLD}，可能未依 slides.md：「{val}」")
 
     elif kind == "list":
         if not isinstance(val, list):
@@ -345,11 +360,14 @@ def generic_provenance(val, path, block, rep: Report):
     if isinstance(val, str):
         if block is None or val.strip() == "":
             return
+        checked = strip_placeholders(val)
+        if not norm(checked):
+            return
         bd = block_digits(block)
-        for num in numbers(val):
+        for num in numbers(checked):
             if num not in bd:
                 rep.error(path, f"疑似捏造數字 {num!r}（來源頁原文找不到）：「{val}」")
-        cov = coverage(val, block)
+        cov = coverage(checked, block)
         if cov < COVERAGE_THRESHOLD:
             rep.warn(path, f"文字與來源相似度低 {cov:.2f} < {COVERAGE_THRESHOLD}，可能未依 slides.md：「{val}」")
     elif isinstance(val, list):

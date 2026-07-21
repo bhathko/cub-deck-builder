@@ -46,13 +46,18 @@
 - 輸入 = 使用者的 slide_spec.json,其他全部內建。
 - **取捨**:沒有 slides.md,provenance 追溯自動關閉(程式行為:找不到 → WARN +
   略過)。合理化:JSON 是人寫的,內容正確性由撰寫者負責;閘門仍硬擋結構/數量/
-  字數/頁碼/素材。
+  字數/頁碼/素材。v1.4 起直供 JSON 必須以 `--slides` 明確指向本次獨一且已確認
+  不存在的路徑,不可因沙箱殘留 `/mnt/data/slides.md` 而誤開追溯。
 - `page_types_registry.md` 改寫成使用者導向的「slide_spec.json 撰寫指南」。
 - 絕對規則:GPT 不可增刪改使用者 JSON 的任何文字/數字;修正需展示差異取得同意。
 - **v1.3 內容模式**(使用者給大綱/段落):GPT 切頁選頁型 → 原文逐字存
-  slides.md → 產 spec → 驗證帶 `--slides` **重新開啟捏造數字硬擋** →
+  slides.md → 產 spec → 驗證帶 `--slides` **重新開啟已註冊 slots 的來源比對** →
   每頁摘要確認後才產檔。三條入口(合規 JSON/不合規 JSON 修正循環/內容模式)
   收斂到同一個確定性出口。
+- **v1.4 一鍵大綱模式**(2026-07-21):`/outline-to-ppt` 將內容模式改成單次授權,
+  不再要求切頁或產檔確認;由獨立繁中 Knowledge workflow 使用 make_skeleton、
+  `--slides --registered-only --strict`、render 與 QA 一次完成。只允許十種註冊頁型,
+  來源不足時安全停止。
 
 ### v1 內的兩次重要修正
 1. **模板生成方式**:light_template.pptx + 完整 page_types.md 加入知識庫;
@@ -67,8 +72,9 @@
 1. 路徑改為 CLI 參數(`--spec/--slides/--asset-dir`,預設 /mnt/data)。
 2. **兩級閘門**:`page_type` 在 `PAGE_TYPES` 註冊(10 種)→ 完整槽位契約檢查;
    未註冊但在 page_types.md 頁型庫 → 降級為 `generic_provenance()` 泛用檢查
-   (有 slides.md 時仍擋捏造數字;純 JSON 模式下實際只驗素材存在 + slots 為
-   dict)。`--registered-only` 可恢復嚴格行為。
+   (有 slides.md 時比對 slots 數字與文字;純 JSON 模式下實際只驗素材存在 + slots 為
+   dict)。數字實作是子字串查找,例如來源 `50` 可能誤讓輸出 `5` 通過;
+   `--registered-only` 可恢復嚴格頁型行為,但不會改變這個數字限制。
    **動機**:不 fork 的話 40+ 種頁型全不能用。**代價**:未註冊頁型容量靠模型
    自律,長期正解是把常用頁型補進 `PAGE_TYPES`。
 3. JSON 讀取用 utf-8-sig(容忍 Windows BOM,使用者上傳常見)。
@@ -76,11 +82,11 @@
 ## 4. 檔案清單與角色
 
 見 `README.md` 的表格。特別說明:
-- `knowledge/`(10 檔)= 要上傳 GPTs 的;其餘留在 repo。
+- `knowledge/`(11 檔)= 要上傳 GPTs 的;其餘留在 repo。
 - 檔案形式的判斷準則:**模型要讀的 → 獨立文件(走檢索);程式要讀的 →
   可打包 zip(走沙箱檔案系統)**。assets.zip/tools.zip 因此打包(省檔位、
   保留目錄結構、更新原子性),規則文件因此散放。
-- instructions 開頭埋版本字串(目前 `v1.3-20260720`),發版時更新。
+- instructions 開頭埋版本字串(目前 `v1.4-20260721`),發版時更新。
 
 ## 5. 早期風險(2026-07-20 實測後全數解除)
 
@@ -226,3 +232,109 @@ recommended/recommendation 以底部一行呈現。
 - **教訓(必執行)**:①立刻裝 git(`winget install Git.Git`)並 commit;
   ②每次重大變更後重做備份 zip 且放到 repo 外;③scratchpad 沙箱意外成為
   第三份備份——但它是暫存目錄,不可依賴。
+
+## 12. 一鍵大綱轉簡報(v1.4,2026-07-21)
+
+實際使用發現,原本 v1.3 內容模式藏在長 Instructions 中,模型仍可能漏存
+`slides.md`、手寫錯 `render_page_number`,且使用者取得 JSON 後還要再下指令產 PPT。
+
+本版新增 `knowledge/outline_to_ppt_skill.md`、`/outline-to-ppt` 與未切頁測試來源
+`examples/05_outline_to_ppt_source.md`:
+
+- 使用者一次貼大綱即授權 JSON、validator、render、QA 與雙檔交付,不再中途確認。
+- 先用 `make_skeleton.py` 取得契約正確的頁碼、素材與槽位結構,再填入來源內容;
+  `PAGE_TYPE_LIST` 指定與呼叫放在同一個可執行區塊,每次替換範例 literal。
+- 強制 `--slides --registered-only --strict`,只用十種完整註冊頁型。每次 outline run
+  都覆寫本次完整來源與 `/mnt/data/slides.md`,禁止附加或沿用舊內容。
+- 直供 JSON 則以 `--slides` 指向本次獨一且確認不存在的路徑,搭配
+  既不加 `--registered-only` 也不加 `--strict` 的一般模式,刻意關閉追溯,避免
+  outline→JSON 混合模式繼承舊 `slides.md`,並保留兩級頁型與未註冊頁型 render plan
+  流程。缺來源與未註冊頁型 WARN 在此模式是預期結果；錯加 `--strict` 會把缺來源
+  WARN 升級成 ERROR,錯加 `--registered-only` 會硬擋未註冊頁型。
+- 缺少封面日期或報告人時省略 cover,不補值;來源不足就停止。
+- `assets.zip` 內含 `assets/`,所以解到 `/mnt/data`;`tools.zip` 的工具在 archive root,
+  所以先建立 `/mnt/data/tools` 再解到該目錄。封裝回歸必須使用解出的 renderer/QA。
+- validator 最多自動修正三輪,且只能改結構或來源支援的縮字/拆頁。QA 的成功條件
+  是 exit 0 且完整輸出**包含一行**以 `結果:PASS` 開頭;WARN 可以出現在 PASS 前。
+
+### 12.1 忠實度邊界
+
+validator 會程式化追溯已註冊頁型契約中啟用 provenance 的 `slots`,但不追溯頂層
+`slides[].title` 或 `deck.deck_name`;數字比對也有 `5` 可被來源 `50` 子字串誤滿足的
+限制。因此 v1.4 在 validator 前另做 prompt/workflow audit:
+
+- 每頁頂層 title 必須逐字來自本次對應來源區塊;closing 的 `Thank you` 例外。
+- `deck.deck_name` 等於第一頁非 closing 的來源支援 title,不再要求來源另列簡報名稱。
+- 遞迴盤點 deck name、title、slots 的數字 token 並做精確比對,`5` 不等於 `50`。
+- 唯一可獨立於來源的結構值是 agenda 順序編號、固定比較標題「改善前/改善後」與
+  closing 的 `Thank you`。`recommended`、`recommendation` 等語意建議不得豁免。
+
+這是工作流稽核,不是 validator 新增的程式保證;本版刻意遵守「不改 validator」約束,
+文件也不再宣稱完整 programmatic provenance 或所有捏造數字都由 validator 硬擋。
+
+### 12.2 驗收與發版狀態
+
+本機驗收必須包含:Knowledge 11 檔、archive 固定 hash、從僅複製 Knowledge packages/
+files 與測試輸入開始的正確路徑 bootstrap + strict validator/render/QA、QA WARN→PASS、
+既有 examples 預期 exits、outline→直供 JSON 隔離、title/deck 注入、精確數字與子字串
+限制,以及 fixture 05 不含 `## Slide` 或頁型/視覺方向指示。
+
+GPT Builder 則用 fixture 05 跑完整一鍵案例,並另跑缺封面欄位、封裝 bootstrap、
+QA 警告、mixed mode、title/deck 注入、精確數字、未註冊頁型壓力與來源不足案例。
+完成後才把日期、model/runtime、validator、QA、頁數與 warnings 寫回此節。
+
+2026-07-21 本機證據:靜態契約、Knowledge 11 檔與固定 archive hash 通過;全新暫存
+runtime 只放 Knowledge packages/files 與測試輸入後,依實際封裝層級解壓,strict
+validator、解出的 renderer 與 QA 完成 10 頁全流程。暫存頁碼 mismatch 讓 QA 先印
+1 個 WARN 再印 `結果:PASS`,exit 仍為 0。既有 examples exits 為 0/0/0/1;
+outline→直供 JSON 以不帶 `--strict` 或 `--registered-only` 的直供參數 exit 0 並顯示
+追溯關閉,未註冊直供正例 exit 0、`--registered-only` 負對照 exit 1;title/deck
+注入、`5` 對來源 `50` 的子字串限制與
+完全不存在的 `88` 皆依預期呈現 validator/workflow audit 邊界。這些都是本機證據,
+不取代 GPT Builder 驗收。
+
+**狀態:已在本機實作;GPT Builder 驗收待執行;尚未發布。**
+
+未修改 validator、schema、registry、renderer、template、tools 或 assets,因此不用重打包
+`tools.zip`/`assets.zip`;fixture 05 也不是 Knowledge,上傳數仍是 11。
+
+## 13. 草稿模式 + 環境自癒(v1.7,2026-07-21)
+
+### 13.1 背景:首輪實測失敗的診斷
+
+使用者實測 GPT 常在 `/outline-to-ppt` 中途宣稱「無法用你的工具產生」「腳本都在
+但沒有穩定的工具鏈」。診斷結論:**v1.5/v1.6 的修正(反拒絕規則 7、省略並繼續、
+正斜線重打包的 assets.zip、outline_to_ppt_skill.md)全部只存在本機工作區,從未
+commit、也未同步到 GPT Builder**;Builder 端跑的是舊版指示,失敗行為與舊版一致。
+GPT Builder 驗收始終未執行——踩到的正是唯一沒驗過的一環。同步 + 驗收是一切
+修正生效的先決條件;驗收前先問 GPT「你現在是哪一版?」核對版本字串。
+
+### 13.2 草稿模式(使用者定案的設計修正)
+
+使用者實務工作流是「先做出簡報結構、之後再補資料」,並明確定案:**補齊規格內容
+可以,硬底線是不能用提供的模板/頁型以外的東西**。原規則把「不得捏造事實」與
+「不得出現占位文字」綁在一起,導致缺日期/報告人/KPI 就省略頁面甚至整體停止。
+v1.7 拆開這兩件事:
+
+- **validator**:新增 `PLACEHOLDER_RE`(待補充/待確認/待定/TBD,不分大小寫)與
+  `strip_placeholders()`;兩條 provenance 路徑(註冊槽位 `validate_value`、未註冊
+  `generic_provenance`)都先剔除佔位符再做數字與 bigram 檢查,整格皆佔位符
+  (norm 後為空)則跳過追溯。字數上限、空值、結構檢查不變;佔位符以外的殘餘
+  文字照常嚴查,佔位符本身無數字,捏造實值仍被硬擋。
+- **skill**:「省略並繼續」改為「佔位並繼續」——cover 有主標題即可用,缺欄填
+  「待補充」;點名要求的圖表改以語意最接近的註冊頁型建頁、缺料欄填佔位符;
+  來源沒提及也沒點名的頁不得憑空建立;交付摘要必列「待補清單」。來源不足停止
+  收窄為「擠不出任何一頁有來源標題的內容頁」。`待填`(骨架記號,不得殘留)與
+  「待補充」(合法佔位符)明確區分。稽核例外清單加入佔位符。
+- **instructions v1.7**:新增規則 8(草稿優先、佔位不捏造、版型無例外);規則 7
+  加封殺「沒有穩定的工具鏈」話術;Step 0 改為**每次產檔前**檢查關鍵檔案,
+  沙箱中途重置導致檔案消失時重解壓即可,不得當成工具鏈故障。
+
+### 13.3 同步影響
+
+validator 有改(佔位符白名單)→ 需重新上傳 `validate_slide_spec_gpts.py`;
+PAGE_TYPES 契約未動 → schema enum 與 registry 頁型節不需改,但 registry 補了
+佔位符使用說明。tools/assets 未動,不需重打包(assets.zip 稍早已因正斜線
+重打包,Builder 端仍需刪舊傳新)。發版時 Builder 需更新:instructions 全文 +
+validate_slide_spec_gpts.py + outline_to_ppt_skill.md + page_types_registry.md +
+assets.zip,共 11 檔照清單核對。

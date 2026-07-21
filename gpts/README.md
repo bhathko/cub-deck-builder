@@ -14,24 +14,23 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 閘門分兩級:`page_types_registry.md` 裡的 **10 種註冊頁型**走完整槽位契約檢查;
 `page_types.md` 頁型庫的**其他 40+ 種頁型**也可以用,驗證器對它們只做基本檢查,
 容量由模型比照 page_types.md 自律。
-使用者不會寫 JSON 也沒關係:對 GPTs 要空白骨架、或直接貼內容文字請它代擬 JSON
-(代擬稿須經使用者確認才會產檔,且會開啟防幻覺追溯)。
+使用者不會寫 JSON 也沒關係:對 GPTs 要空白骨架,或輸入 `/outline-to-ppt` 後貼上段落大綱。後者會保存來源、只選完整註冊頁型、產生並嚴格驗證 JSON,接著直接渲染與 QA;只有來源不足或閘門失敗才停止。
 
 ## 工具層(`tools/` → `knowledge/tools.zip`)
 
 產檔的機械動作全部由七個預寫檔案執行,模型只在「未涵蓋頁型」時手產一份小小的
 `render_plan.json`——這是「精準 + 省 token + 不進 QA 死循環」的核心設計:
 
-| 腳本 | 角色 |
-|---|---|
-| `pptx_toolkit.py` | 投影片複製(含 rels 重映射,圖不破)/刪除/排序/清 Section |
-| `text_tools.py` | 群組內層文字替換(保留原字級顏色)、CJK 溢出估算、縮字 |
-| `fills.py` | **10 種註冊頁型的確定性填充引擎**:5 種自動填入模板頁(shape id 寫死) |
-| `inspect_template.py` | 模板盤點:`--summary` 全冊一頁一行、`--page N` 單頁形狀樹(省 token) |
-| `render_deck.py` | 主程式:spec(+選配 plan)→ pptx,**冪等整檔重生**;5 種頁型內建版面 |
-| `qa_check.py` | 產檔後自檢:內容覆蓋/頁數/Section/字體/頁碼/溢出,只印問題 |
-| `make_skeleton.py` | 依頁型清單產「保證過驗證器」的 spec 骨架 |
-| `README_TOOLS.md` | 給模型的速查卡:標準三步指令 + plan 格式 + 鐵律 |
+| 腳本                  | 角色                                                                |
+| --------------------- | ------------------------------------------------------------------- |
+| `pptx_toolkit.py`     | 投影片複製(含 rels 重映射,圖不破)/刪除/排序/清 Section              |
+| `text_tools.py`       | 群組內層文字替換(保留原字級顏色)、CJK 溢出估算、縮字                |
+| `fills.py`            | **10 種註冊頁型的確定性填充引擎**:5 種自動填入模板頁(shape id 寫死) |
+| `inspect_template.py` | 模板盤點:`--summary` 全冊一頁一行、`--page N` 單頁形狀樹(省 token)  |
+| `render_deck.py`      | 主程式:spec(+選配 plan)→ pptx,**冪等整檔重生**;5 種頁型內建版面     |
+| `qa_check.py`         | 產檔後自檢:內容覆蓋/頁數/Section/字體/頁碼/溢出,只印問題            |
+| `make_skeleton.py`    | 依頁型清單產「保證過驗證器」的 spec 骨架                            |
+| `README_TOOLS.md`     | 給模型的速查卡:標準三步指令 + plan 格式 + 鐵律                      |
 
 **10 種註冊頁型 = 純 script 產出,LLM 零參與**:使用者 JSON → 驗證 → render_deck
 自動產檔 → qa_check,全程模型只負責跑指令和轉述結果。只有用到 page_types.md
@@ -46,25 +45,27 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 
 ## 包內檔案
 
-| 檔案 | 用途 | 放哪裡 |
-|---|---|---|
-| `instructions.md` | GPTs 系統指示全文(含版本代號) | 貼進 GPT Builder「Instructions」 |
-| `knowledge/validate_slide_spec_gpts.py` | 驗證器(兩級閘門;PAGE_TYPES 單一真相來源) | 上傳到 Knowledge |
-| `knowledge/page_types_registry.md` | slide_spec.json 撰寫指南 + 10 種註冊頁型契約 | 上傳到 Knowledge |
-| `knowledge/page_types.md` | 完整頁型庫 40+ 種 | 上傳到 Knowledge |
-| `knowledge/light_template.pptx` | 公司模板本體,產檔時複製頁改字 | 上傳到 Knowledge |
-| `knowledge/style_guide.md` | 視覺規範 | 上傳到 Knowledge |
-| `knowledge/slide_spec.schema.json` | spec 結構定義 | 上傳到 Knowledge |
-| `knowledge/slide_spec.example.json` | 通過驗證的完整範例 | 上傳到 Knowledge |
-| `knowledge/slide_spec.bad.example.json` | 會 FAIL 的範例(驗收測試用) | 上傳到 Knowledge |
-| `knowledge/assets.zip` | 背景圖 ×3 + logo | 上傳到 Knowledge |
-| `knowledge/tools.zip` | 工具腳本 ×7 + 速查卡(源碼在 `tools/`) | 上傳到 Knowledge |
-| `examples/*.json` | 四份試用範例(最小/完整/未註冊頁型/故意違規) | 不上傳,發給使用者試 |
-| `examples/02_full_10p.source_slides.md` | 內容模式(--slides 追溯)測試 fixture | 不上傳,測試用 |
-| `examples/demo_output_*.pptx` | 本機實測產出,眼見為憑 | 不上傳 |
-| `assets_src/` | 素材可編輯源檔;重打包 assets.zip 時需先把資料夾改名/複製為 `assets` 再壓 | 不上傳,留在 repo |
-| `FEEDBACK.md` | 回饋台帳(症狀→規則化→發版的追蹤表) | 不上傳,留在 repo |
-| `WORKLOG.md` | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀 | 不上傳,留在 repo |
+| 檔案                                    | 用途                                                                     | 放哪裡                           |
+| --------------------------------------- | ------------------------------------------------------------------------ | -------------------------------- |
+| `instructions.md`                       | GPTs 系統指示全文(含版本代號)                                            | 貼進 GPT Builder「Instructions」 |
+| `knowledge/validate_slide_spec_gpts.py` | 驗證器(兩級閘門;PAGE_TYPES 單一真相來源)                                 | 上傳到 Knowledge                 |
+| `knowledge/page_types_registry.md`      | slide_spec.json 撰寫指南 + 10 種註冊頁型契約                             | 上傳到 Knowledge                 |
+| `knowledge/outline_to_ppt_skill.md`     | 段落大綱一鍵產生合規 JSON、渲染 PPT 與 QA 的繁中工作流                   | 上傳到 Knowledge                 |
+| `knowledge/page_types.md`               | 完整頁型庫 40+ 種                                                        | 上傳到 Knowledge                 |
+| `knowledge/light_template.pptx`         | 公司模板本體,產檔時複製頁改字                                            | 上傳到 Knowledge                 |
+| `knowledge/style_guide.md`              | 視覺規範                                                                 | 上傳到 Knowledge                 |
+| `knowledge/slide_spec.schema.json`      | spec 結構定義                                                            | 上傳到 Knowledge                 |
+| `knowledge/slide_spec.example.json`     | 通過驗證的完整範例                                                       | 上傳到 Knowledge                 |
+| `knowledge/slide_spec.bad.example.json` | 會 FAIL 的範例(驗收測試用)                                               | 上傳到 Knowledge                 |
+| `knowledge/assets.zip`                  | 背景圖 ×3 + logo                                                         | 上傳到 Knowledge                 |
+| `knowledge/tools.zip`                   | 工具腳本 ×7 + 速查卡(源碼在 `tools/`)                                    | 上傳到 Knowledge                 |
+| `examples/01_*.json`–`04_*.json`        | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
+| `examples/02_full_10p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
+| `examples/05_outline_to_ppt_source.md`  | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
+| `examples/demo_output_*.pptx`           | 本機實測產出,眼見為憑                                                    | 不上傳                           |
+| `assets_src/`                           | 素材可編輯源檔;重打包 assets.zip 時需先把資料夾改名/複製為 `assets` 再壓 | 不上傳,留在 repo                 |
+| `FEEDBACK.md`                           | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
+| `WORKLOG.md`                            | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
 ## 建置步驟(約 15 分鐘)
 
@@ -73,13 +74,14 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 2. **Name / Description**:自訂,例如「簡報產生器(內部)」/「給我一份合規的
    slide_spec.json,產出公司規範的 16:9 繁中簡報;模板素材全內建」。
 3. **Instructions**:貼上 `instructions.md` 分隔線以下的全文。
-4. **Knowledge**:上傳上表 10 個檔案(`knowledge/` 內全部;GPTs 上限 20 個檔,
+4. **Knowledge**:上傳上表 11 個檔案(`knowledge/` 內全部;GPTs 上限 20 個檔,
    還有餘裕)。
 5. **Capabilities**:
    - ✅ **Code Interpreter & Data Analysis**(必開,整個流程靠它)
    - ❌ Web Browsing(關,避免內容混入外部資料)
    - ❌ DALL·E / 圖片生成(關;此流程完全不生圖)
 6. **Conversation starters** 建議:
+   - 「`/outline-to-ppt` 接著貼上段落大綱,一次產出 JSON 與 PPT」
    - 「這是我的 slide_spec.json,幫我產出 PPT」
    - 「給我一份 slide_spec.json 空白骨架,頁型:封面、目錄、三欄說明、封底」
    - 「slide_spec.json 要怎麼寫?有哪些頁型可以用?」
@@ -88,8 +90,17 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 
 ## 驗收測試(建好後必做)
 
+> **v1.7 狀態(2026-07-21):已在本機實作;GPT Builder 驗收待執行;尚未發布。**
+> 下列 GPT Builder 項目是發版閘門,不是已通過紀錄。
+> ⚠ 實測回報「卡在一半說無法用工具產生/沒有穩定的工具鏈」的第一檢查點:
+> 問 GPT「你現在是哪一版?」——不是 `v1.7-20260721` 就代表 Builder 端還在跑舊版,
+> 先同步 instructions 與 11 個知識檔(特別是 outline_to_ppt_skill.md 與重打包的
+> assets.zip)再測。
+
 1. 對 GPTs 說:「執行環境準備,然後用知識庫的 slide_spec.bad.example.json 和
    slide_spec.example.json 各跑一次驗證器,貼出結果。」
+   - `assets.zip` 必須解到 `/mnt/data`,形成 `/mnt/data/assets/`
+   - 必須先建立 `/mnt/data/tools`,再把 archive root 是工具檔的 `tools.zip` 解到該目錄
    - bad example 必須 **FAIL** 並列出一串 ERROR
    - example 必須 **PASS**(可能有 WARN)
    - ✅ 2026-07-20 已在本機(Python 3.14 + python-pptx 1.0.2)完整實測:驗證器
@@ -105,11 +116,58 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 4. 再測一份自己寫的 JSON(建議刻意包含一頁未註冊頁型,如 `cycle_four_point_loop`,
    以及一個故意超字數的欄位),確認:超字數那頁被驗證器擋下並回報清楚的修正建議;
    修正後能產檔,且未註冊頁型的版面有按模板對應頁重建。
+5. 測試一鍵大綱流程:輸入 `/outline-to-ppt`,再貼上真正未切頁的
+   `examples/05_outline_to_ppt_source.md` 全文。確認 GPTs 不要求中途確認,且:
+   - 環境先出現 `/mnt/data/assets/` 與 `/mnt/data/tools/`
+   - 驗證命令同時含 `--slides --registered-only --strict`
+   - 本次原文與 `slides.md` 都覆寫舊檔,沒有混入前次執行內容
+   - `slides.md` 每頁區塊內的每一段來源摘錄都是
+     `/mnt/data/outline_source_current.txt` 的逐字片段,沒有改寫或補寫
+   - 至少有一頁真正內容頁;`cover`、`agenda`、`closing` 都不計入,所以只有這三種頁型
+     不能滿足來源充分性
+   - 驗證前工作流稽核涵蓋頂層 `slides[].title`、`deck.deck_name` 與全部內容欄位的
+     精確數字 token
+   - `slide_spec.json` 驗證 PASS
+   - `deck.pptx` 的 qa_check exit 0,且完整輸出包含一行以 `結果:PASS` 開頭；前面即使有
+     WARN 也算 PASS,但警告必須如實回報
+   - 最後同時提供 JSON 與 PPTX
+6. 測試內容忠實邊界:
+   - 移除來源中的日期與報告人重跑,確認保留 `cover` 且缺欄填「待補充」而非捏造
+     實值;交付摘要含待補清單
+   - 來源標「待補充」的 KPI 與只有名稱沒有數據的圖表(如甘特圖、KPI 儀表板),
+     確認以最接近的已註冊頁型建頁、缺料欄位填「待補充」,不生成示意圖、不捏造
+     數據、不改用未註冊頁型
+   - 在頂層 `slides[].title` 或 `deck.deck_name` 注入來源沒有的文字,確認工作流稽核在
+     validator 前停止
+   - 在來源未出現的槽位加入 `88%`,確認稽核與 validator 都拒絕且不交付 PPTX
+   - 用暫存測資讓來源只有 `50`、輸出為 `5`,確認精確 token 稽核拒絕；validator 目前
+     的子字串比對可能通過此例,這是已知限制,不可宣稱 validator 完整硬擋
+7. 測試模式隔離:先完成一次 outline 流程並保留 `/mnt/data/slides.md`,接著直供 JSON。
+   直供模式必須產生本次獨一且已確認不存在的 `direct_json_<run-id>.no-slides` 路徑,
+   只以 `--slides` 指向它,不得加 `--registered-only` 或 `--strict`,並確認 exit 0、
+   顯示「來源追溯:關」與缺來源 WARN；不得誤用舊 `slides.md`。若加 `--strict`,該 WARN
+   會升級為 ERROR；若加 `--registered-only`,未註冊頁型會被硬擋,兩者都不屬於純 JSON
+   模式的合法指令。
+
+### 發版前本機回歸
+
+本機另以全新暫存目錄跑下列案例；完整命令與預期結果見
+`docs/superpowers/plans/2026-07-21-outline-to-ppt-knowledge-skill.md`:
+
+- 從複製的 Knowledge archives/檔案與測試輸入開始,把 `assets.zip` 解到暫存根目錄、
+  `tools.zip` 解到明確建立的 `tools/`,再以**解出的** validator、renderer、QA 完成
+  strict 全流程。
+- 對有效 deck 使用暫存 spec 製造頁碼 WARN,證明 QA 先印 WARN、後印
+  `結果:PASS` 時 exit 仍為 0。
+- 跑 outline→直供 JSON 混合模式、title/deck 注入、精確數字 token 與子字串限制案例。
+- 跑 `examples/` 既有四份 validator 預期 exit、Knowledge 11 檔清單、兩個 archive hash,
+  並確認 fixture 05 沒有 `## Slide` 或頁型/視覺方向指示。
 
 ## 誠實的限制(建議原文轉達給主管)
 
 1. **閘門是「指示強制」不是「系統強制」。** 模型理論上可能偷懶跳過驗證。緩解:
-   指示要求它貼出驗證器輸出,使用者驗收時認「結果:PASS」那行;沒看到就要求重跑。
+   指示要求它貼出驗證器與 QA 輸出,使用者驗收時認各自的「結果…PASS」行;沒看到就
+   要求重跑。
    要 100% 系統強制,得改用 GPTs Actions 接自家 API(把驗證+渲染放伺服器端),
    工程量另計。
 2. **視覺一致性:機械部分已確定化,判斷部分仍靠模型。** 複製頁、換字、刪頁、
@@ -120,10 +178,16 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
    另外:未註冊頁型(page_types.md 那 40+ 種)的槽位容量只靠模型自律,程式閘門
    對它們只驗基本結構與素材存在;需要嚴格保證的頁型,長期解是把它註冊進
    `PAGE_TYPES`(見下方維護節)。
-   最後:JSON 直供模式沒有內容來源檔,驗證器的防幻覺追溯(捏造數字比對)自動
-   關閉——內容正確性由寫 JSON 的人負責。若某次是請 GPTs 從原文代擬 JSON,
-   內容模式會把原文存成 /mnt/data/slides.md 並在驗證時加 `--slides`,
-   追溯就會重新開啟。
+   若使用 `/outline-to-ppt`,每次都以本次原文覆寫 /mnt/data/slides.md,再以
+   `--slides --registered-only --strict` 啟用已註冊 `slots` 的程式追溯,並只在工作流稽核、
+   validator 與 QA 都 PASS 後交付 JSON 與 PPTX。validator 不會追溯頂層
+   `slides[].title` 或 `deck.deck_name`,而且數字目前用子字串比對；這兩項由驗證前
+   prompt/workflow audit 補強,不是 validator 的硬保證。可不依來源產生的值只限
+   agenda 順序編號、固定比較標題「改善前/改善後」與 closing 的 `Thank you`；語意性
+   建議內容仍須有來源。純 JSON 直供模式由 JSON 作者負責內容正確性,且必須把
+   `--slides` 指向本次獨一、已確認不存在的路徑,且不加 `--registered-only` 或
+   `--strict`,刻意關閉追溯、避開舊 slides.md 並保留兩級頁型行為；缺來源與未註冊
+   頁型 WARN 是預期結果。
 3. **沙箱沒有中文字體。** 產出的 .pptx 在使用者電腦開啟時字體正確(檔案裡只存
    字體名稱),但 GPTs 無法先渲染可靠的中文預覽圖,驗收要開 PowerPoint 看。
 4. **知識庫檔案是靜態副本。** repo 更新規則時,GPTs 不會自動同步,要手動重新
@@ -141,7 +205,7 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
    `gpts/knowledge/*`,一律先改 repo、commit,再由管理者同步到 GPT Builder
    (貼指示/重傳知識檔)。不要直接在 GPT Builder 裡改完就算——下次同步會被
    repo 版蓋掉。
-2. **版本代號。** 指示開頭埋了版本字串(目前 `v1.3-20260720`),每次同步時更新。
+2. **版本代號。** 指示開頭埋了版本字串(目前 `v1.7-20260721`),每次同步時更新。
    使用者對 GPTs 問「你現在是哪一版?」就能確認自己用到的是不是最新版,
    回報問題時也請附上版本代號。
 3. **回饋管道。** 開一個固定收集點(Slack/Teams 頻道或共用表單皆可),回報格式:
@@ -151,8 +215,8 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
    `page_types.md` 描述;閘門漏擋或誤擋 → 改 `validate_slide_spec_gpts.py`
    (同步 schema 與 registry,見下方維護節);想要新頁型 → 走下方「維護」節的
    註冊流程。
-5. **改完先驗收再發版。** 每次重新上傳後,跑一輪「驗收測試」節的四步 +
-   `examples/` 四份範例,PASS 才通知團隊更新。
+5. **改完先驗收再發版。** 每次重新上傳後,跑完「驗收測試」節的全部項目 +
+   `examples/` 的 01–04 四份既有 validator 範例,PASS 才通知團隊更新。
 
 ### 「產出不如預期」要怎麼回饋才會真的變好
 
@@ -168,15 +232,15 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
 **第二層|管理者規則化(讓以後都對):**
 把回饋翻譯成規則寫進對應檔案,再重新上傳。對照表:
 
-| 症狀 | 改哪裡 |
-|---|---|
-| 文字溢出、字級跑掉 | `instructions.md` 溢出規則,或調低 `page_types_registry.md` 該欄位字數上限 |
-| 版面跟模板不像、元素亂跑 | `page_types.md` 該頁型的「視覺結構」描述補細節(位置、比例講死) |
-| 配色、卡片樣式、logo/頁碼不對 | `style_guide.md` 補規則 |
-| 明顯違規的 JSON 沒被擋 / 合規的被誤擋 | `validate_slide_spec_gpts.py`(同步 schema 與 registry,見下方維護節) |
-| 破圖、頁序錯、Section 殘留、封面/目錄版面偏移等機械問題 | `tools/` 對應腳本,改完重打包 `tools.zip` 上傳 |
-| 同一頁型每次產出長得不一樣 | 最強解:把該頁型註冊進 `PAGE_TYPES` + registry + fills,升級成全自動 |
-| 它跳過驗證就產檔 | `instructions.md` 絕對規則區加重申;驗收時堅持要看 PASS 輸出 |
+| 症狀                                                    | 改哪裡                                                                    |
+| ------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 文字溢出、字級跑掉                                      | `instructions.md` 溢出規則,或調低 `page_types_registry.md` 該欄位字數上限 |
+| 版面跟模板不像、元素亂跑                                | `page_types.md` 該頁型的「視覺結構」描述補細節(位置、比例講死)            |
+| 配色、卡片樣式、logo/頁碼不對                           | `style_guide.md` 補規則                                                   |
+| 明顯違規的 JSON 沒被擋 / 合規的被誤擋                   | `validate_slide_spec_gpts.py`(同步 schema 與 registry,見下方維護節)       |
+| 破圖、頁序錯、Section 殘留、封面/目錄版面偏移等機械問題 | `tools/` 對應腳本,改完重打包 `tools.zip` 上傳                             |
+| 同一頁型每次產出長得不一樣                              | 最強解:把該頁型註冊進 `PAGE_TYPES` + registry + fills,升級成全自動        |
+| 它跳過驗證就產檔                                        | `instructions.md` 絕對規則區加重申;驗收時堅持要看 PASS 輸出               |
 
 **回饋單格式**(記錄在 `gpts/FEEDBACK.md`,或貼到回饋頻道由管理者謄入):
 版本代號/日期/回報人/所用 JSON/頁碼與元素/期望(附模板參考頁)/實際(附截圖)/
@@ -196,6 +260,11 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
 
 新頁型若要全自動產出,另需在 `tools/fills.py`(或 render_deck 的 BUILDERS)
 加填充實作 → 重打包 `tools.zip`。素材改版:改 `assets_src/` → 複製為名為
-`assets` 的資料夾重打包 `assets.zip`。模板改版:照 `WORKLOG.md` §9 的
+`assets` 的資料夾重打包 `assets.zip`。**打包 zip 一律用正斜線(POSIX)路徑分隔符**
+——不要用 PowerShell `Compress-Archive` 或檔案總管「壓縮資料夾」(會塞 Windows
+反斜線,Linux `unzip` 會警告並回非零 exit,誘發 GPTs 誤判環境壞掉);用
+`python -c "import zipfile; ..."`(arcname 帶 `/`)或 `zip -r` 打包。驗證:
+`python -c "import zipfile; [print(i.orig_filename) for i in zipfile.ZipFile('gpts/knowledge/assets.zip').infolist()]"`
+每筆都必須是正斜線。模板改版:照 `WORKLOG.md` §9 的
 shape id 重盤點流程。改完把異動檔**重新上傳**到 GPTs 知識庫並刪掉舊檔;
 「gpts/ 目錄有異動 → 重新上傳知識庫」寫進團隊的發版 checklist。
