@@ -52,6 +52,28 @@ python3 -c "import pptx" 2>/dev/null && PY=python3 || PY="uv run --with python-p
 `$REPO/gpts/knowledge/light_template.pptx`、`$REPO/gpts/knowledge/validate_slide_spec_gpts.py`、
 `$REPO/gpts/tools/run_pipeline.py`。齊全就是工具鏈可用,不得未執行先宣稱做不到。
 
+### Windows 注意(shell 是 PowerShell 時)
+
+管線腳本全是 Python(pathlib),跨平台;只有本文的 shell 膠水是 bash 語法。
+**在 WSL 內執行時命令原樣可用**;原生 PowerShell 時照下列規則轉換,不得原樣照抄:
+
+- `python3` → `python`(或 `py -3`);python-pptx 偵測改寫成:先跑
+  `python -c "import pptx"`,失敗就把**後續所有** `python` 換成
+  `uv run --with python-pptx python`。
+- 環境準備等價寫法:
+  ```powershell
+  $REPO = (Get-Location).Path
+  $WORK = Join-Path $REPO 'ppt_out'
+  New-Item -ItemType Directory -Force $WORK | Out-Null
+  if (-not (Test-Path "$WORK/assets")) { Copy-Item -Recurse "$REPO/gpts/assets_src" "$WORK/assets" }
+  ```
+- `PYTHONPATH=... python3 …` 這種前綴語法 PowerShell 不支援,改成:
+  `$env:PYTHONPATH = "$REPO/gpts/knowledge"; python …`
+- 行尾 `\` 續行改寫成單行(或 PowerShell 反引號);路徑的正斜線在 Python 與
+  `Test-Path` 都可用,不需改反斜線。
+- 沿用 repo 既有鐵律:任何 zip 打包禁用 `Compress-Archive`/檔案總管
+  (會塞反斜線路徑),一律用 Python `zipfile`(本 skill 流程不打包,僅提醒)。
+
 ## 模式 A:大綱模式(預設——使用者貼的是段落文字)
 
 中途不要求使用者確認切頁、頁型或 JSON,不拋 A/B 選單;只有環境缺檔、來源不足、

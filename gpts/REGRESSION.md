@@ -5,6 +5,8 @@
 > 任何 knowledge/tools/assets 異動後、重新上傳 GPTs 前,全部案例必須全綠。
 
 前置:在 repo 根目錄執行;`$RT` 為全新暫存目錄(每次回歸重建,不得重用)。
+命令為 POSIX shell 語法(macOS/Linux);Windows 維護者請在 **WSL** 內執行,
+或照 `.codex/skills/outline-to-ppt/SKILL.md` 的「Windows 注意」規則自行轉換。
 validator/audit/make_skeleton 只用標準庫;渲染與 QA 需 python-pptx,系統沒裝時
 把下方 `python3` 換成 `uv run --with python-pptx python`(zsh 注意:存成變數
 不會自動分詞,直接寫全命令)。
