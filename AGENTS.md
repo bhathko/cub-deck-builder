@@ -29,11 +29,13 @@ Code Interpreter 裡跑驗證閘門與確定性 renderer,產出 Cathay 淺色企
    GPTs 內容模式必須落地 slides.md 並帶 `--slides` 開啟捏造數字硬擋。
 7. **生圖政策照舊**:本管線不生圖(全部 PowerPoint 可編輯物件);
    不得引入任何生圖工具。
-8. **雙前端、單引擎**:`.codex/skills/outline-to-ppt/SKILL.md` 是同一條管線的
-   本機 Codex CLI 前端,只內聯環境差異(路徑、python-pptx 取得方式)與鐵律
-   摘要,規則本體仍指回 `gpts/knowledge/` 與 `gpts/tools/`,不得在 skill 裡
-   另寫一份規則。改 gpts 規則或工具後,檢查該摘要是否需同步,並把 repo 版
-   複製到 `~/.codex/skills/outline-to-ppt/`(含重打同名 zip,POSIX 路徑)。
+8. **雙前端、單引擎**:`.codex/skills/outline-to-ppt/` 是同一條管線的本機
+   Codex CLI 前端,只內聯環境差異(鐵律摘要 + 跨平台沙箱腳本
+   `prepare_env.py`,把工具鏈複製成 `ppt_out/` 模擬 /mnt/data;命令全為單行
+   python,PowerShell/cmd/bash 通用——團隊有 Windows 使用者且公司禁 WSL),
+   規則本體仍指回 `gpts/knowledge/` 與 `gpts/tools/`,不得在 skill 裡另寫一份
+   規則。改 gpts 規則或工具後,檢查該摘要是否需同步,並把 repo 版複製到
+   `~/.codex/skills/outline-to-ppt/`(含重打同名 zip,POSIX 路徑)。
    本機產物一律進 gitignore 的 `ppt_out/`,嚴禁 commit。
 
 ## 常用指令(本機需 Python 3 + python-pptx)

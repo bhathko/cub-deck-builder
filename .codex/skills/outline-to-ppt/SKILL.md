@@ -13,7 +13,7 @@ description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec
 規則細節的單一真相來源在 repo(以下皆相對 repo 根目錄):
 
 - `gpts/knowledge/outline_to_ppt_skill.md` — 大綱模式完整規則(GPTs 版;把
-  `/mnt/data` 路徑換成本文的 `$WORK`,其餘規則照用)
+  `/mnt/data` 路徑換成本文的 `ppt_out/`,其餘規則照用)
 - `gpts/knowledge/page_types_registry.md` — 10 種註冊頁型的槽位契約(填槽前必讀)
 - `gpts/tools/README_TOOLS.md` — 錯誤→修法對照表 + 工具鐵律(FAIL 時必讀)
 
@@ -34,54 +34,43 @@ description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec
 7. **交付判準**:`run_pipeline.py` 完整輸出最後一行是 `管線結果:PASS` 才算成功;
    qa 階段允許先有 WARN(有一行以 `結果:PASS` 開頭即可),警告必須如實回報。
 
-## 步驟 0:環境準備
+## 跨平台約定(macOS / Linux / Windows PowerShell / cmd 通用)
 
-在 `ppppai` repo 根目錄執行(不在時先 cd,預設位置 `/Users/hunter/Project/ppppai`)。
-下文以 `$REPO`、`$WORK`、`$PY` 代稱,shell 不跨指令保留變數時直接代入實際值:
+本文所有命令都是**單行 `python` 呼叫、相對路徑、不用任何 shell 變數與續行**,
+在 bash、PowerShell、cmd 原樣可執行,唯二差異:
 
-```bash
-REPO="$(pwd)"            # 必須含 gpts/ 目錄
-WORK="$REPO/ppt_out"     # 工作+輸出目錄(已 gitignore,勿 commit)
-mkdir -p "$WORK"
-[ -d "$WORK/assets" ] || cp -R "$REPO/gpts/assets_src" "$WORK/assets"
-# python-pptx:優先系統 python3,沒有就用 uv 臨時環境(不要全域安裝)
-python3 -c "import pptx" 2>/dev/null && PY=python3 || PY="uv run --with python-pptx python"
+1. **直譯器名稱**:Windows 通常是 `python`(或 `py -3`);macOS/Linux 沒有
+   `python` 就用 `python3`。下文一律寫 `python`,自行代換。
+2. **渲染前綴**:步驟 0 的 prepare_env 會印出「渲染指令前綴」。若印的是
+   `uv run --with python-pptx python`,則**含渲染/QA 的命令**(run_pipeline、
+   qa_check、inspect_template)開頭的 `python` 換成該前綴(此語法三種 shell
+   相同);make_skeleton、audit_provenance 只用標準庫,一般直譯器即可。
+
+路徑一律正斜線,Python 在 Windows 也吃。另沿用 repo 鐵律:任何 zip 打包禁用
+`Compress-Archive`/檔案總管(反斜線路徑會弄壞 GPTs 沙箱解壓),一律用 Python
+`zipfile`——本 skill 流程不打包,僅提醒。
+
+## 步驟 0:環境準備(每次 session 先跑)
+
+在 repo 根目錄執行(不在時先 cd,或加 `--repo <repo路徑>`):
+
+```
+python .codex/skills/outline-to-ppt/prepare_env.py
 ```
 
-環境是否就緒**只以檔案存在判定**:`$WORK/assets/backgrounds/`、`$WORK/assets/logos/`、
-`$REPO/gpts/knowledge/light_template.pptx`、`$REPO/gpts/knowledge/validate_slide_spec_gpts.py`、
-`$REPO/gpts/tools/run_pipeline.py`。齊全就是工具鏈可用,不得未執行先宣稱做不到。
-
-### Windows 注意(shell 是 PowerShell 時)
-
-管線腳本全是 Python(pathlib),跨平台;只有本文的 shell 膠水是 bash 語法。
-**在 WSL 內執行時命令原樣可用**;原生 PowerShell 時照下列規則轉換,不得原樣照抄:
-
-- `python3` → `python`(或 `py -3`);python-pptx 偵測改寫成:先跑
-  `python -c "import pptx"`,失敗就把**後續所有** `python` 換成
-  `uv run --with python-pptx python`。
-- 環境準備等價寫法:
-  ```powershell
-  $REPO = (Get-Location).Path
-  $WORK = Join-Path $REPO 'ppt_out'
-  New-Item -ItemType Directory -Force $WORK | Out-Null
-  if (-not (Test-Path "$WORK/assets")) { Copy-Item -Recurse "$REPO/gpts/assets_src" "$WORK/assets" }
-  ```
-- `PYTHONPATH=... python3 …` 這種前綴語法 PowerShell 不支援,改成:
-  `$env:PYTHONPATH = "$REPO/gpts/knowledge"; python …`
-- 行尾 `\` 續行改寫成單行(或 PowerShell 反引號);路徑的正斜線在 Python 與
-  `Test-Path` 都可用,不需改反斜線。
-- 沿用 repo 既有鐵律:任何 zip 打包禁用 `Compress-Archive`/檔案總管
-  (會塞反斜線路徑),一律用 Python `zipfile`(本 skill 流程不打包,僅提醒)。
+腳本會把工具鏈複製成 `ppt_out/` 沙箱(模擬 GPTs /mnt/data 佈局:`assets/`、
+`tools/`、validator、模板;副本一律以 repo 為準冪等覆蓋),逐項列出檔案檢查,
+並印出「渲染指令前綴」。**環境是否就緒只以本腳本 exit 0 判定**,不得未執行
+先宣稱做不到。`ppt_out/` 已 gitignore,嚴禁 commit。
 
 ## 模式 A:大綱模式(預設——使用者貼的是段落文字)
 
 中途不要求使用者確認切頁、頁型或 JSON,不拋 A/B 選單;只有環境缺檔、來源不足、
 或三輪修正後仍 FAIL 才停止。
 
-1. **保存來源**:把本次收到的完整原文逐字覆寫 `$WORK/outline_source_current.txt`
+1. **保存來源**:把本次收到的完整原文逐字覆寫 `ppt_out/outline_source_current.txt`
    (不得沿用或附加前一次內容)。
-2. **切頁**:以來源逐字摘錄覆寫 `$WORK/slides.md`,每頁一個 `## Slide N` 區塊。
+2. **切頁**:以來源逐字摘錄覆寫 `ppt_out/slides.md`,每頁一個 `## Slide N` 區塊。
    可調整段落順序、同段可支援多頁,但每一行都必須是原文的逐字片段,不得改寫
    補寫。頁型選擇規則(詳見 `outline_to_ppt_skill.md` §2),重點:
    - 至少一頁真內容頁(`page_type` 非 cover/agenda/closing)且其標題有來源支持;
@@ -91,11 +80,11 @@ python3 -c "import pptx" 2>/dev/null && PY=python3 || PY="uv run --with python-p
    - KPI/數據比較/雙軌時程頁型:原文有對應數值或時間標籤時優先用;使用者點名
      但缺數據時仍可用,缺值填「待補充」。個別缺料一律「佔位並繼續」,不整體停止。
 3. **產骨架**(把頁型清單換成本次實際頁序):
-   ```bash
-   PYTHONPATH="$REPO/gpts/knowledge" python3 "$REPO/gpts/tools/make_skeleton.py" \
-     --types 'cover,agenda,info_three_column_category,closing' \
-     --out "$WORK/slide_spec.json"
+
    ```
+   python ppt_out/tools/make_skeleton.py --types cover,agenda,info_three_column_category,closing --out ppt_out/slide_spec.json
+   ```
+
 4. **填槽**:對照 `page_types_registry.md` 的槽位契約,把每個 `【欄位名】待填`
    換成來源支援的內容;缺料欄位換成「待補充」。完成後搜尋 JSON 確認零殘留
    `待填`。`deck.deck_name` 必須完全等於第一頁真內容頁的頂層 `title`,且該
@@ -103,38 +92,28 @@ python3 -c "import pptx" 2>/dev/null && PY=python3 || PY="uv run --with python-p
    為符合字數上限可縮短,但不得改原意、不得動到數字。
 5. **一條指令跑完管線**(稽核→驗證(自動帶 `--slides --registered-only --strict`)
    →渲染→QA,任一階段 FAIL 即停,不產半成品):
-   ```bash
-   $PY "$REPO/gpts/tools/run_pipeline.py" \
-     --spec "$WORK/slide_spec.json" \
-     --slides "$WORK/slides.md" \
-     --source "$WORK/outline_source_current.txt" \
-     --asset-dir "$WORK" \
-     --template "$REPO/gpts/knowledge/light_template.pptx" \
-     --validator "$REPO/gpts/knowledge/validate_slide_spec_gpts.py" \
-     --out "$WORK/deck.pptx"
+
    ```
+   python ppt_out/tools/run_pipeline.py --spec ppt_out/slide_spec.json --slides ppt_out/slides.md --source ppt_out/outline_source_current.txt --asset-dir ppt_out --out ppt_out/deck.pptx
+   ```
+
 6. **FAIL 時**:讀「管線停止於階段 N」該段輸出,逐條對照
    `gpts/tools/README_TOOLS.md` 的錯誤→修法表**修對應輸入**,然後整條重跑同一
    指令。最多三輪;稽核 FAIL 時刪除不受支持的內容或重新切頁,禁止把新文字補進
    `slides.md` 來遷就 spec。三輪後仍 FAIL 才停止,白話列出剩餘錯誤,不交付產物。
-7. **交付**:給出 `$WORK/deck.pptx` 與 `$WORK/slide_spec.json` 路徑;摘要只列
+7. **交付**:給出 `ppt_out/deck.pptx` 與 `ppt_out/slide_spec.json` 路徑;摘要只列
    頁數、驗證通過、QA 通過、如實列出 WARN、以及「待補清單」(仍為佔位符的頁
    與欄位,沒有就寫無)。不要把整份 JSON 貼進對話。提醒使用者用 PowerPoint
    開啟檢查文字溢出(中文寬度估算不準,溢出要人工看)。
 
 ## 模式 B:直供 JSON 模式(使用者給的是 slide_spec.json)
 
-內容正確性由 JSON 作者負責。存成 `$WORK/slide_spec.json` 後,跑同一條管線但
+內容正確性由 JSON 作者負責。存成 `ppt_out/slide_spec.json` 後,跑同一條管線但
 **不帶** `--slides`/`--source`(追溯自動關閉,缺來源 WARN 是預期結果,兩級頁型
 行為保留):
 
-```bash
-$PY "$REPO/gpts/tools/run_pipeline.py" \
-  --spec "$WORK/slide_spec.json" \
-  --asset-dir "$WORK" \
-  --template "$REPO/gpts/knowledge/light_template.pptx" \
-  --validator "$REPO/gpts/knowledge/validate_slide_spec_gpts.py" \
-  --out "$WORK/deck.pptx"
+```
+python ppt_out/tools/run_pipeline.py --spec ppt_out/slide_spec.json --asset-dir ppt_out --out ppt_out/deck.pptx
 ```
 
 此模式允許 `page_types.md` 的未註冊頁型:先加 `--validate-only` 過閘門,再照
@@ -143,11 +122,10 @@ $PY "$REPO/gpts/tools/run_pipeline.py" \
 
 ## 快速除錯(單獨執行,正式產檔仍一律走 run_pipeline)
 
-```bash
-# 填槽迭代時先快跑稽核(標題逐字/deck_name/精確數字 token)
-python3 "$REPO/gpts/tools/audit_provenance.py" --spec "$WORK/slide_spec.json" \
-  --slides "$WORK/slides.md" --source "$WORK/outline_source_current.txt"
-# 模板盤點(省 token:只用 --summary 或 --page N)
-$PY "$REPO/gpts/tools/inspect_template.py" \
-  --pptx "$REPO/gpts/knowledge/light_template.pptx" --summary
 ```
+python ppt_out/tools/audit_provenance.py --spec ppt_out/slide_spec.json --slides ppt_out/slides.md --source ppt_out/outline_source_current.txt
+python ppt_out/tools/inspect_template.py --pptx ppt_out/light_template.pptx --summary
+```
+
+第一條在填槽迭代時快跑稽核(標題逐字/deck_name/精確數字 token);第二條做模板
+盤點(省 token:只用 `--summary` 或 `--page N`)。

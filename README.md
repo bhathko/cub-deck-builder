@@ -16,11 +16,12 @@ ChatGPT GPTs,讓團隊直接使用。**一切都在 [`gpts/`](gpts/) 目錄**:
 
 ## 本機快速驗證(需 Python 3;渲染需 python-pptx,可 `uv run --with python-pptx`)
 
-日常本機產檔照 [`.codex/skills/outline-to-ppt/SKILL.md`](.codex/skills/outline-to-ppt/SKILL.md)
-的環境準備與指令(工作目錄 `ppt_out/`,素材自動從 `gpts/assets_src` 複製,
-以顯式 `--template`/`--validator` 指向 `gpts/knowledge/`,不需模擬 /mnt/data)。
-發版前的完整回歸見 [`gpts/REGRESSION.md`](gpts/REGRESSION.md)。
-spec 內的素材路徑(`assets/backgrounds/...`)一律以 `--asset-dir` 為根解析。
+日常本機產檔照 [`.codex/skills/outline-to-ppt/SKILL.md`](.codex/skills/outline-to-ppt/SKILL.md):
+先跑 `python .codex/skills/outline-to-ppt/prepare_env.py` 建 `ppt_out/` 沙箱
+(自動複製工具鏈,模擬 /mnt/data 佈局),之後所有命令都是單行 python,
+**macOS / Linux / Windows PowerShell / cmd 通用**。發版前的完整回歸見
+[`gpts/REGRESSION.md`](gpts/REGRESSION.md)。spec 內的素材路徑
+(`assets/backgrounds/...`)一律以 `--asset-dir` 為根解析。
 
 ## 歷史
 

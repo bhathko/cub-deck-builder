@@ -509,3 +509,14 @@ skill 只內聯環境差異與鐵律摘要,規則本體全部指回 `gpts/knowle
   FEEDBACK/WORKLOG 四處引用同步更新。
 - **根 README 本機驗證改指 .codex skill 與 REGRESSION.md**,消除與 skill 的
   同工雙譜(配合 §18 的雙前端單引擎原則)。
+
+### 18.1 Windows(無 WSL)對策(2026-07-24)
+
+團隊 Windows 機器公司禁 WSL,只有 PowerShell/cmd。原本「bash 命令 + PowerShell
+轉換規則」的做法翻譯面太大,改為**把 shell 膠水也 Python 化**:skill 自帶跨平台
+`prepare_env.py`(標準庫),把工具鏈複製成 `ppt_out/` 沙箱(模擬 /mnt/data
+佈局,冪等覆蓋、排除 __pycache__),於是 make_skeleton 免 PYTHONPATH、
+run_pipeline 免 --template/--validator,**所有命令收斂成單行相對路徑 python
+呼叫,三種 shell 原樣可跑**,唯二差異(python/python3 名稱、uv 渲染前綴)由
+prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未實機驗證,
+首位 Windows 使用者回報即定案。
