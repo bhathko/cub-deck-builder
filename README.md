@@ -4,7 +4,7 @@
 ChatGPT GPTs,讓團隊直接使用。**一切都在 [`gpts/`](gpts/) 目錄**:
 
 | 入口 | 內容 |
-|---|---|
+| --- | --- |
 | [`gpts/README.md`](gpts/README.md) | 建置手冊:上傳什麼、怎麼設定、驗收測試、回饋流程 |
 | [`gpts/WORKLOG.md`](gpts/WORKLOG.md) | 決策紀錄與已知風險,**接手維護必讀** |
 | [`gpts/instructions.md`](gpts/instructions.md) | GPTs 系統指示(含版本代號) |
