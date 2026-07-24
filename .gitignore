@@ -1,0 +1,4 @@
+ppt_out/
+__pycache__/
+*.pyc
+.DS_Store

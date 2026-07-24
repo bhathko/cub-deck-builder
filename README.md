@@ -12,14 +12,15 @@ ChatGPT GPTs,讓團隊直接使用。**一切都在 [`gpts/`](gpts/) 目錄**:
 | `gpts/tools/` | 工具腳本源碼(渲染、驗證、自檢;改完要重打包 tools.zip) |
 | `gpts/examples/` | 試用範例 JSON ×4 + 實測產出 pptx |
 | `gpts/assets_src/` | 素材源檔(背景/logo;改完重打包 knowledge/assets.zip) |
+| `.codex/skills/outline-to-ppt/` | 同一管線的**本機 Codex CLI 前端**(貼大綱→本機產 pptx;產物在 gitignore 的 `ppt_out/`) |
 
-## 本機快速驗證(需 Python 3 + python-pptx)
+## 本機快速驗證(需 Python 3;渲染需 python-pptx,可 `uv run --with python-pptx`)
 
-照 `gpts/WORKLOG.md` §7.1 的沙箱做法:建一個模擬 /mnt/data 的暫存目錄,
-把 `gpts/assets_src` 複製進去改名為 `assets`、連同 `gpts/tools/`、
-`gpts/knowledge/validate_slide_spec_gpts.py`、`light_template.pptx` 一起放入,
-然後跑 `gpts/tools/README_TOOLS.md` 的三步指令(驗證 → 產檔 → 自檢)。
-spec 內的素材路徑(`assets/backgrounds/...`)是以該目錄為根解析的。
+日常本機產檔照 [`.codex/skills/outline-to-ppt/SKILL.md`](.codex/skills/outline-to-ppt/SKILL.md)
+的環境準備與指令(工作目錄 `ppt_out/`,素材自動從 `gpts/assets_src` 複製,
+以顯式 `--template`/`--validator` 指向 `gpts/knowledge/`,不需模擬 /mnt/data)。
+發版前的完整回歸見 [`gpts/REGRESSION.md`](gpts/REGRESSION.md)。
+spec 內的素材路徑(`assets/backgrounds/...`)一律以 `--asset-dir` 為根解析。
 
 ## 歷史
 

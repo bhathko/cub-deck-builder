@@ -68,6 +68,8 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 | `assets_src/`                           | 素材可編輯源檔;重打包 assets.zip 時需先把資料夾改名/複製為 `assets` 再壓 | 不上傳,留在 repo                 |
 | `給設計師的白話說明.md`                 | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
 | `FEEDBACK.md`                           | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
+| `feedback_evidence/`                    | GPT Builder 實測對話逐字稿(FEEDBACK 台帳引用的證據)                       | 不上傳,留在 repo                 |
+| `REGRESSION.md`                         | 發版前本機回歸:R0–R8 可執行案例與預期結果                                | 不上傳,留在 repo                 |
 | `WORKLOG.md`                            | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
 ## 建置步驟(約 15 分鐘)
@@ -163,17 +165,10 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 
 ### 發版前本機回歸
 
-本機另以全新暫存目錄跑下列案例；完整命令與預期結果見
-`docs/superpowers/plans/2026-07-21-outline-to-ppt-knowledge-skill.md`:
-
-- 從複製的 Knowledge archives/檔案與測試輸入開始,把 `assets.zip` 解到暫存根目錄、
-  `tools.zip` 解到明確建立的 `tools/`,再以**解出的** validator、renderer、QA 完成
-  strict 全流程。
-- 對有效 deck 使用暫存 spec 製造頁碼 WARN,證明 QA 先印 WARN、後印
-  `結果:PASS` 時 exit 仍為 0。
-- 跑 outline→直供 JSON 混合模式、title/deck 注入、精確數字 token 與子字串限制案例。
-- 跑 `examples/` 既有四份 validator 預期 exit、Knowledge 11 檔清單、兩個 archive hash,
-  並確認 fixture 05 沒有 `## Slide` 或頁型/視覺方向指示。
+本機以全新暫存目錄跑 [`REGRESSION.md`](REGRESSION.md) 的 R0–R8 全部案例
+(archive 完整性、examples 預期 exit、稽核/title 注入/數字 token 閘門、QA WARN
+仍 PASS、strict 與直供全流程、fixture 純淨度、knowledge 清單與 hash),
+全綠才發版;重打包 zip 後同步更新該檔的 hash 基準值。
 
 ## 誠實的限制(建議原文轉達給主管)
 

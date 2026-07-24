@@ -401,7 +401,7 @@ README_TOOLS 有改 → tools.zip 重打包;版本 v1.9-20260721。
 
 ## 16. 首次 GPT Builder 實測與 v1.10 補丁(2026-07-21)
 
-首份真實對話證據(repo `chat-output.txt`,餵 fixture 06 職場禮儀):
+首份真實對話證據(repo `gpts/feedback_evidence/2026-07-21-feedback01-builder-chat.txt`,餵 fixture 06 職場禮儀):
 
 **三個失敗行為**:①開場即拒絕——「我無法如實聲稱已完成那些專用內部流程」,
 然後**自行用 python-pptx 手寫程式碼產了一份簡報**(違反規則 2);②被使用者
@@ -431,7 +431,7 @@ README_TOOLS 有改 → tools.zip 重打包;版本 v1.9-20260721。
 
 ## 17. 第二次實測與 v1.11 補丁(2026-07-21)
 
-第二份對話證據(repo `chat-output2.txt`,FEEDBACK #2)暴露 v1.10 沒堵到的
+第二份對話證據(repo `gpts/feedback_evidence/2026-07-21-feedback02-builder-chat.txt`,FEEDBACK #2)暴露 v1.10 沒堵到的
 兩個新失敗簽名:
 
 1. **模型不知道知識庫檔案已掛載**:被要求用腳本時,反過來要使用者
@@ -470,3 +470,42 @@ README_TOOLS 有改 → tools.zip 重打包;版本 v1.9-20260721。
 v1.7–v1.11 的指示防線**保留不撤**——分享出去的 GPT 管不住每個使用者實際
 跑到的模型(降級/低階方案情境),這些規則是弱模型情境的防線,且指示總長
 僅 ~4.8k 字元,離 8000 上限尚遠,強模型帶著零成本。
+
+## 18. 第二前端:本機 Codex CLI skill(2026-07-24)
+
+需求:除了 ChatGPT GPTs,也要能在 Codex CLI 聊天窗貼大綱直接本機產 pptx。
+做法是**雙前端、單引擎**:新增 `.codex/skills/outline-to-ppt/SKILL.md`
+(repo 版為真相來源;同步安裝到 `~/.codex/skills/outline-to-ppt/` + 同名 zip),
+skill 只內聯環境差異與鐵律摘要,規則本體全部指回 `gpts/knowledge/` 與
+`gpts/tools/`——沒有第二份規則,GPTs 建置包(instructions、11 個知識檔、
+兩個 zip)一個位元組都沒動,對 GPTs 功能零影響。
+
+本機環境與 /mnt/data 的差異(已實測全綠:01_minimal 直供模式 3/3 PASS):
+
+- 工作/輸出目錄 = repo 根的 `ppt_out/`(gitignore),素材由 `gpts/assets_src`
+  複製為 `ppt_out/assets`;run_pipeline 以 `--template`/`--validator` 顯式指向
+  `gpts/knowledge/`,不需搬檔模擬 /mnt/data。
+- 系統 python3 沒有 python-pptx → skill 自動改用
+  `uv run --with python-pptx python`;make_skeleton 需
+  `PYTHONPATH=gpts/knowledge` 才 import 得到 validator 的 PAGE_TYPES。
+
+同步紀律入 AGENTS.md 硬規則 8:改 gpts 規則/工具 → 檢查 skill 摘要 →
+複製到 ~/.codex 並重打 zip。
+
+## 19. 文件結構整理(2026-07-24)
+
+結構評審(懸空引用/重複檔/命名)後的衛生修正,不動任何規則與工具:
+
+- **補回發版回歸**:README 引用的 `docs/superpowers/plans/2026-07-21-*.md`
+  從未進版控(規劃工具留在本機的檔案),新增 `gpts/REGRESSION.md` 取代,
+  R0–R8 全案例 2026-07-24 實測重建。過程中的發現:①02 範例
+  `deck_name=my_project` 會被 audit 擋——它是直供模式範例,保留原樣,回歸
+  改寫成「先驗稽核會擋、修 deck_name 後走完 4/4」;②數字 token 測資要挑
+  該頁區塊沒有的數字(50→5 在 fixture 02 會因「5 天」合法通過,改用 95→9)。
+- **刪除第三份範例副本**:`gpts/examples/slide_spec.example.json` 與 knowledge
+  正本 byte-identical 且 examples/README 未記載(`02_full_10p.json` 為有記載的
+  刻意複本,保留)。
+- **證據檔搬家**:`chat-output*.txt` → `gpts/feedback_evidence/2026-07-21-feedback0N-builder-chat.txt`,
+  FEEDBACK/WORKLOG 四處引用同步更新。
+- **根 README 本機驗證改指 .codex skill 與 REGRESSION.md**,消除與 skill 的
+  同工雙譜(配合 §18 的雙前端單引擎原則)。
