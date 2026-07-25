@@ -5,7 +5,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 設計原則:**所有檔案隨 GPTs 內建**——模板包(template_light.zip:模板本體+
 背景+logo+綁定)、頁型規則、驗證器、工具腳本全部放在知識庫;終端使用者
 **只需提供一份合規的 slide_spec.json**(貼上或上傳皆可),不需要準備任何其他
-檔案。多模板架構見 [`TEMPLATE_PACKS.md`](TEMPLATE_PACKS.md)(spec 以
+檔案。多模板架構見 [`docs/TEMPLATE_PACKS.md`](../docs/TEMPLATE_PACKS.md)(spec 以
 `deck.template` 選模板,省略=light)。流程:
 
 > 使用者給 JSON → GPTs **在 Code Interpreter 裡實際執行驗證器,PASS 才產檔**
@@ -70,11 +70,11 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `engine/examples/demo_output_*.pptx`    | 本機實測產出,眼見為憑                                                    | 不上傳                           |
 | `engine/templates/light/assets_src/`    | 素材可編輯源檔(隨包;打包 template_light.zip 時以 arcname `assets/` 映射) | 不上傳,留在 repo                 |
 | `engine/templates/`(其餘檔案)           | 模板包源碼與治理文件(INDEX、TEMPLATE_LIFECYCLE、各包 REGRESSION/FEEDBACK) | 不上傳,留在 repo                 |
-| `../給設計師的白話說明.md`              | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
-| `../FEEDBACK.md`                        | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
+| `../docs/給設計師的白話說明.md`         | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
+| `../docs/FEEDBACK.md`                   | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
 | `feedback_evidence/`                    | GPT Builder 實測對話逐字稿(FEEDBACK 台帳引用的證據)                       | 不上傳,留在 repo                 |
 | `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R8 可執行案例與預期結果                                | 不上傳,留在 repo                 |
-| `../WORKLOG.md`                         | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
+| `../docs/WORKLOG.md`                    | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
 ## 建置步驟(約 15 分鐘)
 
@@ -122,7 +122,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
    - example 必須 **PASS**(可能有 WARN)
    - ✅ 2026-07-20 已在本機(Python 3.14 + python-pptx 1.0.2)完整實測:驗證器
      正反例、兩級閘門、工具鏈全流程(含帶圖頁複製、錯誤路徑)全數通過,
-     詳見 WORKLOG.md §7.1。沙箱環境仍建議跑一次此步驟確認版本差異無影響。
+     詳見 docs/WORKLOG.md §7.1。沙箱環境仍建議跑一次此步驟確認版本差異無影響。
 2. 對 GPTs 說:「跑 inspect_template.py --summary,然後 --page 35 給我看。」
    能列出 → 模板讀取與工具解壓都正常。
    再說:「用 make_skeleton.py 產一份 cover,agenda,closing 骨架並跑驗證器」,
@@ -172,10 +172,10 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 
 ### 發版前本機回歸
 
-本機以全新暫存目錄跑 [`REGRESSION.md`](REGRESSION.md) 的 R0–R8 全部案例
-(archive 完整性、examples 預期 exit、稽核/title 注入/數字 token 閘門、QA WARN
-仍 PASS、strict 與直供全流程、fixture 純淨度、knowledge 清單與 hash),
-全綠才發版;重打包 zip 後同步更新該檔的 hash 基準值。
+本機以全新暫存目錄跑 [`engine/REGRESSION.md`](../engine/REGRESSION.md) 的
+R0–R10 全部案例(archive 完整性、examples 預期 exit、稽核/title 注入/數字 token
+閘門、QA WARN 仍 PASS、strict 與直供全流程、fixture 純淨度、Knowledge 清單與
+hash、多模板雙包、全包 lint),全綠才發版;重打包 zip 後同步更新該檔的 hash 基準。
 
 ## 誠實的限制(建議原文轉達給主管)
 
@@ -191,7 +191,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
    設計師收尾。
    另外:未註冊頁型(page_types.md 那 40+ 種)的槽位容量只靠模型自律,程式閘門
    對它們只驗基本結構與素材存在;需要嚴格保證的頁型,長期解是把它註冊進
-   `PAGE_TYPES`(見下方維護節)。
+   `PAGE_TYPES`(流程見 [`docs/MAINTENANCE.md`](../docs/MAINTENANCE.md) §1)。
    若使用 `/outline-to-ppt`,每次都以本次原文覆寫 /mnt/data/slides.md,再以
    `--slides --registered-only --strict` 啟用已註冊 `slots` 的程式追溯,並只在工作流稽核、
    validator 與 QA 都 PASS 後交付 JSON 與 PPTX。validator 不會追溯頂層
@@ -210,98 +210,24 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
    免費/Plus 個人版對話預設可能用於訓練(可關閉);Team/Enterprise 預設不用於
    訓練。內容敏感的簡報請確認公司政策允許後再用。
 
-## 回饋與版本更新流程
+## 同步紀律(GPTs 端)
 
 GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維護本 repo 的人),
-並讓修改走 repo:
+並讓所有修改走 repo:
 
-1. **真相來源在 repo 的 `gpts/` 目錄。** 指示改 `gpts/instructions.md`、規則改
+1. **真相來源永遠是 repo**:指示改 `gpts/instructions.md`、規則改
    `engine/rules/*`,一律先改 repo、commit,再由管理者同步到 GPT Builder
-   (貼指示/重傳知識檔)。不要直接在 GPT Builder 裡改完就算——下次同步會被
+   (貼指示 / 刪舊傳新知識檔)。不要直接在 Builder 裡改完就算——下次同步會被
    repo 版蓋掉。
-2. **版本代號。** 指示開頭埋了版本字串(目前 `v2.0-20260725`)與可用模板
-   roster,每次同步時更新;模板包重傳也要 bump 版本字串。
-   使用者對 GPTs 問「你現在是哪一版?」就能確認自己用到的是不是最新版,
+2. **版本代號**:指示開頭埋了版本字串與可用模板 roster,每次同步都要更新
+   (模板包重傳也算)。使用者問 GPT「你現在是哪一版?」就能確認手上是不是最新版,
    回報問題時也請附上版本代號。
-3. **回饋管道。** 開一個固定收集點(Slack/Teams 頻道或共用表單皆可),回報格式:
-   版本代號 + 所用的 slide_spec.json + 產出檔或截圖 + 哪一頁哪裡不對。
-   沒有 JSON 的回報很難重現,管理者可以直接退回補件。
-4. **回饋分流。** 版面不像模板/文字溢出 → 改 `instructions.md` 的規則或
-   `page_types.md` 描述;閘門漏擋或誤擋 → 改 `validate_slide_spec_gpts.py`
-   (同步 schema 與 registry,見下方維護節);想要新頁型 → 走下方「維護」節的
-   註冊流程。
-5. **改完先驗收再發版。** 每次重新上傳後,跑完「驗收測試」節的全部項目 +
-   `examples/` 的 01–04 四份既有 validator 範例,PASS 才通知團隊更新。
+3. **回饋管道**:開一個固定收集點(Slack/Teams 頻道或共用表單),回報格式與
+   規則化流程見 [`docs/FEEDBACK.md`](../docs/FEEDBACK.md)。
+4. **改完先驗收再發版**:完整步驟見 [`docs/MAINTENANCE.md`](../docs/MAINTENANCE.md)
+   的「發佈 checklist」;上傳前跑本檔「驗收測試」全部項目 +
+   [`engine/REGRESSION.md`](../engine/REGRESSION.md) R0–R10。
 
-### 「產出不如預期」要怎麼回饋才會真的變好
-
-先理解一個關鍵:**GPTs 沒有跨對話記憶**。你在對話裡罵它、糾正它,只對當次有效,
-對話關掉就忘了。所以回饋分兩層,終點永遠是「變成一條寫進檔案的規則」:
-
-**第一層|使用者當場修(救這一次):**
-產出不對就直接在同一個對話裡下修正指令,例如「第 3 頁的卡片間距太擠,參考模板
-第 17 頁重排」「第 5 頁 KPI 數字要用主色」。修到滿意後,把三樣東西交給管理者:
-①原始 JSON ②你下過的修正指令 ③修正前後截圖。**你下的那句修正指令特別值錢**——
-它往往就是可以直接寫進規則的句子。
-
-**第二層|管理者規則化(讓以後都對):**
-把回饋翻譯成規則寫進對應檔案,再重新上傳。對照表:
-
-| 症狀                                                    | 改哪裡                                                                    |
-| ------------------------------------------------------- | ------------------------------------------------------------------------- |
-| 文字溢出、字級跑掉                                      | `instructions.md` 溢出規則,或調低 `page_types_registry.md` 該欄位字數上限 |
-| 版面跟模板不像、元素亂跑                                | `page_types.md` 該頁型的「視覺結構」描述補細節(位置、比例講死)            |
-| 配色、卡片樣式、logo/頁碼不對                           | `style_guide.md` 補規則                                                   |
-| 明顯違規的 JSON 沒被擋 / 合規的被誤擋                   | `validate_slide_spec_gpts.py`(同步 schema 與 registry,見下方維護節)       |
-| 破圖、頁序錯、Section 殘留、封面/目錄版面偏移等機械問題 | `tools/` 對應腳本,改完重打包 `tools.zip` 上傳                             |
-| 同一頁型每次產出長得不一樣                              | 最強解:把該頁型註冊進 `PAGE_TYPES` + registry + fills,升級成全自動        |
-| 它跳過驗證就產檔                                        | `instructions.md` 絕對規則區加重申;驗收時堅持要看 PASS 輸出               |
-
-**回饋單格式**(記錄在 `FEEDBACK.md`,或貼到回饋頻道由管理者謄入):
-版本代號/日期/回報人/所用 JSON/頁碼與元素/期望(附模板參考頁)/實際(附截圖)/
-當場下了什麼修正指令、有沒有效/狀態(待處理→已規則化→已發版)。
-
-一個判斷準則:如果你能用一句話說出「以後應該怎樣」,那句話就是規則,直接交給
-管理者寫進檔案;如果說不出來(只覺得醜),就附上模板參考頁和產出的並排截圖,
-讓管理者判斷差在哪。重複出現兩次以上的問題,一律規則化,不要每次都當場修。
-
-## 多模板發佈 checklist(新模板註冊完成後)
-
-> 註冊(repo 端)由 `.codex/skills/register-template/` 引導完成
-> (`template_admin.py register` exit 0 = 註冊成功);發佈(Builder 端)
-> 是人工步驟,逐項勾:
-
-1. □ 該模板包 REGRESSION 綠 + 根 REGRESSION R0–R10 全符
-2. □ `python engine/release/template_admin.py isolation` 白名單過(模板目錄外
-   的改動已拆 commit)
-3. □ `python engine/release/template_admin.py pack --id <id>` 重打包
-   (tools 沒改就不動 tools.zip);R7 hash 基準同步
-4. □ `gpts/instructions.md` 版本字串 bump + 模板 roster 行加入新包
-5. □ Knowledge 檔數 ≤19 確認
-6. □ Builder:貼新 instructions;上傳 `template_<id>.zip`(共用檔沒改就不重傳)
-7. □ Builder 驗收:問「你現在是哪一版?」核對 instructions 版與 roster;
-   用該模板 smoke/golden spec 產一份 qa PASS;light 抽測一份確認不受影響
-8. □ `engine/templates/INDEX.md` 狀態更新;通知團隊
-
-## 維護:改頁型時要同步幾個地方
-
-> `engine/rules/` 即單一真相來源,同步鐵律為**三處**:
-
-1. `engine/rules/validate_slide_spec_gpts.py` 的 `PAGE_TYPES`(真相來源)
-2. `engine/rules/slide_spec.schema.json` 的 enum
-3. `engine/rules/page_types_registry.md`(1 的人類可讀版)
-
-新頁型若要全自動產出,另需在該包 `engine/templates/<id>/bindings.json` 加
-fill 條目(6-op 宣告式;builtin 僅 light 的 bindings.py)→ 過 golden →
-重打包 `template_<id>.zip`(多模板架構,見 `TEMPLATE_PACKS.md`)。改 `engine/tools/*` → 重打包 `tools.zip`。
-素材改版:改 `engine/templates/light/assets_src/` → 重打包 `template_light.zip`
-(打包時 assets_src/* 以 arcname `assets/` 映射)。
-**打包 zip 一律用正斜線(POSIX)路徑分隔符**
-——不要用 PowerShell `Compress-Archive` 或檔案總管「壓縮資料夾」(會塞 Windows
-反斜線,Linux `unzip` 會警告並回非零 exit,誘發 GPTs 誤判環境壞掉);用
-`python -c "import zipfile; ..."`(arcname 帶 `/`)或 `zip -r` 打包。驗證:
-`python -c "import zipfile; [print(i.orig_filename) for i in zipfile.ZipFile('gpts/dist/template_light.zip').infolist()]"`
-每筆都必須是正斜線。模板改版:照 `engine/templates/TEMPLATE_LIFECYCLE.md`
-重盤點(inspect_template `--verify` 機器比對)。改完把異動檔**重新上傳**到
-GPTs 知識庫並刪掉舊檔;
-「gpts/ 目錄有異動 → 重新上傳知識庫」寫進團隊的發版 checklist。
+> 改頁型契約、加模板、重打包 zip 的操作細節,一律見
+> [`docs/MAINTENANCE.md`](../docs/MAINTENANCE.md)——那些是**引擎級**維護,
+> 不限於 GPTs 前端。

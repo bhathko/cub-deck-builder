@@ -4,7 +4,7 @@
 自原 fills.py 抽出:FillError / index_shapes / Ctx / fill_rows(原 _fill_rows
 公開化,列高參數化),並把 p33/p54 兩處內聯 textbox 樣板整併為
 add_styled_textbox。本檔不得含任何模板專屬常數(shape id、座標、色碼);
-那些屬於 engine/templates/<id>/ 的綁定資料,詳見 TEMPLATE_PACKS.md。
+那些屬於 engine/templates/<id>/ 的綁定資料,詳見 docs/TEMPLATE_PACKS.md。
 """
 from __future__ import annotations
 

@@ -9,11 +9,11 @@
 - **本 repo = 簡報產生器:單引擎 + 兩個延伸應用**——主程序在 `engine/`
   (工具、規則、模板包),`gpts/`(ChatGPT GPTs 發佈包)與
   `.codex/skills/`(本機 CLI)是它的兩個前端。接手前先讀
-  `WORKLOG.md`(決策脈絡)與 `gpts/README.md`(GPTs 建置手冊)。
+  `docs/WORKLOG.md`(決策脈絡)與 `gpts/README.md`(GPTs 建置手冊)。
 - **規則 SSOT = `engine/rules/`**;改頁型契約要三處同步(validator
   `PAGE_TYPES` / schema enum / registry)。
 - **渲染層零隨機**;各包綁定(`engine/templates/<id>/bindings.json`)與該包
-  模板 shape id 硬耦合,模板改版必重盤點(多模板架構見 `TEMPLATE_PACKS.md`)。
+  模板 shape id 硬耦合,模板改版必重盤點(多模板架構見 `docs/TEMPLATE_PACKS.md`)。
 - 改 `engine/tools/*` → 重打 tools.zip;改 `engine/templates/<id>/*` → 重打
   template_<id>.zip;都要更新 instructions 版本字串。
 

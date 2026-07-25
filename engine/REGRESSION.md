@@ -1,8 +1,11 @@
-# 發版前本機回歸
+# REGRESSION — 引擎級發版前回歸(R0–R10)
 
-> 取代從未進版控的 `docs/superpowers/plans/2026-07-21-outline-to-ppt-knowledge-skill.md`
-> 懸空引用;下列所有命令與預期結果於 **2026-07-24 全數實測通過**。
-> 任何 knowledge/tools/assets 異動後、重新上傳 GPTs 前,全部案例必須全綠。
+> **用途**:發版前的可執行回歸案例與預期結果,涵蓋 archive 完整性、閘門正反例、
+> 稽核、QA、多模板與全包 lint。
+> **讀者**:維護者。
+> **何時讀**:任何 `engine/` 異動後、重新上傳 GPTs 前——**全部案例必須全綠**。
+> 各模板包另有專屬案例(如 `engine/templates/light/REGRESSION.md`),
+> 動到哪個包就跑哪個包 + 本檔共用案例。
 
 前置:在 repo 根目錄執行;`$RT` 為全新暫存目錄(每次回歸重建,不得重用)。
 命令為 POSIX shell 語法(macOS/Linux)。Windows 維護者(公司禁 WSL,僅
@@ -142,12 +145,15 @@ grep -cE '## Slide|page_type' engine/examples/05_outline_to_ppt_source.md
 
 預期:輸出 `0`(grep exit=1)。
 
-## R7|knowledge 清單與 archive hash
+## R7|Knowledge 清單與 archive hash
 
 ```bash
-ls engine/rules | grep -v __pycache__ | wc -l     # 預期 10
+ls engine/rules | grep -v __pycache__ | wc -l     # 預期 8(散檔)
+ls gpts/dist | wc -l                              # 預期 2(zip)
 shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 ```
+
+上傳 GPTs 的 Knowledge = 這 8 + 2 = **10 個檔**(上限 20,守 ≤19 紀律)。
 
 2026-07-25 基準值(**重打包 zip 後必須更新本節**;Phase 2:tools.zip 十一支
 腳本含 fills_engine,template_light.zip 增 bindings.json 等價素材。發佈時
@@ -155,8 +161,8 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-51d4374b2ee2eaca269630dcdd698c3de0fa45e9ebb3389bd1e8a4369cb4510f  tools.zip
-708effc483dabeab99e2dafa58bbc3ca08ef64de8f478ed62d0f48173733b5a8  template_light.zip
+45d9bd8cf0d8a0dbb0a16eec8b419bb2afb413de374563ace78bd5e5426c099a  tools.zip
+a8813219312dc92fbfa144110b855a0ee3d9ee2ebfe745deeb83fd60f3eebc46  template_light.zip
 ```
 
 (2026-07-25 Phase 3:light fills 切換宣告式 bindings.json,bindings.py 瘦身為

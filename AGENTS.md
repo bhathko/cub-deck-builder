@@ -3,13 +3,13 @@
 > 團隊共用、隨 repo 分享的流程契約。任何 agent 在本 repo 工作時**必須**遵循。
 > 2026-07-25 起本 repo = **簡報產生器:單引擎(`engine/`)+ 兩個延伸應用**
 > (`gpts/` GPTs 發佈包、`.codex/skills/` 本機 CLI);舊管線(.agents/fallback/
-> my_project)已移除;歷史與決策脈絡見 [`WORKLOG.md`](WORKLOG.md)。
+> my_project)已移除;歷史與決策脈絡見 [`docs/WORKLOG.md`](docs/WORKLOG.md)。
 
 ## 這個專案
 
 維護一條確定性簡報管線:使用者給 slide_spec.json(或大綱內容),引擎跑
 驗證閘門與確定性 renderer,產出公司規範、繁體中文、16:9 的可編輯 .pptx;
-模板以「模板包」註冊(預設 light,見 [`TEMPLATE_PACKS.md`](TEMPLATE_PACKS.md))。
+模板以「模板包」註冊(預設 light,見 [`docs/TEMPLATE_PACKS.md`](docs/TEMPLATE_PACKS.md))。
 兩個前端:ChatGPT GPTs(建置手冊 [`gpts/README.md`](gpts/README.md))與
 本機 Codex CLI(`.codex/skills/`)。
 
@@ -18,7 +18,7 @@
 1. **SSOT 分兩處**:語意契約與共用規範(驗證器 `PAGE_TYPES`、頁型語意庫、
    排版紀律)在 `engine/rules/`;**模板知識(模板本體、綁定、素材、視覺
    常數)在 `engine/templates/<id>/`,manifest.json 為機器真相**(多模板架構
-   見 `TEMPLATE_PACKS.md`)。`gpts/instructions.md` 是 GPTs 指示的原稿。
+   見 `docs/TEMPLATE_PACKS.md`)。`gpts/instructions.md` 是 GPTs 指示的原稿。
 2. **三處同步**:改頁型契約時,`engine/rules/validate_slide_spec_gpts.py` 的
    `PAGE_TYPES`、`engine/rules/slide_spec.schema.json` 的 enum、
    `engine/rules/page_types_registry.md` 三處一起改。
@@ -70,5 +70,6 @@ python engine/tools/inspect_template.py --pptx engine/templates/light/template.p
 python engine/tools/inspect_template.py --verify engine/templates/light                        # 模板改版漂移偵測
 ```
 
-> 發版前必跑 `gpts/README.md` 的「驗收測試」與 examples 全綠;
-> 回饋處理流程與版本紀律見同檔「回饋與版本更新流程」。
+> 維護與發佈的操作步驟(三處同步、重打包、發佈 checklist)見
+> [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md);回饋處理見
+> [`docs/FEEDBACK.md`](docs/FEEDBACK.md)。

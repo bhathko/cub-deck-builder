@@ -1,6 +1,6 @@
 # TEMPLATE_LIFECYCLE — 模板改版(同 id 換 pptx)標準流程
 
-> WORKLOG §9「light_template.pptx 改版時」流程的泛化版;light 是第一個實例。
+> `docs/WORKLOG.md` §9「light_template.pptx 改版時」流程的泛化版;light 是第一個實例。
 > 適用:同一個 template_id 換入新版 .pptx。新增模板另走 register-template
 > skill(Phase 2);改語意契約(槽位/容量)走三處同步,不在本檔範圍。
 

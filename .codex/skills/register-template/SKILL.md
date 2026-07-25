@@ -6,7 +6,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 # register-template(新模板註冊精靈)
 
 > **狀態:已啟用(2026-07-25,Phase 2 落地)。** 架構與工具鏈規格見
-> `TEMPLATE_PACKS.md`;工具鏈 = `engine/release/template_admin.py`
+> `docs/TEMPLATE_PACKS.md`;工具鏈 = `engine/release/template_admin.py`
 > (new/freeze/lint/golden/register/pack/isolation/list)+
 > `engine/tools/fills_engine.py`(6-op 解譯器),light 五種 fill 頁型的
 > 宣告式重寫已通過 shape 樹全等驗證(含 min 刪格與 max 溢出路徑)。
@@ -17,14 +17,14 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 你只負責五件事——**盤點轉述、提映射草案、依確認寫 bindings.json、
 跑驗收指令並如實轉述、把設計師的目檢意見翻成綁定修正**。版面與規則你零創作。
 
-使用者是**設計師**(半技術/非技術,語氣沿用 repo 根的 `給設計師的白話說明.md`)。
+使用者是**設計師**(半技術/非技術,語氣沿用 `docs/給設計師的白話說明.md`)。
 她只做三件事:丟一個新 .pptx 並取名;用嘴確認「這頁是三欄說明」;
 打開你產的驗收 pptx 說哪頁不對。**shape id、slot 名、JSON、op 細節
 絕不拋給設計師。**
 
 規則本體的單一真相來源(相對 repo 根;本檔只留摘要,不複製規則):
 
-- `TEMPLATE_PACKS.md` — 模板包結構、manifest 欄位、6-op 詞彙表、驗收與發佈規則
+- `docs/TEMPLATE_PACKS.md` — 模板包結構、manifest 欄位、6-op 詞彙表、驗收與發佈規則
 - `engine/rules/validate_slide_spec_gpts.py` `PAGE_TYPES` — fill 級頁型候選集
 - `engine/rules/page_types.md` — clone 級頁型候選集(語意分類與容量)
 - `engine/tools/README_TOOLS.md` — 工具鐵律與錯誤修法慣例
@@ -38,7 +38,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
    那是工程師的三處同步流程,不在本 skill 內。
 2. **零隨機、零自由 Python**:shape id 與座標唯一來源 = `inspect_template.py`
    輸出;綁定只能用 7 個填充 op(set/delete/rows/list/add_textbox/resize/
-   chart)加 `keep` 覆蓋宣告,詞彙表與全覆蓋原則見 TEMPLATE_PACKS.md §3。
+   chart)加 `keep` 覆蓋宣告,詞彙表與全覆蓋原則見 docs/TEMPLATE_PACKS.md §3。
    表達不了 → 該頁型降級 clone,不是變通、不寫 Python、不擴詞彙表。
 3. **golden 才算數**:任何 bindings/manifest 改動,必須重跑
    `template_admin.py golden` 綠了才能宣稱完成。「看起來應該對了」不是完成;
@@ -173,7 +173,7 @@ python engine/release/template_admin.py register --id corp_dark
 
 成功輸出 = status 翻 registered + 支援矩陣摘要。之後如實轉述腳本印出的
 發佈清單(打包 `template_admin.py pack`、instructions 版本字串與 roster、
-Builder 刪舊傳新、light 抽測——詳見 gpts/README.md「多模板發佈 checklist」;
+Builder 刪舊傳新、light 抽測——詳見 docs/MAINTENANCE.md 發佈 checklist;
 Builder 上傳是維護者人工步驟,不在本 skill 內代行)。
 最後給設計師白話交付摘要:
 「『企業深色風』註冊完成:全自動 9 種、半自動 14 種、不支援 3 種(原因:…)。

@@ -1,4 +1,31 @@
+# 本機產檔沙箱(prepare_env 建立;內容全是 engine/ 的副本,產物一律不進版控)
 ppt_out/
+
+# Python
 __pycache__/
 *.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Office 暫存檔:開 .pptx 檢查版面時會產生鎖定檔(~$template.pptx),絕不能 commit
+~$*.pptx
+~$*.docx
+~$*.xlsx
+
+# 作業系統(團隊含 Windows 使用者)
 .DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# 編輯器 / IDE
+.vscode/
+.idea/
+*.swp
+
+# 一般暫存
+*.tmp
+*.bak

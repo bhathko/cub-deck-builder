@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""pack_loader — 模板包載入器(多模板架構的引擎入口,見 TEMPLATE_PACKS.md)。
+"""pack_loader — 模板包載入器(多模板架構的引擎入口,見 docs/TEMPLATE_PACKS.md)。
 
 模板包 = engine/templates/<id>/(manifest.json + bindings + 素材)。本工具解析
 「用哪個包」並載入其 manifest 與綁定;引擎(render_deck 等)只透過 Pack 物件

@@ -5,7 +5,7 @@
 產出不對就改輸入(spec 或 render_plan.json)再跑一次,禁止對產出 pptx
 做局部修補(那正是「刪一個壞的再產一個壞的」循環的來源)。
 
-多模板架構(TEMPLATE_PACKS.md):頁型的自動產出實作(builtin 繪製與
+多模板架構(docs/TEMPLATE_PACKS.md):頁型的自動產出實作(builtin 繪製與
 fill 填充)住在模板包 `templates/<id>/bindings`,本工具經 pack_loader 載入
 選定包後 dispatch;預設包 = light(spec 未寫 deck.template 時)。
 

@@ -1,4 +1,6 @@
-# 試用範例集
+# 試用範例集(engine/examples)
+
+> 這是**範例目錄的說明**,不是 repo 說明(那在 repo 根的 `README.md`)。
 
 四份可以直接貼給 GPTs 的 slide_spec.json,用來試成效與驗證閘門。
 使用方式:打開 GPTs,貼上「這是我的 slide_spec.json,幫我產出 PPT」+ 檔案內容
@@ -14,6 +16,8 @@
 另附:
 - `02_full_10p.source_slides.md` — 02 的內容原文(`## Slide N` 分節),
   測「內容模式」時把它當使用者貼的大綱,或驗證時加 `--slides` 開啟追溯比對。
+- `06_workplace_etiquette_source.md` — 職場禮儀新人訓練大綱(未切頁),
+  GPT Builder 實測用的第二份 fixture;FEEDBACK #1/#2 兩次失敗實測餵的就是它。
 - `demo_output_01_minimal.pptx`、`demo_output_02_full10p.pptx` —
   2026-07-20 本機實測的實際產出,開 PowerPoint 可眼見為憑。
 

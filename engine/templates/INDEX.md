@@ -1,6 +1,6 @@
 # 模板包索引
 
-> 多模板架構見 `TEMPLATE_PACKS.md`;模板改版流程見同目錄
+> 多模板架構見 `docs/TEMPLATE_PACKS.md`;模板改版流程見同目錄
 > `TEMPLATE_LIFECYCLE.md`。新增模板 = 新增一個子目錄(Phase 2 起由
 > `.codex/skills/register-template/` 引導註冊),不改引擎、不碰其他包。
 
@@ -11,5 +11,5 @@
 維護提醒:
 
 - 包內容異動 → 更新該包 manifest `version` + 本表;發佈另走
-  `gpts/README.md` 的發版流程(Phase 1 前 GPTs 端佈局不變)。
+  `docs/MAINTENANCE.md` 的發佈 checklist(Phase 1 前 GPTs 端佈局不變)。
 - `status=draft` 的包不得被任何產檔流程選中。

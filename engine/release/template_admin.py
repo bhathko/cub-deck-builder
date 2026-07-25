@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """template_admin — 模板包註冊工具鏈單一入口(維護者/註冊 skill 專用,不入 tools.zip)。
 
-子命令(TEMPLATE_PACKS.md §5):
+子命令(docs/TEMPLATE_PACKS.md §5):
   new --pptx <路徑> --id <id> --name <名>   建包骨架(status=draft)
   freeze --id <id>                          重建 inventory.json + template_sha256
   lint [--id <id> | --all]                  manifest/綁定靜態檢查(含全覆蓋原則)
