@@ -23,8 +23,11 @@ fill 填充)住在模板包 `templates/<id>/bindings`,本工具經 pack_loader �
 用法:
   python render_deck.py --spec /mnt/data/slide_spec.json \
       [--plan /mnt/data/render_plan.json] \
-      --template /mnt/data/light_template.pptx \
+      [--template-pack light] [--packs-root /mnt/data/templates] \
+      [--template <pptx 路徑覆寫>] \
       --asset-dir /mnt/data --out /mnt/data/deck.pptx
+  模板檔預設 = 選定包的 template.pptx(包目錄優先、asset-dir 兜底);
+  --template 為相容別名/試模板覆寫(WORKLOG §9 工作流)。
 
 render_plan.json 格式(僅未涵蓋頁需要;內容文字必須逐字取自 spec):
 {
@@ -72,8 +75,18 @@ DARK = RGBColor(*tk.COLOR_DARK)
 
 
 # ---------------------------------------------------------------------------
-# 頁碼(Phase 1 起改讀 manifest page_number;現值 = light 幾何)
+# 頁碼(幾何讀選定包 manifest 的 page_number;預設值 = light 幾何)
 # ---------------------------------------------------------------------------
+_PN_DEFAULT = {"box_in": [12.30, 6.72, 0.70, 0.50], "size_pt": 28, "color": "344252",
+               "clear_zone_in": {"left": 11.2, "top": 6.3}}
+
+
+def _pn_cfg(pack):
+    cfg = dict(_PN_DEFAULT)
+    cfg.update(pack.manifest.get("page_number") or {})
+    return cfg
+
+
 def _tight_margins(tf):
     tf.margin_left = Inches(0.06)
     tf.margin_right = Inches(0.06)
@@ -99,20 +112,22 @@ def _textbox(slide, text, x, y, w, h, size, bold=False, color=DARK, align=None):
     return box
 
 
-def _page_number(slide, number: int):
-    _textbox(slide, str(number), 12.30, 6.72, 0.70, 0.50, size=28, bold=True,
-             color=DARK, align=PP_ALIGN.RIGHT)
+def _page_number(slide, number: int, cfg=_PN_DEFAULT):
+    x, y, w, h = cfg["box_in"]
+    _textbox(slide, str(number), x, y, w, h, size=cfg["size_pt"], bold=True,
+             color=RGBColor.from_string(cfg["color"]), align=PP_ALIGN.RIGHT)
 
 
-def _finalize_page_number(slide, spec_slide):
+def _finalize_page_number(slide, spec_slide, cfg=_PN_DEFAULT):
     """清掉模板殘留的右下角純數字頁碼,依 spec 決定補標準頁碼。"""
+    zone = cfg["clear_zone_in"]
     for s in list(tt.iter_text_shapes(slide.shapes)):
         txt = tt.shape_text(s).strip()
         if (txt.isdigit() and len(txt) <= 3 and s.top and s.left
-                and s.top > Inches(6.3) and s.left > Inches(11.2)):
+                and s.top > Inches(zone["top"]) and s.left > Inches(zone["left"])):
             s._element.getparent().remove(s._element)
     if spec_slide.get("render_page_number"):
-        _page_number(slide, spec_slide["number"])
+        _page_number(slide, spec_slide["number"], cfg)
 
 
 # ---------------------------------------------------------------------------
@@ -137,7 +152,8 @@ def _match_shapes(slide, match: dict):
                                name=match.get("name"))
 
 
-def apply_clone_plan(prs, spec_slide, page_plan, template_page_count, problems):
+def apply_clone_plan(prs, spec_slide, page_plan, template_page_count, problems,
+                     pn_cfg=_PN_DEFAULT):
     tpl = page_plan.get("template_page")
     num = spec_slide["number"]
     if not tpl or not (1 <= tpl <= template_page_count):
@@ -174,7 +190,7 @@ def apply_clone_plan(prs, spec_slide, page_plan, template_page_count, problems):
     if page_plan.get("shrink", True):
         for s in edited:
             tt.shrink_to_fit(s, min_pt=12)
-    _finalize_page_number(slide, spec_slide)
+    _finalize_page_number(slide, spec_slide, pn_cfg)
     return slide
 
 
@@ -185,7 +201,9 @@ def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--spec", required=True)
     ap.add_argument("--plan", help="選配:僅未涵蓋頁型需要")
-    ap.add_argument("--template", required=True)
+    ap.add_argument("--template", help="模板 pptx 路徑(相容別名;省略=選定包的模板檔)")
+    ap.add_argument("--template-pack", help="模板包 id 或目錄(省略=spec 的 deck.template,再省略=light)")
+    ap.add_argument("--packs-root", help="模板包根目錄(預設=tools 上層的 templates/)")
     ap.add_argument("--asset-dir", default="/mnt/data")
     ap.add_argument("--out", required=True)
     args = ap.parse_args(argv)
@@ -199,19 +217,27 @@ def main(argv):
     asset_dir = Path(args.asset_dir)
 
     try:
-        pack = pack_loader.load_pack(spec_deck=spec.get("deck"))
+        pack = pack_loader.load_pack(pack_arg=args.template_pack,
+                                     spec_deck=spec.get("deck"),
+                                     packs_root=args.packs_root)
     except pack_loader.PackError as e:
         print(f"✗ 模板包載入失敗:{e}")
         return 2
-    if not pack.template_hash_matches(args.template):
+    template_path = args.template or pack.resolve_template(asset_dir)
+    if not template_path or not Path(template_path).exists():
+        print(f"✗ 找不到模板檔:{template_path or pack.dir / pack.manifest.get('template_file', 'template.pptx')}"
+              f"(模板包 {pack.id};可用 --template 指定路徑)")
+        return 2
+    if not pack.template_hash_matches(template_path):
         print(f"⚠ 模板檔與模板包 {pack.id}@{pack.version} 的 manifest sha 不符"
               "(自訂模板測試?正式發版前必須照 templates/TEMPLATE_LIFECYCLE.md 重盤點)")
+    pn_cfg = _pn_cfg(pack)
 
     spec_by_num = {s["number"]: s for s in spec["slides"]}
     problems = []
     modes = []
 
-    prs = Presentation(args.template)
+    prs = Presentation(str(template_path))
     n_template = len(prs.slides)
 
     for num in sorted(spec_by_num):
@@ -228,7 +254,7 @@ def main(argv):
                 pack.builders[pt](prs, spec_slide, asset_dir)
                 modes.append(f"p{num}:builtin")
             elif mode == "clone":
-                apply_clone_plan(prs, spec_slide, page_plan, n_template, problems)
+                apply_clone_plan(prs, spec_slide, page_plan, n_template, problems, pn_cfg)
                 modes.append(f"p{num}:clone{page_plan.get('template_page')}")
             else:
                 problems.append(f"p{num}: 未知 mode {mode!r}(builtin|clone)")
@@ -244,7 +270,7 @@ def main(argv):
                 ctx.shrink_edited(min_pt=12)
             except fill_helpers.FillError as e:
                 problems.append(f"p{num}: {e}(模板包 {pack.id}@{pack.version})")
-            _finalize_page_number(slide, spec_slide)
+            _finalize_page_number(slide, spec_slide, pn_cfg)
             modes.append(f"p{num}:auto{tpl_page}")
         else:
             problems.append(

@@ -68,6 +68,80 @@ T = lambda mx, required=True, provenance=True: {
     "kind": "text", "max_chars": mx, "required": required, "provenance": provenance
 }
 
+# ---------------------------------------------------------------------------
+# 模板包感知(多模板架構,見 gpts/TEMPLATE_PACKS.md;stdlib-only 維持單檔可攜)
+# PAGE_TYPES = 語意契約 + 預設容量(= light 現值);各包 manifest 的
+# capacity_overrides 只能覆寫 min/max/max_chars,不得增刪槽位或改 kind。
+# ---------------------------------------------------------------------------
+import copy as _copy
+
+_CAP_KEYS = {"min", "max", "max_chars"}
+
+
+def apply_capacity_overrides(base: dict, overrides: dict) -> dict:
+    """依扁平 dot-path 覆寫容量;結構性違規 raise ValueError(設定檔錯誤)。"""
+    merged = _copy.deepcopy(base)
+    for path, value in (overrides or {}).items():
+        segs = path.split(".")
+        if len(segs) < 3 or segs[-1] not in _CAP_KEYS:
+            raise ValueError(f"capacity_overrides 路徑不合法(終端鍵限 {sorted(_CAP_KEYS)}):{path}")
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError(f"capacity_overrides 值必須是正整數:{path}={value!r}")
+        cur = merged
+        for seg in segs[:-1]:
+            if isinstance(cur, dict) and seg in cur:
+                cur = cur[seg]
+            elif isinstance(cur, dict) and cur.get("kind") == "object" and seg in cur.get("fields", {}):
+                cur = cur["fields"][seg]
+            else:
+                raise ValueError(f"capacity_overrides 路徑不存在於語意契約:{path}(斷在 {seg!r})")
+        key = segs[-1]
+        if key not in cur:
+            raise ValueError(f"capacity_overrides 目標槽位無 {key!r} 可覆寫:{path}")
+        cur[key] = value
+        if cur.get("kind") == "list" and cur["min"] > cur["max"]:
+            raise ValueError(f"capacity_overrides 造成 min>max:{path}")
+    return merged
+
+
+def load_pack_context(packs_root: Path, template_id: str | None):
+    """讀選定包 manifest,回傳 pack context dict;找不到回 None。
+
+    context 鍵:id/version/dir/modes(page_type→mode)/auto(builtin+fill 集合)/
+    reasons(unsupported 理由)/pack_first(素材解析順序)/page_types(merged 契約)。
+    manifest 壞掉或覆寫違規 raise ValueError(前置錯誤,exit 2)。
+    """
+    target = template_id or "light"
+    mpath = packs_root / target / "manifest.json"
+    if not mpath.exists():
+        return None
+    manifest = json.loads(mpath.read_text(encoding="utf-8-sig"))
+    if manifest.get("status") == "draft":
+        raise ValueError(f"模板包 {target} 仍為 draft(註冊未完成),不得用於產檔")
+    entries = manifest.get("page_types", {})
+    modes = {pt: e.get("mode") for pt, e in entries.items()}
+    return {
+        "id": manifest.get("template_id", target),
+        "version": manifest.get("version", "?"),
+        "dir": mpath.parent,
+        "modes": modes,
+        "auto": {pt for pt, m in modes.items() if m in ("builtin", "fill")},
+        "reasons": {pt: e.get("reason", "") for pt, e in entries.items()
+                    if e.get("mode") == "unsupported"},
+        "asset_keys": {pt: e.get("assets") for pt, e in entries.items()},
+        "pack_first": manifest.get("asset_resolution", "pack_first") == "pack_first",
+        "page_types": apply_capacity_overrides(PAGE_TYPES, manifest.get("capacity_overrides")),
+    }
+
+
+def asset_exists(rel: str, asset_base: Path, pack) -> bool:
+    """素材存在性:asset_base 與包目錄二擇一命中(順序依包宣告;無包=僅 asset_base)。"""
+    cands = [asset_base / rel]
+    if pack:
+        pc = pack["dir"] / rel
+        cands = [pc, asset_base / rel] if pack["pack_first"] else [asset_base / rel, pc]
+    return any(c.exists() for c in cands)
+
 PAGE_TYPES = {
     "cover": {
         "page_number": "none",
@@ -378,12 +452,32 @@ def generic_provenance(val, path, block, rep: Report):
             generic_provenance(v, f"{path}.{k}", block, rep)
 
 
-def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only: bool = False):
+def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only: bool = False,
+                   pack=None, page_types=None):
     num = slide.get("number", "?")
     p = f"slide[{num}]"
     pt = slide.get("page_type")
+    contracts = page_types or PAGE_TYPES
 
-    if pt not in PAGE_TYPES:
+    # 模板包三級閘門(TEMPLATE_PACKS §4):unsupported 硬擋;語意契約有、
+    # 但該包非全自動 → WARN(--registered-only 升級 ERROR),契約檢查照跑。
+    if pack:
+        mode = pack["modes"].get(pt)
+        if mode == "unsupported":
+            reason = pack["reasons"].get(pt) or "未註冊"
+            rep.error(p, f"頁型 {pt!r} 不受模板 {pack['id']!r} 支援({reason})。"
+                         f"全自動頁型:{', '.join(sorted(pack['auto']))}。"
+                         f"修法(擇一):換頁型/換 deck.template/回註冊流程補註冊。")
+            return
+        if pt in contracts and mode not in ("builtin", "fill"):
+            if registered_only:
+                rep.error(p, f"頁型 {pt!r} 在模板 {pack['id']!r} 非全自動"
+                             f"(需 render_plan),一鍵模式不允許")
+                return
+            rep.warn(p, f"頁型 {pt!r} 在模板 {pack['id']!r} 非全自動:渲染需"
+                        f" render_plan(參考頁見該包 page_map.md)")
+
+    if pt not in contracts:
         if registered_only:
             rep.error(p, f"未知 page_type {pt!r}（未在 PAGE_TYPES 註冊）")
             return
@@ -391,7 +485,7 @@ def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only:
         rep.warn(p, f"page_type {pt!r} 未在 PAGE_TYPES 註冊：僅做防幻覺追溯，"
                     f"槽位數量/字數請自行比照 page_types.md 的「內容容量」")
         for key, rel in (slide.get("assets") or {}).items():
-            if rel and not (asset_base / rel).exists():
+            if rel and not asset_exists(rel, asset_base, pack):
                 rep.error(f"{p}.assets.{key}", f"素材檔不存在：{rel}（相對於 {asset_base}）")
         slots = slide.get("slots")
         if not isinstance(slots, dict):
@@ -399,7 +493,7 @@ def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only:
             return
         generic_provenance(slots, f"{p}.slots", block, rep)
         return
-    spec = PAGE_TYPES[pt]
+    spec = contracts[pt]
 
     # 頁碼規則
     rule = spec["page_number"]
@@ -410,14 +504,17 @@ def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only:
     else:
         rep.warn(p, f"未設 render_page_number（版型 {pt} 預期 {expected}）")
 
-    # 素材
+    # 素材(必要鍵集:包內 page_types.<pt>.assets 覆寫優先,無則契約預設;
+    # fill 頁 clone 模板實頁、背景已烙,新包可宣告 [] 免素材)
+    required_assets = spec["assets"]
+    if pack and pack["asset_keys"].get(pt) is not None:
+        required_assets = pack["asset_keys"][pt]
     assets = slide.get("assets", {})
-    for key in spec["assets"]:
+    for key in required_assets:
         if key not in assets or not assets[key]:
             rep.error(f"{p}.assets", f"缺少必要素材 {key!r}")
             continue
-        fpath = asset_base / assets[key]
-        if not fpath.exists():
+        if not asset_exists(assets[key], asset_base, pack):
             rep.error(f"{p}.assets.{key}", f"素材檔不存在：{assets[key]}（相對於 {asset_base}）")
 
     # 槽位
@@ -438,6 +535,7 @@ def main(argv):
 
     args = [a for a in argv if a not in ("--strict", "--registered-only")]
     positional = []
+    cli_pack = packs_root_arg = None
     i = 0
     while i < len(args):
         a = args[i]
@@ -450,6 +548,12 @@ def main(argv):
         elif a == "--asset-dir":
             i += 1
             asset_base = Path(args[i])
+        elif a == "--template-pack":
+            i += 1
+            cli_pack = args[i]
+        elif a == "--packs-root":
+            i += 1
+            packs_root_arg = Path(args[i])
         elif a.startswith("--"):
             print(f"✗ 未知參數：{a}")
             return 2
@@ -470,6 +574,26 @@ def main(argv):
     except json.JSONDecodeError as e:
         print(f"✗ JSON 解析失敗：{e}")
         return 2
+
+    # 模板包解析(多模板架構,TEMPLATE_PACKS §4;解不到包且 spec 未指定
+    # = 退回單模板現行為;spec 指定了卻找不到 = 前置缺檔 exit 2)
+    deck_obj = spec.get("deck") if isinstance(spec.get("deck"), dict) else {}
+    spec_template = deck_obj.get("template")
+    if cli_pack and spec_template and cli_pack != spec_template:
+        print(f"✗ --template-pack {cli_pack!r} 與 spec 的 deck.template="
+              f"{spec_template!r} 不一致:改一致後重跑(不靜默擇一,保確定性)")
+        return 2
+    chosen = cli_pack or spec_template
+    packs_root = packs_root_arg or (asset_base / "templates")
+    try:
+        pack = load_pack_context(packs_root, chosen)
+    except ValueError as e:
+        print(f"✗ 模板包設定錯誤:{e}")
+        return 2
+    if pack is None and chosen:
+        print(f"✗ 找不到模板包 {chosen!r}(packs root: {packs_root})")
+        return 2
+    merged_page_types = pack["page_types"] if pack else None
 
     blocks = {}
     if slides_path.exists():
@@ -500,7 +624,8 @@ def main(argv):
         block = blocks.get(n)
         if block is None and blocks:
             rep.warn(f"slide[{n}]", "在 slides.md 找不到對應頁，略過該頁 provenance")
-        validate_slide(slide, block, asset_base, rep, registered_only)
+        validate_slide(slide, block, asset_base, rep, registered_only,
+                       pack=pack, page_types=merged_page_types)
 
     declared = spec.get("deck", {}).get("slide_count")
     if declared is not None and declared != len(slides):
@@ -508,6 +633,8 @@ def main(argv):
 
     # 輸出
     print(f"驗證：{spec_path}")
+    if pack:
+        print(f"模板包:{pack['id']}@{pack['version']}(全自動 {len(pack['auto'])} 種)")
     print(f"頁數：{len(slides)}    來源追溯：{'開' if blocks else '關(找不到 slides.md)'}    strict：{strict}")
     print("-" * 72)
     if rep.errors:

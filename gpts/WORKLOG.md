@@ -597,3 +597,46 @@ prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未�
   README(十支腳本/維護節)、README_TOOLS、REGRESSION R0/R7。
 
 **下一步 = Phase 1(其餘工具接 manifest + deck.template + Knowledge 換裝)。**
+
+### 20.2 Phase 1 執行:引擎模板感知 + Knowledge 換裝(2026-07-25)
+
+- **檔案歸位**:`git mv` knowledge/light_template.pptx → templates/light/
+  template.pptx、gpts/assets_src → templates/light/assets_src。Knowledge 換裝:
+  −assets.zip −light_template.pptx +template_light.zip(pptx+manifest+bindings+
+  page_map+assets;assets_src 以 arcname assets/ 映射),共 10 檔(≤19 紀律,
+  餘 9 個模板位)。新沙箱佈局 = tools.zip → /mnt/data/tools、
+  template_<id>.zip → /mnt/data/templates/<id>,根目錄不再有 assets/ 與模板檔。
+- **五支工具模板感知**:validator(deck.template 解析、CLI/spec 衝突 exit 2、
+  capacity_overrides merge(dot-path 白名單 min/max/max_chars)、三級閘門
+  (unsupported ERROR 附支援清單/非全自動 WARN、--registered-only 升級)、
+  per-頁型 assets 鍵覆寫、素材存在性走包兜底、draft 包拒用);qa_check
+  (allowed_fonts+偵測窗讀 manifest,退回內建常數);make_skeleton(asset_defaults
+  /merged 容量/骨架寫入 deck.template/--list 三級/unsupported 拒產);
+  run_pipeline(單次解析四階段共用、模板檔預設=包內、前置檢查含 manifest、
+  pk 參數透傳);inspect_template --verify(inventory 漂移偵測 exit 1);
+  render_deck 頁碼幾何讀 manifest + --template-pack/--packs-root。
+  schema 加 deck.template。pack_loader 增 resolve_template(包優先、asset-dir
+  兜底)、fill_helpers.resolve_asset(順序由 manifest asset_resolution 宣告:
+  light=asset_dir 優先保相容,非 light 預設包優先防跨包遮蔽)、
+  load_bindings=False manifest-only 模式(make_skeleton 等純標準庫工具用,
+  修掉「載 bindings 即 import pptx」的隱性相依)。
+- **文件同步**:instructions v2.0-20260725(Step 0 解模板包+自證 id@version、
+  roster 行、page_map 查頁碼);outline_to_ppt_skill 環境清單新佈局;
+  page_types.md 結構拆分(49 行來源模板行移除,hex 描述以 light 基準註記
+  保留,逐句去品牌化延後 Phase 3);style_guide 兩層註記+修掉三處
+  style_reference 懸空路徑與「拼湊版面」舊授權(牴觸 v1.8 規則的殘留);
+  registry 加 deck.template 說明;README(包內檔案 10 檔/驗收/維護節)、
+  REGRESSION R0 改鏡射 GPTs 佈局、R7 換雙 zip 基準;AGENTS 規則 1(SSOT
+  兩處)/4/5 改寫與常用指令、CLAUDE 同步;白話說明與 examples/README 更新;
+  prepare_env 新源路徑(模板隨包,ppt_out 根不再放模板副本)。
+- **驗收全綠(2026-07-25 實測)**:新佈局 R0–R8 全符;examples 01/02 產出
+  shape 樹與 Phase 0 前基準**全等**(素材/模板全靠包解析,含無 assets/ 根
+  目錄的新佈局);顯式 "template":"light" 與省略全等;manifest 假值讀取證明
+  ×3(qa 假白名單 66 字體 WARN、make_skeleton 假 logo 路徑、validator 假容量
+  上限 3>2 ERROR,還原後 PASS);unsupported 拒產/拒驗、不存在包與 CLI/spec
+  衝突 exit 2;ppt_out 沙箱全流程 PASS;R-L0/R-L1 綠;inspect --verify 一致。
+- **狀態:本機完成;GPT Builder 換裝與驗收(README 驗收 1–8)待執行。**
+  發佈時 Builder 端:貼 v2.0 instructions、刪 assets.zip 與
+  light_template.pptx、上傳 template_light.zip 與新 tools.zip。
+
+**下一步 = Phase 2(fills_engine + golden + template_admin + 雙 skill 上線)。**

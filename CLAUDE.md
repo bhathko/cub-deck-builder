@@ -12,12 +12,12 @@
   `PAGE_TYPES` / schema enum / registry)。
 - **渲染層零隨機**;light 綁定(`gpts/templates/light/bindings.py`)與模板
   shape id 硬耦合,模板改版必重盤點(多模板架構見 `gpts/TEMPLATE_PACKS.md`)。
-- 改 `gpts/tools/*` 或 `gpts/assets_src/*` → 重打包對應 zip + 更新
-  instructions 版本字串。
+- 改 `gpts/tools/*` → 重打 tools.zip;改 `gpts/templates/<id>/*` → 重打
+  template_<id>.zip;都要更新 instructions 版本字串。
 
 ## 常用指令
 ```
 python gpts/knowledge/validate_slide_spec_gpts.py --spec <spec.json> --asset-dir <素材根>   # spec 閘門
-python gpts/tools/render_deck.py --spec <spec> --template gpts/knowledge/light_template.pptx --asset-dir <素材根> --out <out.pptx>
+python gpts/tools/render_deck.py --spec <spec> --asset-dir <素材根> --out <out.pptx>         # 模板自動取自選定包(deck.template,預設 light)
 python gpts/tools/qa_check.py --spec <spec> --pptx <out.pptx>                                # 產檔後自檢
 ```

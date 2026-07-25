@@ -16,24 +16,27 @@ validator/audit/make_skeleton 只用標準庫;渲染與 QA 需 python-pptx,系�
 RT="$(mktemp -d)"
 ```
 
-## R0|archive 完整性與環境建置
+## R0|archive 完整性與環境建置(鏡射 GPTs Step 0 佈局)
 
 ```bash
 python3 -c "
-import zipfile
-for z in ['gpts/knowledge/assets.zip','gpts/knowledge/tools.zip']:
+import zipfile, os
+os.makedirs('$RT/tools', exist_ok=True)
+os.makedirs('$RT/templates/light', exist_ok=True)
+for z, dest in [('gpts/knowledge/tools.zip','$RT/tools'),
+                ('gpts/knowledge/template_light.zip','$RT/templates/light')]:
     bad=[i.orig_filename for i in zipfile.ZipFile(z).infolist() if '\\\\' in i.orig_filename]
     print(z, 'OK' if not bad else f'含反斜線路徑:{bad}')
-    zipfile.ZipFile(z).extractall('$RT' if 'assets' in z else '$RT/tools')
+    zipfile.ZipFile(z).extractall(dest)
 "
-cp gpts/knowledge/validate_slide_spec_gpts.py gpts/knowledge/light_template.pptx "$RT/"
-cp -R gpts/templates "$RT/templates"
+cp gpts/knowledge/validate_slide_spec_gpts.py "$RT/"
 ```
 
-預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `assets/backgrounds/`×3、
-`assets/logos/`×1、`tools/` 十支腳本 + README_TOOLS、`templates/light/`
-(模板包:manifest+bindings;Phase 0 起 render_deck 經 pack_loader 載入,
-Phase 1 起沙箱端由 template_light.zip 提供)、validator、模板。
+預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 十支腳本 +
+README_TOOLS、`templates/light/`(模板包:template.pptx + manifest.json +
+bindings.py + page_map.md + `assets/`)、validator。素材與模板隨包出貨,
+`$RT` 根**不再有** `assets/` 與 `light_template.pptx`(工具經 pack_loader
+解析,素材檢查有包內兜底)。
 
 ## R1|examples 四份 validator 預期 exit
 
@@ -142,17 +145,19 @@ grep -cE '## Slide|page_type' gpts/examples/05_outline_to_ppt_source.md
 ## R7|knowledge 清單與 archive hash
 
 ```bash
-ls gpts/knowledge | grep -v __pycache__ | wc -l     # 預期 11
-shasum -a 256 gpts/knowledge/assets.zip gpts/knowledge/tools.zip
+ls gpts/knowledge | grep -v __pycache__ | wc -l     # 預期 10
+shasum -a 256 gpts/knowledge/tools.zip gpts/knowledge/template_light.zip
 ```
 
-2026-07-25 基準值(**重打包 zip 後必須更新本節**;tools.zip 於 Phase 0
-重打:−fills.py、+fill_helpers.py、+pack_loader.py。紅線:Phase 1
-Knowledge 換裝前禁止把本版 tools.zip 上傳 Builder,見 TEMPLATE_PACKS.md §8):
+2026-07-25 基準值(**重打包 zip 後必須更新本節**;Phase 1 Knowledge 換裝:
+assets.zip 與 light_template.pptx 併入 template_light.zip,tools.zip 十支
+腳本含 pack_loader/fill_helpers。發佈時 Builder 端刪 assets.zip 與
+light_template.pptx、上傳 template_light.zip 與新 tools.zip,同步 instructions
+v2.0):
 
 ```
-683d54ec3e4bf875d3a10ea4efe879c4c851d34aea3f2f5807aeb1b78dce814b  assets.zip
-9ae2626278248d51f9d57982204d58d6e7bbfda270fed6074c56f34dbd8e3a78  tools.zip
+4e8f332d575ee72926def91803742137dcb0303a73b31b199f7be1611734d328  tools.zip
+54681e4bbdf102f9a438b33c577c32409d794bb0146acd924b9ea470aa8c9a96  template_light.zip
 ```
 
 ## R8|直供 JSON 模式全流程(追溯關)

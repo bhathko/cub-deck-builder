@@ -28,6 +28,8 @@
 }
 ```
 
+- `deck.template`(選填)= 模板包 id,**省略等同 `"light"`**;整份簡報只用一種
+  模板。指定的模板不支援某頁型時驗證器會擋下並列出該模板的支援清單。
 - `deck.slide_count` 必須等於 `slides` 的實際頁數;`number` 從 1 連續編號、不可重複。
 - 每頁必填:`number`、`page_type`、`title`、`slots`,並依頁型設定
   `render_page_number` 與 `assets`。
@@ -45,8 +47,8 @@
    `page_types.md` 中的英文頁型名(如 `cycle_four_point_loop`),`slots` 欄位名
    可依內容自訂(建議語意化,如 `steps`、`center_theme`)。驗證器對這些頁型只做
    基本檢查,**容量與使用限制必須自行比照 `page_types.md` 該頁型的「內容容量」節**。
-   版面依 `light_template.pptx` 對應頁重建(`page_types.md` 每個頁型都標了
-   來源模板第幾頁)。
+   版面依選定模板包的 `template.pptx` 對應頁重建(「頁型→模板第幾頁」查該包
+   `page_map.md`;模板不支援的頁型該檔標 unsupported)。
 
 > 內容正確性由撰寫 JSON 的人負責:此模式沒有內容來源檔可回溯比對,驗證器擋的是
 > 結構、數量、字數、頁碼與素材;GPTs 被禁止改寫你 JSON 裡的任何文字與數字。

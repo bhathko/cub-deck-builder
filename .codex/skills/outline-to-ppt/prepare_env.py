@@ -5,11 +5,10 @@
 PYTHONPATH、--template、--validator 等 shell 差異:
 
     ppt_out/
-      assets/            ← gpts/assets_src(冪等覆蓋)
+      assets/            ← gpts/templates/light/assets_src(冪等覆蓋;素材源檔隨包)
       tools/             ← gpts/tools(冪等覆蓋,排除 __pycache__)
-      templates/         ← gpts/templates(模板包;render_deck 經 pack_loader 載入)
+      templates/         ← gpts/templates(模板包,含模板本體;pack_loader 載入)
       validate_slide_spec_gpts.py
-      light_template.pptx
 
 每次產檔 session 先跑本腳本;exit 0 = 沙箱就緒。副本一律以 repo 為準覆蓋,
 不存在「ppt_out 裡的工具比 repo 新」的情境——改工具請改 gpts/ 再重跑本腳本。
@@ -32,8 +31,8 @@ REQUIRED = [
     "tools/qa_check.py",
     "templates/light/manifest.json",
     "templates/light/bindings.py",
+    "templates/light/template.pptx",
     "validate_slide_spec_gpts.py",
-    "light_template.pptx",
 ]
 
 
@@ -49,11 +48,11 @@ def main() -> int:
     work = repo / "ppt_out"
     work.mkdir(exist_ok=True)
     ignore = shutil.ignore_patterns("__pycache__")
-    shutil.copytree(gpts / "assets_src", work / "assets", dirs_exist_ok=True, ignore=ignore)
+    shutil.copytree(gpts / "templates" / "light" / "assets_src", work / "assets",
+                    dirs_exist_ok=True, ignore=ignore)
     shutil.copytree(gpts / "tools", work / "tools", dirs_exist_ok=True, ignore=ignore)
     shutil.copytree(gpts / "templates", work / "templates", dirs_exist_ok=True, ignore=ignore)
     shutil.copy2(gpts / "knowledge" / "validate_slide_spec_gpts.py", work)
-    shutil.copy2(gpts / "knowledge" / "light_template.pptx", work)
 
     missing = [rel for rel in REQUIRED if not (work / rel).exists()]
     for rel in REQUIRED:

@@ -11,7 +11,7 @@
 python3 -c "
 import json, hashlib
 m = json.load(open('gpts/templates/light/manifest.json'))
-sha = hashlib.sha256(open('gpts/knowledge/light_template.pptx','rb').read()).hexdigest()
+sha = hashlib.sha256(open('gpts/templates/light/template.pptx','rb').read()).hexdigest()
 print('manifest sha', 'OK' if sha == m['template_sha256'] else f'不符:重跑盤點(TEMPLATE_LIFECYCLE.md)')
 print('page_types', len(m['page_types']), '筆(預期 53:builtin 5 / fill 5 / clone 43)')
 "

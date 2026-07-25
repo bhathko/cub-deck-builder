@@ -36,13 +36,18 @@ from pptx.util import Inches
 
 import text_tools as tt
 
-# 微軟正黑體 = JhengHei 中文名;Noto Sans TC 為模板原生設計(模板優先級最高);
-# '+' 開頭為佈景主題字型參照(+mn-ea 等),由模板主題解析,一律放行。
+import pack_loader
+
+# 預設白名單 = light 包值(解不到模板包時的內建後備);正常路徑改讀選定包
+# manifest 的 style.allowed_fonts。'+' 開頭為佈景主題字型參照(+mn-ea 等),
+# 由模板主題解析,一律放行。微軟正黑體 = JhengHei 中文名。
 ALLOWED_FONTS = {"Microsoft JhengHei", "微軟正黑體", "Helvetica", "Noto Sans TC"}
+# 頁碼偵測窗預設(吋;light 幾何)——解不到包時後備
+DETECT_ZONE = {"left": 11.0, "top": 6.3}
 
 
-def _font_ok(name: str) -> bool:
-    return name in ALLOWED_FONTS or name.startswith("+")
+def _font_ok(name: str, allowed=ALLOWED_FONTS) -> bool:
+    return name in allowed or name.startswith("+")
 
 
 def norm(s: str) -> str:
@@ -87,9 +92,28 @@ def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--spec", required=True)
     ap.add_argument("--pptx", required=True)
+    ap.add_argument("--template-pack", help="模板包 id 或目錄(省略=spec deck.template→light)")
+    ap.add_argument("--packs-root", help="模板包根目錄(預設=tools 上層的 templates/)")
     args = ap.parse_args(argv)
 
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8-sig"))  # 容忍 BOM
+    # 模板包感知:字體白名單與頁碼偵測窗讀選定包 manifest;明確指定卻載不到
+    # → exit 2;預設 light 載不到 → 內建常數後備(舊部署相容)
+    allowed_fonts, detect_zone, pack_note = ALLOWED_FONTS, DETECT_ZONE, ""
+    try:
+        pack = pack_loader.load_pack(pack_arg=args.template_pack,
+                                     spec_deck=spec.get("deck"),
+                                     packs_root=args.packs_root,
+                                     load_bindings=False)
+        allowed_fonts = set((pack.manifest.get("style") or {}).get("allowed_fonts")
+                            or ALLOWED_FONTS)
+        detect_zone = (pack.manifest.get("page_number") or {}).get("detect_zone_in", DETECT_ZONE)
+        pack_note = f"{pack.id}@{pack.version}"
+    except pack_loader.PackError as e:
+        explicit = args.template_pack or (spec.get("deck") or {}).get("template")
+        if explicit:
+            print(f"✗ 模板包載入失敗:{e}")
+            return 2
     prs = Presentation(args.pptx)
     fails, warns = [], []
 
@@ -124,7 +148,8 @@ def main(argv):
         digit_shapes = [s for s in tt.iter_text_shapes(slide.shapes)
                         if tt.shape_text(s).strip().isdigit()
                         and len(tt.shape_text(s).strip()) <= 3
-                        and (s.top or 0) > Inches(6.3) and (s.left or 0) > Inches(11.0)]
+                        and (s.top or 0) > Inches(detect_zone["top"])
+                        and (s.left or 0) > Inches(detect_zone["left"])]
         if spec_slide.get("render_page_number"):
             if not any(tt.shape_text(s).strip() == str(num) for s in digit_shapes):
                 warns.append(f"p{num}: 找不到右下角頁碼 {num}")
@@ -134,7 +159,7 @@ def main(argv):
         for shp in tt.iter_text_shapes(slide.shapes):
             for para in shp.text_frame.paragraphs:
                 for run in para.runs:
-                    if run.font.name and not _font_ok(run.font.name):
+                    if run.font.name and not _font_ok(run.font.name, allowed_fonts):
                         warns.append(f"p{num}: 字體 {run.font.name!r}(shape id={shp.shape_id})")
                         break
 
@@ -161,7 +186,9 @@ def main(argv):
     if fails:
         print("結果:FAIL — 修 render_plan.json / slide_spec.json 後重跑 render_deck,勿手改 pptx")
         return 1
-    print(f"結果:PASS({len(prs.slides)} 頁{',' + str(len(warns)) + ' 個警告' if warns else ''})— 可交付")
+    print(f"結果:PASS({len(prs.slides)} 頁"
+          f"{',' + str(len(warns)) + ' 個警告' if warns else ''}"
+          f"{',模板包 ' + pack_note if pack_note else ''})— 可交付")
     return 0
 
 

@@ -3,7 +3,7 @@
   "display_name": "Cathay 淺色企業風",
   "version": "2026-07-25.1",
   "status": "registered",
-  "template_file": "light_template.pptx",
+  "template_file": "template.pptx",
   "template_sha256": "080ba71991f34f2d0d0670c5d5f605a0b15e4bce46a207e2fad62b6d1c4a48d2",
   "page_count": 59,
   "aspect": "16:9",
@@ -260,5 +260,6 @@
   },
   "capacity_overrides": {},
   "registered_by": "hunter",
-  "registered_at": "2026-07-25"
+  "registered_at": "2026-07-25",
+  "asset_resolution": "asset_dir_first"
 }

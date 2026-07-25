@@ -48,6 +48,7 @@ class Pack:
         self.version = manifest.get("version", "?")
         self.template_sha256 = manifest.get("template_sha256")
         self.page_types = manifest.get("page_types", {})
+        self.pack_first = manifest.get("asset_resolution", "pack_first") == "pack_first"
         self.builders = getattr(bindings_module, "BUILDERS", {}) if bindings_module else {}
         self.fills = getattr(bindings_module, "FILLS", {}) if bindings_module else {}
 
@@ -56,6 +57,18 @@ class Pack:
         if not self.template_sha256:
             return True
         return sha256_file(pptx_path) == self.template_sha256
+
+    def resolve_template(self, asset_dir=None):
+        """模板檔解析:包目錄優先;找不到回 asset-dir 同名檔與 light 舊檔名
+        (沙箱相容:/mnt/data 或 ppt_out 根曾放 light_template.pptx)。"""
+        name = self.manifest.get("template_file", "template.pptx")
+        candidates = [self.dir / name]
+        if asset_dir:
+            candidates += [Path(asset_dir) / name, Path(asset_dir) / "light_template.pptx"]
+        for c in candidates:
+            if c.exists():
+                return c
+        return None
 
 
 def _load_bindings(pack_dir: Path, pack_id: str):
@@ -75,8 +88,12 @@ def _load_bindings(pack_dir: Path, pack_id: str):
 
 
 def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
-              packs_root=None) -> Pack:
-    """解析並載入模板包。pack_arg 可為包 id 或包目錄路徑。"""
+              packs_root=None, load_bindings: bool = True) -> Pack:
+    """解析並載入模板包。pack_arg 可為包 id 或包目錄路徑。
+
+    load_bindings=False:只讀 manifest,不 exec 綁定模組——供純標準庫工具
+    (make_skeleton/run_pipeline/qa_check)使用;bindings 會 import python-pptx,
+    只有 render_deck 真正需要。"""
     spec_id = (spec_deck or {}).get("template")
     if pack_arg and spec_id and Path(pack_arg).name != spec_id and pack_arg != spec_id:
         raise PackError(
@@ -95,5 +112,7 @@ def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
                          ) if root.is_dir() else "(packs root 不存在)"))
     # utf-8-sig:容忍 Windows 工具寫入的 BOM(同 repo 其他 JSON 讀取慣例)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
-    bindings = _load_bindings(pack_dir, manifest.get("template_id", pack_dir.name))
+    bindings = None
+    if load_bindings:
+        bindings = _load_bindings(pack_dir, manifest.get("template_id", pack_dir.name))
     return Pack(pack_dir, manifest, bindings)

@@ -45,14 +45,16 @@
 有缺就依封裝的實際目錄結構重新解壓一次：
 
 ```bash
-mkdir -p /mnt/data/tools
-unzip -o /mnt/data/assets.zip -d /mnt/data
+mkdir -p /mnt/data/tools /mnt/data/templates/light
 unzip -o /mnt/data/tools.zip -d /mnt/data/tools
+unzip -o /mnt/data/template_light.zip -d /mnt/data/templates/light
 ```
 
-`assets.zip` 內含頂層 `assets/`，所以目的地必須是 `/mnt/data`；`tools.zip` 的工具檔
-位於壓縮檔根目錄，所以目的地必須是明確建立的 `/mnt/data/tools`。不要把
-`tools.zip` 直接解到 `/mnt/data`。
+`tools.zip` 的工具檔位於壓縮檔根目錄,所以目的地必須是明確建立的
+`/mnt/data/tools`,不要直接解到 `/mnt/data`;`template_light.zip` 是模板包
+(template.pptx、manifest.json、bindings.py、page_map.md、assets/),解到
+明確建立的 `/mnt/data/templates/light`(多模板架構;大綱模式目前固定用
+light 包)。
 
 `unzip` 對舊版含 Windows 反斜線路徑的壓縮檔可能印出 `appears to use backslashes as
 path separators` 警告並回非零結束碼，但檔案仍會正確解出。環境是否就緒**只以下列檔案
@@ -62,17 +64,22 @@ path separators` 警告並回非零結束碼，但檔案仍會正確解出。環
 
 驗證前逐一確認以下檔案存在：
 
-- `/mnt/data/assets/backgrounds/content_bg.png`
-- `/mnt/data/assets/backgrounds/cover_bg.png`
-- `/mnt/data/assets/backgrounds/cover_bg_context.png`
-- `/mnt/data/assets/logos/cathay_logo.png`
+- `/mnt/data/templates/light/template.pptx`
+- `/mnt/data/templates/light/manifest.json`
+- `/mnt/data/templates/light/bindings.py`
+- `/mnt/data/templates/light/assets/backgrounds/content_bg.png`
+- `/mnt/data/templates/light/assets/backgrounds/cover_bg.png`
+- `/mnt/data/templates/light/assets/logos/cathay_logo.png`
 - `/mnt/data/tools/make_skeleton.py`
 - `/mnt/data/tools/audit_provenance.py`
 - `/mnt/data/tools/run_pipeline.py`
 - `/mnt/data/tools/render_deck.py`
 - `/mnt/data/tools/qa_check.py`
+- `/mnt/data/tools/pack_loader.py`
 - `/mnt/data/validate_slide_spec_gpts.py`
-- `/mnt/data/light_template.pptx`
+
+檢查完印出 `/mnt/data/templates/light/manifest.json` 的 `template_id` 與
+`version` 作為環境自證。
 
 重新解壓後仍有缺檔，才列出缺少的完整路徑並停止。不要在素材尚未準備完成時執行
 驗證器。只要上述檔案齊全，工具鏈就存在且可用；嚴禁以「沒有穩定的工具鏈」「腳本

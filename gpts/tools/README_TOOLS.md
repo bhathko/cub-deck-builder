@@ -1,7 +1,8 @@
 # tools 速查卡(給 GPTs:照這個流程跑,不要現寫等價程式碼)
 
 前置:tools.zip 已解壓到 /mnt/data/tools/,validate_slide_spec_gpts.py 與
-light_template.pptx 在 /mnt/data/,assets.zip 已解壓。
+模板包已解壓在 /mnt/data/templates/<模板id>/(預設 light;含 template.pptx、
+manifest.json、bindings.py、page_map.md、assets/)。
 
 ## ★ 關鍵事實:10 種註冊頁型完全自動,不需要你寫任何計畫
 
@@ -36,7 +37,7 @@ python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
 
 寫該頁 plan 前先查參考頁形狀(省 token:只用 --summary / --page N,不要 --all 印出):
 ```bash
-python /mnt/data/tools/inspect_template.py --pptx /mnt/data/light_template.pptx --page 35
+python /mnt/data/tools/inspect_template.py --pptx /mnt/data/templates/light/template.pptx --page 35
 ```
 render_plan.json 只放未涵蓋的頁,其餘頁不用列:
 ```json

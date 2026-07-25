@@ -59,8 +59,8 @@ python .codex/skills/outline-to-ppt/prepare_env.py
 ```
 
 腳本會把工具鏈複製成 `ppt_out/` 沙箱(模擬 GPTs /mnt/data 佈局:`assets/`、
-`tools/`、`templates/`(模板包)、validator、模板;副本一律以 repo 為準冪等
-覆蓋),逐項列出檔案檢查,
+`tools/`、`templates/`(模板包,含模板本體)、validator;副本一律以 repo 為準
+冪等覆蓋),逐項列出檔案檢查,
 並印出「渲染指令前綴」。**環境是否就緒只以本腳本 exit 0 判定**,不得未執行
 先宣稱做不到。`ppt_out/` 已 gitignore,嚴禁 commit。
 
@@ -125,7 +125,7 @@ python ppt_out/tools/run_pipeline.py --spec ppt_out/slide_spec.json --asset-dir 
 
 ```
 python ppt_out/tools/audit_provenance.py --spec ppt_out/slide_spec.json --slides ppt_out/slides.md --source ppt_out/outline_source_current.txt
-python ppt_out/tools/inspect_template.py --pptx ppt_out/light_template.pptx --summary
+python ppt_out/tools/inspect_template.py --pptx ppt_out/templates/light/template.pptx --summary
 ```
 
 第一條在填槽迭代時快跑稽核(標題逐字/deck_name/精確數字 token);第二條做模板

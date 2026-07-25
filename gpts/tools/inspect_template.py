@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
@@ -93,14 +94,71 @@ def _flags(shapes) -> dict:
     return out
 
 
+def _verify_pack(pack_dir):
+    """比對包內 inventory.json 與現模板檔:id 增刪/幾何漂移即 exit 1
+    (「模板改版必重盤點」的機器化;流程見 templates/TEMPLATE_LIFECYCLE.md)。"""
+    import hashlib
+    pack_dir = Path(pack_dir)
+    inv = json.loads((pack_dir / "inventory.json").read_text(encoding="utf-8-sig"))
+    manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8-sig"))
+    tpl = pack_dir / manifest.get("template_file", "template.pptx")
+    if not tpl.exists():  # light 特例:模板檔可能在包外(prepare_env/沙箱佈局)
+        print(f"✗ 找不到模板檔 {tpl};用 --pptx 指定路徑後手動比對")
+        return 2
+    sha = hashlib.sha256(tpl.read_bytes()).hexdigest()
+    drift = []
+    if sha != inv.get("template_sha256"):
+        drift.append(f"pptx sha256 不符 inventory(檔案已改版)")
+    prs = Presentation(str(tpl))
+    for page_str, snap in inv.get("pages", {}).items():
+        pg = int(page_str)
+        if pg > len(prs.slides):
+            drift.append(f"p{pg}: 頁不存在(模板只剩 {len(prs.slides)} 頁)")
+            continue
+        now = [_shape_info(s) for s in prs.slides[pg - 1].shapes]
+
+        def flat(items, acc):
+            for it in items:
+                acc[it["id"]] = it
+                flat(it.get("ch", []), acc)
+            return acc
+        old_by_id, new_by_id = flat(snap, {}), flat(now, {})
+        for sid in sorted(set(old_by_id) - set(new_by_id)):
+            drift.append(f"p{pg}: shape id {sid} 消失")
+        for sid in sorted(set(new_by_id) - set(old_by_id)):
+            drift.append(f"p{pg}: 新增 shape id {sid}")
+        for sid in sorted(set(old_by_id) & set(new_by_id)):
+            o, n = old_by_id[sid], new_by_id[sid]
+            geo = [(k, o.get(k), n.get(k)) for k in ("x", "y", "w", "h")
+                   if o.get(k) != n.get(k)]
+            if geo:
+                drift.append(f"p{pg}: id {sid} 幾何漂移 " +
+                             " ".join(f"{k}:{a}→{b}" for k, a, b in geo))
+    if drift:
+        print(f"✗ 盤點漂移 {len(drift)} 項(重盤點並核對綁定後更新 inventory/manifest):")
+        for d in drift:
+            print(f"   {d}")
+        return 1
+    print(f"盤點一致:{len(inv.get('pages', {}))} 個綁定頁 shape 樹與 inventory 相符,sha 相符")
+    return 0
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pptx", required=True)
+    ap.add_argument("--pptx")
     ap.add_argument("--page", type=int, help="只看這一頁(1-based)")
     ap.add_argument("--summary", action="store_true", help="全簡報一頁一行摘要")
     ap.add_argument("--all", action="store_true", help="全量導出(配 --out)")
     ap.add_argument("--out", help="輸出 JSON 檔路徑")
+    ap.add_argument("--verify", metavar="PACK_DIR",
+                    help="比對模板包 inventory 與現模板檔(漂移 exit 1)")
     args = ap.parse_args(argv)
+
+    if args.verify:
+        return _verify_pack(args.verify)
+    if not args.pptx:
+        print("✗ 需要 --pptx(或 --verify <包目錄>)")
+        return 2
 
     prs = Presentation(args.pptx)
     n = len(prs.slides)

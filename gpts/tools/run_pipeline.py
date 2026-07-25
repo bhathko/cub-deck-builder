@@ -22,16 +22,24 @@
   python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
       --asset-dir /mnt/data --out /mnt/data/deck.pptx [--plan render_plan.json]
 
+模板選擇(TEMPLATE_PACKS §4):spec 的 deck.template(省略=light)或
+--template-pack <id>;模板檔預設=選定包的 template.pptx,--template 為
+顯式覆寫(試模板工作流)。--packs-root 預設=tools 上層的 templates/。
+
 exit = 首個失敗階段的 exit code(0 = 全部通過);exit 2 = 前置缺檔。
 """
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+
+import pack_loader
 
 
 def parse_args(argv):
@@ -61,17 +69,40 @@ def main(argv):
     spec = Path(a.get("--spec") or asset_dir / "slide_spec.json")
     slides = Path(a["--slides"]) if a.get("--slides") else None
     source = Path(a["--source"]) if a.get("--source") else None
-    template = Path(a.get("--template") or asset_dir / "light_template.pptx")
     out = Path(a.get("--out") or asset_dir / "deck.pptx")
     plan = Path(a["--plan"]) if a.get("--plan") else None
     validator = Path(a.get("--validator") or asset_dir / "validate_slide_spec_gpts.py")
+
+    # 模板包解析(TEMPLATE_PACKS §4):一次解析,四階段共用同一結果
+    spec_deck = {}
+    if spec.exists():
+        try:
+            spec_deck = (json.loads(spec.read_text(encoding="utf-8-sig")) or {}).get("deck") or {}
+        except (json.JSONDecodeError, OSError):
+            spec_deck = {}  # 壞 JSON 交給 validator 階段回報
+    try:
+        pack = pack_loader.load_pack(pack_arg=a.get("--template-pack"),
+                                     spec_deck=spec_deck,
+                                     packs_root=a.get("--packs-root"),
+                                     load_bindings=False)
+    except pack_loader.PackError as e:
+        print(f"[E] 模板包載入失敗:{e}")
+        sys.exit(2)
+    if a.get("--template"):
+        template = Path(a["--template"])  # 顯式覆寫(試模板工作流)
+    else:
+        template = pack.resolve_template(asset_dir) or pack.dir / pack.manifest.get(
+            "template_file", "template.pptx")
 
     outline_mode = slides is not None
     required = {
         "spec": spec, "validator": validator, "template": template,
         "render_deck": HERE / "render_deck.py", "qa_check": HERE / "qa_check.py",
-        "素材目錄 assets/": asset_dir / "assets",
+        "模板包 manifest": pack.dir / "manifest.json",
     }
+    # 素材目錄:asset_dir/assets 或包內 assets(新佈局素材隨包出貨)擇一即可
+    if not (asset_dir / "assets").exists() and not (pack.dir / "assets").exists():
+        required["素材目錄 assets/"] = asset_dir / "assets"
     if outline_mode:
         required["slides.md"] = slides
         required["audit_provenance"] = HERE / "audit_provenance.py"
@@ -89,7 +120,13 @@ def main(argv):
     total = (2 if outline_mode else 1) + (0 if a["--validate-only"] else 2)
     idx = 0
     mode = "outline(稽核+strict)" if outline_mode else "直供 JSON(追溯關)"
-    print(f"管線模式:{mode}    共 {total} 階段", flush=True)
+    print(f"管線模式:{mode}    模板包:{pack.id}@{pack.version}    共 {total} 階段",
+          flush=True)
+    pk_args = []
+    if a.get("--template-pack"):
+        pk_args += ["--template-pack", a["--template-pack"]]
+    if a.get("--packs-root"):
+        pk_args += ["--packs-root", a["--packs-root"]]
 
     if outline_mode:
         idx += 1
@@ -107,7 +144,7 @@ def main(argv):
         no_slides = Path(tempfile.mkdtemp(prefix="direct_json_")) / "run.no-slides"
         vcmd = [sys.executable, validator, "--spec", spec,
                 "--slides", no_slides, "--asset-dir", asset_dir]
-    run_stage(idx, total, "spec 閘門(validator)", vcmd)
+    run_stage(idx, total, "spec 閘門(validator)", vcmd + pk_args)
 
     if a["--validate-only"]:
         print(f"\n管線結果:PASS({idx}/{total} 階段,--validate-only 到此為止)")
@@ -118,11 +155,11 @@ def main(argv):
             "--template", template, "--asset-dir", asset_dir, "--out", out]
     if plan is not None:
         rcmd += ["--plan", plan]
-    run_stage(idx, total, "渲染(render_deck)", rcmd)
+    run_stage(idx, total, "渲染(render_deck)", rcmd + pk_args)
 
     idx += 1
     run_stage(idx, total, "產檔後自檢(qa_check)",
-              [sys.executable, HERE / "qa_check.py", "--spec", spec, "--pptx", out])
+              [sys.executable, HERE / "qa_check.py", "--spec", spec, "--pptx", out] + pk_args)
 
     print(f"\n管線結果:PASS({total}/{total} 階段)— 交付 {out}")
     return 0

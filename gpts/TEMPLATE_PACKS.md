@@ -377,6 +377,14 @@ light 視覺常數(色票/字級表/素材指名)進包。
   **manifest 讀取證明**(暫改 manifest 假值確認 qa/make_skeleton 行為跟著變,
   改回);Builder 端 README 驗收 1–8 全過;.codex outline-to-ppt 本機全綠
   (含 ppt_out/templates/ 沙箱佈局)。
+  (2026-07-25 執行註記,詳見 WORKLOG §20.2:①模板檔與素材源檔已 git mv
+  進包(`templates/light/template.pptx`、`assets_src/`),Knowledge 與沙箱
+  新佈局根目錄不再有 `assets/` 與模板檔,素材/模板全靠包解析;②manifest
+  新增 `asset_resolution` 欄位宣告素材解析順序;③page_types.md 拆分完成
+  結構面(49 行來源模板行移除、頭部改指 page_map),視覺結構描述中的品牌色
+  hex 以「light 基準」註記保留原句,逐句去品牌化延後 Phase 3;style_guide.md
+  同理採兩層註記而非物理拆檔;④pack_loader 增 load_bindings=False 的
+  manifest-only 模式,維持 make_skeleton/run_pipeline/qa 純標準庫可跑。)
 - **Phase 2|註冊工具鏈 + 雙 skill 上線**:fills_engine + golden fixtures +
   template_admin;**等價驗證:light 5 種 fill 頁型以 bindings.json 重寫,
   fills_engine 產出與 fills.py 產出 shape 樹全等**(詞彙表最強實證;

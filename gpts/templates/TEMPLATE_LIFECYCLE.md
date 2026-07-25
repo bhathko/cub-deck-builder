@@ -4,8 +4,7 @@
 > 適用:同一個 template_id 換入新版 .pptx。新增模板另走 register-template
 > skill(Phase 2);改語意契約(槽位/容量)走三處同步,不在本檔範圍。
 
-1. **換檔**:以新 pptx 取代該包的模板檔(light 特例:模板檔在
-   `gpts/knowledge/light_template.pptx`,見 manifest `template_file` 解析規則)。
+1. **換檔**:以新 pptx 取代該包的模板檔(`gpts/templates/<id>/template.pptx`)。
 2. **重盤點**:重建 inventory 快照與 manifest `template_sha256`
    (Phase 2 起用 `template_admin.py freeze`;之前用
    `inspect_template.py --page N` 逐綁定頁盤點 + 手動更新 manifest sha)。

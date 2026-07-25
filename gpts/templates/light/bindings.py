@@ -27,13 +27,17 @@ gpts/templates/TEMPLATE_LIFECYCLE.md。
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
 import pptx_toolkit as tk
-from fill_helpers import add_styled_textbox, fill_rows
+from fill_helpers import add_styled_textbox, fill_rows, resolve_asset
+
+_PACK_DIR = Path(__file__).resolve().parent
 
 DARK = RGBColor(*tk.COLOR_DARK)
 MUTED = RGBColor(*tk.COLOR_MUTED)
@@ -121,12 +125,14 @@ def _bullets(lines):
     return "\n".join("• " + str(x) for x in lines)
 
 
-def _bg(slide, prs, path):
-    slide.shapes.add_picture(str(path), 0, 0, width=prs.slide_width, height=prs.slide_height)
+def _bg(slide, prs, asset_dir, rel: str):
+    # 素材解析:asset_dir 優先、包目錄兜底(light 的 asset_resolution 宣告)
+    p = resolve_asset(rel, asset_dir, _PACK_DIR)
+    slide.shapes.add_picture(str(p), 0, 0, width=prs.slide_width, height=prs.slide_height)
 
 
 def _logo(slide, asset_dir, rel: str):
-    p = asset_dir / rel
+    p = resolve_asset(rel, asset_dir, _PACK_DIR)
     if p.exists():
         slide.shapes.add_picture(str(p), Inches(0.32), Inches(6.92),
                                  width=Inches(1.34), height=Inches(0.34))
@@ -154,7 +160,7 @@ def _em(s: str) -> float:
 def build_cover(prs, spec_slide, asset_dir):
     slide = tk.add_blank_slide(prs)
     slots = spec_slide["slots"]
-    _bg(slide, prs, asset_dir / spec_slide["assets"]["background"])
+    _bg(slide, prs, asset_dir, spec_slide["assets"]["background"])
     title, sub = slots["main_title"], slots["subtitle"]
     title_w = _em(title) * 40 / 72 + 0.25
     sub_w = _em(sub) * 36 / 72 + 0.25
@@ -175,7 +181,7 @@ def build_cover(prs, spec_slide, asset_dir):
 def build_agenda(prs, spec_slide, asset_dir):
     slide = tk.add_blank_slide(prs)
     slots = spec_slide["slots"]
-    _bg(slide, prs, asset_dir / spec_slide["assets"]["background"])
+    _bg(slide, prs, asset_dir, spec_slide["assets"]["background"])
     _textbox(slide, "Contents", 0.62, 1.05, 2.8, 0.34, size=14, color=MUTED)
     _textbox(slide, "目錄", 0.62, 1.37, 2.1, 0.62, size=32, bold=True)
     items = slots["items"]
@@ -199,7 +205,7 @@ def build_agenda(prs, spec_slide, asset_dir):
 
 def build_closing(prs, spec_slide, asset_dir):
     slide = tk.add_blank_slide(prs)
-    _bg(slide, prs, asset_dir / spec_slide["assets"]["background"])
+    _bg(slide, prs, asset_dir, spec_slide["assets"]["background"])
     _textbox(slide, spec_slide["slots"].get("main_title", "Thank you"),
              0.86, 3.28, 5.0, 0.60, size=32, bold=True)
     return slide
@@ -208,7 +214,7 @@ def build_closing(prs, spec_slide, asset_dir):
 def build_story_chapter_statement(prs, spec_slide, asset_dir):
     slide = tk.add_blank_slide(prs)
     slots = spec_slide["slots"]
-    _bg(slide, prs, asset_dir / spec_slide["assets"]["background"])
+    _bg(slide, prs, asset_dir, spec_slide["assets"]["background"])
     _header(slide, spec_slide)
     colors = [PURPLE, GREEN, DARK]
     for i, phase in enumerate(slots["story"][:3]):
@@ -227,7 +233,7 @@ def build_story_chapter_statement(prs, spec_slide, asset_dir):
 def build_stage_dual_track_roadmap(prs, spec_slide, asset_dir):
     slide = tk.add_blank_slide(prs)
     slots = spec_slide["slots"]
-    _bg(slide, prs, asset_dir / spec_slide["assets"]["background"])
+    _bg(slide, prs, asset_dir, spec_slide["assets"]["background"])
     _header(slide, spec_slide)
     x_start, col_w = 1.72, 2.72
     for i, q in enumerate(slots["quarters"][:4]):
