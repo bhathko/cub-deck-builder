@@ -66,3 +66,14 @@
 | structure_relation_map | clone(半自動,需 render_plan) | 58 | 寫 plan 前先 `inspect_template.py --page 58` |
 
 共 53 筆:builtin 5、fill 5、clone 43。
+
+## 附:light 語意色名對照(page_types.md 視覺描述用;機器真相在 manifest style)
+
+| 語意色名 | light 色碼 |
+| --- | --- |
+| 主色(綠) | #58D494 |
+| 輔色(紫) | #848BF2 |
+| 輔色(藍) | #4AB7F9 |
+| 深色(主文字色) | #344252 |
+| 次文字色 | #68727E |
+| 分隔線色 | #D8DEE4 |

@@ -138,7 +138,9 @@ python engine/release/template_admin.py golden --id corp_dark
 ```
 
 FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
-`--page-types a,b` 省時,收尾必跑一次全量。全綠後交設計師目檢:
+`--page-types a,b` 省時,收尾必跑一次全量。可選配產線框示意輔助自查
+(`uv run --with python-pptx --with pillow python engine/release/wireframe_preview.py --pptx ppt_out/golden_corp_dark.pptx --out ppt_out/wf`),
+但交付目檢仍以 PowerPoint 開檔為準。全綠後交設計師目檢:
 「驗收檔在 `ppt_out/golden_corp_dark.pptx`,每種頁型兩頁:第一頁塞最少內容
 (看有沒有殘留空框),第二頁塞最滿內容(看有沒有爆框)。用 PowerPoint 開,
 把不對的頁碼告訴我。」設計師回報 → 翻成綁定修正 → 重跑 golden → 再目檢,

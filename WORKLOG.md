@@ -196,7 +196,7 @@ recommended/recommendation 以底部一行呈現。
 - [ ] 第一次實際部署到 GPT Builder + 跑完驗收(工具鏈本機已全數實測通過,
       但 ChatGPT 沙箱環境尚未驗過)。
 - ~~評估 GPTs Actions 方案~~(2026-07-21 否決:公司政策禁用 Actions,不再提議)。
-- [ ] 選配:wireframe_preview.py(PIL+OFL 中文字型畫線框示意,緩解無預覽痛點)。
+- ~~選配:wireframe_preview.py~~(2026-07-25 完成:`engine/release/wireframe_preview.py`,PIL+系統中文字型,本機目檢輔助;見 §21.1)。
 - ~~裝 git + 首次 commit~~(已完成:2026-07-21 起以 git 保護,見 commit 歷史)。
 
 ## 9. 維護提醒(工具層)
@@ -725,3 +725,16 @@ prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未�
 - tools.zip 因兩支腳本補路徑重打(R7 已更新);template_light.zip 內容未變。
 - 驗收:新佈局 R0–R10 全符;repo 直跑 audit/make_skeleton OK;
   R2b 產出 vs 原始基準 shape 樹**仍全等**;prepare_env/ppt_out 正常。
+
+
+### 21.1 小掃尾:page_types 去品牌化 + 線框預覽(2026-07-25)
+
+- **page_types.md 逐句去品牌化**(補 Phase 1 註記延後、Phase 3 漏執行的項目):
+  37 處色碼/rgba 全數改為語意色名(主色(綠)/輔色(紫)/輔色(藍)/深色(主文字色)
+  /次文字色/分隔線色),檔頭註記同步;light 的色名↔色碼對照表進該包
+  page_map.md 附註(機器真相仍在 manifest style)。自此共用語意庫零硬編碼
+  色值,新模板不再被 light 色票敘述誤導。
+- **wireframe_preview.py**(engine/release/,不入 tools.zip):pptx → 每頁
+  線框 PNG + overview 網格;系統中文字型自動偵測(PingFang/msjh/Noto,
+  無則退回豆腐)。golden 目檢輔助,實測 golden_light 10 頁結構可辨;
+  字級/溢出仍以 PowerPoint 開檔為準。
