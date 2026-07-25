@@ -53,8 +53,8 @@ unzip -o /mnt/data/template_light.zip -d /mnt/data/templates/light
 `tools.zip` 的工具檔位於壓縮檔根目錄,所以目的地必須是明確建立的
 `/mnt/data/tools`,不要直接解到 `/mnt/data`;`template_light.zip` 是模板包
 (template.pptx、manifest.json、bindings.py、page_map.md、assets/),解到
-明確建立的 `/mnt/data/templates/light`(多模板架構;大綱模式目前固定用
-light 包)。
+明確建立的 `/mnt/data/templates/light`(多模板架構;使用者指名其他模板時
+改解對應的 `template_<模板id>.zip`,見下方「模板選擇」)。
 
 `unzip` 對舊版含 Windows 反斜線路徑的壓縮檔可能印出 `appears to use backslashes as
 path separators` 警告並回非零結束碼，但檔案仍會正確解出。環境是否就緒**只以下列檔案
@@ -128,6 +128,13 @@ path separators` 警告並回非零結束碼，但檔案仍會正確解出。環
 你把來源文字填入槽位——這正是本流程分配給你的工作（規則明列允許的手產物），
 不得以「缺少 outline 轉 spec 腳本」為由停住，或要求使用者自己提供
 `slide_spec.json`。
+
+**模板選擇(多模板)**:預設 light,不需任何參數;使用者指名其他模板
+(「用○○模板產」)時,`make_skeleton.py` 加 `--template-pack <模板id>`
+(骨架會自動寫入 `deck.template`,後續管線照常跑)。此時**頁型候選 =
+該包的全自動集合**(先跑 `make_skeleton.py --list --template-pack <模板id>`
+查支援矩陣);該包 cover/agenda/closing 非全自動時,切頁略過該頁型。
+整份簡報只用一種模板,不得混用。
 
 下列 `PAGE_TYPE_LIST` 是已註冊頁型的範例。每次執行時，先把同一程式碼區塊中的
 範例字面值換成本次實際頁序，再執行 `make_skeleton.py`：

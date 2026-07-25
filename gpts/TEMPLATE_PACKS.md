@@ -1,12 +1,11 @@
 # TEMPLATE_PACKS.md — 多模板架構設計(模板包公式 + 註冊流程)
 
-> **狀態:設計定稿,尚未實作。**(2026-07-25,由 WORKLOG §8 需求延伸)
-> 未實作前一律以 `AGENTS.md` 現行條文為準;每個 Phase 落地時依 §7 草稿
-> 同步修訂 AGENTS.md,修訂後仍以 AGENTS.md 為準(本檔僅為設計藍圖與
-> 實作依據,不另立裁決權)。
-> 配套 skill 草稿 `.codex/skills/register-template/SKILL.md`:其引用的
-> `template_admin.py` 等工具是 **Phase 2 交付物**;Phase 2 工具鏈落地且
-> 等價驗證全綠前,該 skill **不得安裝到 `~/.codex/skills/`**。
+> **狀態:Phase 0–2 已落地(2026-07-25),Phase 3 治理常態化進行中。**
+> 規則衝突時以 `AGENTS.md` 為準(§7 草稿已隨各 Phase 併入 AGENTS.md);
+> 本檔為多模板架構的設計藍圖與實作依據。
+> 配套 skill `.codex/skills/register-template/`(已啟用)+
+> 工具鏈 `gpts/release/template_admin.py` + 引擎 `gpts/tools/fills_engine.py`;
+> 各 Phase 執行紀錄見 WORKLOG §20.1–§20.3。
 
 ## 0. 需求與公式總綱
 
@@ -397,6 +396,14 @@ light 視覺常數(色票/字級表/素材指名)進包。
   驗收:新模板 REGRESSION 綠;isolation 證明 light 與共用檔零觸碰;
   Builder 上兩模板各產一份 qa PASS;REGRESSION 新增 R9(同 spec 換
   deck.template 產兩份)與 R10(`template_admin.py lint --all`)。
+  (2026-07-25 執行註記,詳見 WORKLOG §20.3:①等價驗證**五種 fill 頁型
+  全數通過**——bindings.json 經 fills_engine 與 fills.py 產出 shape 樹全等,
+  含 golden min 刪格與 max 溢出路徑,無頁型需留缺口;②詞彙表定稿時新增
+  兩項:`keep` 的第一個實例(p33「優點/待改善」結構標籤,lint 全覆蓋原則
+  抓出、以 keep 明示)與 lint 對清除窗內純數字頁碼框的引擎豁免;
+  ③validator 增 `--allow-draft`(僅 golden harness 用,解 register 期間
+  包必為 draft 的雞生蛋);④「真實新模板端到端」以 lightcopy 演練
+  (R9 配方),真實設計師模板待第一位使用者提供。)
 - **Phase 3|治理常態化**:FEEDBACK 台帳分模板(根檔加「模板」欄,模板專屬
   回饋謄入包內);WORKLOG §8 fills 三級升級計畫改按包執行、按包計數;
   light 切換 bindings.json 並退役 fills.py(選配,需 golden+examples 雙綠);

@@ -20,7 +20,7 @@
 
 ## 工具層(`tools/` → `knowledge/tools.zip`)
 
-產檔的機械動作全部由十支預寫腳本執行,模型只在「未涵蓋頁型」時手產一份小小的
+產檔的機械動作全部由十一支預寫腳本執行,模型只在「未涵蓋頁型」時手產一份小小的
 `render_plan.json`——這是「精準 + 省 token + 不進 QA 死循環」的核心設計:
 
 | 腳本                  | 角色                                                                |
@@ -62,7 +62,7 @@
 | `knowledge/slide_spec.example.json`     | 通過驗證的完整範例                                                       | 上傳到 Knowledge                 |
 | `knowledge/slide_spec.bad.example.json` | 會 FAIL 的範例(驗收測試用)                                               | 上傳到 Knowledge                 |
 | `knowledge/template_light.zip`          | light 模板包:template.pptx + manifest + bindings + page_map + 素材(源碼在 `templates/light/`) | 上傳到 Knowledge                 |
-| `knowledge/tools.zip`                   | 工具腳本 ×10 + 速查卡(源碼在 `tools/`)                                   | 上傳到 Knowledge                 |
+| `knowledge/tools.zip`                   | 工具腳本 ×11 + 速查卡(源碼在 `tools/`)                                   | 上傳到 Knowledge                 |
 | `examples/01_*.json`–`04_*.json`        | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
 | `examples/02_full_10p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
 | `examples/05_outline_to_ppt_source.md`  | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
@@ -262,6 +262,24 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
 一個判斷準則:如果你能用一句話說出「以後應該怎樣」,那句話就是規則,直接交給
 管理者寫進檔案;如果說不出來(只覺得醜),就附上模板參考頁和產出的並排截圖,
 讓管理者判斷差在哪。重複出現兩次以上的問題,一律規則化,不要每次都當場修。
+
+## 多模板發佈 checklist(新模板註冊完成後)
+
+> 註冊(repo 端)由 `.codex/skills/register-template/` 引導完成
+> (`template_admin.py register` exit 0 = 註冊成功);發佈(Builder 端)
+> 是人工步驟,逐項勾:
+
+1. □ 該模板包 REGRESSION 綠 + 根 REGRESSION R0–R10 全符
+2. □ `python gpts/release/template_admin.py isolation` 白名單過(模板目錄外
+   的改動已拆 commit)
+3. □ `python gpts/release/template_admin.py pack --id <id>` 重打包
+   (tools 沒改就不動 tools.zip);R7 hash 基準同步
+4. □ `gpts/instructions.md` 版本字串 bump + 模板 roster 行加入新包
+5. □ Knowledge 檔數 ≤19 確認
+6. □ Builder:貼新 instructions;上傳 `template_<id>.zip`(共用檔沒改就不重傳)
+7. □ Builder 驗收:問「你現在是哪一版?」核對 instructions 版與 roster;
+   用該模板 smoke/golden spec 產一份 qa PASS;light 抽測一份確認不受影響
+8. □ `gpts/templates/INDEX.md` 狀態更新;通知團隊
 
 ## 維護:改頁型時要同步幾個地方
 

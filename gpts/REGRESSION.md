@@ -32,7 +32,7 @@ for z, dest in [('gpts/knowledge/tools.zip','$RT/tools'),
 cp gpts/knowledge/validate_slide_spec_gpts.py "$RT/"
 ```
 
-預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 十支腳本 +
+預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 十一支腳本 +
 README_TOOLS、`templates/light/`(模板包:template.pptx + manifest.json +
 bindings.py + page_map.md + `assets/`)、validator。素材與模板隨包出貨,
 `$RT` 根**不再有** `assets/` 與 `light_template.pptx`(工具經 pack_loader
@@ -149,15 +149,14 @@ ls gpts/knowledge | grep -v __pycache__ | wc -l     # 預期 10
 shasum -a 256 gpts/knowledge/tools.zip gpts/knowledge/template_light.zip
 ```
 
-2026-07-25 基準值(**重打包 zip 後必須更新本節**;Phase 1 Knowledge 換裝:
-assets.zip 與 light_template.pptx 併入 template_light.zip,tools.zip 十支
-腳本含 pack_loader/fill_helpers。發佈時 Builder 端刪 assets.zip 與
-light_template.pptx、上傳 template_light.zip 與新 tools.zip,同步 instructions
-v2.0):
+2026-07-25 基準值(**重打包 zip 後必須更新本節**;Phase 2:tools.zip 十一支
+腳本含 fills_engine,template_light.zip 增 bindings.json 等價素材。發佈時
+Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip 與
+新 tools.zip,同步 instructions v2.0):
 
 ```
-4e8f332d575ee72926def91803742137dcb0303a73b31b199f7be1611734d328  tools.zip
-54681e4bbdf102f9a438b33c577c32409d794bb0146acd924b9ea470aa8c9a96  template_light.zip
+89ecce58b5b54b9097122a69a5182b7a74b61b11d74627c5430528ad0cb76100  tools.zip
+6be6e802fed0af202868dc4170ad68c673e4c5f640ee2200e13e817f047cb371  template_light.zip
 ```
 
 ## R8|直供 JSON 模式全流程(追溯關)
@@ -170,3 +169,37 @@ python3 "$RT/tools/run_pipeline.py" --spec "$RT/spec01.json" \
 
 預期:exit=0,驗證階段顯示「來源追溯:關」+ 缺來源 WARN,末行
 `管線結果:PASS(3/3 階段)`。
+
+## R9|多模板:同 spec 換 deck.template 產兩份
+
+以 light 複本當第二個包(端到端註冊演練;渲染需 python-pptx 前綴):
+
+```bash
+PR="$(mktemp -d)"
+python3 gpts/release/template_admin.py new --pptx gpts/templates/light/template.pptx --id lightcopy --name 淺色複本測試 --packs-root "$PR"
+python3 -c "
+import json, shutil
+src = json.load(open('gpts/templates/light/manifest.json'))
+p = '$PR/lightcopy/manifest.json'; m = json.load(open(p))
+m['style'], m['asset_defaults'], m['page_number'] = src['style'], src['asset_defaults'], src['page_number']
+m['page_types'] = {pt: e for pt, e in src['page_types'].items() if e['mode'] == 'fill'}
+json.dump(m, open(p, 'w'), ensure_ascii=False, indent=2)
+shutil.copy2('gpts/templates/light/bindings.json', '$PR/lightcopy/bindings.json')
+shutil.copytree('gpts/templates/light/assets_src', '$PR/lightcopy/assets_src', dirs_exist_ok=True)
+"
+python3 gpts/release/template_admin.py freeze --id lightcopy --packs-root "$PR"
+python3 gpts/release/template_admin.py register --id lightcopy --packs-root "$PR"; echo "register exit=$?"
+```
+
+預期:register exit=0(lint → 自身 golden 10 頁 PASS 含冪等雙跑 → light
+回歸 golden PASS → status=registered)。之後同一份 fill 頁型 spec 分別以
+light 與 `deck.template:"lightcopy"`(帶 `--packs-root "$PR"`)各 render+qa
+一次,兩者皆 PASS 且輸出行分別顯示 `模板包:light@…` 與 `模板包:lightcopy@…`。
+
+## R10|全包 lint
+
+```bash
+python3 gpts/release/template_admin.py lint --all; echo "exit=$?"
+```
+
+預期:exit=0,每包一行 `✓ <id>: lint OK`(light 另有 grandfather 提示行)。

@@ -640,3 +640,37 @@ prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未�
   light_template.pptx、上傳 template_light.zip 與新 tools.zip。
 
 **下一步 = Phase 2(fills_engine + golden + template_admin + 雙 skill 上線)。**
+
+### 20.3 Phase 2 執行:註冊工具鏈 + 雙 skill 上線(2026-07-25)
+
+- **fills_engine.py**(進 tools.zip):6-op 宣告式 bindings.json 解譯器
+  (set/delete/rows/list/add_textbox/resize + keep 覆蓋宣告;槽位路徑支援
+  索引/切片,list 支援 head/tail 對齊、成組刪除、overflow merge_into、
+  delete_when_empty)。pack_loader 接上:無 bindings.py 的包自動走宣告式。
+- **等價驗證(詞彙表最強實證)全數通過**:light 五種 fill 頁型以
+  bindings.json 重寫(存包內,與 bindings.py 並存、.py 生效),與 fills.py
+  產出 shape 樹**全等**——含 example 02 典型內容與 golden 全變體
+  (min 刪格路徑 + max 溢出路徑)。無頁型需留 grandfather 缺口;
+  light 是否切換宣告式留 Phase 3。過程中的兩個設計驗證:①lint 全覆蓋原則
+  抓出 p33「優點/待改善」隱含保留的結構標籤 → keep op 第一個實例;
+  ②模板頁碼框(清除窗內純數字)屬引擎 _finalize 職責 → lint 引擎豁免。
+- **template_admin.py**(gpts/release/,不入 tools.zip):註冊單一入口
+  new/freeze/lint(--all)/golden(--regen-specs)/register/pack(--tools)/
+  isolation/list。golden = merged 契約即時派生 min/max 每 fill 頁型兩變體
+  → validator(--allow-draft,新增旗標解 draft 雞生蛋)→ 渲染連跑兩次
+  shape 樹全等(冪等實證)→ qa → 目檢檔 ppt_out/golden_<id>.pptx;
+  register 原子性含 light 回歸與 isolation 白名單。
+  gpts/golden/ 存 20 份基準契約 fixtures(--regen-specs 派生,對註冊唯讀)。
+- **端到端演練(R9)**:lightcopy 假新模板從 new→manifest→freeze→register
+  全流程 exit 0(自身 golden 10 頁 PASS、light 回歸綠),同 spec 換
+  deck.template 兩包各 render+qa PASS。真實設計師模板待首位使用者。
+- **雙 skill 上線**:register-template 啟用並安裝 ~/.codex(banner 改
+  已啟用);outline-to-ppt 多模板化(指名模板 → make_skeleton
+  --template-pack、頁型候選按包全自動集合收斂、模式 B 由 deck.template
+  自動生效),GPTs 端 outline_to_ppt_skill.md 同步。README_TOOLS 錯誤表
+  加「頁型不受模板支援」列;README 新增「多模板發佈 checklist」節;
+  AGENTS 新增規則 9(綁定準入)/10(隔離與註冊入口)/11(Knowledge ≤19),
+  規則 8 擴及所有 skill;REGRESSION 新增 R9/R10。
+- **狀態:本機完成。**Builder 端仍待 Phase 1 的 v2.0 換裝驗收;
+  Phase 3(FEEDBACK 分模板營運、light 切換宣告式、fills 三級升級按包執行)
+  依 TEMPLATE_PACKS §8 常態進行。

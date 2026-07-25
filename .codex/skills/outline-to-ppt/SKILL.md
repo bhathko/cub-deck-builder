@@ -80,7 +80,9 @@ python .codex/skills/outline-to-ppt/prepare_env.py
      報告人填「待補充」;`closing` 的 `main_title` 與頂層 `title` 固定 `Thank you`。
    - KPI/數據比較/雙軌時程頁型:原文有對應數值或時間標籤時優先用;使用者點名
      但缺數據時仍可用,缺值填「待補充」。個別缺料一律「佔位並繼續」,不整體停止。
-3. **產骨架**(把頁型清單換成本次實際頁序):
+3. **產骨架**(把頁型清單換成本次實際頁序;使用者指名「用○○模板」時加
+   `--template-pack <模板id>`,骨架自動寫入 `deck.template`,頁型候選改為
+   該包全自動集合——先 `--list --template-pack <模板id>` 查;未指名=light):
 
    ```
    python ppt_out/tools/make_skeleton.py --types cover,agenda,info_three_column_category,closing --out ppt_out/slide_spec.json
@@ -111,7 +113,8 @@ python .codex/skills/outline-to-ppt/prepare_env.py
 
 內容正確性由 JSON 作者負責。存成 `ppt_out/slide_spec.json` 後,跑同一條管線但
 **不帶** `--slides`/`--source`(追溯自動關閉,缺來源 WARN 是預期結果,兩級頁型
-行為保留):
+行為保留)。spec 的 `deck.template` 自動生效(省略=light),不需任何額外參數;
+指定模板不支援某頁型時 validator 會擋下並列出該包支援清單:
 
 ```
 python ppt_out/tools/run_pipeline.py --spec ppt_out/slide_spec.json --asset-dir ppt_out --out ppt_out/deck.pptx

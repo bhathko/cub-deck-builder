@@ -104,19 +104,20 @@ def apply_capacity_overrides(base: dict, overrides: dict) -> dict:
     return merged
 
 
-def load_pack_context(packs_root: Path, template_id: str | None):
+def load_pack_context(packs_root: Path, template_id: str | None, allow_draft=False):
     """讀選定包 manifest,回傳 pack context dict;找不到回 None。
 
     context 鍵:id/version/dir/modes(page_type→mode)/auto(builtin+fill 集合)/
     reasons(unsupported 理由)/pack_first(素材解析順序)/page_types(merged 契約)。
     manifest 壞掉或覆寫違規 raise ValueError(前置錯誤,exit 2)。
+    allow_draft 僅供註冊 harness(template_admin golden)使用。
     """
     target = template_id or "light"
     mpath = packs_root / target / "manifest.json"
     if not mpath.exists():
         return None
     manifest = json.loads(mpath.read_text(encoding="utf-8-sig"))
-    if manifest.get("status") == "draft":
+    if manifest.get("status") == "draft" and not allow_draft:
         raise ValueError(f"模板包 {target} 仍為 draft(註冊未完成),不得用於產檔")
     entries = manifest.get("page_types", {})
     modes = {pt: e.get("mode") for pt, e in entries.items()}
@@ -531,9 +532,10 @@ def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only:
 def main(argv):
     strict = "--strict" in argv
     registered_only = "--registered-only" in argv
+    allow_draft = "--allow-draft" in argv  # 僅註冊 harness(golden)使用
     spec_path, slides_path, asset_base = DEFAULT_SPEC, DEFAULT_SLIDES, DEFAULT_ASSET_DIR
 
-    args = [a for a in argv if a not in ("--strict", "--registered-only")]
+    args = [a for a in argv if a not in ("--strict", "--registered-only", "--allow-draft")]
     positional = []
     cli_pack = packs_root_arg = None
     i = 0
@@ -579,14 +581,18 @@ def main(argv):
     # = 退回單模板現行為;spec 指定了卻找不到 = 前置缺檔 exit 2)
     deck_obj = spec.get("deck") if isinstance(spec.get("deck"), dict) else {}
     spec_template = deck_obj.get("template")
-    if cli_pack and spec_template and cli_pack != spec_template:
+    cli_id = Path(cli_pack).name if cli_pack else None  # 允許 --template-pack 給包目錄路徑
+    if cli_id and spec_template and cli_id != spec_template:
         print(f"✗ --template-pack {cli_pack!r} 與 spec 的 deck.template="
               f"{spec_template!r} 不一致:改一致後重跑(不靜默擇一,保確定性)")
         return 2
     chosen = cli_pack or spec_template
-    packs_root = packs_root_arg or (asset_base / "templates")
+    if chosen and (Path(chosen) / "manifest.json").exists():
+        packs_root, chosen = Path(chosen).parent, Path(chosen).name
+    else:
+        packs_root = packs_root_arg or (asset_base / "templates")
     try:
-        pack = load_pack_context(packs_root, chosen)
+        pack = load_pack_context(packs_root, chosen, allow_draft=allow_draft)
     except ValueError as e:
         print(f"✗ 模板包設定錯誤:{e}")
         return 2

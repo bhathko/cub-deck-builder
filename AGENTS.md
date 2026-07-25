@@ -40,9 +40,21 @@ Code Interpreter 裡跑驗證閘門與確定性 renderer,產出 Cathay 淺色企
    `prepare_env.py`,把工具鏈複製成 `ppt_out/` 模擬 /mnt/data;命令全為單行
    python,PowerShell/cmd/bash 通用——團隊有 Windows 使用者且公司禁 WSL),
    規則本體仍指回 `gpts/knowledge/` 與 `gpts/tools/`,不得在 skill 裡另寫一份
-   規則。改 gpts 規則或工具後,檢查該摘要是否需同步,並把 repo 版複製到
-   `~/.codex/skills/outline-to-ppt/`(含重打同名 zip,POSIX 路徑)。
+   規則。`.codex/skills/` 下**所有** skill(含 `register-template`)改動後,
+   把 repo 版複製到 `~/.codex/skills/<名稱>/`(含重打同名 zip,POSIX 路徑)。
    本機產物一律進 gitignore 的 `ppt_out/`,嚴禁 commit。
+9. **綁定準入**:新模板的填充綁定一律是宣告式 `bindings.json`(6-op 詞彙表,
+   `fills_engine` 解譯;表達不了=該頁型降級 clone,嚴禁在註冊對話中擴詞彙表
+   或改寫 Python);必過 `template_admin.py lint`(含全覆蓋原則)+ `golden`
+   (min/max 渲染+qa+連跑兩次 shape 樹全等)才可 register。模板包無權新增
+   語意頁型;golden fixtures(`gpts/golden/`)對註冊流程唯讀。
+10. **模板隔離與註冊入口**:`.codex/skills/register-template/` 是唯一註冊
+    入口(GPTs 端只消費模板包,沙箱無持久化);涉及模板 X 的 commit 只准
+    觸碰 `gpts/templates/X/**`、`gpts/knowledge/template_X.zip`、
+    `gpts/templates/INDEX.md`、`gpts/instructions.md`(版本字串/roster 行),
+    以 `template_admin.py isolation` 機器驗證,越界改動拆 commit。
+11. **Knowledge 檔數預算 ≤19**(上限 20 常備 1 空位):新模板上傳前先數檔;
+    將觸頂依序 examples 併 docs.zip → 評估分 GPT。不得把模板包塞進 tools.zip。
 
 ## 常用指令(本機需 Python 3 + python-pptx)
 

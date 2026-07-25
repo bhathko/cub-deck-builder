@@ -67,6 +67,7 @@ render_plan.json 只放未涵蓋的頁,其餘頁不用列:
 | audit:slides.md 某行非逐字片段 | 該行從 outline_source_current.txt 重新逐字摘錄(不得改原文檔) |
 | audit:數字 token 無精確對應 | 同捏造數字處理;禁止改 slides.md 來遷就 spec |
 | render:UNMATCHED / AMBIGUOUS | inspect --page N 重查,只改該條 plan 的 match(id 優先,撞多筆加 nth) |
+| `頁型 'X' 不受模板 'Y' 支援` / 非全自動 | 換該包全自動頁型(`make_skeleton.py --list --template-pack Y` 查),或整份換 deck.template,或請管理者回註冊流程補;禁止硬用 clone 繞過 |
 | render:FillError(註冊頁型) | 唯一不修的錯:停止並回報維護者(模板改版問題) |
 
 每輪 = 修正 → 整條重跑 run_pipeline。三輪內禁止宣稱「無法繼續」、禁止跳過失敗

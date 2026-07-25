@@ -10,8 +10,9 @@
 packs root 預設 = 本檔所在目錄的上一層 /templates(repo: gpts/templates;
 沙箱: /mnt/data/templates 或 ppt_out/templates)。
 
-Phase 0 範圍:僅支援 bindings.py(light grandfather);宣告式 bindings.json
-的解譯器(fills_engine)為 Phase 2 交付物。
+綁定兩形式:bindings.py(light grandfather,優先載入)或宣告式
+bindings.json(新模板唯一路徑,經 fills_engine 解譯;兩者並存時 .py 生效,
+.json 僅為等價驗證素材)。
 """
 from __future__ import annotations
 
@@ -71,20 +72,33 @@ class Pack:
         return None
 
 
-def _load_bindings(pack_dir: Path, pack_id: str):
+class _JsonBindings:
+    """bindings.json 的載入結果:與 Python bindings 模組同介面(FILLS/BUILDERS)。"""
+
+    def __init__(self, fills):
+        self.FILLS = fills
+        self.BUILDERS = {}  # 宣告式包不得有 builtin(builtin 僅 light grandfather)
+
+
+def _load_bindings(pack_dir: Path, pack_id: str, manifest: dict):
+    if str(_HERE) not in sys.path:  # bindings 需 import fill_helpers/text_tools 等
+        sys.path.insert(0, str(_HERE))
     py = pack_dir / "bindings.py"
-    if py.exists():
-        if str(_HERE) not in sys.path:  # bindings 需 import fill_helpers/text_tools 等
-            sys.path.insert(0, str(_HERE))
+    if py.exists():  # grandfather 優先(light;bindings.json 並存時僅為等價驗證素材)
         spec = importlib.util.spec_from_file_location(f"pack_bindings_{pack_id}", py)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         return mod
-    if (pack_dir / "bindings.json").exists():
-        raise PackError(
-            f"模板包 {pack_id} 使用宣告式 bindings.json,但 fills_engine 尚未落地"
-            "(TEMPLATE_PACKS.md Phase 2)")
-    raise PackError(f"模板包 {pack_id} 缺 bindings(找不到 {py})")
+    bj = pack_dir / "bindings.json"
+    if bj.exists():
+        import fills_engine
+        data = json.loads(bj.read_text(encoding="utf-8-sig"))
+        try:
+            fills = fills_engine.build_fills(data, manifest.get("style") or {})
+        except Exception as e:
+            raise PackError(f"模板包 {pack_id} 的 bindings.json 無法載入:{e}")
+        return _JsonBindings(fills)
+    raise PackError(f"模板包 {pack_id} 缺 bindings(找不到 {py} 或 bindings.json)")
 
 
 def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
@@ -114,5 +128,6 @@ def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
     manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
     bindings = None
     if load_bindings:
-        bindings = _load_bindings(pack_dir, manifest.get("template_id", pack_dir.name))
+        bindings = _load_bindings(pack_dir, manifest.get("template_id", pack_dir.name),
+                                  manifest)
     return Pack(pack_dir, manifest, bindings)

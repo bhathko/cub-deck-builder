@@ -5,12 +5,13 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 
 # register-template(新模板註冊精靈)
 
-> **狀態:設計定稿、尚未啟用。** 架構與工具鏈規格見 `gpts/TEMPLATE_PACKS.md`;
-> 本 skill 引用的 `template_admin.py`/`fills_engine` 是其 **Phase 2 交付物**
-> ——Phase 2 工具鏈落地且 light 等價驗證全綠、依 §8 明文啟用前,
-> **不得安裝到 `~/.codex/skills/`、不得對使用者宣稱可用**。
-> 觸發本 skill 而工具尚未落地時:說明現況(引用 TEMPLATE_PACKS.md §8 進度)
-> 並停止,不得用其他方式(手寫腳本、手改引擎)代行註冊。
+> **狀態:已啟用(2026-07-25,Phase 2 落地)。** 架構與工具鏈規格見
+> `gpts/TEMPLATE_PACKS.md`;工具鏈 = `gpts/release/template_admin.py`
+> (new/freeze/lint/golden/register/pack/isolation/list)+
+> `gpts/tools/fills_engine.py`(6-op 解譯器),light 五種 fill 頁型的
+> 宣告式重寫已通過 shape 樹全等驗證(含 min 刪格與 max 溢出路徑)。
+> 帶 pptx 操作的子命令(new/freeze/golden/register)依 prepare_env
+> 提示加渲染前綴(如 `uv run --with python-pptx python`)。
 
 這是 `ppppai` repo 多模板架構的註冊前端:所有機械動作由 repo 腳本完成,
 你只負責五件事——**盤點轉述、提映射草案、依確認寫 bindings.json、

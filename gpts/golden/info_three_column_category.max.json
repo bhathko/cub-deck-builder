@@ -1,0 +1,58 @@
+{
+ "deck": {
+  "deck_name": "golden_info_three_column_category_max",
+  "language": "Traditional Chinese",
+  "slide_count": 1,
+  "template": "light"
+ },
+ "slides": [
+  {
+   "number": 1,
+   "page_type": "info_three_column_category",
+   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "render_page_number": true,
+   "assets": {
+    "background": "assets/backgrounds/content_bg.png",
+    "logo": "assets/logos/cathay_logo.png"
+   },
+   "slots": {
+    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "columns": [
+     {
+      "heading": "heading測測測測測測測測測測測測測",
+      "points": [
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測測測測測測測測測測測",
+      "points": [
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測測測測測測測測測測測",
+      "points": [
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+       "points測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

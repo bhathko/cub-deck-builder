@@ -1,0 +1,104 @@
+{
+  "engine": 1,
+  "_note": "light 5 種 fill 頁型的宣告式重寫(TEMPLATE_PACKS §8 Phase 2 等價驗證素材)。light 實際仍走 bindings.py(pack_loader 優先載入 .py);本檔與 fills_engine 的產出已驗證與 bindings.py 全等,是否切換留 Phase 3。builtin 5 頁型無宣告式對應(僅 light grandfather)。",
+  "fills": {
+    "vision_goal_center_balance": {
+      "template_page": 14,
+      "ops": [
+        {"op": "set", "slot": "$.title", "id": 51},
+        {"op": "set", "slot": "$.slots.subtitle", "id": 52},
+        {"op": "resize", "id": 37, "top": 3.25, "height": 1.0},
+        {"op": "resize", "id": 38, "top": 4.32, "height": 0.78},
+        {"op": "set", "slot": "$.slots.core_mission", "id": 37},
+        {"op": "set", "slot": "$.slots.annual_goal", "id": 38},
+        {"op": "list", "slot": "$.slots.projects", "align": "head", "items": [
+          {"sets": [{"slot": "@", "id": 13}], "delete_on_missing": [13, 12]},
+          {"sets": [{"slot": "@", "id": 15}], "delete_on_missing": [15, 14]},
+          {"sets": [{"slot": "@", "id": 17}], "delete_on_missing": [17, 16]},
+          {"sets": [{"slot": "@", "id": 19}], "delete_on_missing": [19, 18]}]},
+        {"op": "list", "slot": "$.slots.kpis", "align": "head", "items": [
+          {"sets": [{"slot": "@", "template": "{label} {value}", "id": 21}], "delete_on_missing": [21, 20]},
+          {"sets": [{"slot": "@", "template": "{label} {value}", "id": 23}], "delete_on_missing": [23, 22]},
+          {"sets": [{"slot": "@", "template": "{label} {value}", "id": 25}], "delete_on_missing": [25, 24]},
+          {"sets": [{"slot": "@", "template": "{label} {value}", "id": 27}], "delete_on_missing": [27, 26]}]}
+      ]
+    },
+    "info_three_column_category": {
+      "template_page": 17,
+      "ops": [
+        {"op": "set", "slot": "$.title", "id": 2},
+        {"op": "set", "slot": "$.slots.subtitle", "id": 4},
+        {"op": "delete", "ids": [7, 28, 29, 67, 85, 11, 12, 13]},
+        {"op": "set", "slot": "$.slots.columns[0].heading", "id": 6},
+        {"op": "set", "slot": "$.slots.columns[0].points[0]", "id": 33},
+        {"op": "set", "slot": "$.slots.columns[0].points[1]", "id": 36},
+        {"op": "list", "slot": "$.slots.columns[0].points[2:]", "align": "head", "items": [
+          {"sets": [{"slot": "@", "id": 46}], "delete_always": [47], "delete_on_missing": [45]},
+          {"sets": [{"slot": "@", "id": 42}], "delete_always": [43], "delete_on_missing": [41]},
+          {"sets": [{"slot": "@", "id": 49}], "delete_always": [50], "delete_on_missing": [48]}],
+         "overflow": {"merge_into_id": 50, "join": "\n"}},
+        {"op": "set", "slot": "$.slots.columns[1].heading", "id": 52},
+        {"op": "set", "slot": "$.slots.columns[1].points[0]", "id": 55},
+        {"op": "set", "slot": "$.slots.columns[1].points[1]", "id": 57},
+        {"op": "list", "slot": "$.slots.columns[1].points[2:]", "align": "head", "items": [
+          {"sets": [{"slot": "@", "id": 62}], "delete_always": [63], "delete_on_missing": [61]},
+          {"sets": [{"slot": "@", "id": 59}], "delete_always": [60], "delete_on_missing": [58]},
+          {"sets": [{"slot": "@", "id": 65}], "delete_always": [66], "delete_on_missing": [64]}],
+         "overflow": {"merge_into_id": 66, "join": "\n"}},
+        {"op": "set", "slot": "$.slots.columns[2].heading", "id": 70},
+        {"op": "set", "slot": "$.slots.columns[2].points[0]", "id": 73},
+        {"op": "set", "slot": "$.slots.columns[2].points[1]", "id": 75},
+        {"op": "list", "slot": "$.slots.columns[2].points[2:]", "align": "head", "items": [
+          {"sets": [{"slot": "@", "id": 80}], "delete_always": [81], "delete_on_missing": [79]},
+          {"sets": [{"slot": "@", "id": 77}], "delete_always": [78], "delete_on_missing": [76]}],
+         "overflow": {"merge_into_id": 78, "join": "\n"}}
+      ]
+    },
+    "data_two_group_metric_comparison": {
+      "template_page": 29,
+      "ops": [
+        {"op": "set", "slot": "$.title", "id": 13},
+        {"op": "set", "slot": "$.slots.subtitle", "id": 25},
+        {"op": "set", "slot": "$.slots.before.heading", "id": 11},
+        {"op": "set", "slot": "$.slots.after.heading", "id": 50},
+        {"op": "rows", "slot": "$.slots.before.points", "row_ids": [21, 22, 23], "sep_ids": [24, 47], "overflow": "merge_last", "merge_height_in": 0.80},
+        {"op": "rows", "slot": "$.slots.after.points", "row_ids": [58, 59, 60], "sep_ids": [61, 62], "overflow": "merge_last", "merge_height_in": 0.80},
+        {"op": "list", "slot": "$.slots.kpis", "align": "head", "items": [
+          {"sets": [{"slot": "@.label", "id": 14}, {"slot": "@.value", "id": 15}], "delete_always": [16], "delete_on_missing": [14, 15, 16]},
+          {"sets": [{"slot": "@.label", "id": 51}, {"slot": "@.value", "id": 52}], "delete_always": [53], "delete_on_missing": [51, 52, 53]},
+          {"sets": [{"slot": "@.label", "id": 17}, {"slot": "@.value", "id": 18}], "delete_always": [19], "delete_on_missing": [17, 18, 19]},
+          {"sets": [{"slot": "@.label", "id": 54}, {"slot": "@.value", "id": 55}], "delete_always": [56], "delete_on_missing": [54, 55, 56]}]}
+      ]
+    },
+    "evaluation_option_score_pros_cons": {
+      "template_page": 33,
+      "ops": [
+        {"op": "set", "slot": "$.title", "id": 10},
+        {"op": "set", "slot": "$.slots.subtitle", "id": 11},
+        {"op": "keep", "ids": [28, 62], "reason": "「優點/待改善」列標籤,固定結構字樣(原 fills 隱含保留,keep 明示)"},
+        {"op": "list", "slot": "$.slots.options", "align": "head", "items": [
+          {"sets": [{"slot": "@.name", "id": 9}, {"slot": "@.pros", "join": "\n", "id": 31}, {"slot": "@.cons", "join": "\n", "id": 66}], "delete_always": [3, 7], "delete_on_missing": [12, 29, 64]},
+          {"sets": [{"slot": "@.name", "id": 18}, {"slot": "@.pros", "join": "\n", "id": 36}, {"slot": "@.cons", "join": "\n", "id": 70}], "delete_always": [17, 15], "delete_on_missing": [21, 34, 68]},
+          {"sets": [{"slot": "@.name", "id": 27}, {"slot": "@.pros", "join": "\n", "id": 44}, {"slot": "@.cons", "join": "\n", "id": 74}], "delete_always": [26, 24], "delete_on_missing": [22, 42, 72]}]},
+        {"op": "add_textbox", "slots": ["$.slots.recommended", "$.slots.recommendation"], "prefix": "建議:", "join": "、", "skip_if_empty": true, "x": 0.85, "y": 6.42, "w": 11.8, "h": 0.36, "pt": 14, "bold": true}
+      ]
+    },
+    "pyramid_layered_maturity_detail": {
+      "template_page": 54,
+      "ops": [
+        {"op": "set", "slot": "$.title", "id": 10},
+        {"op": "add_textbox", "slots": ["$.slots.subtitle"], "x": 0.31, "y": 0.86, "w": 12.7, "h": 0.37, "pt": 16},
+        {"op": "list", "slot": "$.slots.levels", "align": "tail", "items": [
+          {"sets": [{"slot": "@.label", "max_len_or_delete": 6, "id": 33}, {"slot": "@.label", "id": 38}, {"slot": "@.detail", "id": 41}], "delete_on_missing": [27, 33, 38, 41]},
+          {"sets": [{"slot": "@.label", "max_len_or_delete": 6, "id": 34}, {"slot": "@.label", "id": 43}, {"slot": "@.detail", "id": 44}], "delete_on_missing": [28, 34, 43, 44]},
+          {"sets": [{"slot": "@.label", "max_len_or_delete": 6, "id": 35}, {"slot": "@.label", "id": 49}, {"slot": "@.detail", "id": 52}], "delete_on_missing": [30, 35, 49, 52]},
+          {"sets": [{"slot": "@.label", "max_len_or_delete": 6, "id": 36}, {"slot": "@.label", "id": 56}, {"slot": "@.detail", "id": 57}], "delete_on_missing": [31, 36, 56, 57]},
+          {"sets": [{"slot": "@.label", "max_len_or_delete": 6, "id": 37}, {"slot": "@.label", "id": 58}, {"slot": "@.detail", "id": 59}], "delete_on_missing": [32, 37, 58, 59]}]},
+        {"op": "list", "slot": "$.slots.side_cards", "align": "head", "items": [
+          {"sets": [{"slot": "@.heading", "id": 67}, {"slot": "@.points", "join": "\n", "id": 66}], "delete_always": [103, 104, 105, 106], "delete_on_missing": [64]},
+          {"sets": [{"slot": "@.heading", "id": 91}, {"slot": "@.points", "join": "\n", "id": 88}], "delete_always": [107, 108, 109, 110], "delete_on_missing": [111]}],
+         "delete_when_empty": [63]}
+      ]
+    }
+  }
+}
