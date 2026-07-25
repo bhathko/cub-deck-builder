@@ -1,0 +1,264 @@
+{
+  "template_id": "light",
+  "display_name": "Cathay 淺色企業風",
+  "version": "2026-07-25.1",
+  "status": "registered",
+  "template_file": "light_template.pptx",
+  "template_sha256": "080ba71991f34f2d0d0670c5d5f605a0b15e4bce46a207e2fad62b6d1c4a48d2",
+  "page_count": 59,
+  "aspect": "16:9",
+  "language": "zh-TW",
+  "style": {
+    "font_zh": "Microsoft JhengHei",
+    "font_en": "Helvetica",
+    "allowed_fonts": [
+      "Microsoft JhengHei",
+      "微軟正黑體",
+      "Helvetica",
+      "Noto Sans TC"
+    ],
+    "colors": {
+      "dark": "344252",
+      "muted": "68727E",
+      "green": "58D494",
+      "purple": "848BF2",
+      "blue": "4AB7F9",
+      "line": "D8DEE4"
+    }
+  },
+  "asset_defaults": {
+    "background_cover": "assets/backgrounds/cover_bg.png",
+    "background_content": "assets/backgrounds/content_bg.png",
+    "logo": "assets/logos/cathay_logo.png"
+  },
+  "page_number": {
+    "box_in": [
+      12.3,
+      6.72,
+      0.7,
+      0.5
+    ],
+    "size_pt": 28,
+    "color": "344252",
+    "clear_zone_in": {
+      "left": 11.2,
+      "top": 6.3
+    },
+    "detect_zone_in": {
+      "left": 11.0,
+      "top": 6.3
+    }
+  },
+  "page_types": {
+    "cover": {
+      "mode": "builtin"
+    },
+    "agenda": {
+      "mode": "builtin"
+    },
+    "closing": {
+      "mode": "builtin"
+    },
+    "story_chapter_statement": {
+      "mode": "builtin"
+    },
+    "stage_dual_track_roadmap": {
+      "mode": "builtin"
+    },
+    "vision_goal_center_balance": {
+      "mode": "fill",
+      "template_page": 14
+    },
+    "info_three_column_category": {
+      "mode": "fill",
+      "template_page": 17
+    },
+    "data_two_group_metric_comparison": {
+      "mode": "fill",
+      "template_page": 29
+    },
+    "evaluation_option_score_pros_cons": {
+      "mode": "fill",
+      "template_page": 33
+    },
+    "pyramid_layered_maturity_detail": {
+      "mode": "fill",
+      "template_page": 54
+    },
+    "story_photo_icon_takeaways": {
+      "mode": "clone",
+      "template_page": 11
+    },
+    "vision_goal_rings": {
+      "mode": "clone",
+      "template_page": 12
+    },
+    "vision_goal_hub_spoke": {
+      "mode": "clone",
+      "template_page": 13
+    },
+    "vision_goal_pyramid": {
+      "mode": "clone",
+      "template_page": 15
+    },
+    "vision_goal_keyword_orbit": {
+      "mode": "clone",
+      "template_page": 16
+    },
+    "info_sidebar_grid": {
+      "mode": "clone",
+      "template_page": 18
+    },
+    "info_icon_bubble_cluster": {
+      "mode": "clone",
+      "template_page": 19
+    },
+    "info_card_grid": {
+      "mode": "clone",
+      "template_page": 20
+    },
+    "info_center_hub_support": {
+      "mode": "clone",
+      "template_page": 21
+    },
+    "info_horizontal_explanation_rows": {
+      "mode": "clone",
+      "template_page": 22
+    },
+    "info_dual_column_detail_matrix": {
+      "mode": "clone",
+      "template_page": 23
+    },
+    "info_before_after_item_compare": {
+      "mode": "clone",
+      "template_page": 24
+    },
+    "data_line_trend_comparison": {
+      "mode": "clone",
+      "template_page": 25
+    },
+    "data_table_kpi_chart_insights": {
+      "mode": "clone",
+      "template_page": 26
+    },
+    "data_kpi_bar_callout_dashboard": {
+      "mode": "clone",
+      "template_page": 27
+    },
+    "data_dual_percentage_balance": {
+      "mode": "clone",
+      "template_page": 28
+    },
+    "data_three_number_kpis": {
+      "mode": "clone",
+      "template_page": 30
+    },
+    "data_three_radar_score_comparison": {
+      "mode": "clone",
+      "template_page": 31
+    },
+    "evaluation_vs_criteria_matrix": {
+      "mode": "clone",
+      "template_page": 32
+    },
+    "cycle_three_node_process": {
+      "mode": "clone",
+      "template_page": 34
+    },
+    "cycle_four_point_loop": {
+      "mode": "clone",
+      "template_page": 35
+    },
+    "cycle_dual_core_feedback": {
+      "mode": "clone",
+      "template_page": 36
+    },
+    "cycle_multi_step_loop": {
+      "mode": "clone",
+      "template_page": 37
+    },
+    "pyramid_three_level_center_explanation": {
+      "mode": "clone",
+      "template_page": 53
+    },
+    "stage_timeline_progress": {
+      "mode": "clone",
+      "template_page": 38
+    },
+    "stage_phase_swimlane": {
+      "mode": "clone",
+      "template_page": 39
+    },
+    "stage_year_cards": {
+      "mode": "clone",
+      "template_page": 40
+    },
+    "stage_period_cards": {
+      "mode": "clone",
+      "template_page": 41
+    },
+    "stage_horizon_matrix": {
+      "mode": "clone",
+      "template_page": 42
+    },
+    "stage_year_transition_architecture": {
+      "mode": "clone",
+      "template_page": 43
+    },
+    "stage_multi_year_gantt_summary": {
+      "mode": "clone",
+      "template_page": 44
+    },
+    "stage_vertical_timeline_detail": {
+      "mode": "clone",
+      "template_page": 45
+    },
+    "stage_monthly_gantt": {
+      "mode": "clone",
+      "template_page": 46
+    },
+    "phase_concept_three_column_explanation": {
+      "mode": "clone",
+      "template_page": 47
+    },
+    "phase_before_now_future_transition": {
+      "mode": "clone",
+      "template_page": 48
+    },
+    "phase_four_step_workflow_matrix": {
+      "mode": "clone",
+      "template_page": 49
+    },
+    "phase_three_column_action_cards": {
+      "mode": "clone",
+      "template_page": 50
+    },
+    "phase_input_process_output_flow": {
+      "mode": "clone",
+      "template_page": 51
+    },
+    "phase_step_ladder_cards": {
+      "mode": "clone",
+      "template_page": 52
+    },
+    "structure_system_overview_table": {
+      "mode": "clone",
+      "template_page": 55
+    },
+    "structure_hierarchy_matrix": {
+      "mode": "clone",
+      "template_page": 56
+    },
+    "structure_org_chart_roles": {
+      "mode": "clone",
+      "template_page": 57
+    },
+    "structure_relation_map": {
+      "mode": "clone",
+      "template_page": 58
+    }
+  },
+  "capacity_overrides": {},
+  "registered_by": "hunter",
+  "registered_at": "2026-07-25"
+}

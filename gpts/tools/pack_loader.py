@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""pack_loader — 模板包載入器(多模板架構的引擎入口,見 gpts/TEMPLATE_PACKS.md)。
+
+模板包 = gpts/templates/<id>/(manifest.json + bindings + 素材)。本工具解析
+「用哪個包」並載入其 manifest 與綁定;引擎(render_deck 等)只透過 Pack 物件
+取用模板知識,不得寫死任何模板專屬常數。
+
+解析優先序(並存且不同 → PackError,不靜默擇一):
+  CLI 參數(--template-pack)→ spec 的 deck.template → 預設 "light"。
+packs root 預設 = 本檔所在目錄的上一層 /templates(repo: gpts/templates;
+沙箱: /mnt/data/templates 或 ppt_out/templates)。
+
+Phase 0 範圍:僅支援 bindings.py(light grandfather);宣告式 bindings.json
+的解譯器(fills_engine)為 Phase 2 交付物。
+"""
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+
+
+class PackError(Exception):
+    pass
+
+
+def default_packs_root() -> Path:
+    return _HERE.parent / "templates"
+
+
+def sha256_file(path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+class Pack:
+    def __init__(self, pack_dir: Path, manifest: dict, bindings_module):
+        self.dir = pack_dir
+        self.manifest = manifest
+        self.id = manifest.get("template_id", pack_dir.name)
+        self.version = manifest.get("version", "?")
+        self.template_sha256 = manifest.get("template_sha256")
+        self.page_types = manifest.get("page_types", {})
+        self.builders = getattr(bindings_module, "BUILDERS", {}) if bindings_module else {}
+        self.fills = getattr(bindings_module, "FILLS", {}) if bindings_module else {}
+
+    def template_hash_matches(self, pptx_path) -> bool:
+        """比對實際模板檔與 manifest 雜湊;無宣告值時視為相符(不擋)。"""
+        if not self.template_sha256:
+            return True
+        return sha256_file(pptx_path) == self.template_sha256
+
+
+def _load_bindings(pack_dir: Path, pack_id: str):
+    py = pack_dir / "bindings.py"
+    if py.exists():
+        if str(_HERE) not in sys.path:  # bindings 需 import fill_helpers/text_tools 等
+            sys.path.insert(0, str(_HERE))
+        spec = importlib.util.spec_from_file_location(f"pack_bindings_{pack_id}", py)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    if (pack_dir / "bindings.json").exists():
+        raise PackError(
+            f"模板包 {pack_id} 使用宣告式 bindings.json,但 fills_engine 尚未落地"
+            "(TEMPLATE_PACKS.md Phase 2)")
+    raise PackError(f"模板包 {pack_id} 缺 bindings(找不到 {py})")
+
+
+def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
+              packs_root=None) -> Pack:
+    """解析並載入模板包。pack_arg 可為包 id 或包目錄路徑。"""
+    spec_id = (spec_deck or {}).get("template")
+    if pack_arg and spec_id and Path(pack_arg).name != spec_id and pack_arg != spec_id:
+        raise PackError(
+            f"CLI 指定模板包 {pack_arg!r} 與 spec 的 deck.template={spec_id!r} 不一致:"
+            "改一致後重跑(不靜默擇一,保確定性)")
+    chosen = pack_arg or spec_id or "light"
+
+    root = Path(packs_root) if packs_root else default_packs_root()
+    pack_dir = Path(chosen) if Path(chosen).is_dir() else root / chosen
+    manifest_path = pack_dir / "manifest.json"
+    if not manifest_path.exists():
+        raise PackError(
+            f"找不到模板包 {chosen!r}(缺 {manifest_path});"
+            f"packs root = {root}。可用包:"
+            + (", ".join(sorted(p.name for p in root.iterdir() if (p / 'manifest.json').exists())
+                         ) if root.is_dir() else "(packs root 不存在)"))
+    # utf-8-sig:容忍 Windows 工具寫入的 BOM(同 repo 其他 JSON 讀取慣例)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    bindings = _load_bindings(pack_dir, manifest.get("template_id", pack_dir.name))
+    return Pack(pack_dir, manifest, bindings)

@@ -566,4 +566,34 @@ prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未�
   AGENTS.md 條文草稿(SSOT 兩處/兩層同步/隔離/準入/檔數預算)隨對應
   Phase 落地時才改。
 
-**狀態:設計完成;實作未開始。下一步 = Phase 0(light 包化)。**
+**狀態:設計完成;Phase 0 已執行,見 §20.1。**
+
+### 20.1 Phase 0 執行:light 包化(2026-07-25,零行為改變)
+
+- **新引擎件**(進 tools.zip):`fill_helpers.py`(自 fills.py 抽出
+  FillError/index_shapes/Ctx/fill_rows,+新整併 add_styled_textbox)、
+  `pack_loader.py`(包解析:CLI→spec deck.template→light,衝突即錯;
+  importlib 載入包 bindings)。
+- **light 包**:`gpts/templates/light/`——bindings.py(fills.py 全部 +
+  render_deck BUILDERS 及繪製小工具**原封搬入**)、manifest.json(53 筆
+  page_types:builtin 5/fill 5/clone 43,自 page_types.md 49 行來源模板行
+  程式化抽取;收編 style/asset_defaults/page_number 常數)、inventory.json
+  (五個綁定頁 shape 樹快照+sha256)、page_map.md、REGRESSION.md(R-L0~L2)、
+  FEEDBACK.md、examples/smoke_spec.json(=02 範例,10 頁全頁型)。
+- **render_deck.py**:刪 BUILDERS/import fills → pack dispatch;保留頁碼與
+  clone/plan 引擎;輸出加「模板包:light@版本」行;fills.py 刪除。
+- **設計偏差(已回寫 TEMPLATE_PACKS.md)**:①sha 不符在 freeze 工具
+  (Phase 2)落地前僅警告不硬擋(否則堵死 §9 試模板工作流);
+  ②prepare_env 擴充自 Phase 1 提前(REQUIRED+同步 gpts/templates →
+  ppt_out/templates;$RT 回歸環境同步補 templates 複製)。
+- **驗收全綠**:examples 01/02 重構前後 `inspect_template --all` shape 樹
+  **diff 為空**(等價實證)+ qa PASS;根 REGRESSION R0–R8 全符(R2a 停稽核、
+  R2b 4/4、R3 WARN 後 PASS、R4/R5 exit 1、R8 3/3);R-L0/R-L1 綠;
+  ppt_out 沙箱經 prepare_env 後渲染正常。tools.zip 重打
+  (−fills.py、+2 支,R7 基準已更新);**紅線:Phase 1 Knowledge 換裝前
+  不得上傳新 tools.zip 到 Builder**。~/.codex outline-to-ppt 已同步重打 zip;
+  register-template 依閘門未安裝。
+- 文件同步:AGENTS 規則 4 改指 bindings.py+lifecycle、CLAUDE 速覽、
+  README(十支腳本/維護節)、README_TOOLS、REGRESSION R0/R7。
+
+**下一步 = Phase 1(其餘工具接 manifest + deck.template + Knowledge 換裝)。**

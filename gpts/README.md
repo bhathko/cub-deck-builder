@@ -18,7 +18,7 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 
 ## 工具層(`tools/` → `knowledge/tools.zip`)
 
-產檔的機械動作全部由九支預寫腳本執行,模型只在「未涵蓋頁型」時手產一份小小的
+產檔的機械動作全部由十支預寫腳本執行,模型只在「未涵蓋頁型」時手產一份小小的
 `render_plan.json`——這是「精準 + 省 token + 不進 QA 死循環」的核心設計:
 
 | 腳本                  | 角色                                                                |
@@ -27,7 +27,8 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 | `audit_provenance.py` | 程式化工作流稽核:title/deck_name 逐字、精確數字 token、來源完整性    |
 | `pptx_toolkit.py`     | 投影片複製(含 rels 重映射,圖不破)/刪除/排序/清 Section              |
 | `text_tools.py`       | 群組內層文字替換(保留原字級顏色)、CJK 溢出估算、縮字                |
-| `fills.py`            | **10 種註冊頁型的確定性填充引擎**:5 種自動填入模板頁(shape id 寫死) |
+| `pack_loader.py`      | 模板包載入器:解析 `deck.template` → 載入 `templates/<id>/` 綁定       |
+| `fill_helpers.py`     | 填充引擎共用件(Ctx/fill_rows 等;頁型填充實作在 light 包 bindings.py) |
 | `inspect_template.py` | 模板盤點:`--summary` 全冊一頁一行、`--page N` 單頁形狀樹(省 token)  |
 | `render_deck.py`      | 主程式:spec(+選配 plan)→ pptx,**冪等整檔重生**;5 種頁型內建版面     |
 | `qa_check.py`         | 產檔後自檢:內容覆蓋/頁數/Section/字體/頁碼/溢出,只印問題            |
@@ -60,7 +61,7 @@ slide_spec.json**(貼上或上傳皆可),不需要準備任何其他檔案。流
 | `knowledge/slide_spec.example.json`     | 通過驗證的完整範例                                                       | 上傳到 Knowledge                 |
 | `knowledge/slide_spec.bad.example.json` | 會 FAIL 的範例(驗收測試用)                                               | 上傳到 Knowledge                 |
 | `knowledge/assets.zip`                  | 背景圖 ×3 + logo                                                         | 上傳到 Knowledge                 |
-| `knowledge/tools.zip`                   | 工具腳本 ×9 + 速查卡(源碼在 `tools/`)                                    | 上傳到 Knowledge                 |
+| `knowledge/tools.zip`                   | 工具腳本 ×10 + 速查卡(源碼在 `tools/`)                                   | 上傳到 Knowledge                 |
 | `examples/01_*.json`–`04_*.json`        | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
 | `examples/02_full_10p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
 | `examples/05_outline_to_ppt_source.md`  | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
@@ -265,8 +266,10 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
 2. `gpts/knowledge/slide_spec.schema.json` 的 enum
 3. `gpts/knowledge/page_types_registry.md`(1 的人類可讀版)
 
-新頁型若要全自動產出,另需在 `tools/fills.py`(或 render_deck 的 BUILDERS)
-加填充實作 → 重打包 `tools.zip`。素材改版:改 `assets_src/` → 複製為名為
+新頁型若要全自動產出,另需在 `gpts/templates/light/bindings.py`(FILLS/BUILDERS)
+加填充實作(多模板架構 Phase 0 起,見 `gpts/TEMPLATE_PACKS.md`;Phase 1 前
+GPTs 端佈局不變,bindings 異動先只影響本機)。改 `gpts/tools/*` 仍重打包
+`tools.zip`。素材改版:改 `assets_src/` → 複製為名為
 `assets` 的資料夾重打包 `assets.zip`。**打包 zip 一律用正斜線(POSIX)路徑分隔符**
 ——不要用 PowerShell `Compress-Archive` 或檔案總管「壓縮資料夾」(會塞 Windows
 反斜線,Linux `unzip` 會警告並回非零 exit,誘發 GPTs 誤判環境壞掉);用

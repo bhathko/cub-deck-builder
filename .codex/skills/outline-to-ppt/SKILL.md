@@ -59,7 +59,8 @@ python .codex/skills/outline-to-ppt/prepare_env.py
 ```
 
 腳本會把工具鏈複製成 `ppt_out/` 沙箱(模擬 GPTs /mnt/data 佈局:`assets/`、
-`tools/`、validator、模板;副本一律以 repo 為準冪等覆蓋),逐項列出檔案檢查,
+`tools/`、`templates/`(模板包)、validator、模板;副本一律以 repo 為準冪等
+覆蓋),逐項列出檔案檢查,
 並印出「渲染指令前綴」。**環境是否就緒只以本腳本 exit 0 判定**,不得未執行
 先宣稱做不到。`ppt_out/` 已 gitignore,嚴禁 commit。
 

@@ -128,7 +128,10 @@ gpts/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a-z
   檔內(stdlib,約 40 行)維持單檔可攜,工具層循 make_skeleton 慣例 import 取用。
 - **`template_sha256` + `inventory.json`**:把「模板改版必重盤點」(WORKLOG §9)
   從人工紀律變成機器強制——載入時驗雜湊,不符 exit 2 並指示重跑 freeze;
-  多數 FillError 因此提前到載入期。
+  多數 FillError 因此提前到載入期。(**Phase 0 過渡**:freeze 工具是 Phase 2
+  交付物,在它落地前 sha 不符僅印警告不硬擋——硬擋而無重盤點工具會堵死
+  WORKLOG §9 的「拿新版模板檔試跑」工作流;Phase 2 起升級為 exit 2 +
+  `--skip-template-hash-check`。)
 
 ## 3. 綁定表示法:固定 op 詞彙表的宣告式 bindings.json(核心決策)
 
@@ -241,7 +244,7 @@ fills_engine 無 `chart.replace_data` 原語,smoke 會綠但圖表數據不會�
 | run_pipeline | 參數透傳四階段;前置缺檔檢查加 manifest/bindings/模板檔 | 預設鏈 CLI→spec→light |
 | inspect_template | 加 `--verify`:比對 inventory.json 與現 pptx,列 shape id 增刪/幾何漂移,有 drift exit 1 | `--pptx` 原用法不動 |
 | audit_provenance | **不動**(決策,非遺漏:STRUCTURAL_PAGES/EXEMPT_PATHS/closing 固定 Thank you 屬頁型層語意契約,與模板無關) | 同現行 |
-| prepare_env(.codex) | REQUIRED 清單加 `templates/`;同步 `gpts/templates/` → `ppt_out/templates/`(outline 前端的 packs_root);連帶重裝 `~/.codex/skills/outline-to-ppt` + 重打 zip | 無新模板時行為同現行 |
+| prepare_env(.codex) | REQUIRED 清單加 `templates/`;同步 `gpts/templates/` → `ppt_out/templates/`(outline 前端的 packs_root);連帶重裝 `~/.codex/skills/outline-to-ppt` + 重打 zip。**已提前到 Phase 0**(render_deck 一 pack 化,沙箱與 $RT 回歸環境就需要 templates/) | 無新模板時行為同現行 |
 
 ## 5. 黃金驗收與註冊器
 
@@ -356,7 +359,8 @@ light 視覺常數(色票/字級表/素材指名)進包。
 - **Phase 0|light 包化(不發佈,GPTs 端不動)**:抽 `fill_helpers.py`;建
   `gpts/templates/light/`(manifest / bindings.py grandfather / page_map.md /
   inventory / REGRESSION / FEEDBACK / smoke_spec);render_deck 改 pack 載入;
-  建 INDEX.md 與 lifecycle 文件。**tools.zip 需重打包(repo 端)且
+  建 INDEX.md 與 lifecycle 文件;prepare_env 同步 templates/(自 §4 表提前,
+  含 ~/.codex 重裝)+ 根 REGRESSION R0 補 templates 複製。**tools.zip 需重打包(repo 端)且
   REGRESSION R7 hash 基準同步更新,但紅線:Phase 1 Knowledge 換裝前
   禁止把新 tools.zip 上傳 Builder**(pack 化的 render_deck 依賴
   templates/light/,Knowledge 要到 Phase 1 才有 template_light.zip,
@@ -365,8 +369,8 @@ light 視覺常數(色票/字級表/素材指名)進包。
   即現行 R1 口徑;測物 = 重打後的新 tools.zip);遷移前後產出以
   `inspect_template --all` 導出 shape 樹 diff 為空(pptx 二進位含 zip 時戳
   不可比,以 shape 樹+qa+文字 dump 為準)。
-- **Phase 1|引擎模板感知 + Knowledge 換裝**:七支工具接 pack_loader/manifest
-  (§4 表,含 prepare_env 擴充與 outline-to-ppt skill 重裝 ~/.codex);
+- **Phase 1|引擎模板感知 + Knowledge 換裝**:其餘工具接 pack_loader/manifest
+  (§4 表;prepare_env 已於 Phase 0 完成);
   schema 加 `deck.template`;page_types.md / style_guide.md 拆分;
   instructions Step 0 + roster;Knowledge 換裝 template_light.zip。
   驗收:舊 spec 行為不變;顯式 `"template":"light"` 與省略產出全等;

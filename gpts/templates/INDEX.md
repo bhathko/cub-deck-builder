@@ -1,0 +1,15 @@
+# 模板包索引
+
+> 多模板架構見 `gpts/TEMPLATE_PACKS.md`;模板改版流程見同目錄
+> `TEMPLATE_LIFECYCLE.md`。新增模板 = 新增一個子目錄(Phase 2 起由
+> `.codex/skills/register-template/` 引導註冊),不改引擎、不碰其他包。
+
+| template_id | 名稱 | manifest version | status | 支援(全自動/半自動/不支援) | Knowledge zip | 備註 |
+| --- | --- | --- | --- | --- | --- | --- |
+| light | Cathay 淺色企業風 | 2026-07-25.1 | registered | 10 / 43 / 0 | (Phase 1 起改 template_light.zip;現行仍為 light_template.pptx + assets.zip + tools.zip) | 第一個包;bindings.py 為 grandfather Python 版 |
+
+維護提醒:
+
+- 包內容異動 → 更新該包 manifest `version` + 本表;發佈另走
+  `gpts/README.md` 的發版流程(Phase 1 前 GPTs 端佈局不變)。
+- `status=draft` 的包不得被任何產檔流程選中。

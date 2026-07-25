@@ -8,7 +8,8 @@ light_template.pptx 在 /mnt/data/,assets.zip 已解壓。
 cover / agenda / closing / story_chapter_statement / stage_dual_track_roadmap
 → 內建版面;vision_goal_center_balance / info_three_column_category /
 data_two_group_metric_comparison / evaluation_option_score_pros_cons /
-pyramid_layered_maturity_detail → 自動填入模板頁(fills.py 寫死 shape id)。
+pyramid_layered_maturity_detail → 自動填入模板頁(shape id 綁定在模板包
+`templates/light/bindings.py`,經 pack_loader 載入)。
 **整份 spec 都是註冊頁型時,流程只有三條指令,你不產任何中間檔。**
 
 ## 標準流程 = 一條指令(run_pipeline 依序跑 稽核→驗證→渲染→QA,任一 FAIL 即停)

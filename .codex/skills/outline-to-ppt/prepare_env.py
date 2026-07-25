@@ -7,6 +7,7 @@ PYTHONPATH、--template、--validator 等 shell 差異:
     ppt_out/
       assets/            ← gpts/assets_src(冪等覆蓋)
       tools/             ← gpts/tools(冪等覆蓋,排除 __pycache__)
+      templates/         ← gpts/templates(模板包;render_deck 經 pack_loader 載入)
       validate_slide_spec_gpts.py
       light_template.pptx
 
@@ -29,6 +30,8 @@ REQUIRED = [
     "tools/audit_provenance.py",
     "tools/render_deck.py",
     "tools/qa_check.py",
+    "templates/light/manifest.json",
+    "templates/light/bindings.py",
     "validate_slide_spec_gpts.py",
     "light_template.pptx",
 ]
@@ -48,6 +51,7 @@ def main() -> int:
     ignore = shutil.ignore_patterns("__pycache__")
     shutil.copytree(gpts / "assets_src", work / "assets", dirs_exist_ok=True, ignore=ignore)
     shutil.copytree(gpts / "tools", work / "tools", dirs_exist_ok=True, ignore=ignore)
+    shutil.copytree(gpts / "templates", work / "templates", dirs_exist_ok=True, ignore=ignore)
     shutil.copy2(gpts / "knowledge" / "validate_slide_spec_gpts.py", work)
     shutil.copy2(gpts / "knowledge" / "light_template.pptx", work)
 

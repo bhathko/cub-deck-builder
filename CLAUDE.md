@@ -10,7 +10,8 @@
   `gpts/WORKLOG.md`(決策脈絡)與 `gpts/README.md`(建置手冊)。
 - **規則 SSOT = `gpts/knowledge/`**;改頁型契約要三處同步(validator
   `PAGE_TYPES` / schema enum / registry)。
-- **渲染層零隨機**;`fills.py` 與模板 shape id 硬耦合,模板改版必重盤點。
+- **渲染層零隨機**;light 綁定(`gpts/templates/light/bindings.py`)與模板
+  shape id 硬耦合,模板改版必重盤點(多模板架構見 `gpts/TEMPLATE_PACKS.md`)。
 - 改 `gpts/tools/*` 或 `gpts/assets_src/*` → 重打包對應 zip + 更新
   instructions 版本字串。
 

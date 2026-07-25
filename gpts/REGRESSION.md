@@ -27,10 +27,13 @@ for z in ['gpts/knowledge/assets.zip','gpts/knowledge/tools.zip']:
     zipfile.ZipFile(z).extractall('$RT' if 'assets' in z else '$RT/tools')
 "
 cp gpts/knowledge/validate_slide_spec_gpts.py gpts/knowledge/light_template.pptx "$RT/"
+cp -R gpts/templates "$RT/templates"
 ```
 
 預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `assets/backgrounds/`×3、
-`assets/logos/`×1、`tools/` 九支腳本 + README_TOOLS、validator、模板。
+`assets/logos/`×1、`tools/` 十支腳本 + README_TOOLS、`templates/light/`
+(模板包:manifest+bindings;Phase 0 起 render_deck 經 pack_loader 載入,
+Phase 1 起沙箱端由 template_light.zip 提供)、validator、模板。
 
 ## R1|examples 四份 validator 預期 exit
 
@@ -143,11 +146,13 @@ ls gpts/knowledge | grep -v __pycache__ | wc -l     # 預期 11
 shasum -a 256 gpts/knowledge/assets.zip gpts/knowledge/tools.zip
 ```
 
-2026-07-24 基準值(**重打包 zip 後必須更新本節**):
+2026-07-25 基準值(**重打包 zip 後必須更新本節**;tools.zip 於 Phase 0
+重打:−fills.py、+fill_helpers.py、+pack_loader.py。紅線:Phase 1
+Knowledge 換裝前禁止把本版 tools.zip 上傳 Builder,見 TEMPLATE_PACKS.md §8):
 
 ```
 683d54ec3e4bf875d3a10ea4efe879c4c851d34aea3f2f5807aeb1b78dce814b  assets.zip
-bf7e768412656e5778931df3f80f15ffee72c4f3e7efb84891b308668139837f  tools.zip
+9ae2626278248d51f9d57982204d58d6e7bbfda270fed6074c56f34dbd8e3a78  tools.zip
 ```
 
 ## R8|直供 JSON 模式全流程(追溯關)
