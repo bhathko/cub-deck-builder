@@ -33,7 +33,7 @@
 | info_horizontal_explanation_rows | clone(半自動,需 render_plan) | 22 | 寫 plan 前先 `inspect_template.py --page 22` |
 | info_dual_column_detail_matrix | clone(半自動,需 render_plan) | 23 | 寫 plan 前先 `inspect_template.py --page 23` |
 | info_before_after_item_compare | clone(半自動,需 render_plan) | 24 | 寫 plan 前先 `inspect_template.py --page 24` |
-| data_line_trend_comparison | clone(半自動,需 render_plan) | 25 | 寫 plan 前先 `inspect_template.py --page 25` |
+| data_line_trend_comparison | fill(全自動,clone+填充+圖表數據) | 25 | shape id 見 bindings.json 與 inventory.json |
 | data_table_kpi_chart_insights | clone(半自動,需 render_plan) | 26 | 寫 plan 前先 `inspect_template.py --page 26` |
 | data_kpi_bar_callout_dashboard | clone(半自動,需 render_plan) | 27 | 寫 plan 前先 `inspect_template.py --page 27` |
 | data_dual_percentage_balance | clone(半自動,需 render_plan) | 28 | 寫 plan 前先 `inspect_template.py --page 28` |
@@ -65,7 +65,7 @@
 | structure_org_chart_roles | clone(半自動,需 render_plan) | 57 | 寫 plan 前先 `inspect_template.py --page 57` |
 | structure_relation_map | clone(半自動,需 render_plan) | 58 | 寫 plan 前先 `inspect_template.py --page 58` |
 
-共 53 筆:builtin 5、fill 5、clone 43。
+共 53 筆:builtin 5、fill 6、clone 42。
 
 ## 附:light 語意色名對照(page_types.md 視覺描述用;機器真相在 manifest style)
 

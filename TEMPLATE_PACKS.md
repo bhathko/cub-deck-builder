@@ -203,10 +203,17 @@ op 詞彙表固定 6 個,自 fills.py 現有特例逐條歸納(**下表形式欄
   包目錄優先、asset_dir 兜底**(防跨包遮蔽:本機沙箱 asset_dir 永遠有
   light 的 assets/,若 asset_dir 優先,新包素材檢查會靜默解到 light 的檔)。
 
-含 chart 的模板頁(如 light p25-27/31)**禁止註冊為 fill**(lint 硬擋):
-fills_engine 無 `chart.replace_data` 原語,smoke 會綠但圖表數據不會被替換,
-是靜默捏造源。chart 支援屬 WORKLOG §8 第二級,另案排程;現階段一律 `clone`
-或 `unsupported`。SmartArt 頁一律 `unsupported`。
+含 chart 的模板頁:**詞彙表 v1.1(2026-07-25,Phase 4)起可註冊為 fill,
+但每個圖表 shape 必須被 `chart` op 覆蓋**(lint 硬擋未覆蓋者——文字換了、
+圖表數據沒換是靜默捏造源)。`chart` op:
+`{"op":"chart","id":7,"categories":"$.slots.categories","series":"$.slots.series"}`
+——以 `chart.replace_data` 替換 categories + 1..N 系列;spec 端 values 為
+**純數字字串**(維持 validator 數字追溯),每系列 values 數必須等於
+categories 數(渲染前硬擋);clone_slide 對 chart part 深複製(含內嵌
+xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
+`delete_if_missing` 修飾詞(選填槽位缺值 → 刪框)。第一個 chart fill 頁型
+= light `data_line_trend_comparison`(p25);其餘三種 chart 頁
+(p26/27/31)按需求依同模式升級。SmartArt 頁一律 `unsupported`。
 
 ## 4. 產檔管線的模板感知
 

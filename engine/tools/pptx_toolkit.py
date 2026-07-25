@@ -37,11 +37,41 @@ def _remap_rids(element, id_map: dict) -> None:
                 el.set(attr, id_map[val])
 
 
+def _clone_chart_part(src_part):
+    """深複製 chart part(含內嵌 xlsx);colors/style/userShapes 等樣式部件共用。
+
+    背景:clone_slide 對 relationship 目標預設「共用」(圖片共用無害),但圖表
+    會被 fills_engine 的 chart op 改寫——共用會讓同一參考頁 clone 出的多頁
+    圖表互相覆寫(Phase 4 實測:min/max 兩頁都變成最後一次 replace_data 的
+    數據)。故 chart part 與其內嵌 xlsx 必須逐頁複製。
+    """
+    package = src_part.package
+    new_part = type(src_part).load(
+        package.next_partname("/ppt/charts/chart%d.xml"),
+        src_part.content_type, package, src_part.blob)
+    id_map = {}
+    for rid, rel in src_part.rels.items():
+        if rel.is_external:
+            new_rid = new_part.rels.get_or_add_ext_rel(rel.reltype, rel.target_ref)
+        elif rel.reltype == RT.PACKAGE:  # 內嵌 xlsx:可變件,一併複製
+            tgt = rel.target_part
+            xlsx = type(tgt).load(
+                package.next_partname("/ppt/embeddings/Microsoft_Excel_Sheet%d.xlsx"),
+                tgt.content_type, package, tgt.blob)
+            new_rid = new_part.relate_to(xlsx, rel.reltype)
+        else:
+            new_rid = new_part.relate_to(rel.target_part, rel.reltype)
+        id_map[rid] = new_rid
+    _remap_rids(new_part._element, id_map)
+    return new_part
+
+
 def clone_slide(prs, src_index: int):
     """複製第 src_index 頁(0-based)成新投影片,附加在簡報最後。
 
     含:形狀樹 deepcopy、relationship(圖片等)複製與 rId 重映射、
-    頁面背景(p:bg)複製。回傳新 slide 物件。
+    chart part 深複製(見 _clone_chart_part)、頁面背景(p:bg)複製。
+    回傳新 slide 物件。
     """
     src = prs.slides[src_index]
     dest = prs.slides.add_slide(src.slide_layout)
@@ -57,6 +87,8 @@ def clone_slide(prs, src_index: int):
             continue
         if rel.is_external:
             new_rid = dest.part.rels.get_or_add_ext_rel(rel.reltype, rel.target_ref)
+        elif rel.reltype == RT.CHART:
+            new_rid = dest.part.relate_to(_clone_chart_part(rel.target_part), rel.reltype)
         else:
             new_rid = dest.part.relate_to(rel.target_part, rel.reltype)
         id_map[rid] = new_rid

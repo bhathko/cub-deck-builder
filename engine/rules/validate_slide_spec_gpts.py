@@ -203,6 +203,31 @@ PAGE_TYPES = {
             },
         },
     },
+    "data_line_trend_comparison": {
+        # 折線趨勢比較(模板 p25):chart 數據由 fills_engine chart op 替換。
+        # values 是「數字字串」(純數,禁單位/%——% 屬 label),故數字追溯照常;
+        # 每系列 values 數必須等於 categories 數(渲染前 chart op 硬擋)。
+        # 版面無副標位置 → 本頁型無 subtitle 槽位。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "categories": {"kind": "list", "min": 6, "max": 10, "required": True, "item": T(8)},
+            "series": {
+                "kind": "list", "min": 1, "max": 2, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "name": T(8),
+                    "values": {"kind": "list", "min": 6, "max": 10, "required": True, "item": T(8)},
+                }},
+            },
+            "rows": {
+                "kind": "list", "min": 2, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "heading": T(8),
+                    "cells": {"kind": "list", "min": 3, "max": 5, "required": True, "item": T(20)},
+                }},
+            },
+        },
+    },
     "data_two_group_metric_comparison": {
         "page_number": "required",
         "assets": ["background", "logo"],

@@ -47,8 +47,8 @@
    規則。`.codex/skills/` 下**所有** skill(含 `register-template`)改動後,
    把 repo 版複製到 `~/.codex/skills/<名稱>/`(含重打同名 zip,POSIX 路徑)。
    本機產物一律進 gitignore 的 `ppt_out/`,嚴禁 commit。
-9. **綁定準入**:新模板的填充綁定一律是宣告式 `bindings.json`(6-op 詞彙表,
-   `fills_engine` 解譯;表達不了=該頁型降級 clone,嚴禁在註冊對話中擴詞彙表
+9. **綁定準入**:新模板的填充綁定一律是宣告式 `bindings.json`(固定 op
+   詞彙表,v1.1 為 7 op 含 chart;`fills_engine` 解譯;表達不了=該頁型降級 clone,嚴禁在註冊對話中擴詞彙表
    或改寫 Python);必過 `template_admin.py lint`(含全覆蓋原則)+ `golden`
    (min/max 渲染+qa+連跑兩次 shape 樹全等)才可 register。模板包無權新增
    語意頁型;golden fixtures(`engine/golden/`)對註冊流程唯讀。

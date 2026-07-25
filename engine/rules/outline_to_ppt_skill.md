@@ -17,7 +17,7 @@
    「待補充」「待確認」「待定」「TBD」者原樣沿用）。佔位符不是補值——它不主張任何
    事實，validator 也不追溯它；但佔位符以外仍嚴禁補任何數字或事實。**版型沒有例外**：
    永遠只能用內建模板與已註冊頁型，缺資料不是改用其他版面或自行發明版面的理由。
-2. 只使用 `validate_slide_spec_gpts.py` 的 `PAGE_TYPES` 內十種已註冊頁型。禁止使用
+2. 只使用 `validate_slide_spec_gpts.py` 的 `PAGE_TYPES` 內十一種已註冊頁型。禁止使用
    未註冊頁型，禁止建立 `render_plan.json`。
 3. 必須用 `make_skeleton.py` 建立 JSON 骨架，不可徒手建立頁碼、素材路徑、必填欄位
    或清單結構。

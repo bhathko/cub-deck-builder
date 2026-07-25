@@ -189,6 +189,8 @@ recommended/recommendation 以底部一行呈現。
      其餘看 FEEDBACK.md,同頁型出現 2 次 clone+plan 使用就升級成 fills。
   2. 含 chart 的 4 種(模板 p25-27、31)→ 需 `chart.replace_data` 支援 +
      spec 定義數據系列格式,獨立排程。
+     (2026-07-25 §22:引擎 chart op 已落地,p25 data_line_trend_comparison
+     已升級 fill;p26/27/31 依同模式按需升級。)
   3. 含照片的頁型(p11 等)→ assets 機制已可載使用者上傳圖,需定義上傳流程。
 - 使用者計畫:2026-07-21 先實測目前版本(10 種自動頁型)的成效再決定批次。
 
@@ -738,3 +740,33 @@ prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未�
   線框 PNG + overview 網格;系統中文字型自動偵測(PingFang/msjh/Noto,
   無則退回豆腐)。golden 目檢輔助,實測 golden_light 10 頁結構可辨;
   字級/溢出仍以 PowerPoint 開檔為準。
+
+
+## 22. Phase 4:chart 頁型支援(2026-07-25)
+
+WORKLOG §8 第二級的引擎落地 + 第一個 chart fill 頁型:
+
+- **詞彙表 v1.1(引擎版本事件)**:fills_engine 新增 `chart` op
+  (`chart.replace_data` 替換 categories + 1-2 系列;spec 端 values =
+  **純數字字串**,維持 validator 數字追溯;每系列值數必須等於時間點數,
+  渲染前 FillError 硬擋)與 set 的 `delete_if_missing` 修飾詞。
+- **clone_slide chart part 深複製**(pptx_toolkit):實測抓到的真 bug——
+  clone 預設共用 relationship 目標,同參考頁 clone 出的多頁圖表共用同一
+  chart part,第二次 replace_data 蓋掉第一頁(golden min/max 同值)。
+  修法:chart part 與內嵌 xlsx 逐頁複製(colors/style/userShapes 樣式件
+  照舊共用),rId 重映射。
+- **qa_check 圖表讀取**:讀 chart XML `<c:v>` 原文(系列名/類別/數值),
+  不走 plots API——float 轉換會吃掉尾零("22.0"→"22")造成 spec 比對誤殺
+  (實測抓到)。
+- **第 11 種註冊頁型 `data_line_trend_comparison`**(模板 p25,三處同步):
+  categories 6-10、series 1-2(name+values)、rows 2-3(heading+cells 3-5);
+  本頁型無 subtitle(版面無副標位)。light 綁定含:chart op、圖例群組
+  成組刪(1 系列時刪第二圖例)、三列說明區(rows[2] 選填以
+  delete_if_missing/delete_when_empty 收拾)、軸標籤刪除。
+  lint 的「chart 頁禁 fill」改為「每個圖表必須被 chart op 覆蓋」。
+- **驗收**:golden 12 頁 PASS(冪等雙跑;min=6×1 且第二圖例正確刪除、
+  max=10×2);真實內容 spec 全管線 3/3 PASS 且讀回數據正確;
+  值數不符與非數字值兩個錯誤路徑 exit 1;R0-R10 全符;
+  R2b 產出 vs 原始基準 shape 樹仍全等。light@2026-07-25.3。
+- p26(表格+柱狀)/p27(KPI 儀表板)/p31(雷達×3)依同模式按需升級
+  (雷達頁 3 個 chart = 3 個 chart op,詞彙表已支援)。

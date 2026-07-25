@@ -4,7 +4,7 @@
 模板包已解壓在 /mnt/data/templates/<模板id>/(預設 light;含 template.pptx、
 manifest.json、bindings.py、page_map.md、assets/)。
 
-## ★ 關鍵事實:10 種註冊頁型完全自動,不需要你寫任何計畫
+## ★ 關鍵事實:11 種註冊頁型完全自動,不需要你寫任何計畫
 
 cover / agenda / closing / story_chapter_statement / stage_dual_track_roadmap
 → 內建版面;vision_goal_center_balance / info_three_column_category /

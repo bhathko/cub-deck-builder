@@ -13,7 +13,7 @@ import json, hashlib
 m = json.load(open('engine/templates/light/manifest.json'))
 sha = hashlib.sha256(open('engine/templates/light/template.pptx','rb').read()).hexdigest()
 print('manifest sha', 'OK' if sha == m['template_sha256'] else f'不符:重跑盤點(TEMPLATE_LIFECYCLE.md)')
-print('page_types', len(m['page_types']), '筆(預期 53:builtin 5 / fill 5 / clone 43)')
+print('page_types', len(m['page_types']), '筆(預期 53:builtin 5 / fill 6 / clone 42)')
 "
 ```
 
@@ -27,7 +27,7 @@ python3 "$RT/tools/run_pipeline.py" --spec engine/templates/light/examples/smoke
 ```
 
 預期:exit=0,末行 `管線結果:PASS(3/3 階段)`(等同根 R8,測物固定為本包
-smoke spec;10 頁全註冊頁型,builtin×5 + fill×5 全覆蓋)。
+smoke spec;10 頁註冊頁型(第 11 種 data_line 由 golden 覆蓋))。
 
 ## R-L2|clone 抽測(半自動路徑)
 

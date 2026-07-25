@@ -1,7 +1,7 @@
 ## 參考頁型
 本檔是**跨模板共用的頁型語意庫**:定義每種頁型的適用情境、視覺結構與內容容量。
 版面唯一準則是**選定模板包**的 `template.pptx`(預設 light;沙箱路徑
-`/mnt/data/templates/<模板id>/template.pptx`)。10 種已註冊頁型由該包全自動產出;
+`/mnt/data/templates/<模板id>/template.pptx`)。11 種已註冊頁型由該包全自動產出;
 本檔其他頁型走 render_plan 複製改字——**「頁型 → 該模板第幾頁」的對照查該包的
 `page_map.md`**(各模板不同,不再列於本檔),寫 plan 前先用
 `inspect_template.py --pptx <該包 template.pptx> --page N` 盤點。
@@ -261,6 +261,7 @@
 - 數字格式要一致，同一頁中的小數位、百分比、千分位、單位與顏色使用必須統一；重點數字可用 主色(綠)、輔色(紫) 或 輔色(藍)，但不可新增模板外色系。
 
 ### data_line_trend_comparison
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充(含圖表數據替換),不需 render_plan。
 - 適用情境：用來比較 1-2 組指標在多個時間點上的趨勢，例如月度表現、轉換率、使用量、滿意度或兩方案表現差異。
 - 視覺結構：上半部為折線趨勢圖，右上角放圖例，圖中可標示 1 個關鍵節點；下半部為 3 列說明區，每列包含左側 row 標題與多個短說明欄位。
 - 內容容量：

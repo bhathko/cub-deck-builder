@@ -37,8 +37,8 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
    /qa 規則/引擎程式碼對本 skill **全部唯讀**。需要動它們 = 停止並回報,
    那是工程師的三處同步流程,不在本 skill 內。
 2. **零隨機、零自由 Python**:shape id 與座標唯一來源 = `inspect_template.py`
-   輸出;綁定只能用 6 個填充 op(set/delete/rows/list/add_textbox/resize)
-   加 `keep` 覆蓋宣告,詞彙表與全覆蓋原則見 TEMPLATE_PACKS.md §3。
+   輸出;綁定只能用 7 個填充 op(set/delete/rows/list/add_textbox/resize/
+   chart)加 `keep` 覆蓋宣告,詞彙表與全覆蓋原則見 TEMPLATE_PACKS.md §3。
    表達不了 → 該頁型降級 clone,不是變通、不寫 Python、不擴詞彙表。
 3. **golden 才算數**:任何 bindings/manifest 改動,必須重跑
    `template_admin.py golden` 綠了才能宣稱完成。「看起來應該對了」不是完成;
@@ -54,8 +54,9 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 7. **提問配額**:只有三類問題可以問設計師——(a) 映射確認/修正
    (b) 目檢結果 (c) 降級/中止決策。技術細節不問;除高信心批次確認外,
    一次訊息不超過一個決策點。
-8. **含 chart 的模板頁禁註冊為 fill**(lint 會硬擋;圖表數據替換是另案),
-   SmartArt 頁一律 unsupported——這兩條是固定規則,不得詢問、不得繞過。
+8. **含 chart 的模板頁要 fill 就必須每個圖表綁 `chart` op**(lint 硬擋未
+   覆蓋者;spec 的 values 是純數字字串、數量須等於 categories),做不到就
+   降級 clone;SmartArt 頁一律 unsupported——固定規則,不得詢問、不得繞過。
 
 ## 跨平台約定
 
@@ -97,8 +98,9 @@ python engine/tools/inspect_template.py --pptx engine/templates/corp_dark/templa
 
 把摘要翻成設計師語言的體檢報告(不貼原始輸出),例:
 「共 42 頁。可自動化候選 31 頁;6 頁含 SmartArt(程式動不了,只能跳過,
-或請你在 PowerPoint 對它按右鍵→轉換成圖形後重傳);2 頁含圖表(自動填數據
-還不支援,這些頁先列半自動);3 頁純裝飾章節頁(建議跳過)。」
+或請你在 PowerPoint 對它按右鍵→轉換成圖形後重傳);2 頁含圖表(可全自動,
+圖表數據會由程式替換;數據格式=時間點+1-2 組數列);3 頁純裝飾章節頁
+(建議跳過)。」
 品質閘門:SmartArt/圖表頁占內容頁過半 → 走降級章的「模板品質不佳」路徑。
 
 ## 步驟 3:映射提案與確認(唯一的多輪問答環節)
@@ -152,7 +154,8 @@ FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
 | --- | --- |
 | FillError: shape id X 不存在 | 重跑 inspect --page N 核對(多半頁碼填錯或 id 抄錯),改 bindings |
 | lint: sha 不符 | 模板檔被換過 → 重跑 freeze 再 lint(盤點未完成前禁止其他步驟) |
-| lint: chart/SmartArt 頁註冊為 fill | 該頁改 clone 或 unsupported,無其他修法 |
+| lint: 圖表未被 chart op 覆蓋 / SmartArt 頁 | 補 chart op(id=圖表 shape);補不了或 SmartArt → 該頁改 clone/unsupported |
+| chart op: 系列值數 ≠ 時間點數 | 修 spec/golden 派生無此問題;實際內容缺值 → 該格「待補充」不適用於數值,改少列時間點 |
 | qa: 內容未出現「…」 | 該槽位沒綁或綁錯框 → 補/改 set;禁止改 golden |
 | qa: 溢出疑慮(max 變體) | ①rows 補 overflow=merge_last ②確認 shrink 生效 ③仍爆=裝不下 → 降級 clone |
 | min 變體目檢見空框/斷頭分隔線 | list/rows 的 delete_on_missing / sep_ids 沒配齊 → 補 ids |

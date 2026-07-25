@@ -155,14 +155,15 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-06485855158b44f8f2057c1551ae1907cd516351119ce1fd4b5d52296d56b837  tools.zip
-90e6e56a1e1cb6d62c1799854bfeec8ec5ac9cb3ad86130c98ffe49e1c0bc671  template_light.zip
+51d4374b2ee2eaca269630dcdd698c3de0fa45e9ebb3389bd1e8a4369cb4510f  tools.zip
+708effc483dabeab99e2dafa58bbc3ca08ef64de8f478ed62d0f48173733b5a8  template_light.zip
 ```
 
 (2026-07-25 Phase 3:light fills 切換宣告式 bindings.json,bindings.py 瘦身為
-builders-only;light 包版本 2026-07-25.2。同日 repo 重構:引擎移至 engine/、
-zips 移至 gpts/dist/,tools.zip 因 make_skeleton/audit_provenance 補 rules 路徑
-重打,見 WORKLOG §21。)
+builders-only;light 包版本 2026-07-25.2。同日 repo 重構:引擎移至 engine/、zips 移至
+gpts/dist/(WORKLOG §21);Phase 4 chart 頁型:tools.zip 增 chart op/qa 圖表
+讀取/clone chart part 深複製,template_light.zip 增 data_line fill 綁定,
+light@2026-07-25.3,見 WORKLOG §22。)
 
 ## R8|直供 JSON 模式全流程(追溯關)
 

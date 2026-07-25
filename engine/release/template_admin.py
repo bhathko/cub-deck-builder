@@ -43,7 +43,7 @@ from validate_slide_spec_gpts import PAGE_TYPES, apply_capacity_overrides  # noq
 
 ID_RE = re.compile(r"^[a-z][a-z0-9_]{2,31}$")
 MODES = {"builtin", "fill", "clone", "unsupported"}
-OPS = {"set", "delete", "keep", "rows", "list", "add_textbox", "resize"}
+OPS = {"set", "delete", "keep", "rows", "list", "add_textbox", "resize", "chart"}
 
 
 def sha256_file(p: Path) -> str:
@@ -276,10 +276,16 @@ def lint_pack(pack_dir: Path) -> list:
                                 f"(重跑 freeze)")
                     continue
                 flat = _flatten_shapes(snap, {})
-                # chart/SmartArt 頁禁 fill(靜默捏造源,TEMPLATE_PACKS §3)
-                if any(s.get("cht") for s in flat.values()):
-                    errs.append(f"{pt}: 模板第 {ent.get('template_page')} 頁含 chart,"
-                                f"禁止註冊為 fill(改 clone 或 unsupported)")
+                # chart 頁可 fill,但每個圖表必須被 chart op 覆蓋(否則是
+                # 靜默捏造源——文字換了、圖表數據沒換);SmartArt 一律 unsupported
+                chart_ids = {i for i, s in flat.items() if s.get("cht")}
+                chart_op_ids = {op.get("id") for op in ent.get("ops", [])
+                                if op.get("op") == "chart"}
+                uncovered = sorted(chart_ids - chart_op_ids)
+                if uncovered:
+                    errs.append(f"{pt}: 模板第 {ent.get('template_page')} 頁的圖表"
+                                f"(id {uncovered})未被 chart op 覆蓋——每個圖表"
+                                f"必須綁 chart op,做不到就降級 clone/unsupported")
                 if any(s.get("smart") for s in flat.values()):
                     errs.append(f"{pt}: 模板頁含 SmartArt,一律 unsupported")
                 for i, op in enumerate(ent.get("ops", [])):
@@ -336,6 +342,8 @@ def cmd_lint(args) -> int:
 def _variant_text(name, max_chars, variant):
     if name == "value":
         return "99.9%"
+    if name == "values":
+        return "9.9"  # 圖表數值:純數字字串(chart op 會 float 轉換)
     if name == "number":
         return "01"
     if variant == "min":

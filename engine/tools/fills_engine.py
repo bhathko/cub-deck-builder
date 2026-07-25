@@ -17,20 +17,25 @@ bindings.json 結構:
 }
 
 op 詞彙(欄位細節見各 _op_* docstring 與 TEMPLATE_PACKS.md §3 表):
-  set / delete / keep / rows / list / add_textbox / resize
+  set / delete / keep / rows / list / add_textbox / resize / chart
 
 槽位路徑:"$.title"、"$.slots.a.b"、支援索引 "[0]" 與切片 "[2:]";
 list op 的項目內用 "@"(元素本身)與 "@.field"(元素欄位)。
+
+詞彙表版本紀事(擴充=引擎版本事件,對全部已註冊包跑回歸後才發):
+  v1.1(2026-07-25,Phase 4):+`chart` op(圖表數據替換;WORKLOG §8 第二級)
+  與 set 的 `delete_if_missing` 修飾詞(選填槽位缺值時刪框)。
 """
 from __future__ import annotations
 
+from pptx.chart.data import CategoryChartData
 from pptx.util import Inches
 
 import fill_helpers
 
 _MISSING = object()
 
-OPS = ("set", "delete", "keep", "rows", "list", "add_textbox", "resize")
+OPS = ("set", "delete", "keep", "rows", "list", "add_textbox", "resize", "chart")
 
 
 def resolve_path(spec_slide, path):
@@ -95,7 +100,11 @@ def _apply_set(ctx, sid, value, mod, where):
 
 
 def _op_set(ctx, spec_slide, op, style, where):
-    _apply_set(ctx, op["id"], resolve_path(spec_slide, op["slot"]), op, where)
+    value = resolve_path(spec_slide, op["slot"])
+    if value is _MISSING and op.get("delete_if_missing"):
+        ctx.delete(op["id"])  # 選填槽位缺值 → 整框刪除(不留佔位)
+        return
+    _apply_set(ctx, op["id"], value, op, where)
 
 
 def _op_delete(ctx, spec_slide, op, style, where):
@@ -170,9 +179,40 @@ def _op_add_textbox(ctx, spec_slide, op, style, where):
                                     size_pt=op["pt"], bold=op.get("bold", False))
 
 
+def _num(raw, where):
+    """圖表數值:spec 以數字字串承載(維持 validator 數字追溯),此處嚴格轉數;
+    不接受單位/百分號——% 屬 label/軸文字,值一律純數。"""
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        raise fill_helpers.FillError(f"{where}: 圖表數值必須是純數字字串,得到 {raw!r}")
+
+
+def _op_chart(ctx, spec_slide, op, style, where):
+    """圖表數據替換(chart.replace_data):categories + 1..N 系列。
+    每系列 values 數必須等於 categories 數,否則 FillError(渲染前硬擋)。"""
+    shp = ctx.shape(op["id"])
+    if not getattr(shp, "has_chart", False):
+        raise fill_helpers.FillError(f"{where}: shape id {op['id']} 不是圖表")
+    cats = resolve_path(spec_slide, op["categories"])
+    series = resolve_path(spec_slide, op["series"])
+    if cats is _MISSING or series is _MISSING:
+        raise fill_helpers.FillError(f"{where}: 圖表槽位缺值(categories/series)")
+    data = CategoryChartData()
+    data.categories = [str(c) for c in cats]
+    for s in series:
+        vals = s.get("values", [])
+        if len(vals) != len(cats):
+            raise fill_helpers.FillError(
+                f"{where}: 系列「{s.get('name', '?')}」有 {len(vals)} 個值,"
+                f"時間點有 {len(cats)} 個——兩者必須相等")
+        data.add_series(str(s.get("name", "")), [_num(v, where) for v in vals])
+    shp.chart.replace_data(data)
+
+
 _HANDLERS = {"set": _op_set, "delete": _op_delete, "keep": _op_keep,
              "rows": _op_rows, "list": _op_list, "add_textbox": _op_add_textbox,
-             "resize": _op_resize}
+             "resize": _op_resize, "chart": _op_chart}
 
 
 def run_ops(ctx, spec_slide, ops, style, page_type):

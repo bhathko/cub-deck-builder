@@ -1,7 +1,7 @@
 {
   "template_id": "light",
   "display_name": "Cathay 淺色企業風",
-  "version": "2026-07-25.2",
+  "version": "2026-07-25.3",
   "status": "registered",
   "template_file": "template.pptx",
   "template_sha256": "080ba71991f34f2d0d0670c5d5f605a0b15e4bce46a207e2fad62b6d1c4a48d2",
@@ -134,7 +134,7 @@
       "template_page": 24
     },
     "data_line_trend_comparison": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 25
     },
     "data_table_kpi_chart_insights": {

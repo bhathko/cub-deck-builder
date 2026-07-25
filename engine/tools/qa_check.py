@@ -72,11 +72,16 @@ def slide_all_text(slide) -> str:
     parts = []
     for shp in tt.iter_text_shapes(slide.shapes):
         parts.append(tt.shape_text(shp))
-    for shp in slide.shapes:  # 表格文字
+    for shp in slide.shapes:  # 表格文字 + 圖表數據(chart op 填入者)
         if getattr(shp, "has_table", False):
             for row in shp.table.rows:
                 for cell in row.cells:
                     parts.append(cell.text)
+        if getattr(shp, "has_chart", False):
+            # 讀 chart XML 的 <c:v> 原文(系列名/類別/數值的快取字面值)——
+            # 走 plots API 會把數值轉 float,尾零消失("22.0"→22.0→"22")
+            # 導致 spec 字串比對失敗
+            parts.extend(v.text or "" for v in shp.chart._chartSpace.iter(qn("c:v")))
     return norm("".join(parts))
 
 
