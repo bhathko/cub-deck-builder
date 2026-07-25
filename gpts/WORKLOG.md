@@ -520,3 +520,50 @@ run_pipeline 免 --template/--validator,**所有命令收斂成單行相對路�
 呼叫,三種 shell 原樣可跑**,唯二差異(python/python3 名稱、uv 渲染前綴)由
 prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未實機驗證,
 首位 Windows 使用者回報即定案。
+
+## 20. 多模板架構設計定稿(2026-07-25,設計階段、未實作)
+
+使用者需求(§8 的延伸):設計師會持續加新模板、每次產檔只指定一種,
+且要能在本機 CLI「透過 prompt」註冊新模板。經全 repo 耦合盤點
+(約 76 處 light 專屬耦合,分四類:shape id 綁定/主題 token/幾何常數/容量數字;
+其中 render_deck 清除窗 11.2" 與 qa_check 偵測窗 11.0" 已互相不一致,
+證明模板知識散落程式碼不可持續)+ 三視角獨立提案(引擎重構/設計師體驗/
+打包營運)綜合定稿,設計全文見 **`gpts/TEMPLATE_PACKS.md`**(多模板架構的
+單一真相來源),配套 skill 草稿見 `.codex/skills/register-template/SKILL.md`
+(**未啟用**,其引用的工具是 Phase 2 交付物,Phase 2 落地且等價驗證
+全綠前不得安裝 ~/.codex)。
+
+核心決策(細節與否決理由見 TEMPLATE_PACKS.md):
+
+- **模板包公式**:模板知識全部收進 `gpts/templates/<id>/` 自足目錄
+  (manifest.json + bindings + page_map.md + inventory + assets);
+  語意契約(槽位結構)維持三處同步共用,容量以 manifest
+  `capacity_overrides`(扁平 dot-path,僅 min/max/max_chars)按包覆寫;
+  新增模板 = 加目錄,不改引擎。
+- **綁定表示法**:新模板一律固定 6-op 宣告式 bindings.json
+  (set/delete/rows/list/add_textbox/resize + keep 覆蓋宣告,自 fills.py
+  特例逐條歸納;表達力最終以 Phase 2 的 light 等價驗證為裁決),
+  由 fills_engine 解譯;表達不了 → 該頁型降級 clone,絕不在註冊對話中
+  擴詞彙表、絕不讓 LLM 現寫 Python。light 的 fills.py/BUILDERS 原封
+  grandfather 進包。
+- **支援矩陣三級**:fill(全自動)/clone(半自動)/unsupported;
+  部分支援是合法結局;builtin 僅 light 保留,新模板 cover/agenda/closing
+  必須是模板實頁走 fill。
+- **spec 選模板**:`deck.template`(省略=light,零破壞);CLI 與 spec
+  衝突 exit 2 硬錯。含 chart 頁禁註冊為 fill(lint 硬擋)。
+- **驗收公式**:golden fixtures(每頁型 min/max 兩變體,自 PAGE_TYPES
+  確定性派生、唯讀)+ 連跑兩次 shape 樹全等(冪等實證)+ 設計師目檢,
+  機器綠與人點頭缺一不可;註冊器原子性內含 light 回歸與 git diff
+  隔離白名單。
+- **打包**:每模板一包 template_<id>.zip;Knowledge 重整後 10 檔、
+  ≤19 紀律,容量約再 9 個模板;GPTs 端零註冊(沙箱無持久化),
+  註冊只在本機 skill。
+- **遷移**:Phase 0 light 包化零行為變(shape 樹 diff 為空;tools.zip
+  repo 端重打但 Phase 1 前禁上傳 Builder)→ Phase 1 引擎 manifest 化 +
+  Knowledge 換裝(含 prepare_env 擴充)→ Phase 2 fills_engine + golden +
+  雙 skill 上線(register-template 與 outline-to-ppt 多模板化同 Phase,
+  含 light 5 頁型 bindings.json 等價驗證)→ Phase 3 治理常態化。
+  AGENTS.md 條文草稿(SSOT 兩處/兩層同步/隔離/準入/檔數預算)隨對應
+  Phase 落地時才改。
+
+**狀態:設計完成;實作未開始。下一步 = Phase 0(light 包化)。**
