@@ -857,3 +857,36 @@ WORKLOG §8 第二級的引擎落地 + 第一個 chart fill 頁型:
 已 push 的歷史**,團隊其他 clone 要重來);③`cover_bg.png` 11.3MB 偏大
 (1920×1080 + 去 alpha + oxipng 預估可降到 1MB 級,連帶 template.pptx、
 zip、demo_output 各省約 10MB),但那是設計師的素材,壓縮牽涉畫質。
+
+### 23.2 版控瘦身、素材壓縮與換裝操作稿(2026-07-26)
+
+使用者對 §23.1 留的三個開放問題定案後執行:
+
+- **打包可重現(前置)**:`_zip_add` 固定 1980-01-01 時戳與權限。實證價值在
+  瘦身後得到最強驗證——**瘦身後重新打包的 zip 與瘦身前位元組完全相同**,
+  sha 也與 R7 基準一致。意義:未來 zip 內容沒變就不會產生新 blob,
+  R7 的 sha 從此等於「內容是否變動」。
+- **cover_bg.png 壓縮**:4405×2477 RGBA(11.28MB)→ 1920×1080 RGB(1.36MB)。
+  決策前的技術查證:alpha 的極值雖是 0–255,但 alpha<255 的像素恰為 4,405 個
+  = 圖寬,即單一列的匯出 artifact,**移除 alpha 實質無損**;壓縮後與原圖
+  逐像素平均差異 0.03/255(並排對照已目檢確認一致)。連帶
+  template_light.zip 19M→9.2M、demo_output_01 15M→5.1M(demo 已重產)。
+  light bump 2026-07-26.1(素材改版屬包內容變更)。
+- **歷史瘦身**:`git filter-repo` 移除歷史中 22 個 zip/pyc blob(154MB),
+  **`.git` 230MB → 66MB**;重新 commit 現行 zip 後 76MB(省 67%)。
+  30 個 commit 完整保留、`git fsck` 無誤、非 zip 檔案零遺失。
+  移除路徑:`gpts/knowledge/{tools,template_light,assets}.zip`(舊佈局)、
+  `gpts/dist/{tools,template_light}.zip`(舊版本)、所有 `*.pyc`。
+  瘦身前已備份 bundle 與 .git 副本到 scratchpad(session 期間有效)。
+  **filter-repo 依其安全設計移除了 origin**,force push 由使用者執行
+  (見下方);GitHub 上的歷史在 push 前仍是舊的。
+- **新增 `gpts/DEPLOY.md`**:v2.0 換裝一頁操作稿——Step 0 本機確認 sha、
+  Step 1 貼 instructions、Step 2 **先刪** assets.zip 與 light_template.pptx
+  **再傳** 10 檔、Step 3 Capabilities/Model、Step 4 八條可直接貼給 GPT 的
+  驗收指令(含 Phase 4 圖表頁數據替換驗證)、Step 5 收尾。
+  README 文件地圖與 MAINTENANCE 發佈節都指向它。
+- 驗收:R1/R2b/R8/R10 全綠、golden 12 頁、`--verify` 盤點一致、
+  基準 shape 樹仍全等、瘦身後乾淨沙箱管線 PASS。
+
+**待使用者執行(需遠端權限)**:恢復 origin 並 force push 改寫後的歷史;
+push 後所有 commit hash 會變,團隊其他 clone 必須重新 clone。
