@@ -16,11 +16,11 @@
 | cover | builtin(全自動,引擎繪製) | — |  |
 | stage_dual_track_roadmap | builtin(全自動,引擎繪製) | — |  |
 | story_chapter_statement | builtin(全自動,引擎繪製) | — | 參考版面=模板 p10(實際由引擎繪製) |
-| vision_goal_center_balance | fill(全自動,clone+填充) | 14 | shape id 見 bindings.py 與 inventory.json |
-| info_three_column_category | fill(全自動,clone+填充) | 17 | shape id 見 bindings.py 與 inventory.json |
-| data_two_group_metric_comparison | fill(全自動,clone+填充) | 29 | shape id 見 bindings.py 與 inventory.json |
-| evaluation_option_score_pros_cons | fill(全自動,clone+填充) | 33 | shape id 見 bindings.py 與 inventory.json |
-| pyramid_layered_maturity_detail | fill(全自動,clone+填充) | 54 | shape id 見 bindings.py 與 inventory.json |
+| vision_goal_center_balance | fill(全自動,clone+填充) | 14 | shape id 見 bindings.json 與 inventory.json |
+| info_three_column_category | fill(全自動,clone+填充) | 17 | shape id 見 bindings.json 與 inventory.json |
+| data_two_group_metric_comparison | fill(全自動,clone+填充) | 29 | shape id 見 bindings.json 與 inventory.json |
+| evaluation_option_score_pros_cons | fill(全自動,clone+填充) | 33 | shape id 見 bindings.json 與 inventory.json |
+| pyramid_layered_maturity_detail | fill(全自動,clone+填充) | 54 | shape id 見 bindings.json 與 inventory.json |
 | story_photo_icon_takeaways | clone(半自動,需 render_plan) | 11 | 寫 plan 前先 `inspect_template.py --page 11` |
 | vision_goal_rings | clone(半自動,需 render_plan) | 12 | 寫 plan 前先 `inspect_template.py --page 12` |
 | vision_goal_hub_spoke | clone(半自動,需 render_plan) | 13 | 寫 plan 前先 `inspect_template.py --page 13` |

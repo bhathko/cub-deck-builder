@@ -6,7 +6,7 @@
 
 | template_id | 名稱 | manifest version | status | 支援(全自動/半自動/不支援) | Knowledge zip | 備註 |
 | --- | --- | --- | --- | --- | --- | --- |
-| light | Cathay 淺色企業風 | 2026-07-25.1 | registered | 10 / 43 / 0 | template_light.zip | 第一個包;bindings.py 為 grandfather Python 版 |
+| light | Cathay 淺色企業風 | 2026-07-25.2 | registered | 10 / 43 / 0 | template_light.zip | 第一個包;fills 走宣告式 bindings.json,builtin 繪製器在 bindings.py(grandfather) |
 
 維護提醒:
 

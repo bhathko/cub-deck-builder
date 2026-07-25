@@ -155,9 +155,12 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-89ecce58b5b54b9097122a69a5182b7a74b61b11d74627c5430528ad0cb76100  tools.zip
-6be6e802fed0af202868dc4170ad68c673e4c5f640ee2200e13e817f047cb371  template_light.zip
+e9b40e4aecd2f52cb0ad4414dea943c02a77910ae8bd9b3c455a795187b7f991  tools.zip
+90e6e56a1e1cb6d62c1799854bfeec8ec5ac9cb3ad86130c98ffe49e1c0bc671  template_light.zip
 ```
+
+(2026-07-25 Phase 3:light fills 切換宣告式 bindings.json,bindings.py 瘦身為
+builders-only;light 包版本 2026-07-25.2。)
 
 ## R8|直供 JSON 模式全流程(追溯關)
 

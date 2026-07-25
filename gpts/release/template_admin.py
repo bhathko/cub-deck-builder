@@ -244,8 +244,8 @@ def lint_pack(pack_dir: Path) -> list:
     inv_path = pack_dir / "inventory.json"
     bj = pack_dir / "bindings.json"
     if (pack_dir / "bindings.py").exists():
-        print(f"  [i] {pid}: bindings.py(grandfather)生效,宣告式 lint 僅檢查"
-              f" bindings.json(如存在,為等價素材)")
+        print(f"  [i] {pid}: 有 bindings.py(BUILDERS/選配 FILLS grandfather,僅 light);"
+              f"fills 以 bindings.json 為準(py 匯出非空 FILLS 才覆蓋)")
     if bj.exists():
         if not inv_path.exists():
             errs.append("有 bindings.json 但缺 inventory.json(先跑 freeze)")
@@ -259,10 +259,8 @@ def lint_pack(pack_dir: Path) -> list:
             fills_m = {pt for pt, e in m.get("page_types", {}).items()
                        if e.get("mode") == "fill"}
             fills_b = set(data.get("fills", {}))
-            active_py = (pack_dir / "bindings.py").exists()
-            if not active_py:
-                for pt in sorted(fills_m - fills_b):
-                    errs.append(f"manifest fill 頁型 {pt} 缺 bindings 條目")
+            for pt in sorted(fills_m - fills_b):
+                errs.append(f"manifest fill 頁型 {pt} 缺 bindings 條目")
             for pt in sorted(fills_b - fills_m):
                 errs.append(f"bindings 有 {pt} 但 manifest 未宣告為 fill")
             for pt, ent in data.get("fills", {}).items():

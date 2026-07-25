@@ -1,6 +1,6 @@
 {
   "engine": 1,
-  "_note": "light 5 種 fill 頁型的宣告式重寫(TEMPLATE_PACKS §8 Phase 2 等價驗證素材)。light 實際仍走 bindings.py(pack_loader 優先載入 .py);本檔與 fills_engine 的產出已驗證與 bindings.py 全等,是否切換留 Phase 3。builtin 5 頁型無宣告式對應(僅 light grandfather)。",
+  "_note": "light 5 種 fill 頁型的宣告式綁定(Phase 3 起生效,經 gpts/tools/fills_engine.py 解譯;Phase 2 已驗證與原 Python fills 產出 shape 樹全等)。builtin 5 頁型(cover/agenda/closing/story/stage)在同目錄 bindings.py 的 BUILDERS(僅 light grandfather)。",
   "fills": {
     "vision_goal_center_balance": {
       "template_page": 14,

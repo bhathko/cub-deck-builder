@@ -1,6 +1,6 @@
 # TEMPLATE_PACKS.md — 多模板架構設計(模板包公式 + 註冊流程)
 
-> **狀態:Phase 0–2 已落地(2026-07-25),Phase 3 治理常態化進行中。**
+> **狀態:Phase 0–3 全部落地(2026-07-25),進入常態營運。**
 > 規則衝突時以 `AGENTS.md` 為準(§7 草稿已隨各 Phase 併入 AGENTS.md);
 > 本檔為多模板架構的設計藍圖與實作依據。
 > 配套 skill `.codex/skills/register-template/`(已啟用)+
@@ -408,6 +408,11 @@ light 視覺常數(色票/字級表/素材指名)進包。
   回饋謄入包內);WORKLOG §8 fills 三級升級計畫改按包執行、按包計數;
   light 切換 bindings.json 並退役 fills.py(選配,需 golden+examples 雙綠);
   選配 pre-commit 跑 isolation/lint。
+  (2026-07-25 執行註記,詳見 WORKLOG §20.4:①light 已切換——pack_loader
+  合併語意定稿(BUILDERS 僅來自 py;FILLS 取 py 非空優先、否則 json),
+  bindings.py 瘦身為 builders-only,fills 由 bindings.json 生效,examples
+  基準仍全等、golden 綠,light 版本 2026-07-25.2;②FEEDBACK 已分模板;
+  ③pre-commit 決策不裝 hook,isolation/lint 靠發佈 checklist 與 R10 手跑。)
 
 ## 9. 風險與開放問題
 

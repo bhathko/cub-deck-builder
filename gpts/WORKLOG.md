@@ -182,6 +182,9 @@ recommended/recommendation 以底部一行呈現。
 - 決策一:渲染層**永不加隨機性**。多樣性來自頁型選擇,不來自 renderer;
   隨機性會毀掉可重現性與回饋規則化。
 - 決策二:剩餘 ~34 種頁型分三級耦合,不一次做完:
+  (2026-07-25 註:多模板架構落地後,升級一律「按包」執行——寫該包
+  bindings.json 的 fill 條目 + 過 golden,以各包 FEEDBACK.md 分別計數;
+  見 §20.3/§20.4 與 TEMPLATE_PACKS.md。)
   1. 純文字版型 ~28 種 → 標準套路可直接做;先做設計師圈選的高頻 5-8 種,
      其餘看 FEEDBACK.md,同頁型出現 2 次 clone+plan 使用就升級成 fills。
   2. 含 chart 的 4 種(模板 p25-27、31)→ 需 `chart.replace_data` 支援 +
@@ -674,3 +677,23 @@ prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未�
 - **狀態:本機完成。**Builder 端仍待 Phase 1 的 v2.0 換裝驗收;
   Phase 3(FEEDBACK 分模板營運、light 切換宣告式、fills 三級升級按包執行)
   依 TEMPLATE_PACKS §8 常態進行。
+
+### 20.4 Phase 3 執行:治理常態化(2026-07-25)
+
+- **light 切換宣告式綁定**:pack_loader 合併語意定稿——BUILDERS 只能來自
+  bindings.py;FILLS 取 py 匯出非空者優先(grandfather),否則用
+  bindings.json。light 的 bindings.py 瘦身為 builders-only(五個 fill 函式
+  與 _P17/_P33/_P54 對照表移除,~300 行 Python 退役),fills 正式由
+  bindings.json 經 fills_engine 生效。驗收:examples 01/02 切換後 shape 樹
+  仍與 Phase 0 前基準**全等**;golden 10 頁 PASS(冪等雙跑);lint 完整性
+  檢查改為 bindings.json 存在即查(訊息同步改寫)。light 版本 bump
+  2026-07-25.2(manifest/INDEX/instructions roster 三處同步)。
+- **FEEDBACK 分模板營運**:根台帳加「模板」欄(light/<包id>/引擎/指示),
+  既有 #1/#2 歸「指示」;模板專屬回饋謄入各包 FEEDBACK.md,fills 升級
+  計數按包;§8 三級升級計畫加按包執行註記。
+- **pre-commit(選配)決策:不裝 hook**——isolation/lint 已入
+  README 發佈 checklist 與 REGRESSION R10,git hook 屬本機配置不進版控,
+  維持手跑紀律。
+- 多模板架構 Phase 0–3 至此全部落地;常態工作=按包升級 fills、
+  處理分模板回饋、等首位設計師真實模板走 register-template。
+  Builder 端 v2.0 換裝驗收仍待執行(README 驗收 1–8)。

@@ -21,11 +21,12 @@ Code Interpreter 裡跑驗證閘門與確定性 renderer,產出 Cathay 淺色企
    `gpts/knowledge/page_types_registry.md` 三處一起改。
 3. **渲染層零隨機**:版面確定性是本專案的核心資產,不得在 renderer 加入任何
    隨機性或「AI 自由發揮」;多樣性只能來自頁型庫擴充。
-4. **light 綁定與 light_template.pptx 硬耦合**:填充綁定(shape id)住在
-   `gpts/templates/light/bindings.py`(多模板架構 Phase 0,設計見
-   `gpts/TEMPLATE_PACKS.md`)。模板改版必走
-   `gpts/templates/TEMPLATE_LIFECYCLE.md`:重新盤點 shape id
-   (`inspect_template.py`)、核對 bindings、examples 全綠才可發版。
+4. **綁定與模板 pptx 硬耦合,以包為界**:每包填充綁定(shape id)住在
+   `gpts/templates/<id>/bindings.json`(宣告式,fills_engine 解譯;light 另有
+   builders-only 的 bindings.py grandfather),只對同包模板檔有效,以
+   manifest `template_sha256` + inventory.json 對照。模板改版必走
+   `gpts/templates/TEMPLATE_LIFECYCLE.md`(`inspect_template.py --verify`
+   漂移偵測、核對 bindings、golden+examples 全綠才可發版)。
 5. **改動即重打包,一包一鏡像**:改 `gpts/tools/*` → 重打包
    `gpts/knowledge/tools.zip`;改 `gpts/templates/<id>/`(含
    `assets_src/`,打包時映射為 `assets/`)→ 重打包

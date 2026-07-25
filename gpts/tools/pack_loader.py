@@ -10,9 +10,11 @@
 packs root 預設 = 本檔所在目錄的上一層 /templates(repo: gpts/templates;
 沙箱: /mnt/data/templates 或 ppt_out/templates)。
 
-綁定兩形式:bindings.py(light grandfather,優先載入)或宣告式
-bindings.json(新模板唯一路徑,經 fills_engine 解譯;兩者並存時 .py 生效,
-.json 僅為等價驗證素材)。
+綁定兩形式,可並存(合併語意):
+  - bindings.py:BUILDERS(builtin 繪製器,僅 light grandfather)與選配 FILLS;
+  - bindings.json:宣告式 fills(fills_engine 解譯,新模板唯一路徑)。
+  FILLS 取用順序:py 匯出非空 FILLS → 以 py 為準(json 忽略);否則用 json。
+  BUILDERS 只能來自 py。light 自 Phase 3 起 py 只剩 BUILDERS,fills 走 json。
 """
 from __future__ import annotations
 
@@ -73,32 +75,34 @@ class Pack:
 
 
 class _JsonBindings:
-    """bindings.json 的載入結果:與 Python bindings 模組同介面(FILLS/BUILDERS)。"""
+    """綁定合併結果:與 Python bindings 模組同介面(FILLS/BUILDERS)。"""
 
-    def __init__(self, fills):
+    def __init__(self, fills, builders=None):
         self.FILLS = fills
-        self.BUILDERS = {}  # 宣告式包不得有 builtin(builtin 僅 light grandfather)
+        self.BUILDERS = builders or {}  # builtin 只能來自 bindings.py(僅 light)
 
 
 def _load_bindings(pack_dir: Path, pack_id: str, manifest: dict):
     if str(_HERE) not in sys.path:  # bindings 需 import fill_helpers/text_tools 等
         sys.path.insert(0, str(_HERE))
-    py = pack_dir / "bindings.py"
-    if py.exists():  # grandfather 優先(light;bindings.json 並存時僅為等價驗證素材)
+    py, bj = pack_dir / "bindings.py", pack_dir / "bindings.json"
+    builders, fills = {}, {}
+    if py.exists():
         spec = importlib.util.spec_from_file_location(f"pack_bindings_{pack_id}", py)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
-        return mod
-    bj = pack_dir / "bindings.json"
-    if bj.exists():
+        builders = getattr(mod, "BUILDERS", {})
+        fills = getattr(mod, "FILLS", {})  # py FILLS 非空 → 優先(grandfather)
+    if not fills and bj.exists():
         import fills_engine
         data = json.loads(bj.read_text(encoding="utf-8-sig"))
         try:
             fills = fills_engine.build_fills(data, manifest.get("style") or {})
         except Exception as e:
             raise PackError(f"模板包 {pack_id} 的 bindings.json 無法載入:{e}")
-        return _JsonBindings(fills)
-    raise PackError(f"模板包 {pack_id} 缺 bindings(找不到 {py} 或 bindings.json)")
+    if not builders and not fills:
+        raise PackError(f"模板包 {pack_id} 缺 bindings(找不到 {py} 或 bindings.json)")
+    return _JsonBindings(fills, builders)
 
 
 def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
