@@ -31,7 +31,7 @@ import unicodedata
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-for _cand in (_HERE.parent, _HERE, Path("/mnt/data"), Path.cwd()):
+for _cand in (_HERE.parent, _HERE.parent / "rules", _HERE, Path("/mnt/data"), Path.cwd()):
     if (_cand / "validate_slide_spec_gpts.py").exists():
         sys.path.insert(0, str(_cand))
         break

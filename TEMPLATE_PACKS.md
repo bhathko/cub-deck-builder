@@ -4,7 +4,7 @@
 > 規則衝突時以 `AGENTS.md` 為準(§7 草稿已隨各 Phase 併入 AGENTS.md);
 > 本檔為多模板架構的設計藍圖與實作依據。
 > 配套 skill `.codex/skills/register-template/`(已啟用)+
-> 工具鏈 `gpts/release/template_admin.py` + 引擎 `gpts/tools/fills_engine.py`;
+> 工具鏈 `engine/release/template_admin.py` + 引擎 `engine/tools/fills_engine.py`;
 > 各 Phase 執行紀錄見 WORKLOG §20.1–§20.3。
 
 ## 0. 需求與公式總綱
@@ -35,7 +35,7 @@ kind/required/provenance、來源追溯規則。這層維持現行三處同步�
 ## 1. 模板包結構
 
 ```
-gpts/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a-z0-9_]{2,31}$
+engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a-z0-9_]{2,31}$
   template.pptx                      ← 模板本體(檔名固定,身分由目錄名決定)
   manifest.json                      ← 機器可讀真相來源(§2)
   bindings.json                      ← 填充綁定(宣告式 op,§3;light 例外為 bindings.py)
@@ -48,7 +48,7 @@ gpts/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a-z
   registration_state.json            ← 註冊進度存檔(僅 draft 期存在,支援中斷續作)
 ```
 
-- **light 是第一個包**:`gpts/templates/light/`,現行 `fills.py` 的 FILLS 與
+- **light 是第一個包**:`engine/templates/light/`,現行 `fills.py` 的 FILLS 與
   `render_deck.py` 的 BUILDERS **原封搬入** `bindings.py`(grandfather,零行為改變);
   `light_template.pptx` 與 `assets.zip` 內容併入包內。
 - **新模板不得有 builtin**:cover/agenda/closing 等 5 種 builtin 頁型在新模板
@@ -187,7 +187,7 @@ op 詞彙表固定 6 個,自 fills.py 現有特例逐條歸納(**下表形式欄
 先例佐證:validator 的槽位文法(kind/min/max 遞迴結構)本來就是
 「宣告式迷你語言 + 解譯器」,fills_engine 與其架構對稱,不是新發明。
 
-新增引擎件(`gpts/tools/`,隨 tools.zip 出貨):
+新增引擎件(`engine/tools/`,隨 tools.zip 出貨):
 
 - `fill_helpers.py`:自 fills.py 抽出 `FillError`/`index_shapes`/`Ctx`/
   `_fill_rows`(公開化為 `fill_rows`),並把 p33/p54 兩處**內聯** add_textbox
@@ -243,11 +243,11 @@ fills_engine 無 `chart.replace_data` 原語,smoke 會綠但圖表數據不會�
 | run_pipeline | 參數透傳四階段;前置缺檔檢查加 manifest/bindings/模板檔 | 預設鏈 CLI→spec→light |
 | inspect_template | 加 `--verify`:比對 inventory.json 與現 pptx,列 shape id 增刪/幾何漂移,有 drift exit 1 | `--pptx` 原用法不動 |
 | audit_provenance | **不動**(決策,非遺漏:STRUCTURAL_PAGES/EXEMPT_PATHS/closing 固定 Thank you 屬頁型層語意契約,與模板無關) | 同現行 |
-| prepare_env(.codex) | REQUIRED 清單加 `templates/`;同步 `gpts/templates/` → `ppt_out/templates/`(outline 前端的 packs_root);連帶重裝 `~/.codex/skills/outline-to-ppt` + 重打 zip。**已提前到 Phase 0**(render_deck 一 pack 化,沙箱與 $RT 回歸環境就需要 templates/) | 無新模板時行為同現行 |
+| prepare_env(.codex) | REQUIRED 清單加 `templates/`;同步 `engine/templates/` → `ppt_out/templates/`(outline 前端的 packs_root);連帶重裝 `~/.codex/skills/outline-to-ppt` + 重打 zip。**已提前到 Phase 0**(render_deck 一 pack 化,沙箱與 $RT 回歸環境就需要 templates/) | 無新模板時行為同現行 |
 
 ## 5. 黃金驗收與註冊器
 
-新資產 `gpts/golden/`:每個註冊頁型兩份固定 spec fixture,由
+新資產 `engine/golden/`:每個註冊頁型兩份固定 spec fixture,由
 `PAGE_TYPES` 契約**確定性派生**(零隨機、進版控、對註冊流程唯讀)。
 
 **派生規則**(與 make_skeleton **共用同一套**契約走訪/FIXED/placeholder
@@ -266,8 +266,8 @@ fills_engine 無 `chart.replace_data` 原語,smoke 會綠但圖表數據不會�
 - 直供 JSON 模式驗(無 --slides,追溯關),契約改動時重新派生,
   git diff 即契約漂移證據。**LLM 與設計師都不得為了過驗收改 golden。**
 
-註冊工具鏈單一入口 `gpts/release/template_admin.py`(**不入 tools.zip**,
-僅本機;直接操作 repo 端 `gpts/templates/` 與 `gpts/tools/`,不經 ppt_out
+註冊工具鏈單一入口 `engine/release/template_admin.py`(**不入 tools.zip**,
+僅本機;直接操作 repo 端 `engine/templates/` 與 `engine/tools/`,不經 ppt_out
 沙箱副本;命令全單行 python,三 shell 原樣可跑):
 
 | 子命令 | 內容 |
@@ -277,7 +277,7 @@ fills_engine 無 `chart.replace_data` 原語,smoke 會綠但圖表數據不會�
 | `lint --id <id>`(`--all` 跑全部包) | manifest schema、覆寫 path 存在性與白名單、bindings schema、shape id 全部存在於 inventory、**全覆蓋原則**(頁上文字 shape 必被 set/rows/list/delete/keep 覆蓋)、asset_defaults 指到的檔案存在(僅當有頁型要求該鍵)、chart/SmartArt 頁未被註冊為 fill |
 | `golden --id <id> [--page-types a,b]` | 對每個 fill 頁型跑 min+max:validator → render(fills_engine)→ qa(帶包字體白名單);**連跑兩次比對 shape 樹全等**(冪等實證);產 `ppt_out/golden_<id>.pptx` 供目檢 |
 | `register --id <id>` | 原子性:lint → golden all(不信任舊戳記)→ **light 回歸**(light golden + examples 01/02 走 run_pipeline)→ isolation 檢查 → 全綠才翻 status=registered;任一紅 → 留 draft |
-| `pack --id <id>`(`--tools` 打 tools.zip) | 打 `gpts/knowledge/template_<id>.zip`(或 tools.zip;一律 Python zipfile、正斜線 arcname、打包後 infolist 反斜線檢查 + sha 核對,任一不符 exit 1) |
+| `pack --id <id>`(`--tools` 打 tools.zip) | 打 `gpts/dist/template_<id>.zip`(或 tools.zip;一律 Python zipfile、正斜線 arcname、打包後 infolist 反斜線檢查 + sha 核對,任一不符 exit 1) |
 | `isolation` | 讀 `git diff --name-only` 對照白名單(§7) |
 | `golden --regen-specs` | 從 PAGE_TYPES 重新派生 golden fixtures(契約改版時用,工程師專用) |
 
@@ -324,24 +324,24 @@ light 視覺常數(色票/字級表/素材指名)進包。
 條文草稿(取代/新增 AGENTS.md 硬規則):
 
 1. **規則 1 改寫(SSOT 分兩處)**:語意契約與共用規範的 SSOT 仍在
-   `gpts/knowledge/`;**模板知識的 SSOT 在 `gpts/templates/<id>/`
+   `engine/rules/`;**模板知識的 SSOT 在 `engine/templates/<id>/`
    (manifest 為機器真相)**。AGENTS.md/CLAUDE.md「常用指令」段的模板路徑
-   (`--template gpts/knowledge/light_template.pptx`)於 Phase 1 同步改為
+   (`--template engine/rules/light_template.pptx`)於 Phase 1 同步改為
    pack 寫法。
 2. **規則 2 改寫(兩層同步)**:改語意頁型契約 → 三處同步(共用,禁模板資訊);
-   改模板綁定 → 只動 `gpts/templates/<id>/` 並重打 `template_<id>.zip`
+   改模板綁定 → 只動 `engine/templates/<id>/` 並重打 `template_<id>.zip`
    (禁槽位契約);容量與素材鍵覆寫只住各包 manifest,單檔即真相。
 3. **規則 4 改寫(耦合以包為界)**:每包 bindings 只對同包 template.pptx 有效,
    以 `template_sha256` + inventory 機器強制;模板改版走 lifecycle:換檔 →
    `freeze` → inventory diff 核對 bindings → `lint` → **`golden` all 綠**
    (id 沒變但幾何漂移的視覺壞版只有 golden+目檢抓得到)→ 該模板 REGRESSION
    綠 → manifest version bump → `pack`。sha 不符 = 盤點未完成,拒發版。
-4. **規則 5 改寫**:改 `gpts/tools/*` → tools.zip(`template_admin.py pack
+4. **規則 5 改寫**:改 `engine/tools/*` → tools.zip(`template_admin.py pack
    --tools`);改 `templates/<id>/` → `template_<id>.zip`(`pack --id`);
    打包一律經 template_admin(內建正斜線與 sha 檢查)。
 5. **新規則(模板隔離)**:涉及模板 X 的 commit 只准觸碰
-   `gpts/templates/X/**`、`gpts/knowledge/template_X.zip`、
-   `gpts/templates/INDEX.md`、`gpts/instructions.md`(版本字串/roster 行);
+   `engine/templates/X/**`、`gpts/dist/template_X.zip`、
+   `engine/templates/INDEX.md`、`gpts/instructions.md`(版本字串/roster 行);
    越界即違規,以 `template_admin.py isolation` 機器驗證。
 6. **新規則(綁定準入)**:bindings 必過 `lint`(含全覆蓋原則)+ `golden`
    (含連跑兩次全等)才可 register;模板包無權新增語意頁型;
@@ -356,7 +356,7 @@ light 視覺常數(色票/字級表/素材指名)進包。
 ## 8. 遷移計畫(每階段可獨立 commit/發版,light 全程零行為變化)
 
 - **Phase 0|light 包化(不發佈,GPTs 端不動)**:抽 `fill_helpers.py`;建
-  `gpts/templates/light/`(manifest / bindings.py grandfather / page_map.md /
+  `engine/templates/light/`(manifest / bindings.py grandfather / page_map.md /
   inventory / REGRESSION / FEEDBACK / smoke_spec);render_deck 改 pack 載入;
   建 INDEX.md 與 lifecycle 文件;prepare_env 同步 templates/(自 §4 表提前,
   含 ~/.codex 重裝)+ 根 REGRESSION R0 補 templates 複製。**tools.zip 需重打包(repo 端)且

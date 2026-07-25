@@ -1,6 +1,7 @@
 ﻿# GPTs 建置包 — 把 spec 閘門流程搬進 ChatGPT
 
-這個資料夾是給「想在 ChatGPT 建一個團隊共用簡報產生器 GPTs」用的完整素材包。
+這個資料夾是**引擎(`engine/`)的 ChatGPT GPTs 延伸應用**:把引擎打包上傳
+GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 設計原則:**所有檔案隨 GPTs 內建**——模板包(template_light.zip:模板本體+
 背景+logo+綁定)、頁型規則、驗證器、工具腳本全部放在知識庫;終端使用者
 **只需提供一份合規的 slide_spec.json**(貼上或上傳皆可),不需要準備任何其他
@@ -18,7 +19,7 @@
 容量由模型比照 page_types.md 自律。
 使用者不會寫 JSON 也沒關係:**直接貼上段落大綱就會自動走一鍵產檔**(`/outline-to-ppt` 是同義觸發詞,可打可不打;想逐步確認要明講)。一鍵流程會保存來源、只選完整註冊頁型、產生並嚴格驗證 JSON,接著直接渲染與 QA;缺個別資料以「待補充」佔位繼續,只有來源不足或三輪修正後閘門仍失敗才停止。
 
-## 工具層(`tools/` → `knowledge/tools.zip`)
+## 工具層(`engine/tools/` → `dist/tools.zip`)
 
 產檔的機械動作全部由十一支預寫腳本執行,模型只在「未涵蓋頁型」時手產一份小小的
 `render_plan.json`——這是「精準 + 省 token + 不進 QA 死循環」的核心設計:
@@ -45,35 +46,35 @@
 永遠回到「改輸入的某一條」再整檔重跑——不存在「刪掉壞頁再補一頁」這種
 會累積損傷的操作;同一份輸入跑一萬次結果都一樣。
 
-實測產出可眼見為憑:`examples/demo_output_01_minimal.pptx`(4 頁)、
-`examples/demo_output_02_full10p.pptx`(10 頁全自動、零 plan、qa 零警告)。
+實測產出可眼見為憑:`engine/examples/demo_output_01_minimal.pptx`(4 頁)、
+`engine/examples/demo_output_02_full10p.pptx`(10 頁全自動、零 plan、qa 零警告)。
 
 ## 包內檔案
 
 | 檔案                                    | 用途                                                                     | 放哪裡                           |
 | --------------------------------------- | ------------------------------------------------------------------------ | -------------------------------- |
 | `instructions.md`                       | GPTs 系統指示全文(含版本代號)                                            | 貼進 GPT Builder「Instructions」 |
-| `knowledge/validate_slide_spec_gpts.py` | 驗證器(兩級閘門;PAGE_TYPES 單一真相來源)                                 | 上傳到 Knowledge                 |
-| `knowledge/page_types_registry.md`      | slide_spec.json 撰寫指南 + 10 種註冊頁型契約                             | 上傳到 Knowledge                 |
-| `knowledge/outline_to_ppt_skill.md`     | 段落大綱一鍵產生合規 JSON、渲染 PPT 與 QA 的繁中工作流                   | 上傳到 Knowledge                 |
-| `knowledge/page_types.md`               | 完整頁型庫 40+ 種(跨模板語意庫;頁碼對照在各模板包 page_map.md)           | 上傳到 Knowledge                 |
-| `knowledge/style_guide.md`              | 視覺規範(排版紀律共用;視覺常數以 light 包 manifest 為機器真相)           | 上傳到 Knowledge                 |
-| `knowledge/slide_spec.schema.json`      | spec 結構定義                                                            | 上傳到 Knowledge                 |
-| `knowledge/slide_spec.example.json`     | 通過驗證的完整範例                                                       | 上傳到 Knowledge                 |
-| `knowledge/slide_spec.bad.example.json` | 會 FAIL 的範例(驗收測試用)                                               | 上傳到 Knowledge                 |
-| `knowledge/template_light.zip`          | light 模板包:template.pptx + manifest + bindings + page_map + 素材(源碼在 `templates/light/`) | 上傳到 Knowledge                 |
-| `knowledge/tools.zip`                   | 工具腳本 ×11 + 速查卡(源碼在 `tools/`)                                   | 上傳到 Knowledge                 |
-| `examples/01_*.json`–`04_*.json`        | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
-| `examples/02_full_10p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
-| `examples/05_outline_to_ppt_source.md`  | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
-| `examples/demo_output_*.pptx`           | 本機實測產出,眼見為憑                                                    | 不上傳                           |
-| `templates/light/assets_src/`           | 素材可編輯源檔(隨包;打包 template_light.zip 時以 arcname `assets/` 映射) | 不上傳,留在 repo                 |
-| `templates/`(其餘檔案)                  | 模板包源碼與治理文件(INDEX、TEMPLATE_LIFECYCLE、各包 REGRESSION/FEEDBACK) | 不上傳,留在 repo                 |
-| `給設計師的白話說明.md`                 | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
-| `FEEDBACK.md`                           | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
+| `engine/rules/validate_slide_spec_gpts.py` | 驗證器(兩級閘門;PAGE_TYPES 單一真相來源)                                 | 上傳到 Knowledge                 |
+| `engine/rules/page_types_registry.md`   | slide_spec.json 撰寫指南 + 10 種註冊頁型契約                             | 上傳到 Knowledge                 |
+| `engine/rules/outline_to_ppt_skill.md`  | 段落大綱一鍵產生合規 JSON、渲染 PPT 與 QA 的繁中工作流                   | 上傳到 Knowledge                 |
+| `engine/rules/page_types.md`            | 完整頁型庫 40+ 種(跨模板語意庫;頁碼對照在各模板包 page_map.md)           | 上傳到 Knowledge                 |
+| `engine/rules/style_guide.md`           | 視覺規範(排版紀律共用;視覺常數以 light 包 manifest 為機器真相)           | 上傳到 Knowledge                 |
+| `engine/rules/slide_spec.schema.json`   | spec 結構定義                                                            | 上傳到 Knowledge                 |
+| `engine/rules/slide_spec.example.json`  | 通過驗證的完整範例                                                       | 上傳到 Knowledge                 |
+| `engine/rules/slide_spec.bad.example.json` | 會 FAIL 的範例(驗收測試用)                                               | 上傳到 Knowledge                 |
+| `dist/template_light.zip`               | light 模板包:template.pptx + manifest + bindings + page_map + 素材(源碼在 `engine/templates/light/`) | 上傳到 Knowledge                 |
+| `dist/tools.zip`                        | 工具腳本 ×11 + 速查卡(源碼在 `engine/tools/`)                                   | 上傳到 Knowledge                 |
+| `engine/examples/01_*.json`–`04_*.json` | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
+| `engine/examples/02_full_10p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
+| `engine/examples/05_outline_to_ppt_source.md` | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
+| `engine/examples/demo_output_*.pptx`    | 本機實測產出,眼見為憑                                                    | 不上傳                           |
+| `engine/templates/light/assets_src/`    | 素材可編輯源檔(隨包;打包 template_light.zip 時以 arcname `assets/` 映射) | 不上傳,留在 repo                 |
+| `engine/templates/`(其餘檔案)           | 模板包源碼與治理文件(INDEX、TEMPLATE_LIFECYCLE、各包 REGRESSION/FEEDBACK) | 不上傳,留在 repo                 |
+| `../給設計師的白話說明.md`              | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
+| `../FEEDBACK.md`                        | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
 | `feedback_evidence/`                    | GPT Builder 實測對話逐字稿(FEEDBACK 台帳引用的證據)                       | 不上傳,留在 repo                 |
-| `REGRESSION.md`                         | 發版前本機回歸:R0–R8 可執行案例與預期結果                                | 不上傳,留在 repo                 |
-| `WORKLOG.md`                            | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
+| `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R8 可執行案例與預期結果                                | 不上傳,留在 repo                 |
+| `../WORKLOG.md`                         | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
 ## 建置步驟(約 15 分鐘)
 
@@ -82,7 +83,8 @@
 2. **Name / Description**:自訂,例如「簡報產生器(內部)」/「給我一份合規的
    slide_spec.json,產出公司規範的 16:9 繁中簡報;模板素材全內建」。
 3. **Instructions**:貼上 `instructions.md` 分隔線以下的全文。
-4. **Knowledge**:上傳上表 10 個檔案(`knowledge/` 內全部;GPTs 上限 20 個檔,
+4. **Knowledge**:上傳上表 10 個檔案(engine/rules 的 8 個散檔 + dist/ 的
+   2 個 zip;GPTs 上限 20 個檔,
    維持 ≤19 紀律,約可再容 9 個模板包)。
 5. **Capabilities 與 Model**:
    - ✅ **Code Interpreter & Data Analysis**(必開,整個流程靠它)
@@ -214,7 +216,7 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
 並讓修改走 repo:
 
 1. **真相來源在 repo 的 `gpts/` 目錄。** 指示改 `gpts/instructions.md`、規則改
-   `gpts/knowledge/*`,一律先改 repo、commit,再由管理者同步到 GPT Builder
+   `engine/rules/*`,一律先改 repo、commit,再由管理者同步到 GPT Builder
    (貼指示/重傳知識檔)。不要直接在 GPT Builder 裡改完就算——下次同步會被
    repo 版蓋掉。
 2. **版本代號。** 指示開頭埋了版本字串(目前 `v2.0-20260725`)與可用模板
@@ -255,7 +257,7 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
 | 同一頁型每次產出長得不一樣                              | 最強解:把該頁型註冊進 `PAGE_TYPES` + registry + fills,升級成全自動        |
 | 它跳過驗證就產檔                                        | `instructions.md` 絕對規則區加重申;驗收時堅持要看 PASS 輸出               |
 
-**回饋單格式**(記錄在 `gpts/FEEDBACK.md`,或貼到回饋頻道由管理者謄入):
+**回饋單格式**(記錄在 `FEEDBACK.md`,或貼到回饋頻道由管理者謄入):
 版本代號/日期/回報人/所用 JSON/頁碼與元素/期望(附模板參考頁)/實際(附截圖)/
 當場下了什麼修正指令、有沒有效/狀態(待處理→已規則化→已發版)。
 
@@ -270,36 +272,36 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
 > 是人工步驟,逐項勾:
 
 1. □ 該模板包 REGRESSION 綠 + 根 REGRESSION R0–R10 全符
-2. □ `python gpts/release/template_admin.py isolation` 白名單過(模板目錄外
+2. □ `python engine/release/template_admin.py isolation` 白名單過(模板目錄外
    的改動已拆 commit)
-3. □ `python gpts/release/template_admin.py pack --id <id>` 重打包
+3. □ `python engine/release/template_admin.py pack --id <id>` 重打包
    (tools 沒改就不動 tools.zip);R7 hash 基準同步
 4. □ `gpts/instructions.md` 版本字串 bump + 模板 roster 行加入新包
 5. □ Knowledge 檔數 ≤19 確認
 6. □ Builder:貼新 instructions;上傳 `template_<id>.zip`(共用檔沒改就不重傳)
 7. □ Builder 驗收:問「你現在是哪一版?」核對 instructions 版與 roster;
    用該模板 smoke/golden spec 產一份 qa PASS;light 抽測一份確認不受影響
-8. □ `gpts/templates/INDEX.md` 狀態更新;通知團隊
+8. □ `engine/templates/INDEX.md` 狀態更新;通知團隊
 
 ## 維護:改頁型時要同步幾個地方
 
-> `gpts/knowledge/` 即單一真相來源,同步鐵律為**三處**:
+> `engine/rules/` 即單一真相來源,同步鐵律為**三處**:
 
-1. `gpts/knowledge/validate_slide_spec_gpts.py` 的 `PAGE_TYPES`(真相來源)
-2. `gpts/knowledge/slide_spec.schema.json` 的 enum
-3. `gpts/knowledge/page_types_registry.md`(1 的人類可讀版)
+1. `engine/rules/validate_slide_spec_gpts.py` 的 `PAGE_TYPES`(真相來源)
+2. `engine/rules/slide_spec.schema.json` 的 enum
+3. `engine/rules/page_types_registry.md`(1 的人類可讀版)
 
-新頁型若要全自動產出,另需在 `gpts/templates/light/bindings.py`(FILLS/BUILDERS)
-加填充實作 → 重打包 `template_light.zip`(多模板架構,見
-`gpts/TEMPLATE_PACKS.md`)。改 `gpts/tools/*` → 重打包 `tools.zip`。
-素材改版:改 `gpts/templates/light/assets_src/` → 重打包 `template_light.zip`
+新頁型若要全自動產出,另需在該包 `engine/templates/<id>/bindings.json` 加
+fill 條目(6-op 宣告式;builtin 僅 light 的 bindings.py)→ 過 golden →
+重打包 `template_<id>.zip`(多模板架構,見 `TEMPLATE_PACKS.md`)。改 `engine/tools/*` → 重打包 `tools.zip`。
+素材改版:改 `engine/templates/light/assets_src/` → 重打包 `template_light.zip`
 (打包時 assets_src/* 以 arcname `assets/` 映射)。
 **打包 zip 一律用正斜線(POSIX)路徑分隔符**
 ——不要用 PowerShell `Compress-Archive` 或檔案總管「壓縮資料夾」(會塞 Windows
 反斜線,Linux `unzip` 會警告並回非零 exit,誘發 GPTs 誤判環境壞掉);用
 `python -c "import zipfile; ..."`(arcname 帶 `/`)或 `zip -r` 打包。驗證:
-`python -c "import zipfile; [print(i.orig_filename) for i in zipfile.ZipFile('gpts/knowledge/template_light.zip').infolist()]"`
-每筆都必須是正斜線。模板改版:照 `gpts/templates/TEMPLATE_LIFECYCLE.md`
+`python -c "import zipfile; [print(i.orig_filename) for i in zipfile.ZipFile('gpts/dist/template_light.zip').infolist()]"`
+每筆都必須是正斜線。模板改版:照 `engine/templates/TEMPLATE_LIFECYCLE.md`
 重盤點(inspect_template `--verify` 機器比對)。改完把異動檔**重新上傳**到
 GPTs 知識庫並刪掉舊檔;
 「gpts/ 目錄有異動 → 重新上傳知識庫」寫進團隊的發版 checklist。

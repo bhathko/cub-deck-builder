@@ -1,6 +1,6 @@
 # light 包回歸(發版前必跑)
 
-> 引擎/共用案例見根 `gpts/REGRESSION.md`(R0–R8 本就以 light 為測物,
+> 引擎/共用案例見根 `engine/REGRESSION.md`(R0–R8 本就以 light 為測物,
 > 其中 R2/R3/R8 = 本包的渲染/QA 回歸)。本檔補包專屬案例;
 > `$RT` 沿根檔定義。渲染需 python-pptx(沒裝時 `python3` 換
 > `uv run --with python-pptx python`)。
@@ -10,8 +10,8 @@
 ```bash
 python3 -c "
 import json, hashlib
-m = json.load(open('gpts/templates/light/manifest.json'))
-sha = hashlib.sha256(open('gpts/templates/light/template.pptx','rb').read()).hexdigest()
+m = json.load(open('engine/templates/light/manifest.json'))
+sha = hashlib.sha256(open('engine/templates/light/template.pptx','rb').read()).hexdigest()
 print('manifest sha', 'OK' if sha == m['template_sha256'] else f'不符:重跑盤點(TEMPLATE_LIFECYCLE.md)')
 print('page_types', len(m['page_types']), '筆(預期 53:builtin 5 / fill 5 / clone 43)')
 "
@@ -22,7 +22,7 @@ print('page_types', len(m['page_types']), '筆(預期 53:builtin 5 / fill 5 / cl
 ## R-L1|smoke spec 直供模式全流程
 
 ```bash
-python3 "$RT/tools/run_pipeline.py" --spec gpts/templates/light/examples/smoke_spec.json \
+python3 "$RT/tools/run_pipeline.py" --spec engine/templates/light/examples/smoke_spec.json \
   --asset-dir "$RT" --out "$RT/deck_light_smoke.pptx"; echo "exit=$?"
 ```
 

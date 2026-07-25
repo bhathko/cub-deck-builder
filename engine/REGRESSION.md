@@ -23,13 +23,13 @@ python3 -c "
 import zipfile, os
 os.makedirs('$RT/tools', exist_ok=True)
 os.makedirs('$RT/templates/light', exist_ok=True)
-for z, dest in [('gpts/knowledge/tools.zip','$RT/tools'),
-                ('gpts/knowledge/template_light.zip','$RT/templates/light')]:
+for z, dest in [('gpts/dist/tools.zip','$RT/tools'),
+                ('gpts/dist/template_light.zip','$RT/templates/light')]:
     bad=[i.orig_filename for i in zipfile.ZipFile(z).infolist() if '\\\\' in i.orig_filename]
     print(z, 'OK' if not bad else f'含反斜線路徑:{bad}')
     zipfile.ZipFile(z).extractall(dest)
 "
-cp gpts/knowledge/validate_slide_spec_gpts.py "$RT/"
+cp engine/rules/validate_slide_spec_gpts.py "$RT/"
 ```
 
 預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 十一支腳本 +
@@ -42,7 +42,7 @@ bindings.py + page_map.md + `assets/`)、validator。素材與模板隨包出貨
 
 ```bash
 for f in 01_minimal_4p 02_full_10p 03_advanced_unregistered_6p 04_broken_should_fail; do
-  python3 "$RT/validate_slide_spec_gpts.py" --spec "gpts/examples/$f.json" --asset-dir "$RT" >/dev/null 2>&1
+  python3 "$RT/validate_slide_spec_gpts.py" --spec "engine/examples/$f.json" --asset-dir "$RT" >/dev/null 2>&1
   echo "$f exit=$?"
 done
 ```
@@ -55,8 +55,8 @@ done
 (02 是直供模式範例,`deck_name: my_project` 本就不符 outline 模式規則,repo 不改它):
 
 ```bash
-python3 "$RT/tools/run_pipeline.py" --spec gpts/examples/02_full_10p.json \
-  --slides gpts/examples/02_full_10p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
+python3 "$RT/tools/run_pipeline.py" --spec engine/examples/02_full_10p.json \
+  --slides engine/examples/02_full_10p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
 ```
 
 預期:exit≠0,`[E] deck.deck_name「my_project」≠ 第一頁內容頁 slide[3] 的 title「年度工作總覽」`。
@@ -66,12 +66,12 @@ python3 "$RT/tools/run_pipeline.py" --spec gpts/examples/02_full_10p.json \
 ```bash
 python3 -c "
 import json
-s = json.load(open('gpts/examples/02_full_10p.json'))
+s = json.load(open('engine/examples/02_full_10p.json'))
 s['deck']['deck_name'] = '年度工作總覽'
 json.dump(s, open('$RT/spec02_fixed.json','w'), ensure_ascii=False, indent=2)
 "
 python3 "$RT/tools/run_pipeline.py" --spec "$RT/spec02_fixed.json" \
-  --slides gpts/examples/02_full_10p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
+  --slides engine/examples/02_full_10p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
 ```
 
 預期:exit=0,末行 `管線結果:PASS(4/4 階段)`。
@@ -108,7 +108,7 @@ s['slides'][5]['title'] = '來源沒有的注入標題'
 json.dump(s, open('$RT/spec02_inject.json','w'), ensure_ascii=False)
 "
 python3 "$RT/tools/audit_provenance.py" --spec "$RT/spec02_inject.json" \
-  --slides gpts/examples/02_full_10p.source_slides.md; echo "exit=$?"
+  --slides engine/examples/02_full_10p.source_slides.md; echo "exit=$?"
 ```
 
 預期:exit=1,`[E] slide[6] 頂層 title「來源沒有的注入標題」未逐字出現在該頁來源區塊`。
@@ -123,7 +123,7 @@ raw = open('$RT/spec02_fixed.json').read().replace('\"95%\"','\"9%\"')
 open('$RT/spec02_token.json','w').write(raw)
 "
 python3 "$RT/tools/audit_provenance.py" --spec "$RT/spec02_token.json" \
-  --slides gpts/examples/02_full_10p.source_slides.md; echo "exit=$?"
+  --slides engine/examples/02_full_10p.source_slides.md; echo "exit=$?"
 ```
 
 預期:exit=1,`[E] slide[5].slots.kpis[2].value:數字 token「9」在來源區塊無精確對應:「9%」`。
@@ -137,7 +137,7 @@ README 驗收測試 6 的 50→5 案例需要「來源僅含 50」的迷你測�
 ## R6|fixture 05 純淨度(真未切頁、無頁型指示)
 
 ```bash
-grep -cE '## Slide|page_type' gpts/examples/05_outline_to_ppt_source.md
+grep -cE '## Slide|page_type' engine/examples/05_outline_to_ppt_source.md
 ```
 
 預期:輸出 `0`(grep exit=1)。
@@ -145,8 +145,8 @@ grep -cE '## Slide|page_type' gpts/examples/05_outline_to_ppt_source.md
 ## R7|knowledge 清單與 archive hash
 
 ```bash
-ls gpts/knowledge | grep -v __pycache__ | wc -l     # 預期 10
-shasum -a 256 gpts/knowledge/tools.zip gpts/knowledge/template_light.zip
+ls engine/rules | grep -v __pycache__ | wc -l     # 預期 10
+shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 ```
 
 2026-07-25 基準值(**重打包 zip 後必須更新本節**;Phase 2:tools.zip 十一支
@@ -155,17 +155,19 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-e9b40e4aecd2f52cb0ad4414dea943c02a77910ae8bd9b3c455a795187b7f991  tools.zip
+06485855158b44f8f2057c1551ae1907cd516351119ce1fd4b5d52296d56b837  tools.zip
 90e6e56a1e1cb6d62c1799854bfeec8ec5ac9cb3ad86130c98ffe49e1c0bc671  template_light.zip
 ```
 
 (2026-07-25 Phase 3:light fills 切換宣告式 bindings.json,bindings.py 瘦身為
-builders-only;light 包版本 2026-07-25.2。)
+builders-only;light 包版本 2026-07-25.2。同日 repo 重構:引擎移至 engine/、
+zips 移至 gpts/dist/,tools.zip 因 make_skeleton/audit_provenance 補 rules 路徑
+重打,見 WORKLOG §21。)
 
 ## R8|直供 JSON 模式全流程(追溯關)
 
 ```bash
-cp gpts/examples/01_minimal_4p.json "$RT/spec01.json"
+cp engine/examples/01_minimal_4p.json "$RT/spec01.json"
 python3 "$RT/tools/run_pipeline.py" --spec "$RT/spec01.json" \
   --asset-dir "$RT" --out "$RT/deck01.pptx"; echo "exit=$?"
 ```
@@ -179,19 +181,19 @@ python3 "$RT/tools/run_pipeline.py" --spec "$RT/spec01.json" \
 
 ```bash
 PR="$(mktemp -d)"
-python3 gpts/release/template_admin.py new --pptx gpts/templates/light/template.pptx --id lightcopy --name 淺色複本測試 --packs-root "$PR"
+python3 engine/release/template_admin.py new --pptx engine/templates/light/template.pptx --id lightcopy --name 淺色複本測試 --packs-root "$PR"
 python3 -c "
 import json, shutil
-src = json.load(open('gpts/templates/light/manifest.json'))
+src = json.load(open('engine/templates/light/manifest.json'))
 p = '$PR/lightcopy/manifest.json'; m = json.load(open(p))
 m['style'], m['asset_defaults'], m['page_number'] = src['style'], src['asset_defaults'], src['page_number']
 m['page_types'] = {pt: e for pt, e in src['page_types'].items() if e['mode'] == 'fill'}
 json.dump(m, open(p, 'w'), ensure_ascii=False, indent=2)
-shutil.copy2('gpts/templates/light/bindings.json', '$PR/lightcopy/bindings.json')
-shutil.copytree('gpts/templates/light/assets_src', '$PR/lightcopy/assets_src', dirs_exist_ok=True)
+shutil.copy2('engine/templates/light/bindings.json', '$PR/lightcopy/bindings.json')
+shutil.copytree('engine/templates/light/assets_src', '$PR/lightcopy/assets_src', dirs_exist_ok=True)
 "
-python3 gpts/release/template_admin.py freeze --id lightcopy --packs-root "$PR"
-python3 gpts/release/template_admin.py register --id lightcopy --packs-root "$PR"; echo "register exit=$?"
+python3 engine/release/template_admin.py freeze --id lightcopy --packs-root "$PR"
+python3 engine/release/template_admin.py register --id lightcopy --packs-root "$PR"; echo "register exit=$?"
 ```
 
 預期:register exit=0(lint → 自身 golden 10 頁 PASS 含冪等雙跑 → light
@@ -202,7 +204,7 @@ light 與 `deck.template:"lightcopy"`(帶 `--packs-root "$PR"`)各 render+qa
 ## R10|全包 lint
 
 ```bash
-python3 gpts/release/template_admin.py lint --all; echo "exit=$?"
+python3 engine/release/template_admin.py lint --all; echo "exit=$?"
 ```
 
 預期:exit=0,每包一行 `✓ <id>: lint OK`(light 另有 grandfather 提示行)。

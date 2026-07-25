@@ -6,7 +6,7 @@
 
 **分模板歸檔(多模板架構,2026-07-25 起)**:本檔只留「引擎/指示/跨模板」
 的回饋;**模板專屬回饋(版面、綁定、素材、該模板的頁型容量)謄入該包的
-`gpts/templates/<id>/FEEDBACK.md`**(同表格式)。fills 升級決策(同頁型
+`engine/templates/<id>/FEEDBACK.md`**(同表格式)。fills 升級決策(同頁型
 出現 2 次 clone+plan 使用即升級,WORKLOG §8)以各包台帳分別計數。
 「模板」欄:`light`/`<其他包 id>`/`引擎`/`指示`。
 

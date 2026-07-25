@@ -24,7 +24,8 @@ import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-for p in (_HERE, _HERE.parent, Path("/mnt/data")):
+# 候選:沙箱(工具旁/父層/mnt)與 repo 佈局(engine/rules)
+for p in (_HERE, _HERE.parent, _HERE.parent / "rules", Path("/mnt/data")):
     sys.path.insert(0, str(p))
 
 try:

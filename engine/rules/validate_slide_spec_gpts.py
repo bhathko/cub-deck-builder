@@ -69,7 +69,7 @@ T = lambda mx, required=True, provenance=True: {
 }
 
 # ---------------------------------------------------------------------------
-# 模板包感知(多模板架構,見 gpts/TEMPLATE_PACKS.md;stdlib-only 維持單檔可攜)
+# 模板包感知(多模板架構,見 TEMPLATE_PACKS.md;stdlib-only 維持單檔可攜)
 # PAGE_TYPES = 語意契約 + 預設容量(= light 現值);各包 manifest 的
 # capacity_overrides 只能覆寫 min/max/max_chars,不得增刪槽位或改 kind。
 # ---------------------------------------------------------------------------

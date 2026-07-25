@@ -34,7 +34,7 @@
         "template": {
           "type": "string",
           "minLength": 1,
-          "description": "模板包 id(gpts/templates/<id>/;省略等同 light)。id 是否存在與頁型支援由 validator/renderer 檢查。"
+          "description": "模板包 id(engine/templates/<id>/;省略等同 light)。id 是否存在與頁型支援由 validator/renderer 檢查。"
         },
         "source": {
           "type": "string"

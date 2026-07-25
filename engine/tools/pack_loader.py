@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""pack_loader — 模板包載入器(多模板架構的引擎入口,見 gpts/TEMPLATE_PACKS.md)。
+"""pack_loader — 模板包載入器(多模板架構的引擎入口,見 TEMPLATE_PACKS.md)。
 
-模板包 = gpts/templates/<id>/(manifest.json + bindings + 素材)。本工具解析
+模板包 = engine/templates/<id>/(manifest.json + bindings + 素材)。本工具解析
 「用哪個包」並載入其 manifest 與綁定;引擎(render_deck 等)只透過 Pack 物件
 取用模板知識,不得寫死任何模板專屬常數。
 
 解析優先序(並存且不同 → PackError,不靜默擇一):
   CLI 參數(--template-pack)→ spec 的 deck.template → 預設 "light"。
-packs root 預設 = 本檔所在目錄的上一層 /templates(repo: gpts/templates;
+packs root 預設 = 本檔所在目錄的上一層 /templates(repo: engine/templates;
 沙箱: /mnt/data/templates 或 ppt_out/templates)。
 
 綁定兩形式,可並存(合併語意):

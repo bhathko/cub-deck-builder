@@ -12,10 +12,10 @@ description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec
 
 規則細節的單一真相來源在 repo(以下皆相對 repo 根目錄):
 
-- `gpts/knowledge/outline_to_ppt_skill.md` — 大綱模式完整規則(GPTs 版;把
+- `engine/rules/outline_to_ppt_skill.md` — 大綱模式完整規則(GPTs 版;把
   `/mnt/data` 路徑換成本文的 `ppt_out/`,其餘規則照用)
-- `gpts/knowledge/page_types_registry.md` — 10 種註冊頁型的槽位契約(填槽前必讀)
-- `gpts/tools/README_TOOLS.md` — 錯誤→修法對照表 + 工具鐵律(FAIL 時必讀)
+- `engine/rules/page_types_registry.md` — 10 種註冊頁型的槽位契約(填槽前必讀)
+- `engine/tools/README_TOOLS.md` — 錯誤→修法對照表 + 工具鐵律(FAIL 時必讀)
 
 ## 鐵律
 
@@ -101,7 +101,7 @@ python .codex/skills/outline-to-ppt/prepare_env.py
    ```
 
 6. **FAIL 時**:讀「管線停止於階段 N」該段輸出,逐條對照
-   `gpts/tools/README_TOOLS.md` 的錯誤→修法表**修對應輸入**,然後整條重跑同一
+   `engine/tools/README_TOOLS.md` 的錯誤→修法表**修對應輸入**,然後整條重跑同一
    指令。最多三輪;稽核 FAIL 時刪除不受支持的內容或重新切頁,禁止把新文字補進
    `slides.md` 來遷就 spec。三輪後仍 FAIL 才停止,白話列出剩餘錯誤,不交付產物。
 7. **交付**:給出 `ppt_out/deck.pptx` 與 `ppt_out/slide_spec.json` 路徑;摘要只列

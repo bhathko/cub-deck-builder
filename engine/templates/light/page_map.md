@@ -2,7 +2,7 @@
 
 > 本檔為 light 模板包的「語意頁型 → 模板頁 + 支援等級」人類可讀版;
 > 機器真相在同目錄 `manifest.json` 的 `page_types`。頁型的**語意與容量**
-> 見共用文件 `gpts/knowledge/page_types.md` 與 `page_types_registry.md`
+> 見共用文件 `engine/rules/page_types.md` 與 `page_types_registry.md`
 > (Phase 1 拆分前,page_types.md 內的「來源模板第 N 頁」行與本檔並存,
 > 以本檔為 light 包正本)。
 

@@ -697,3 +697,31 @@ prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未�
 - 多模板架構 Phase 0–3 至此全部落地;常態工作=按包升級 fills、
   處理分模板回饋、等首位設計師真實模板走 register-template。
   Builder 端 v2.0 換裝驗收仍待執行(README 驗收 1–8)。
+
+## 21. repo 重構:單引擎 + 兩個延伸應用(2026-07-25)
+
+使用者指出結構問題:引擎(工具/規則/模板包)全在 `gpts/` 底下,彷彿是 GPTs
+的附屬品——但「雙前端、單引擎」早是鐵律,目錄應反映它。重構對照:
+
+| 舊 | 新 |
+| --- | --- |
+| gpts/tools/ | engine/tools/ |
+| gpts/knowledge/(8 個散檔) | engine/rules/ |
+| gpts/knowledge/(2 個 zip) | gpts/dist/ |
+| gpts/templates/、golden/、examples/、release/ | engine/ 同名目錄 |
+| gpts/REGRESSION.md | engine/REGRESSION.md |
+| gpts/{WORKLOG,FEEDBACK,TEMPLATE_PACKS,白話說明} | repo 根 |
+| gpts/(保留) | README(建置手冊)、instructions.md、dist/、feedback_evidence/ |
+
+- **沙箱佈局(/mnt/data、ppt_out、$RT)完全不變**,GPTs 端零影響;
+  上傳清單同 10 檔(engine/rules 8 散檔 + gpts/dist 2 zip)。
+- 程式修正:make_skeleton 與 audit_provenance 的 sys.path 候選加
+  `_HERE.parent/"rules"`(repo 直跑免 PYTHONPATH,舊痛點正式消失);
+  template_admin 常數改 ENGINE/RULES/DIST + isolation 白名單改
+  engine/templates 與 gpts/dist;prepare_env 源路徑改 engine/。
+- 文件:機械掃替(特定路徑優先)+ 手改定位敘述(根 README/CLAUDE/AGENTS
+  改為「單引擎+兩延伸應用」;gpts/README 改為「引擎的 GPTs 延伸應用」);
+  WORKLOG 歷史章節路徑**不改寫**(如實保留當時狀態),以本節對照表為準。
+- tools.zip 因兩支腳本補路徑重打(R7 已更新);template_light.zip 內容未變。
+- 驗收:新佈局 R0–R10 全符;repo 直跑 audit/make_skeleton OK;
+  R2b 產出 vs 原始基準 shape 樹**仍全等**;prepare_env/ppt_out 正常。

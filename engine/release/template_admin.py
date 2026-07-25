@@ -6,7 +6,7 @@
   freeze --id <id>                          重建 inventory.json + template_sha256
   lint [--id <id> | --all]                  manifest/綁定靜態檢查(含全覆蓋原則)
   golden --id <id> [--page-types a,b]       黃金驗收:min/max 渲染+qa+冪等雙跑
-  golden --regen-specs                      從 PAGE_TYPES 重派生 gpts/golden/(契約改版用)
+  golden --regen-specs                      從 PAGE_TYPES 重派生 engine/golden/(契約改版用)
   register --id <id>                        原子性註冊:lint→golden→light 回歸→isolation
   pack [--id <id> | --tools]                打 template_<id>.zip / tools.zip(正斜線+檢查)
   isolation                                 git diff 對照模板隔離白名單
@@ -30,12 +30,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent.parent
-TOOLS = REPO / "gpts" / "tools"
-KNOWLEDGE = REPO / "gpts" / "knowledge"
-GOLDEN_DIR = REPO / "gpts" / "golden"
-DEFAULT_PACKS = REPO / "gpts" / "templates"
+ENGINE = REPO / "engine"
+TOOLS = ENGINE / "tools"
+RULES = ENGINE / "rules"
+GOLDEN_DIR = ENGINE / "golden"
+DEFAULT_PACKS = ENGINE / "templates"
+DIST = REPO / "gpts" / "dist"  # GPTs 前端的上傳產物(zips)
 sys.path.insert(0, str(TOOLS))
-sys.path.insert(0, str(KNOWLEDGE))
+sys.path.insert(0, str(RULES))
 
 from validate_slide_spec_gpts import PAGE_TYPES, apply_capacity_overrides  # noqa: E402
 
@@ -66,7 +68,7 @@ def pack_dir_of(args) -> Path:
 def semantic_lib() -> set:
     """語意頁型全集 = validator PAGE_TYPES ∪ page_types.md 的 ### 條目名。"""
     names = set(PAGE_TYPES)
-    pt_md = KNOWLEDGE / "page_types.md"
+    pt_md = RULES / "page_types.md"
     if pt_md.exists():
         for line in pt_md.read_text(encoding="utf-8").splitlines():
             m = re.match(r"^###\s+([a-z][a-z0-9_]+)\s*$", line)
@@ -427,7 +429,7 @@ def run_golden(pack_dir: Path, only=None, out_dir: Path | None = None) -> int:
     shutil.copy2(spec_path, out_dir / f"golden_{pid}.spec.json")
 
     no_slides = work / "run.no-slides"
-    if _run("validator", [sys.executable, KNOWLEDGE / "validate_slide_spec_gpts.py",
+    if _run("validator", [sys.executable, RULES / "validate_slide_spec_gpts.py",
                           "--spec", spec_path, "--slides", no_slides,
                           "--asset-dir", work, "--template-pack", pack_dir,
                           "--allow-draft"]):
@@ -522,8 +524,8 @@ def cmd_register(args) -> int:
     print(f"★ registered:{pid}@{m['version']} 全自動 {len(fills)} / 半自動 {len(clones)}"
           f" / 不支援 {len(unsup)}")
     print("發佈清單(人工,見 gpts/README.md 多模板發佈 checklist):")
-    print(f"  1. python gpts/release/template_admin.py pack --id {pid}")
-    print(f"  2. gpts/templates/INDEX.md 加列 + instructions.md roster/版本字串")
+    print(f"  1. python engine/release/template_admin.py pack --id {pid}")
+    print(f"  2. engine/templates/INDEX.md 加列 + instructions.md roster/版本字串")
     print(f"  3. Builder 刪舊傳新 template_{pid}.zip;light 抽測一份")
     return 0
 
@@ -535,7 +537,7 @@ PACK_WHITELIST = ("template.pptx", "manifest.json", "bindings.py", "bindings.jso
 def cmd_pack(args) -> int:
     import zipfile
     if args.tools:
-        out = KNOWLEDGE / "tools.zip"
+        out = DIST / "tools.zip"
         names = sorted(f.name for f in TOOLS.iterdir() if f.suffix in (".py", ".md"))
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
             for n in names:
@@ -544,7 +546,7 @@ def cmd_pack(args) -> int:
     else:
         pack_dir = pack_dir_of(args)
         pid = load_manifest(pack_dir)["template_id"]
-        out = KNOWLEDGE / f"template_{pid}.zip"
+        out = DIST / f"template_{pid}.zip"
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
             for n in PACK_WHITELIST:
                 if (pack_dir / n).exists():
@@ -573,9 +575,9 @@ def cmd_isolation(args, advisory_pack=None) -> int:
                        capture_output=True, text=True)
     paths = [l[3:].split(" -> ")[-1].strip('"') for l in r.stdout.splitlines() if l.strip()]
     touched_ids = {p.split("/")[2] for p in paths
-                   if p.startswith("gpts/templates/") and len(p.split("/")) > 3}
-    zips = {re.match(r"gpts/knowledge/template_([a-z0-9_]+)\.zip", p).group(1)
-            for p in paths if re.match(r"gpts/knowledge/template_[a-z0-9_]+\.zip", p)}
+                   if p.startswith("engine/templates/") and len(p.split("/")) > 3}
+    zips = {re.match(r"gpts/dist/template_([a-z0-9_]+)\.zip", p).group(1)
+            for p in paths if re.match(r"gpts/dist/template_[a-z0-9_]+\.zip", p)}
     ids = (touched_ids | zips) - {"INDEX.md", "TEMPLATE_LIFECYCLE.md"}
     if advisory_pack:
         ids = {advisory_pack}
@@ -583,8 +585,8 @@ def cmd_isolation(args, advisory_pack=None) -> int:
         print(f"[i] isolation:涉及模板 {sorted(ids) or '無'}(單一模板 commit 才適用白名單)")
         return 0
     (tid,) = ids
-    allow = [f"gpts/templates/{tid}/", f"gpts/knowledge/template_{tid}.zip",
-             "gpts/templates/INDEX.md", "gpts/instructions.md"]
+    allow = [f"engine/templates/{tid}/", f"gpts/dist/template_{tid}.zip",
+             "engine/templates/INDEX.md", "gpts/instructions.md"]
     viol = [p for p in paths if not any(p.startswith(a) for a in allow)]
     if viol:
         print(f"✗ 模板 {tid} 的變更越界({len(viol)} 檔;共用檔/他包改動請拆 commit):")

@@ -6,9 +6,9 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 # register-template(新模板註冊精靈)
 
 > **狀態:已啟用(2026-07-25,Phase 2 落地)。** 架構與工具鏈規格見
-> `gpts/TEMPLATE_PACKS.md`;工具鏈 = `gpts/release/template_admin.py`
+> `TEMPLATE_PACKS.md`;工具鏈 = `engine/release/template_admin.py`
 > (new/freeze/lint/golden/register/pack/isolation/list)+
-> `gpts/tools/fills_engine.py`(6-op 解譯器),light 五種 fill 頁型的
+> `engine/tools/fills_engine.py`(6-op 解譯器),light 五種 fill 頁型的
 > 宣告式重寫已通過 shape 樹全等驗證(含 min 刪格與 max 溢出路徑)。
 > 帶 pptx 操作的子命令(new/freeze/golden/register)依 prepare_env
 > 提示加渲染前綴(如 `uv run --with python-pptx python`)。
@@ -17,17 +17,17 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 你只負責五件事——**盤點轉述、提映射草案、依確認寫 bindings.json、
 跑驗收指令並如實轉述、把設計師的目檢意見翻成綁定修正**。版面與規則你零創作。
 
-使用者是**設計師**(半技術/非技術,語氣沿用 `gpts/給設計師的白話說明.md`)。
+使用者是**設計師**(半技術/非技術,語氣沿用 repo 根的 `給設計師的白話說明.md`)。
 她只做三件事:丟一個新 .pptx 並取名;用嘴確認「這頁是三欄說明」;
 打開你產的驗收 pptx 說哪頁不對。**shape id、slot 名、JSON、op 細節
 絕不拋給設計師。**
 
 規則本體的單一真相來源(相對 repo 根;本檔只留摘要,不複製規則):
 
-- `gpts/TEMPLATE_PACKS.md` — 模板包結構、manifest 欄位、6-op 詞彙表、驗收與發佈規則
-- `gpts/knowledge/validate_slide_spec_gpts.py` `PAGE_TYPES` — fill 級頁型候選集
-- `gpts/knowledge/page_types.md` — clone 級頁型候選集(語意分類與容量)
-- `gpts/tools/README_TOOLS.md` — 工具鐵律與錯誤修法慣例
+- `TEMPLATE_PACKS.md` — 模板包結構、manifest 欄位、6-op 詞彙表、驗收與發佈規則
+- `engine/rules/validate_slide_spec_gpts.py` `PAGE_TYPES` — fill 級頁型候選集
+- `engine/rules/page_types.md` — clone 級頁型候選集(語意分類與容量)
+- `engine/tools/README_TOOLS.md` — 工具鐵律與錯誤修法慣例
 
 ## 鐵律(違反任一條即整段作廢)
 
@@ -71,10 +71,10 @@ python .codex/skills/outline-to-ppt/prepare_env.py
 ```
 
 用途:環境自證(python-pptx 可用性、渲染指令前綴)與建立 `ppt_out/`
-(golden 產出的落點)。**註冊流程本身直接操作 repo 端 `gpts/templates/`
-與 `gpts/tools/`,不經 ppt_out 沙箱副本**(沙箱是 outline-to-ppt 產檔用的)。
+(golden 產出的落點)。**註冊流程本身直接操作 repo 端 `engine/templates/`
+與 `engine/tools/`,不經 ppt_out 沙箱副本**(沙箱是 outline-to-ppt 產檔用的)。
 exit 0 才算就緒,未跑前不得對可行性下任何結論。
-若 `gpts/templates/<id>/registration_state.json` 已存在 → 問設計師:
+若 `engine/templates/<id>/registration_state.json` 已存在 → 問設計師:
 「上次『<display_name>』註冊到一半(映射已確認 N/M 頁),要接續還是重來?」
 
 ## 步驟 1:收件建檔
@@ -85,14 +85,14 @@ exit 0 才算就緒,未跑前不得對可行性下任何結論。
 `assets/` 並記入 manifest `asset_defaults`)。
 
 ```
-python gpts/release/template_admin.py new --pptx <設計師給的路徑> --id corp_dark --name 企業深色風
+python engine/release/template_admin.py new --pptx <設計師給的路徑> --id corp_dark --name 企業深色風
 ```
 
 ## 步驟 2:盤點與體檢報告
 
 ```
-python gpts/release/template_admin.py freeze --id corp_dark
-python gpts/tools/inspect_template.py --pptx gpts/templates/corp_dark/template.pptx --summary
+python engine/release/template_admin.py freeze --id corp_dark
+python engine/tools/inspect_template.py --pptx engine/templates/corp_dark/template.pptx --summary
 ```
 
 把摘要翻成設計師語言的體檢報告(不貼原始輸出),例:
@@ -133,8 +133,8 @@ c. 全部確認後貼【最終映射總表】總確認一次,寫入 registration
 ## 步驟 5:黃金驗收(迭代到綠)
 
 ```
-python gpts/release/template_admin.py lint --id corp_dark
-python gpts/release/template_admin.py golden --id corp_dark
+python engine/release/template_admin.py lint --id corp_dark
+python engine/release/template_admin.py golden --id corp_dark
 ```
 
 FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
@@ -163,7 +163,7 @@ FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
 ## 步驟 6:正式註冊 + 發佈提醒
 
 ```
-python gpts/release/template_admin.py register --id corp_dark
+python engine/release/template_admin.py register --id corp_dark
 ```
 
 成功輸出 = status 翻 registered + 支援矩陣摘要。之後如實轉述腳本印出的
