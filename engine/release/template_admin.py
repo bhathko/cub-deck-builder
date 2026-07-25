@@ -542,6 +542,20 @@ PACK_WHITELIST = ("template.pptx", "manifest.json", "bindings.py", "bindings.jso
                   "page_map.md")
 
 
+def _zip_add(z, src: Path, arcname: str):
+    """可重現寫入:固定時戳與權限,讓「內容沒變 → zip sha 不變」。
+
+    否則 zip 記錄檔案 mtime,每次重打包 sha 都變 → git 產生新 blob
+    (19MB 的模板包 zip 尤其致命),R7 的 sha 基準也失去「內容是否變動」的意義。
+    1980-01-01 是 zip 格式的時戳下限,慣用的可重現值。
+    """
+    import zipfile
+    zi = zipfile.ZipInfo(arcname, date_time=(1980, 1, 1, 0, 0, 0))
+    zi.compress_type = zipfile.ZIP_DEFLATED
+    zi.external_attr = 0o644 << 16
+    z.writestr(zi, src.read_bytes())
+
+
 def cmd_pack(args) -> int:
     import zipfile
     if args.tools:
@@ -549,7 +563,7 @@ def cmd_pack(args) -> int:
         names = sorted(f.name for f in TOOLS.iterdir() if f.suffix in (".py", ".md"))
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
             for n in names:
-                z.write(TOOLS / n, arcname=n)
+                _zip_add(z, TOOLS / n, n)
         print(f"tools.zip:{len(names)} 檔")
     else:
         pack_dir = pack_dir_of(args)
@@ -558,7 +572,7 @@ def cmd_pack(args) -> int:
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
             for n in PACK_WHITELIST:
                 if (pack_dir / n).exists():
-                    z.write(pack_dir / n, arcname=n)
+                    _zip_add(z, pack_dir / n, n)
             assets = pack_dir / "assets"
             src_map = "assets"
             if not assets.is_dir():
@@ -567,7 +581,7 @@ def cmd_pack(args) -> int:
                 for f in sorted(assets.rglob("*")):
                     if f.is_file():
                         rel = f.relative_to(assets).as_posix()
-                        z.write(f, arcname=f"assets/{rel}")
+                        _zip_add(z, f, f"assets/{rel}")
         print(f"{out.name} 打包完成(素材源:{src_map})")
     bad = [i.orig_filename for i in zipfile.ZipFile(out).infolist()
            if "\\" in i.orig_filename]

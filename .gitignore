@@ -1,29 +1,37 @@
 # 本機產檔沙箱(prepare_env 建立;內容全是 engine/ 的副本,產物一律不進版控)
-ppt_out/
+# 前導斜線 = 只忽略 repo 根的這個目錄,不會誤傷同名子目錄
+/ppt_out/
 
 # Python
 __pycache__/
 *.pyc
-.venv/
-venv/
+/.venv/
+/venv/
+/env/
+/ENV/
 *.egg-info/
-.pytest_cache/
-.ruff_cache/
+/.pytest_cache/
+/.ruff_cache/
 
 # Office 暫存檔:開 .pptx 檢查版面時會產生鎖定檔(~$template.pptx),絕不能 commit
 ~$*.pptx
 ~$*.docx
 ~$*.xlsx
+.~lock.*#
 
 # 作業系統(團隊含 Windows 使用者)
 .DS_Store
 ._*
 Thumbs.db
+ehthumbs.db
 desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.stackdump
 
 # 編輯器 / IDE
-.vscode/
-.idea/
+/.vscode/
+/.idea/
 *.swp
 
 # 一般暫存

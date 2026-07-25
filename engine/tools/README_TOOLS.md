@@ -2,15 +2,17 @@
 
 前置:tools.zip 已解壓到 /mnt/data/tools/,validate_slide_spec_gpts.py 與
 模板包已解壓在 /mnt/data/templates/<模板id>/(預設 light;含 template.pptx、
-manifest.json、bindings.py、page_map.md、assets/)。
+manifest.json、bindings.json、page_map.md、assets/;light 另有 builders-only
+的 bindings.py)。
 
 ## ★ 關鍵事實:11 種註冊頁型完全自動,不需要你寫任何計畫
 
 cover / agenda / closing / story_chapter_statement / stage_dual_track_roadmap
 → 內建版面;vision_goal_center_balance / info_three_column_category /
-data_two_group_metric_comparison / evaluation_option_score_pros_cons /
-pyramid_layered_maturity_detail → 自動填入模板頁(shape id 綁定在模板包
-`templates/light/bindings.py`,經 pack_loader 載入)。
+data_line_trend_comparison(含圖表數據替換)/ data_two_group_metric_comparison /
+evaluation_option_score_pros_cons / pyramid_layered_maturity_detail
+→ 自動填入模板頁(填充綁定在模板包 `bindings.json`,由 fills_engine 解譯;
+light 的內建版面繪製器在 bindings.py)。
 **整份 spec 都是註冊頁型時,流程只有三條指令,你不產任何中間檔。**
 
 ## 標準流程 = 一條指令(run_pipeline 依序跑 稽核→驗證→渲染→QA,任一 FAIL 即停)

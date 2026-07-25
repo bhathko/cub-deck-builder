@@ -37,7 +37,8 @@ cp engine/rules/validate_slide_spec_gpts.py "$RT/"
 
 預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 十一支腳本 +
 README_TOOLS、`templates/light/`(模板包:template.pptx + manifest.json +
-bindings.py + page_map.md + `assets/`)、validator。素材與模板隨包出貨,
+bindings.json + bindings.py + page_map.md + `assets/`)、validator。
+素材與模板隨包出貨,
 `$RT` 根**不再有** `assets/` 與 `light_template.pptx`(工具經 pack_loader
 解析,素材檢查有包內兜底)。
 
@@ -155,14 +156,15 @@ shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 
 上傳 GPTs 的 Knowledge = 這 8 + 2 = **10 個檔**(上限 20,守 ≤19 紀律)。
 
-2026-07-25 基準值(**重打包 zip 後必須更新本節**;Phase 2:tools.zip 十一支
+2026-07-26 基準值(**打包已可重現**:內容沒變重打包 sha 就不變,
+所以本節 sha 變動 = zip 內容真的變了;Phase 2:tools.zip 十一支
 腳本含 fills_engine,template_light.zip 增 bindings.json 等價素材。發佈時
 Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip 與
 新 tools.zip,同步 instructions v2.0):
 
 ```
-45d9bd8cf0d8a0dbb0a16eec8b419bb2afb413de374563ace78bd5e5426c099a  tools.zip
-a8813219312dc92fbfa144110b855a0ee3d9ee2ebfe745deeb83fd60f3eebc46  template_light.zip
+0f28453aff2f46b1b69dcd4311edc77ef6b6c131e6a0e80fe43220c9c8ebb97d  tools.zip
+888c363dd06903cfc3e9713fd3d6d7ae499bf3648591454615a4a5cd4c376faa  template_light.zip
 ```
 
 (2026-07-25 Phase 3:light fills 切換宣告式 bindings.json,bindings.py 瘦身為
@@ -203,7 +205,8 @@ python3 engine/release/template_admin.py freeze --id lightcopy --packs-root "$PR
 python3 engine/release/template_admin.py register --id lightcopy --packs-root "$PR"; echo "register exit=$?"
 ```
 
-預期:register exit=0(lint → 自身 golden 10 頁 PASS 含冪等雙跑 → light
+預期:register exit=0(lint → 自身 golden 12 頁 PASS(6 種 fill 頁型 ×
+min/max;Phase 4 起含 data_line_trend_comparison)含冪等雙跑 → light
 回歸 golden PASS → status=registered)。之後同一份 fill 頁型 spec 分別以
 light 與 `deck.template:"lightcopy"`(帶 `--packs-root "$PR"`)各 render+qa
 一次,兩者皆 PASS 且輸出行分別顯示 `模板包:light@…` 與 `模板包:lightcopy@…`。

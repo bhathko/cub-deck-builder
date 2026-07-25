@@ -1,0 +1,98 @@
+{
+ "deck": {
+  "deck_name": "golden_data_line_trend_comparison_max",
+  "language": "Traditional Chinese",
+  "slide_count": 1,
+  "template": "light"
+ },
+ "slides": [
+  {
+   "number": 1,
+   "page_type": "data_line_trend_comparison",
+   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "render_page_number": true,
+   "assets": {
+    "background": "assets/backgrounds/content_bg.png",
+    "logo": "assets/logos/cathay_logo.png"
+   },
+   "slots": {
+    "categories": [
+     "categori",
+     "categori",
+     "categori",
+     "categori",
+     "categori",
+     "categori",
+     "categori",
+     "categori",
+     "categori",
+     "categori"
+    ],
+    "series": [
+     {
+      "name": "name測測測測",
+      "values": [
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9"
+      ]
+     },
+     {
+      "name": "name測測測測",
+      "values": [
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9",
+       "9.9"
+      ]
+     }
+    ],
+    "rows": [
+     {
+      "heading": "heading測",
+      "cells": [
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測",
+      "cells": [
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測",
+      "cells": [
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測",
+       "cells測測測測測測測測測測測測測測測"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

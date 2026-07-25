@@ -8,7 +8,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 > **狀態:已啟用(2026-07-25,Phase 2 落地)。** 架構與工具鏈規格見
 > `docs/TEMPLATE_PACKS.md`;工具鏈 = `engine/release/template_admin.py`
 > (new/freeze/lint/golden/register/pack/isolation/list)+
-> `engine/tools/fills_engine.py`(6-op 解譯器),light 五種 fill 頁型的
+> `engine/tools/fills_engine.py`(op 解譯器,v1.1 為 7 op 含 chart),light 五種 fill 頁型的
 > 宣告式重寫已通過 shape 樹全等驗證(含 min 刪格與 max 溢出路徑)。
 > 帶 pptx 操作的子命令(new/freeze/golden/register)依 prepare_env
 > 提示加渲染前綴(如 `uv run --with python-pptx python`)。
@@ -24,7 +24,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 
 規則本體的單一真相來源(相對 repo 根;本檔只留摘要,不複製規則):
 
-- `docs/TEMPLATE_PACKS.md` — 模板包結構、manifest 欄位、6-op 詞彙表、驗收與發佈規則
+- `docs/TEMPLATE_PACKS.md` — 模板包結構、manifest 欄位、op 詞彙表、驗收與發佈規則
 - `engine/rules/validate_slide_spec_gpts.py` `PAGE_TYPES` — fill 級頁型候選集
 - `engine/rules/page_types.md` — clone 級頁型候選集(語意分類與容量)
 - `engine/tools/README_TOOLS.md` — 工具鐵律與錯誤修法慣例

@@ -1,0 +1,17 @@
+# 團隊含 Windows 使用者:文字檔一律以 LF 進版控,避免 CRLF 汙染 diff 與
+# zip 內容(zip 打包的位元組差異會讓 sha 基準失效)
+* text=auto eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.gitattributes text eol=lf
+*.gitignore text eol=lf
+
+# 二進位:不做行尾轉換、不嘗試 diff
+*.pptx binary
+*.docx binary
+*.xlsx binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.ico binary

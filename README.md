@@ -15,7 +15,7 @@ docs/              治理文件(架構設計、決策紀錄、維護手冊、回
 
 | 你是誰 / 想做什麼 | 讀這個 |
 | --- | --- |
-| **第一次接手這個 repo** | [`docs/WORKLOG.md`](docs/WORKLOG.md)(決策脈絡與已知風險)→ [`AGENTS.md`](AGENTS.md)(硬規則) |
+| **第一次接手這個 repo** | ① 跑一次下方「本機產一份簡報」(眼見為憑)→ ② [`AGENTS.md`](AGENTS.md)(11 條硬規則,唯一必背)→ ③ [`docs/WORKLOG.md`](docs/WORKLOG.md)(先掃章節標題,要查「為什麼不那樣做」再深讀) |
 | **在這個 repo 工作的 agent** | [`AGENTS.md`](AGENTS.md) 是流程契約;Claude Code 另見 [`CLAUDE.md`](CLAUDE.md) |
 | **要改規則 / 加模板 / 發新版** | [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md)(三處同步、重打包、發佈 checklist) |
 | **想懂多模板架構怎麼設計的** | [`docs/TEMPLATE_PACKS.md`](docs/TEMPLATE_PACKS.md)(模板包公式、op 詞彙表、註冊流程) |
@@ -23,15 +23,22 @@ docs/              治理文件(架構設計、決策紀錄、維護手冊、回
 | **設計師 / 非技術同事** | [`docs/給設計師的白話說明.md`](docs/給設計師的白話說明.md)(白話版:這東西在做什麼、怎麼提需求) |
 | **產出不如預期、想回報問題** | [`docs/FEEDBACK.md`](docs/FEEDBACK.md)(怎麼回饋才會真的變好 + 台帳) |
 | **發版前要跑回歸** | [`engine/REGRESSION.md`](engine/REGRESSION.md)(R0–R10 可執行案例) |
+| **產檔被閘門擋下、看到 ERROR** | [`engine/tools/README_TOOLS.md`](engine/tools/README_TOOLS.md)(錯誤→修法對照表,每種錯只有一種修法) |
+| **要寫 / 看懂 slide_spec.json** | [`engine/rules/page_types_registry.md`](engine/rules/page_types_registry.md)(11 種註冊頁型的槽位契約) |
+| **想知道現在有哪些模板可用** | [`engine/templates/INDEX.md`](engine/templates/INDEX.md),或跑 `python engine/tools/make_skeleton.py --list` |
 
 ## 常用工作
 
 **本機產一份簡報**(需 Python 3;渲染需 python-pptx,沒裝可用 `uv run --with python-pptx`):
 
 ```
-python .codex/skills/outline-to-ppt/prepare_env.py     # 建 ppt_out/ 沙箱(模擬 GPTs /mnt/data 佈局)
-python ppt_out/tools/run_pipeline.py --spec ppt_out/slide_spec.json --asset-dir ppt_out --out ppt_out/deck.pptx
+python .codex/skills/outline-to-ppt/prepare_env.py                      # ① 建 ppt_out/ 沙箱(模擬 GPTs /mnt/data 佈局)
+cp engine/examples/01_minimal_4p.json ppt_out/slide_spec.json           # ② 拿一份現成 spec(或用 make_skeleton 產骨架自己填)
+python ppt_out/tools/run_pipeline.py --spec ppt_out/slide_spec.json --asset-dir ppt_out --out ppt_out/deck.pptx   # ③ 驗證→渲染→QA
 ```
+
+(渲染階段需 python-pptx;沒裝就把 ③ 的 `python` 換成
+`uv run --with python-pptx python`——prepare_env 會印出該用哪個前綴。)
 
 流程細節見 [`.codex/skills/outline-to-ppt/SKILL.md`](.codex/skills/outline-to-ppt/SKILL.md);
 所有命令都是單行 python,**macOS / Linux / Windows PowerShell / cmd 通用**。
@@ -49,7 +56,7 @@ spec 內的素材路徑(`assets/backgrounds/...`)一律以 `--asset-dir` 為根�
 | 路徑 | 內容 |
 | --- | --- |
 | `engine/rules/` | 共用語意契約 SSOT:驗證器(`PAGE_TYPES`)、schema、頁型庫、風格規範 |
-| `engine/tools/` | 引擎腳本 ×11(渲染、驗證、自檢、盤點;改完重打 `gpts/dist/tools.zip`) |
+| `engine/tools/` | 引擎腳本 ×11 + `README_TOOLS.md`(模型速查卡與錯誤修法表);改完重打 `gpts/dist/tools.zip` |
 | `engine/templates/<id>/` | 模板包:模板本體 + manifest + 綁定 + 素材(light 為第一個包) |
 | `engine/release/` | 維護者工具:`template_admin.py`(註冊/驗收/打包)、`wireframe_preview.py` |
 | `engine/golden/` | 黃金驗收 fixtures(自契約派生,對註冊流程唯讀) |

@@ -61,6 +61,8 @@ skill 帶著跑盤點→映射→綁定→黃金驗收→註冊)。
 
 > 註冊/改動在 repo 端完成後,發佈是**人工步驟**,逐項勾:
 
+0. □ 頁型數量若有變動,掃一次文件內的「N 種註冊頁型」數字
+   (`grep -rn "種註冊頁型\|種全自動" --include="*.md" .`)
 1. □ 該模板包 REGRESSION 綠 + `engine/REGRESSION.md` R0–R10 全符
 2. □ `python engine/release/template_admin.py isolation` 白名單過
    (模板目錄外的改動已拆 commit)
@@ -78,8 +80,7 @@ skill 帶著跑盤點→映射→綁定→黃金驗收→註冊)。
 
 - **真相來源永遠是 repo**:先改 repo、commit,再由管理者同步到 GPT Builder。
   不要直接在 Builder 裡改完就算——下次同步會被 repo 版蓋掉。
-- **模板隔離**:涉及模板 X 的 commit 只准觸碰 `engine/templates/X/**`、
-  `gpts/dist/template_X.zip`、`engine/templates/INDEX.md`、
-  `gpts/instructions.md`(版本字串/roster 行);越界改動拆 commit
-  (`template_admin.py isolation` 機器驗證)。
+- **模板隔離**:白名單四項以 [`AGENTS.md`](../AGENTS.md) 硬規則 10 為準
+  (本檔不複述,避免漂移);越界改動拆 commit,
+  以 `python engine/release/template_admin.py isolation` 機器驗證。
 - **本機產物**(`ppt_out/`)一律進 gitignore,嚴禁 commit。

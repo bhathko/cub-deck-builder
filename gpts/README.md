@@ -31,7 +31,8 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `pptx_toolkit.py`     | 投影片複製(含 rels 重映射,圖不破)/刪除/排序/清 Section              |
 | `text_tools.py`       | 群組內層文字替換(保留原字級顏色)、CJK 溢出估算、縮字                |
 | `pack_loader.py`      | 模板包載入器:解析 `deck.template` → 載入 `templates/<id>/` 綁定       |
-| `fill_helpers.py`     | 填充引擎共用件(Ctx/fill_rows 等;頁型填充實作在 light 包 bindings.py) |
+| `fill_helpers.py`     | 填充共用件(Ctx/fill_rows/素材解析);builtin 繪製器在 light 包 bindings.py  |
+| `fills_engine.py`     | bindings.json 解譯器:宣告式 op(v1.1 共 7 個含 chart)驅動各包的 fill 填充 |
 | `inspect_template.py` | 模板盤點:`--summary` 全冊一頁一行、`--page N` 單頁形狀樹(省 token)  |
 | `render_deck.py`      | 主程式:spec(+選配 plan)→ pptx,**冪等整檔重生**;5 種頁型內建版面     |
 | `qa_check.py`         | 產檔後自檢:內容覆蓋/頁數/Section/字體/頁碼/溢出,只印問題            |
@@ -73,7 +74,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `../docs/給設計師的白話說明.md`         | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
 | `../docs/FEEDBACK.md`                   | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
 | `feedback_evidence/`                    | GPT Builder 實測對話逐字稿(FEEDBACK 台帳引用的證據)                       | 不上傳,留在 repo                 |
-| `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R8 可執行案例與預期結果                                | 不上傳,留在 repo                 |
+| `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R10 可執行案例與預期結果                                | 不上傳,留在 repo                 |
 | `../docs/WORKLOG.md`                    | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
 ## 建置步驟(約 15 分鐘)

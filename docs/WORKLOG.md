@@ -807,3 +807,53 @@ WORKLOG §8 第二級的引擎落地 + 第一個 chart fill 頁型:
 - **.gitignore 擴充**:`~$*.pptx`(開 pptx 檢查版面時的 Office 鎖定檔,
   最可能誤 commit)、Windows 產物(Thumbs.db/desktop.ini——團隊有 Windows
   使用者)、macOS `._*`、Python 虛擬環境與快取、IDE 目錄、一般暫存。
+
+### 23.1 整理後的對抗性稽核與修正(2026-07-26)
+
+三視角稽核(過時敘述獵人 / 新人導覽測試員 / 版控衛生稽核員)提出 42 項,
+逐條查證後修掉的重點——**其中多數是 Phase 2–4 累積的漂移,不是本次整理造成的**:
+
+- **上傳給模型讀的知識檔有錯(最高優先)**:`README_TOOLS.md` 標題寫「11 種
+  註冊頁型」卻只列 10 種(漏 Phase 4 的 data_line_trend_comparison),且說
+  「shape id 綁定在 bindings.py」(Phase 3 起實際是 bindings.json)。模型照
+  這份會把折線趨勢頁誤判成未涵蓋頁型而去寫 render_plan。
+- **環境檢查清單四處只列 `bindings.py`**(instructions Step 0、
+  outline_to_ppt_skill、REGRESSION R0):非 light 包規範上不得有 builtin、
+  只有 bindings.json,照舊清單檢查會誤判「環境缺檔」。已全部改為 bindings.json
+  (light 另有 builders-only 的 .py)。
+- **README 的三行上手命令實際跑不起來**(prepare_env 不會產生 slide_spec.json)
+  → 補上「拿一份現成 spec」那步並實測整條可跑。
+- **style_guide.md 還留著舊管線行為**:「先產逐頁預覽圖 → 停下來問使用者 →
+  才產正式 my_project.pptx」——與現行「不生圖、一鍵模式禁中途確認」直接打架,
+  且 my_project/ 早於 2026-07-20 移除。整節改寫為 run_pipeline 單一入口 +
+  交付判準;順帶清掉最後一處 style_reference 懸空路徑。
+- **golden fixtures 缺 Phase 4 頁型**:`--regen-specs` 沒在加 chart 頁型後重跑,
+  20 → 22 檔補齊(「契約漂移證據」對第 11 種頁型原本是空的)。
+- **R9 預期頁數過時**(10 → 12 頁,6 種 fill × min/max);gpts/README 工具表
+  漏 `fills_engine.py`、R0–R8 → R0–R10;抽章節後的懸空指向(gpts/README「見
+  下方維護節」、TEMPLATE_LIFECYCLE 指 gpts/README 維護節、examples/README 指
+  不存在的 engine/README.md);白話說明還在講已退役的 fills.py;
+  register skill 的 6-op vs 鐵律 7-op 自相矛盾。
+- **導覽補強**:README 表格補「被閘門擋下看 README_TOOLS」「要寫 spec 看
+  registry」「有哪些模板看 INDEX」三列,第一列改為有序三步;白話說明新增
+  「想換一整套版型?——新增模板包」一節(設計師只做三件事:交 pptx、
+  用嘴回答頁型、目檢點頭)。
+- **版控衛生**:
+  - **打包改為可重現**(`_zip_add` 固定 1980-01-01 時戳與權限):過去 zip 記錄
+    檔案 mtime,每次重打包 sha 都變 → git 每次多一個 19MB blob(歷史已累積
+    17 個 zip blob、125MB)。改完後「內容沒變 → sha 不變 → git 不產生新 blob」,
+    R7 的 sha 基準也終於等於「內容是否變動」。實測連打兩次 sha 相同。
+  - 新增 `.gitattributes`(`* text=auto eol=lf` + 二進位標記):團隊有 Windows
+    使用者,CRLF 會汙染 diff 也會讓 zip 位元組漂移。
+  - `.gitignore` 補錨定(`/ppt_out/` 等只忽略 repo 根)與 Windows/Office 項
+    (`.~lock.*#`、`ehthumbs.db`、`$RECYCLE.BIN/`、`*.lnk`、`*.stackdump`)。
+    實測 `git check-ignore` 對全部追蹤檔零誤傷。
+- **驗收**:R0–R10 全綠、golden 12 頁 PASS、lint --all 綠、R2b 產出 vs 原始
+  基準 shape 樹仍全等、README 三行命令實測 PASS、連結 0 失效、孤兒文件 0。
+
+**待使用者決定(未動)**:①`gpts/dist/*.zip` 是否改為 gitignore(打包已可
+重現,重要性大降,但 clone 後要跑一行 pack 才有可上傳的 zip);②歷史瘦身
+(`git filter-repo` 移除舊 zip blob 可讓 .git 從 ~190MB 降到 ~60MB,但**改寫
+已 push 的歷史**,團隊其他 clone 要重來);③`cover_bg.png` 11.3MB 偏大
+(1920×1080 + 去 alpha + oxipng 預估可降到 1MB 級,連帶 template.pptx、
+zip、demo_output 各省約 10MB),但那是設計師的素材,壓縮牽涉畫質。

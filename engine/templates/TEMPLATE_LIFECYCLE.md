@@ -16,8 +16,8 @@
    - 之前(light 現行):本機跑根 REGRESSION R2/R3/R8 + 包內 R-L0~R-L2,
      產出開檔目檢五個 fill 頁型。
 5. **版本**:manifest `version` bump(`YYYY-MM-DD.N`)+ `INDEX.md` 更新。
-6. **打包發佈**:照 `gpts/README.md` 維護節重打對應 zip、更新 instructions
-   版本字串、Builder 刪舊傳新。sha 不符 = 盤點未完成,不得發版。
+6. **打包發佈**:照 [`docs/MAINTENANCE.md`](../../docs/MAINTENANCE.md) §2 重打
+   對應 zip、§5 走發佈 checklist(instructions 版本字串、Builder 刪舊傳新)。sha 不符 = 盤點未完成,不得發版。
 
 **契約改版連動**(PAGE_TYPES 改動時):golden fixtures 重派生 →
 **全部已註冊包 golden 重跑**;有包由綠轉紅(裝不下新容量)→ 該頁型降級

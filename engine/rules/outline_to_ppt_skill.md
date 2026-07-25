@@ -52,7 +52,8 @@ unzip -o /mnt/data/template_light.zip -d /mnt/data/templates/light
 
 `tools.zip` 的工具檔位於壓縮檔根目錄,所以目的地必須是明確建立的
 `/mnt/data/tools`,不要直接解到 `/mnt/data`;`template_light.zip` 是模板包
-(template.pptx、manifest.json、bindings.py、page_map.md、assets/),解到
+(template.pptx、manifest.json、bindings.json、page_map.md、assets/;light 另有
+builders-only 的 bindings.py),解到
 明確建立的 `/mnt/data/templates/light`(多模板架構;使用者指名其他模板時
 改解對應的 `template_<模板id>.zip`,見下方「模板選擇」)。
 
@@ -66,7 +67,7 @@ path separators` 警告並回非零結束碼，但檔案仍會正確解出。環
 
 - `/mnt/data/templates/light/template.pptx`
 - `/mnt/data/templates/light/manifest.json`
-- `/mnt/data/templates/light/bindings.py`
+- `/mnt/data/templates/light/bindings.json`
 - `/mnt/data/templates/light/assets/backgrounds/content_bg.png`
 - `/mnt/data/templates/light/assets/backgrounds/cover_bg.png`
 - `/mnt/data/templates/light/assets/logos/cathay_logo.png`

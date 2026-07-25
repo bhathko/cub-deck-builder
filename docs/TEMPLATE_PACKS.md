@@ -3,6 +3,9 @@
 > **用途**:多模板架構的設計藍圖與實作依據——模板包長什麼樣、綁定怎麼寫、
 > 新模板怎麼註冊、驗收與發佈怎麼把關。
 > **讀者**:要改引擎、加模板、或想懂「為什麼是這個設計」的人。
+> **時點**:本檔以 2026-07-25 設計時書寫,§0 的「現況位置」欄與 §8 遷移計畫
+> 都是**當時**狀態(已全數落地)。查現況請看 `engine/templates/INDEX.md`
+> (有哪些包)與各包 `manifest.json`(機器真相)。
 > **何時讀**:動 `engine/templates/` 或 `fills_engine` 之前;
 > 日常維護的操作步驟另見 [`MAINTENANCE.md`](MAINTENANCE.md)。
 
@@ -156,7 +159,8 @@ light 的 fills.py/BUILDERS 原封 grandfather,不重寫。**
 - **混合(宣告式+Python hook 逃生口)**:否決——現有 5 個 fill 函式每個都含
   至少一項特例,逃生口使用率會是 100%,等於 Python 加一層儀式。
 
-op 詞彙表固定 6 個,自 fills.py 現有特例逐條歸納(**下表形式欄位為節錄,
+op 詞彙表固定(v1.0 為 6 個填充 op;v1.1 起 7 個含 chart,見本節末),
+自 fills.py 現有特例逐條歸納(**下表形式欄位為節錄,
 完整欄位以 Phase 2 的 bindings schema 為準**;p17 溢出與 p33 建議列
 需要的修飾詞已列入,見表後註):
 
@@ -170,7 +174,7 @@ op 詞彙表固定 6 個,自 fills.py 現有特例逐條歸納(**下表形式欄
 | `add_textbox` | p54 無副標佔位→動態補建;p33 建議列(recommended+recommendation 串接、前綴「建議:」、皆空不建框) | `{"op":"add_textbox","slots":["$.slots.recommended","$.slots.recommendation"],"prefix":"建議:","join":"、","skip_if_empty":true,"x":0.85,"y":6.42,"w":11.8,"h":0.36,"pt":14,"bold":true}`(字型取 manifest `style.font_zh`) |
 | `resize` | p14 中心圓文字框加高讓長句留在圓內 | `{"op":"resize","id":37,"top":3.25,"height":1.00}` |
 
-(`keep` 不算填充 op,是覆蓋宣告;詞彙表計數仍以 6 個填充 op 為準。)
+(`keep` 不算填充 op,是覆蓋宣告;填充 op 計數 v1.0=6、v1.1=7(+chart)。)
 
 三個配套原則:
 
