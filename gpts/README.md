@@ -77,6 +77,8 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R10 可執行案例與預期結果                                | 不上傳,留在 repo                 |
 | `../docs/WORKLOG.md`                    | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
+> 已經建好、只是要發新版?直接用 [`DEPLOY.md`](DEPLOY.md)(一頁操作稿)。
+
 ## 建置步驟(約 15 分鐘)
 
 1. ChatGPT(需 Plus/Team/Enterprise)→ 頭像選單 → **My GPTs → Create a GPT**,

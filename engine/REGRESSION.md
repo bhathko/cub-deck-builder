@@ -164,7 +164,7 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 
 ```
 0f28453aff2f46b1b69dcd4311edc77ef6b6c131e6a0e80fe43220c9c8ebb97d  tools.zip
-888c363dd06903cfc3e9713fd3d6d7ae499bf3648591454615a4a5cd4c376faa  template_light.zip
+c354fe0194860f3b7a5147f2a82995b3ad1f5f71e67d5c4eb142cd695fd1046f  template_light.zip
 ```
 
 (2026-07-25 Phase 3:light fills 切換宣告式 bindings.json,bindings.py 瘦身為

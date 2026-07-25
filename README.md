@@ -19,7 +19,8 @@ docs/              治理文件(架構設計、決策紀錄、維護手冊、回
 | **在這個 repo 工作的 agent** | [`AGENTS.md`](AGENTS.md) 是流程契約;Claude Code 另見 [`CLAUDE.md`](CLAUDE.md) |
 | **要改規則 / 加模板 / 發新版** | [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md)(三處同步、重打包、發佈 checklist) |
 | **想懂多模板架構怎麼設計的** | [`docs/TEMPLATE_PACKS.md`](docs/TEMPLATE_PACKS.md)(模板包公式、op 詞彙表、註冊流程) |
-| **要在 ChatGPT 建這個 GPT** | [`gpts/README.md`](gpts/README.md)(上傳什麼、怎麼設定、驗收測試) |
+| **要在 ChatGPT 建這個 GPT** | [`gpts/README.md`](gpts/README.md)(上傳什麼、怎麼設定、能力邊界) |
+| **要發版 / 換裝 GPT Builder** | [`gpts/DEPLOY.md`](gpts/DEPLOY.md)(一頁操作稿:刪什麼、傳什麼、8 條驗收指令原文) |
 | **設計師 / 非技術同事** | [`docs/給設計師的白話說明.md`](docs/給設計師的白話說明.md)(白話版:這東西在做什麼、怎麼提需求) |
 | **產出不如預期、想回報問題** | [`docs/FEEDBACK.md`](docs/FEEDBACK.md)(怎麼回饋才會真的變好 + 台帳) |
 | **發版前要跑回歸** | [`engine/REGRESSION.md`](engine/REGRESSION.md)(R0–R10 可執行案例) |
