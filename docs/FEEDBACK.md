@@ -23,7 +23,7 @@
 
 | 症狀 | 改哪裡 |
 | --- | --- |
-| 文字溢出、字級跑掉 | `gpts/instructions.md` 溢出規則,或調低 `engine/rules/page_types_registry.md` 該欄位字數上限 |
+| 文字溢出、字級跑掉、文字壓到隔欄 | **跑 `template_admin.py fit --id <包>` 重新量測**,它會寫進該包 `capacity_overrides` 並重生 registry 的容量表。**不要手改 registry 的容量表或 capacity_overrides**(會被下次 fit 覆蓋);fit 說「放不下」= 版位真的不夠 → 降級該頁型或請設計師改版位 |
 | 版面跟模板不像、元素亂跑 | `engine/rules/page_types.md` 該頁型的「視覺結構」描述補細節(位置、比例講死) |
 | 配色、卡片樣式、logo/頁碼不對 | `engine/rules/style_guide.md` 補規則;色值本身改該模板包 manifest 的 `style` |
 | 明顯違規的 JSON 沒被擋 / 合規的被誤擋 | `engine/rules/validate_slide_spec_gpts.py`(三處同步,見 [`MAINTENANCE.md`](MAINTENANCE.md)) |
@@ -47,3 +47,4 @@
 | 範例 | 2026-07-20 | light | v1.0-20260720 | (示範) | 第 3 頁三欄卡片間距過擠,與模板第 17 頁不符 | (連結) | 「參考模板第 17 頁,三欄等寬、欄距加大重排」 | 已規則化(page_types.md)→ 待發版 |
 | 1 | 2026-07-21 | 指示 | (未確認,疑似舊版指示) | 擁有者 | 餵 fixture 06:①開場即拒絕「無法如實聲稱已完成內部流程」並改用 python-pptx 手產簡報;②被質問後才背出正確流程(證明 v1.8+ 知識檔已上傳、工具解壓成功);③要求照流程時拋 A/B 選單問圖表頁怎麼處理(skill 已定案不該問) | repo `gpts/feedback_evidence/2026-07-21-feedback01-builder-chat.txt` | 「妳沒有用腳本產嗎」「請照我們的流程生產」 | 已規則化(v1.10)+根因確認:Builder 未指定模型路由到輕量模型;指定 GPT-5.6 Pro 後全流程完美(2026-07-21)。規則保留作弱模型防線 |
 | 2 | 2026-07-21 | 指示 | (未確認) | 擁有者 | 再餵 fixture 06:①同款開場拒絕後手產一份只有空白頁+文字的 pptx,還推銷 SmartArt/風格選項(違規則 5);②要求用腳本時**反要使用者上傳 run_pipeline.py 等工具**(檔案就在它的知識庫);③實際查看 /mnt/data 確認工具都在後,又以「tools.zip 沒有 outline→spec 腳本」為由卡住要使用者給 slide_spec.json——填骨架本是模型份內工作;多次重複要求後才跑 skill | repo `gpts/feedback_evidence/2026-07-21-feedback02-builder-chat.txt` | 「幫我產生ppt」「請用腳本幫我產生 ppt」「我有給妳呀」 | 已規則化(v1.11)+根因確認:同 #1,模型等級問題;指定 GPT-5.6 Pro 後全流程完美(2026-07-21)。規則保留作弱模型防線;README 建置步驟已加「務必指定最強模型」 |
+| 3 | 2026-07-26 | light | v2.1-20260726 | 設計師(目檢 golden) | 一次加開 10 個頁型後目檢驗收檔:①p2/4/6/8/10/20 字級明顯變小且大小不一 ②p22 三段說明文字疊在一起、p10 說明文字壓到右側面板、p30 徽章壓到隔欄說明 ③p4 第三欄只有 4 條、另兩欄 5 條 ④p23/24 步驟編號「01」在單字寬的徽章裡折行破版。**當時 lint / validator / qa 全綠** | golden_light.pptx 目檢截圖(對話內) | 「原本的字體大小是被設計過的,縮字反而造成了破版」「不是 autofit 沒超過,是 autofit 後跑到了不該出現字的位置」 | 已規則化:①渲染器不再縮 autofit 框字級、容量改由 `fit` 量測(ARCHITECTURE §7.3、REGRESSION R12)②qa 新增「文字壓到別的元素」FAIL 級檢查 ③平行欄位格位數對稱由 fit 從綁定推導 ④`number` 契約收成 T(1)。另修 qa 靜默只印前 5 條(實際 79 條)與估算器三處誤判。待發版 |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""text_tools — 文字框的搜尋、替換(保留樣式)與 CJK 溢出估算。
+"""text_tools — 文字框的搜尋、替換(保留樣式)、CJK 溢出估算與碰撞偵測。
 
 設計重點:
 - 替換文字時 deepcopy 原本第一個 run 的 rPr / 段落的 pPr,字級、顏色、粗細、
@@ -7,6 +7,9 @@
 - 沙箱沒有中文字體,無法真量測;estimate_overflow 用「CJK 字寬 ≈ 1em、
   半形 ≈ 0.55em、行高 ≈ 1.3em」啟發式估算,寬鬆容忍(超過 8% 才判溢出)。
 - 所有函式都吃 shape 物件,群組請先用 iter_text_shapes 展開。
+- 溢出估算分縱向(折行超出框高)與橫向(wrap="none" 往旁邊長)兩軸。
+- 碰撞偵測(walk_absolute / text_footprint / text_collisions)算的是「文字跑到
+  別人的位置上」——那才是真正的破版,單框「裝得下」判不出來。
 """
 from __future__ import annotations
 

@@ -70,6 +70,8 @@ render_plan.json 只放未涵蓋的頁,其餘頁不用列:
 | audit:數字 token 無精確對應 | 同捏造數字處理;禁止改 slides.md 來遷就 spec |
 | render:UNMATCHED / AMBIGUOUS | inspect --page N 重查,只改該條 plan 的 match(id 優先,撞多筆加 nth) |
 | `頁型 'X' 不受模板 'Y' 支援` / 非全自動 | 換該包全自動頁型(`make_skeleton.py --list --template-pack Y` 查),或整份換 deck.template,或請管理者回註冊流程補;禁止硬用 clone 繞過 |
+| qa FAIL:`文字壓到別的元素` | 該槽位內容太長,文字跑出自己的框壓到隔欄(訊息會給頁碼與 shape id)。**縮短那個槽位**再整條重跑。這是 FAIL 不是 WARN,不可交付;也**不要**改成別的頁型繞過 |
+| qa WARN:`溢出疑慮共 N 條` | 沙箱估算,先看它列的最嚴重幾條;真的過長就縮短。這是 WARN,PASS 仍可交付但要提醒使用者開檔確認 |
 | render:FillError(註冊頁型) | 唯一不修的錯:停止並回報維護者(模板改版問題) |
 
 每輪 = 修正 → 整條重跑 run_pipeline。三輪內禁止宣稱「無法繼續」、禁止跳過失敗

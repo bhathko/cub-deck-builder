@@ -279,8 +279,8 @@
 | evaluation_option_score_pros_cons | `options[].name` | ≤24 字 | **≤9 字** |
 | evaluation_option_score_pros_cons | `options[].pros` | 1–4 項 | **1–2 項** |
 | evaluation_option_score_pros_cons | `options[].pros[]` | ≤60 字 | **≤20 字** |
-| evaluation_option_score_pros_cons | `recommendation[]` | ≤40 字 | **≤7 字** |
-| evaluation_option_score_pros_cons | `recommended` | ≤20 字 | **≤7 字** |
+| evaluation_option_score_pros_cons | `recommendation[]` | ≤40 字 | **≤11 字** |
+| evaluation_option_score_pros_cons | `recommended` | ≤20 字 | **≤11 字** |
 | evaluation_option_score_pros_cons | `subtitle` | ≤60 字 | **≤50 字** |
 | info_card_grid | `subtitle` | ≤60 字 | **≤50 字** |
 | info_horizontal_explanation_rows | `rows[].points` | 1–3 項 | **1–2 項** |

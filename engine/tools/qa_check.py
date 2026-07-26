@@ -12,10 +12,15 @@ pptx」。兩道都過,才交付給使用者。
     - 頁數與 spec / deck.slide_count 不符
     - spec 槽位文字沒有出現在對應頁(內容遺漏或沒替換到)
     - 殘留 PowerPoint Section
+    - 文字壓到別的元素:文字實際佔用範圍互相重疊,判準是**不得比模板原本
+      更侵入鄰欄**(模板有幾處刻意疊在一起,絕對零重疊會誤殺)。
+      「裝得進自己的框」不等於版面沒壞——wrap="none" 的框往右長、
+      autofit 的框往下長,都會壓到鄰欄
   WARN(人工判斷):
-    - 字體非 Microsoft JhengHei / Helvetica 的 run
+    - 字體不在該包 style.allowed_fonts 的 run
     - 頁碼缺漏或不該有頁碼的頁出現頁碼
-    - 文字溢出疑慮(CJK 啟發式估算,列最嚴重前 5)
+    - 文字溢出疑慮(CJK 啟發式估算;先報總量與受影響頁,再列最嚴重 5 條,
+      完整清單加 --overflow-all)
 
 輸出精簡:只印問題;全部通過就一行 PASS。修法一律是改 render_plan.json /
 slide_spec.json 後重跑 render_deck(整檔重生),不要手改 pptx。

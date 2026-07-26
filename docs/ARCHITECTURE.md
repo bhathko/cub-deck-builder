@@ -19,10 +19,10 @@ engine/     主程序——產 pptx 的一切
   tools/       引擎腳本 ×11(渲染、驗證、自檢、盤點;打包成 tools.zip 出貨)
   templates/   模板包(一模板一目錄;light 為第一個包)
   golden/      契約快照(全頁型 × min/max;非實跑素材,見 §7.1)
-  release/     維護者工具(template_admin.py 註冊工具鏈、wireframe_preview.py)
+  release/     維護者工具(template_admin.py 註冊工具鏈、fit_capacity.py 容量量測、wireframe_preview.py)
   examples/    試用範例與 fixture
 gpts/       前端 1:ChatGPT GPTs(instructions + dist/ 上傳 zips + 建置手冊)
-.codex/skills/  前端 2:本機 CLI(outline-to-ppt 產檔、register-template 註冊模板)
+.codex/skills/  前端 2:本機 CLI(outline-to-ppt 產檔、register-template 註冊新模板、add-page-types 加開頁型)
 docs/       文件
 ```
 

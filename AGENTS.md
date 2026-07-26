@@ -52,8 +52,10 @@
    或改寫 Python);必過 `template_admin.py lint`(含全覆蓋原則)+ `golden`
    (min/max 渲染+qa+連跑兩次 shape 樹全等)才可 register。模板包無權新增
    語意頁型;golden fixtures(`engine/golden/`)對註冊流程唯讀。
-10. **模板隔離與註冊入口**:`.codex/skills/register-template/` 是唯一註冊
-    入口(GPTs 端只消費模板包,沙箱無持久化);涉及模板 X 的 commit 只准
+10. **模板隔離與註冊入口**:註冊一律走 skill,不在對話裡手做——
+    `.codex/skills/register-template/`(新模板從零建包)與
+    `.codex/skills/add-page-types/`(既有模板加開頁型)是**兩個**入口,
+    分工見各自檔頭;GPTs 端只消費模板包,沙箱無持久化。涉及模板 X 的 commit 只准
     觸碰 `engine/templates/X/**`、`gpts/dist/template_X.zip`、
     `engine/templates/INDEX.md`、`gpts/instructions.md`(版本字串/roster 行),
     以 `template_admin.py isolation` 機器驗證,越界改動拆 commit。

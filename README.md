@@ -7,7 +7,7 @@
 ```
 engine/            主程序:產 pptx 的一切(工具、規則、模板包、golden、回歸)
 gpts/              前端 1:ChatGPT GPTs 發佈包(建置手冊、instructions、上傳 zips)
-.codex/skills/     前端 2:本機 CLI(outline-to-ppt 產檔、register-template 註冊模板)
+.codex/skills/     前端 2:本機 CLI(outline-to-ppt 產檔、register-template 註冊新模板、add-page-types 加開頁型)
 docs/              文件(先看 docs/README.md 挑一份;架構/維護/決策史/回饋/設計師手冊)
 ```
 
@@ -60,7 +60,7 @@ spec 內的素材路徑(`assets/backgrounds/...`)一律以 `--asset-dir` 為根�
 | `engine/rules/` | 共用語意契約 SSOT:驗證器(`PAGE_TYPES`)、schema、頁型庫、風格規範 |
 | `engine/tools/` | 引擎腳本 ×11 + `README_TOOLS.md`(模型速查卡與錯誤修法表);改完重打 `gpts/dist/tools.zip` |
 | `engine/templates/<id>/` | 模板包:模板本體 + manifest + 綁定 + 素材(light 為第一個包) |
-| `engine/release/` | 維護者工具:`template_admin.py`(註冊/驗收/打包)、`wireframe_preview.py` |
+| `engine/release/` | 維護者工具:`template_admin.py`(註冊/驗收/打包/量容量)、`fit_capacity.py`(版位容量量測,`fit` 子命令的實作)、`wireframe_preview.py` |
 | `engine/golden/` | 黃金驗收 fixtures(自契約派生,對註冊流程唯讀) |
 | `engine/examples/` | 試用範例 JSON ×4 + 大綱 fixture + 實測產出 pptx |
 | `gpts/dist/` | 上傳 GPTs 的打包產物(tools.zip、template_*.zip) |

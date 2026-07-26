@@ -163,8 +163,8 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-f990b5c8d70bf28230660a4d25a28e479460bee461ae26afc0aa53c9c59f0474  tools.zip
-baa413ef3f3e68a9aec224405ea7cf79974ce4a9c8d7c03f29390d821db92fc6  template_light.zip
+c5737f139359dcef3931d4d197243a23f2ca1e3a0ef9af98202139693bc40b69  tools.zip
+9748436d31db51380423f88a5355c300f0912b18d5e6a6cf079fc19c32463b85  template_light.zip
 ```
 
 (2026-07-26 碰撞判準:設計師目檢 p4/p10/p22/p30 指出「不是 autofit 沒超過,
@@ -173,7 +173,7 @@ baa413ef3f3e68a9aec224405ea7cf79974ce4a9c8d7c03f29390d821db92fc6  template_light
 另修 info_three_column_category 第三欄只有 4 格(另兩欄 6 格)造成的三欄不對稱。)
 
 (2026-07-26 誠實容量:改採「字級是設計過的,塞不下要改稿或換頁型,不縮字」
-原則。渲染器不再縮 autofit 框的字級;light 的 43 條 capacity_overrides 由
+原則。渲染器不再縮 autofit 框的字級;light 的 45 條 capacity_overrides 由
 template_admin 依模板實際版位量測後產生(非人工填)。結果:contract 上限時
 被縮字的框 99 → 0、qa 溢出警告 79 → 0。字體白名單補齊模板自用字型。)
 
@@ -283,7 +283,7 @@ python engine/release/template_admin.py fit --id light --reset
 ```
 
   它會反覆「跑 golden → 找出被縮字/侵入鄰欄的框 → 收緊上限」直到四個訊號
-  全部歸零。演算法與 9 個已知量測陷阱見 `engine/release/fit_capacity.py` 檔頭。
+  全部歸零。演算法與 15 個已知量測陷阱見 `engine/release/fit_capacity.py` 檔頭。
   本節的數值即由它產生;手改 `capacity_overrides` 視為違規。
 
 驗證有沒有退化。**頁序不要硬寫**——加開或降級頁型後就過期,會靜默對到錯的

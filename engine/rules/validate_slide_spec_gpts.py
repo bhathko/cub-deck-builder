@@ -261,7 +261,12 @@ PAGE_TYPES = {
                     "cons": {"kind": "list", "min": 1, "max": 3, "required": True, "item": T(60)},
                 }},
             },
-            "recommendation": {"kind": "list", "min": 0, "max": 5, "required": False, "item": T(40)},
+            # 這一列是「建議:A、B、C」的單行摘要,和 recommended 共用一個
+                # add_textbox 框(總長度受限)。項目多 → 每項字數就被壓到
+                # 寫不出完整句子(5 項時只剩 7 字)。3 項是語意上的合理上限,
+                # 屬契約決定而非模板容量,所以寫在這裡而不是 capacity_overrides
+                # (後者會被 fit --reset 重新推導)。
+                "recommendation": {"kind": "list", "min": 0, "max": 3, "required": False, "item": T(40)},
         },
     },
     "story_chapter_statement": {
