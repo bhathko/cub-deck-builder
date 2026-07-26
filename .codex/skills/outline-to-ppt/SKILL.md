@@ -64,6 +64,13 @@ python .codex/skills/outline-to-ppt/prepare_env.py
 並印出「渲染指令前綴」。**環境是否就緒只以本腳本 exit 0 判定**,不得未執行
 先宣稱做不到。`ppt_out/` 已 gitignore,嚴禁 commit。
 
+> **repo 端有任何改動(容量、綁定、工具)就要重跑一次本腳本。** 沙箱是
+> session 開始時複製的快照,repo 改了它不會自己更新——閘門會拿**舊上限**
+> 放行,產出在新規則下其實不合格,而每一行訊息都顯示正常。2026-07-27 實際
+> 踩到:容量重量測後沒重跑,PASS 是假的。同型事故見 WORKLOG §10.5。
+> 判斷方式:管線輸出的 `模板包:light@<version>` 要跟
+> `engine/templates/light/manifest.json` 的 version 一致。
+
 ## 模式 A:大綱模式(預設——使用者貼的是段落文字)
 
 中途不要求使用者確認切頁、頁型或 JSON,不拋 A/B 選單;只有環境缺檔、來源不足、
