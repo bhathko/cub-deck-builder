@@ -1,6 +1,6 @@
 # light 包回歸(發版前必跑)
 
-> 引擎級/共用案例見 `engine/REGRESSION.md`(R0–R12 本就以 light 為測物,
+> 引擎級/共用案例見 `engine/REGRESSION.md`(全部 R 案例本就以 light 為測物,
 > 其中 R2/R3/R8 = 本包的渲染/QA 回歸)。本檔補包專屬案例;
 > `$RT` 沿根檔定義。渲染需 python-pptx(沒裝時 `python3` 換
 > `uv run --with python-pptx python`)。
