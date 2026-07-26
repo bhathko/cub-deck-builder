@@ -1,4 +1,4 @@
-# REGRESSION — 引擎級發版前回歸(R0–R10)
+# REGRESSION — 引擎級發版前回歸(R0–R12)
 
 > **用途**:發版前的可執行回歸案例與預期結果,涵蓋 archive 完整性、閘門正反例、
 > 稽核、QA、多模板與全包 lint。
@@ -146,48 +146,6 @@ grep -cE '## Slide|page_type' engine/examples/05_outline_to_ppt_source.md
 
 預期:輸出 `0`(grep exit=1)。
 
-## R12|誠實容量:contract 上限不得觸發縮字
-
-```bash
-python engine/release/template_admin.py golden --id light
-```
-
-golden 用每個 fill 頁型的 **contract 上限**產 max 變體。通過條件除了 PASS,
-還要 qa 的**溢出警告為 0**——有警告就代表契約允許的量裝不進版位。
-
-原則(2026-07-26 設計師回饋):**字級是設計過的**,內容塞不下時正確做法是
-改寫更短或換頁型,不是把字縮小一號。所以:
-
-- `shrink_to_fit` 不動 autofit 框(交給 PowerPoint 長高,那是模板原本的排版方式)
-- 各包用 `capacity_overrides` 宣告自己版位真正裝得下的量,閘門據此擋
-- 重新量測:清空 `capacity_overrides` → 跑 golden → 對仍被縮字/超高的框收緊 →
-  重複到收斂。判準是「在**設計字級**下裝得進**渲染後的框**」;autofit 框的
-  上限放寬到「設計師自己那份原文需要的高度」。
-
-驗證有沒有退化(應為 0 / 0):
-
-```bash
-python - <<'EOF'
-import sys, json; sys.path.insert(0,'engine/tools')
-from pptx import Presentation
-import text_tools as tt
-seq="14 14 17 17 29 29 33 33 54 54 16 16 20 20 22 22 24 24 25 25 30 30 35 35 38 38 40 40 47 47 50 50".split()
-def walk(ss):
-    for s in ss:
-        if s.shape_type==6: yield from walk(s.shapes)
-        else: yield s
-tpl=Presentation('engine/templates/light/template.pptx'); g=Presentation('ppt_out/golden_light.pptx')
-TP={i:{s.shape_id:s for s in walk(sl.shapes) if s.has_text_frame} for i,sl in enumerate(tpl.slides,1)}
-shr=0
-for i,sl in enumerate(g.slides,1):
-    for s in walk(sl.shapes):
-        if not s.has_text_frame or not s.text_frame.text.strip(): continue
-        o=TP[int(seq[i-1])].get(s.shape_id)
-        if o is not None and tt._first_run_size_pt(s) < tt._first_run_size_pt(o)-0.5: shr+=1
-print("被縮字的框:", shr, "(必須是 0)")
-EOF
-```
-
 ## R7|Knowledge 清單與 archive hash
 
 ```bash
@@ -292,3 +250,45 @@ git diff --exit-code engine/golden/*.json; echo "exit=$?"
 預期:`exit=0`(無差異)。**非 0 = 有人改了頁型契約卻沒重派生快照**
 ——修法是把重派生的結果一起 commit。
 (Phase 4 加 chart 頁型時就漏過這步,靠稽核才發現;R11 就是為了不再靠人記得。)
+
+## R12|誠實容量:contract 上限不得觸發縮字
+
+```bash
+python engine/release/template_admin.py golden --id light
+```
+
+golden 用每個 fill 頁型的 **contract 上限**產 max 變體。通過條件除了 PASS,
+還要 qa 的**溢出警告為 0**——有警告就代表契約允許的量裝不進版位。
+
+原則(2026-07-26 設計師回饋):**字級是設計過的**,內容塞不下時正確做法是
+改寫更短或換頁型,不是把字縮小一號。所以:
+
+- `shrink_to_fit` 不動 autofit 框(交給 PowerPoint 長高,那是模板原本的排版方式)
+- 各包用 `capacity_overrides` 宣告自己版位真正裝得下的量,閘門據此擋
+- 重新量測:清空 `capacity_overrides` → 跑 golden → 對仍被縮字/超高的框收緊 →
+  重複到收斂。判準是「在**設計字級**下裝得進**渲染後的框**」;autofit 框的
+  上限放寬到「設計師自己那份原文需要的高度」。
+
+驗證有沒有退化(應為 0 / 0):
+
+```bash
+python - <<'EOF'
+import sys, json; sys.path.insert(0,'engine/tools')
+from pptx import Presentation
+import text_tools as tt
+seq="14 14 17 17 29 29 33 33 54 54 16 16 20 20 22 22 24 24 25 25 30 30 35 35 38 38 40 40 47 47 50 50".split()
+def walk(ss):
+    for s in ss:
+        if s.shape_type==6: yield from walk(s.shapes)
+        else: yield s
+tpl=Presentation('engine/templates/light/template.pptx'); g=Presentation('ppt_out/golden_light.pptx')
+TP={i:{s.shape_id:s for s in walk(sl.shapes) if s.has_text_frame} for i,sl in enumerate(tpl.slides,1)}
+shr=0
+for i,sl in enumerate(g.slides,1):
+    for s in walk(sl.shapes):
+        if not s.has_text_frame or not s.text_frame.text.strip(): continue
+        o=TP[int(seq[i-1])].get(s.shape_id)
+        if o is not None and tt._first_run_size_pt(s) < tt._first_run_size_pt(o)-0.5: shr+=1
+print("被縮字的框:", shr, "(必須是 0)")
+EOF
+```
