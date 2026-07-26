@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""light 模板包綁定(Phase 3 起:本檔只剩 BUILDERS,fills 走宣告式 bindings.json)。
+"""light 模板包綁定(本檔只剩 BUILDERS,fills 走宣告式 bindings.json)。
 
-- **BUILDERS(本檔)**:cover/agenda/closing/story/stage 五種「從零繪製」頁型,
-  座標與品牌色寫死,為 light 專屬 grandfather(builtin 僅 light 允許,
-  新模板一律 clone+fill,見 docs/ARCHITECTURE.md §4)。
-- **FILLS(同目錄 bindings.json)**:五種模板頁自動填充頁型
-  (p14/17/29/33/54),經 engine/tools/fills_engine.py 解譯;Phase 2 已驗證
-  與原 Python fills 產出 shape 樹全等(docs/WORKLOG.md §20.3),Phase 3 正式切換。
+- **BUILDERS(本檔)**:「從零繪製」頁型,座標與品牌色寫死,為 light 專屬
+  grandfather(builtin 僅 light 允許,新模板一律 clone+fill,
+  見 docs/ARCHITECTURE.md §4)。**這批正在逐步遷往 fill**——凡是模板 pptx
+  裡已有對應頁、且版面不需依內容計算的頁型,一律改綁 bindings.json;
+  現況與待遷清單見 page_map.md。cover/closing 已於 2026-07-26 遷出。
+- **FILLS(同目錄 bindings.json)**:模板頁自動填充頁型,經
+  engine/tools/fills_engine.py 解譯;Phase 2 已驗證與原 Python fills 產出
+  shape 樹全等(docs/WORKLOG.md §20.3),Phase 3 正式切換。
   pack_loader 合併語意:py 匯出非空 FILLS 才會蓋過 json——本檔刻意不匯出。
 
+頁型清單一律以 manifest.json 的 page_types 為準,本檔頭不列舉。
 繪製座標移植自 repo fallback/generate_review_deck.py;模板改版流程見
 engine/templates/TEMPLATE_LIFECYCLE.md。
 """
@@ -137,34 +140,9 @@ def _header(slide, spec_slide):
         _textbox(slide, sub, 0.34, 0.84, 11.8, 0.34, size=16, color=MUTED)
 
 
-def _em(s: str) -> float:
-    return sum(1.0 if ord(c) > 0x2E80 else 0.55 for c in str(s))
-
-
 # ---------------------------------------------------------------------------
-# builtin 頁型
+# builtin 頁型(cover/closing 已遷往 bindings.json 的 fills)
 # ---------------------------------------------------------------------------
-def build_cover(prs, spec_slide, asset_dir):
-    slide = tk.add_blank_slide(prs)
-    slots = spec_slide["slots"]
-    _bg(slide, prs, asset_dir, spec_slide["assets"]["background"])
-    title, sub = slots["main_title"], slots["subtitle"]
-    title_w = _em(title) * 40 / 72 + 0.25
-    sub_w = _em(sub) * 36 / 72 + 0.25
-    _textbox(slide, title, 0.34, 2.85, title_w, 0.70, size=40, bold=True)
-    if 0.34 + title_w + 0.15 + sub_w <= 12.6:
-        _textbox(slide, sub, 0.34 + title_w + 0.15, 2.92, sub_w, 0.62,
-                 size=36, bold=True, color=GREEN)
-        meta_y = 3.75
-    else:
-        _textbox(slide, sub, 0.34, 3.60, sub_w, 0.62, size=36, bold=True, color=GREEN)
-        meta_y = 4.42
-    _textbox(slide, f"{slots['date']}  |  {slots['presenters']}",
-             0.34, meta_y, 8.0, 0.40, size=18, bold=True, color=MUTED)
-    _logo(slide, asset_dir, spec_slide["assets"].get("logo", "assets/logos/cathay_logo.png"))
-    return slide
-
-
 def build_agenda(prs, spec_slide, asset_dir):
     slide = tk.add_blank_slide(prs)
     slots = spec_slide["slots"]
@@ -187,14 +165,6 @@ def build_agenda(prs, spec_slide, asset_dir):
             _textbox(slide, sub, 4.79, y + 0.38, 6.8, 0.32, size=14, color=MUTED)
     _logo(slide, asset_dir, spec_slide["assets"].get("logo", "assets/logos/cathay_logo.png"))
     _page_number(slide, spec_slide["number"])
-    return slide
-
-
-def build_closing(prs, spec_slide, asset_dir):
-    slide = tk.add_blank_slide(prs)
-    _bg(slide, prs, asset_dir, spec_slide["assets"]["background"])
-    _textbox(slide, spec_slide["slots"].get("main_title", "Thank you"),
-             0.86, 3.28, 5.0, 0.60, size=32, bold=True)
     return slide
 
 
@@ -249,9 +219,7 @@ def build_stage_dual_track_roadmap(prs, spec_slide, asset_dir):
 # 註冊表(pack_loader 讀取的介面;本檔刻意不匯出 FILLS → fills 由 bindings.json 生效)
 # ---------------------------------------------------------------------------
 BUILDERS = {
-    "cover": build_cover,
     "agenda": build_agenda,
-    "closing": build_closing,
     "story_chapter_statement": build_story_chapter_statement,
     "stage_dual_track_roadmap": build_stage_dual_track_roadmap,
 }

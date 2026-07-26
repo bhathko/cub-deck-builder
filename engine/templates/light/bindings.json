@@ -1,7 +1,46 @@
 {
   "engine": 1,
-  "_note": "light 5 種 fill 頁型的宣告式綁定(Phase 3 起生效,經 engine/tools/fills_engine.py 解譯;Phase 2 已驗證與原 Python fills 產出 shape 樹全等)。builtin 5 頁型(cover/agenda/closing/story/stage)在同目錄 bindings.py 的 BUILDERS(僅 light grandfather)。",
+  "_note": "light 的 fill 頁型宣告式綁定(經 engine/tools/fills_engine.py 解譯;Phase 2 已驗證與原 Python fills 產出 shape 樹全等)。剩餘 builtin 頁型在同目錄 bindings.py 的 BUILDERS(僅 light grandfather,逐步遷往 fill;判準與進度見 page_map.md)。頁型清單一律以 manifest.json 的 page_types 為準,本註記不列舉。",
   "fills": {
+    "cover": {
+      "template_page": 7,
+      "_note": "自 builtin 遷入(2026-07-26)。背景圖與 logo 在 layout『封面(有小標)』裡,clone 自帶,不吃 spec 的 assets。長主標由 shrink_to_fit 縮字級(原 builtin 會把副標推到下一行,遷移後版位固定)。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.slots.main_title",
+          "id": 2
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 16
+        },
+        {
+          "op": "set",
+          "slot": "$.slots",
+          "template": "{date}  |  {presenters}",
+          "id": 3
+        },
+        {
+          "op": "delete",
+          "ids": [
+            6
+          ]
+        }
+      ]
+    },
+    "closing": {
+      "template_page": 59,
+      "_note": "自 builtin 遷入(2026-07-26)。滿版背景圖與遮罩是 p59 頁面自帶的 shape,clone 一併帶入,不吃 spec 的 assets。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.slots.main_title",
+          "id": 2
+        }
+      ]
+    },
     "vision_goal_center_balance": {
       "template_page": 14,
       "ops": [

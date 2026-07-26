@@ -164,8 +164,18 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 
 ```
 596a036ccc920cfa9eb9c0eb235ace4a6bde210ec41ae0bc3b6921b7e991dff3  tools.zip
-9748436d31db51380423f88a5355c300f0912b18d5e6a6cf079fc19c32463b85  template_light.zip
+5485822a0fe4b63541d88b3aeba50b7cccf751030bd06e121337dfd69a189eac  template_light.zip
 ```
+
+(2026-07-26 builtin→fill 遷移第一批:`cover` 綁 p7、`closing` 綁 p59,
+`bindings.py` 的 BUILDERS 移除這兩支(連同只有 build_cover 用的 `_em` 死碼),
+light@2026-07-26.3。**tools.zip 未動,不需重傳**;template_light.zip 因
+manifest/bindings.json/bindings.py/page_map.md 四檔變動而改 sha。
+遷移後 cover 的行為改變:長主標由 shrink_to_fit 縮字級,不再把副標推到下一行。
+新增 3 條 cover capacity_overrides——`subtitle` 只有 5 字,因為模板 p7 的副標框
+(id=16)是 `spAutoFit` 且僅 3.24 吋寬,長文會讓框往下長並壓到 id=3 的日期列;
+這是真碰撞不是誤報。剩餘 builtin(agenda/story/stage)待模板補頁,清單見
+`engine/templates/light/page_map.md` 的遷移表。)
 
 (2026-07-26 tools.zip 由 `c5737f13…` 換成 `596a036c…`:清掉 `README_TOOLS.md`
 與 `render_deck.py` 檔頭寫死的「21 種註冊頁型」與其後**只列 10–11 個名字**的

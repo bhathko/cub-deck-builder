@@ -265,6 +265,9 @@
 
 | 頁型 | 槽位 | 預設 | light 實際 |
 | --- | --- | --- | --- |
+| cover | `date` | ≤20 字 | **≤12 字** |
+| cover | `presenters` | ≤40 字 | **≤20 字** |
+| cover | `subtitle` | ≤20 字 | **≤5 字** |
 | cycle_four_point_loop | `steps[].detail` | ≤40 字 | **≤34 字** |
 | cycle_four_point_loop | `subtitle` | ≤60 字 | **≤50 字** |
 | data_line_trend_comparison | `rows[].cells[]` | ≤20 字 | **≤4 字** |
@@ -311,7 +314,7 @@
 | vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
 | vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
 
-(共 45 個槽位。**本表由 `template_admin.py fit` 自動重生,
+(共 48 個槽位。**本表由 `template_admin.py fit` 自動重生,
 不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、
 文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)
 

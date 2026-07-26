@@ -10,11 +10,10 @@
 
 | 語意頁型 | 支援等級 | 模板頁 | 備註 |
 | --- | --- | --- | --- |
-| agenda | builtin(全自動,引擎繪製) | — |  |
-| closing | builtin(全自動,引擎繪製) | — |  |
-| cover | builtin(全自動,引擎繪製) | — |  |
-| stage_dual_track_roadmap | builtin(全自動,引擎繪製) | — |  |
-| story_chapter_statement | builtin(全自動,引擎繪製) | — | 參考版面=模板 p10(實際由引擎繪製) |
+| agenda | builtin(全自動,引擎繪製) | — | **待遷 fill**:需模板補一頁 3–6 列(編號圓圈+標題+副標);p9(layout=目錄)視覺對但內容是單一大文字框 |
+| stage_dual_track_roadmap | builtin(全自動,引擎繪製) | — | **待遷 fill**:需模板新畫一頁;且 `annual_cycle`(3–6 格等分滿寬)得先鎖成固定格數 |
+| story_chapter_statement | builtin(全自動,引擎繪製) | — | **待遷 fill**:需模板新畫一頁(p10 是雙圖版面,結構不符) |
+| cover | fill(全自動,clone+填充) | 7 | 2026-07-26 自 builtin 遷入;背景/logo 在 layout「封面(有小標)」內,不吃 spec 的 assets |
 | vision_goal_center_balance | fill(全自動,clone+填充) | 14 | shape id 見 bindings.json 與 inventory.json |
 | info_three_column_category | fill(全自動,clone+填充) | 17 | shape id 見 bindings.json 與 inventory.json |
 | data_two_group_metric_comparison | fill(全自動,clone+填充) | 29 | shape id 見 bindings.json 與 inventory.json |
@@ -63,8 +62,26 @@
 | structure_hierarchy_matrix | clone(半自動,需 render_plan) | 56 | 寫 plan 前先 `inspect_template.py --page 56` |
 | structure_org_chart_roles | clone(半自動,需 render_plan) | 57 | 寫 plan 前先 `inspect_template.py --page 57` |
 | structure_relation_map | clone(半自動,需 render_plan) | 58 | 寫 plan 前先 `inspect_template.py --page 58` |
+| closing | fill(全自動,clone+填充) | 59 | 2026-07-26 自 builtin 遷入;滿版背景是 p59 頁面自帶 shape,不吃 spec 的 assets |
 
-共 53 筆:builtin 5、fill 16、clone 32。
+共 53 筆:builtin 3、fill 18、clone 32。
+
+## builtin → fill 遷移進度
+
+builtin 是 light 專屬 grandfather(座標寫死在 `bindings.py`),**目標是清零**——
+新模板一律不得有 builtin(理由見 `docs/WORKLOG.md` §5.3)。遷移判準:模板 pptx
+裡已有對應頁,且版面不需依內容計算幾何。
+
+| 頁型 | 狀態 | 卡在哪 |
+| --- | --- | --- |
+| cover | ✅ 已遷(p7) | — |
+| closing | ✅ 已遷(p59) | — |
+| agenda | ⏳ 待模板 | p9 的內容區是單一文字框;需拆成 6 列(編號圓圈+標題+副標),少的列由 `list` op 的 `delete_on_missing` 自動刪 |
+| story_chapter_statement | ⏳ 待模板 | 需新畫:標題+副標、3 組(標籤+卡片)橫排、2 個大卡片(背景/預期成果,條列可用單一文字框) |
+| stage_dual_track_roadmap | ⏳ 待模板 | 需新畫:4 季度標籤、2 lane×(名稱+4 格)、底部 annual_cycle 一列;**且要先決定** annual_cycle 鎖成固定 4 或 6 格(現行 builtin 是等分滿寬,fill 表達不了) |
+
+遷移後的行為差異(cover 已實測):長主標改由 `shrink_to_fit` 縮字級,不再把副標
+推到下一行——確定性更高,版位完全由設計師掌控。
 
 ## 附:light 語意色名對照(page_types.md 視覺描述用;機器真相在 manifest style)
 

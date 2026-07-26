@@ -10,14 +10,22 @@
 ```bash
 python3 -c "
 import json, hashlib
+from collections import Counter
 m = json.load(open('engine/templates/light/manifest.json'))
 sha = hashlib.sha256(open('engine/templates/light/template.pptx','rb').read()).hexdigest()
 print('manifest sha', 'OK' if sha == m['template_sha256'] else f'不符:重跑盤點(TEMPLATE_LIFECYCLE.md)')
-print('page_types', len(m['page_types']), '筆(預期 53:builtin 5 / fill 6 / clone 42)')
+c = Counter(v.get('mode') for v in m['page_types'].values())
+print('page_types', len(m['page_types']), '筆', dict(c))
+print('自洽檢查', 'OK' if len(m['page_types']) == sum(c.values()) else '不符')
 "
 ```
 
-預期:`manifest sha OK`、53 筆。
+預期:`manifest sha OK`、`自洽檢查 OK`、53 筆。
+
+**mode 分佈刻意不寫死預期值**——builtin 正在逐步遷往 fill(進度見
+`page_map.md` 的遷移表),寫死的比例會過期。要對照當下分佈跑
+`python engine/tools/make_skeleton.py --list`;`page_map.md` 的統計句與同檔
+表格互為校驗。
 
 ## R-L1|smoke spec 直供模式全流程
 

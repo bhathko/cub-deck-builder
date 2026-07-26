@@ -61,6 +61,7 @@ spec 內的素材路徑(`assets/backgrounds/...`)一律以 `--asset-dir` 為根�
 | `engine/tools/` | 引擎腳本 ×11 + `README_TOOLS.md`(模型速查卡與錯誤修法表);改完重打 `gpts/dist/tools.zip` |
 | `engine/templates/<id>/` | 模板包:模板本體 + manifest + 綁定 + 素材(light 為第一個包) |
 | `engine/release/` | 維護者工具:`template_admin.py`(註冊/驗收/打包/量容量)、`fit_capacity.py`(版位容量量測,`fit` 子命令的實作)、`wireframe_preview.py` |
+| `engine/devtools/` | 讀碼／除錯輔助(**不出貨**、不入 zip、免回歸):`trace_page.py` 攤開一頁的 spec 槽位→binding op→shape 資料流,詳見 [`engine/devtools/README.md`](engine/devtools/README.md) |
 | `engine/golden/` | 黃金驗收 fixtures(自契約派生,對註冊流程唯讀) |
 | `engine/examples/` | 試用範例 JSON ×4 + 大綱 fixture + 實測產出 pptx |
 | `gpts/dist/` | 上傳 GPTs 的打包產物(tools.zip、template_*.zip) |
