@@ -69,7 +69,7 @@ T = lambda mx, required=True, provenance=True: {
 }
 
 # ---------------------------------------------------------------------------
-# 模板包感知(多模板架構,見 docs/TEMPLATE_PACKS.md;stdlib-only 維持單檔可攜)
+# 模板包感知(多模板架構,見 docs/ARCHITECTURE.md;stdlib-only 維持單檔可攜)
 # PAGE_TYPES = 語意契約 + 預設容量(= light 現值);各包 manifest 的
 # capacity_overrides 只能覆寫 min/max/max_chars,不得增刪槽位或改 kind。
 # ---------------------------------------------------------------------------
@@ -485,7 +485,7 @@ def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only:
     pt = slide.get("page_type")
     contracts = page_types or PAGE_TYPES
 
-    # 模板包三級閘門(docs/TEMPLATE_PACKS.md §4):unsupported 硬擋;語意契約有、
+    # 模板包三級閘門(docs/ARCHITECTURE.md §6):unsupported 硬擋;語意契約有、
     # 但該包非全自動 → WARN(--registered-only 升級 ERROR),契約檢查照跑。
     if pack:
         mode = pack["modes"].get(pt)
@@ -602,7 +602,7 @@ def main(argv):
         print(f"✗ JSON 解析失敗：{e}")
         return 2
 
-    # 模板包解析(多模板架構,docs/TEMPLATE_PACKS.md §4;解不到包且 spec 未指定
+    # 模板包解析(多模板架構,docs/ARCHITECTURE.md §6;解不到包且 spec 未指定
     # = 退回單模板現行為;spec 指定了卻找不到 = 前置缺檔 exit 2)
     deck_obj = spec.get("deck") if isinstance(spec.get("deck"), dict) else {}
     spec_template = deck_obj.get("template")

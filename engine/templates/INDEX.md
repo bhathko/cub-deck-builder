@@ -1,6 +1,6 @@
 # 模板包索引
 
-> 多模板架構見 `docs/TEMPLATE_PACKS.md`;模板改版流程見同目錄
+> 多模板架構見 `docs/ARCHITECTURE.md`;模板改版流程見同目錄
 > `TEMPLATE_LIFECYCLE.md`。新增模板 = 新增一個子目錄(Phase 2 起由
 > `.codex/skills/register-template/` 引導註冊),不改引擎、不碰其他包。
 

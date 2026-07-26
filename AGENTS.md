@@ -9,7 +9,7 @@
 
 維護一條確定性簡報管線:使用者給 slide_spec.json(或大綱內容),引擎跑
 驗證閘門與確定性 renderer,產出公司規範、繁體中文、16:9 的可編輯 .pptx;
-模板以「模板包」註冊(預設 light,見 [`docs/TEMPLATE_PACKS.md`](docs/TEMPLATE_PACKS.md))。
+模板以「模板包」註冊(預設 light,見 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md))。
 兩個前端:ChatGPT GPTs(建置手冊 [`gpts/README.md`](gpts/README.md))與
 本機 Codex CLI(`.codex/skills/`)。
 
@@ -18,7 +18,7 @@
 1. **SSOT 分兩處**:語意契約與共用規範(驗證器 `PAGE_TYPES`、頁型語意庫、
    排版紀律)在 `engine/rules/`;**模板知識(模板本體、綁定、素材、視覺
    常數)在 `engine/templates/<id>/`,manifest.json 為機器真相**(多模板架構
-   見 `docs/TEMPLATE_PACKS.md`)。`gpts/instructions.md` 是 GPTs 指示的原稿。
+   見 `docs/ARCHITECTURE.md`)。`gpts/instructions.md` 是 GPTs 指示的原稿。
 2. **三處同步**:改頁型契約時,`engine/rules/validate_slide_spec_gpts.py` 的
    `PAGE_TYPES`、`engine/rules/slide_spec.schema.json` 的 enum、
    `engine/rules/page_types_registry.md` 三處一起改。

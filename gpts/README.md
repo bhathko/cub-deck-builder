@@ -5,7 +5,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 設計原則:**所有檔案隨 GPTs 內建**——模板包(template_light.zip:模板本體+
 背景+logo+綁定)、頁型規則、驗證器、工具腳本全部放在知識庫;終端使用者
 **只需提供一份合規的 slide_spec.json**(貼上或上傳皆可),不需要準備任何其他
-檔案。多模板架構見 [`docs/TEMPLATE_PACKS.md`](../docs/TEMPLATE_PACKS.md)(spec 以
+檔案。多模板架構見 [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md)(spec 以
 `deck.template` 選模板,省略=light)。流程:
 
 > 使用者給 JSON → GPTs **在 Code Interpreter 裡實際執行驗證器,PASS 才產檔**

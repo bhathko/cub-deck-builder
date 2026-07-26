@@ -177,7 +177,7 @@ def main(argv):
         "slide_count": len(types),
     }
     if pack is not None:
-        deck["template"] = pack.id  # 模板選擇隨 spec 冪等(TEMPLATE_PACKS §4)
+        deck["template"] = pack.id  # 模板選擇隨 spec 冪等(ARCHITECTURE §6)
     spec = {
         "deck": deck,
         "slides": [build_slide(i + 1, t, contracts, bg, default_bg, logo, asset_keys)

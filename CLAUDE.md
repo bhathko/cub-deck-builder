@@ -13,7 +13,7 @@
 - **規則 SSOT = `engine/rules/`**;改頁型契約要三處同步(validator
   `PAGE_TYPES` / schema enum / registry)。
 - **渲染層零隨機**;各包綁定(`engine/templates/<id>/bindings.json`)與該包
-  模板 shape id 硬耦合,模板改版必重盤點(多模板架構見 `docs/TEMPLATE_PACKS.md`)。
+  模板 shape id 硬耦合,模板改版必重盤點(多模板架構見 `docs/ARCHITECTURE.md`)。
 - 改 `engine/tools/*` → 重打 tools.zip;改 `engine/templates/<id>/*` → 重打
   template_<id>.zip;都要更新 instructions 版本字串。
 

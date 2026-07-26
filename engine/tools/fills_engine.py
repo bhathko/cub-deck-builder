@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""fills_engine — 宣告式 bindings.json 解譯器(docs/TEMPLATE_PACKS.md §3)。
+"""fills_engine — 宣告式 bindings.json 解譯器(docs/ARCHITECTURE.md §5)。
 
 新模板的填充綁定一律是固定 op 詞彙表的 JSON,由本引擎逐 op 執行;
 註冊時 LLM 只產 JSON、不產 Python。詞彙表(6 個填充 op + keep 覆蓋宣告)
@@ -16,7 +16,7 @@ bindings.json 結構:
   }
 }
 
-op 詞彙(欄位細節見各 _op_* docstring 與 docs/TEMPLATE_PACKS.md §3 表):
+op 詞彙(欄位細節見各 _op_* docstring 與 docs/ARCHITECTURE.md §5 表):
   set / delete / keep / rows / list / add_textbox / resize / chart
 
 槽位路徑:"$.title"、"$.slots.a.b"、支援索引 "[0]" 與切片 "[2:]";

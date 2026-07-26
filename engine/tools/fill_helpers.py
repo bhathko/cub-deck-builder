@@ -4,7 +4,7 @@
 自原 fills.py 抽出:FillError / index_shapes / Ctx / fill_rows(原 _fill_rows
 公開化,列高參數化),並把 p33/p54 兩處內聯 textbox 樣板整併為
 add_styled_textbox。本檔不得含任何模板專屬常數(shape id、座標、色碼);
-那些屬於 engine/templates/<id>/ 的綁定資料,詳見 docs/TEMPLATE_PACKS.md。
+那些屬於 engine/templates/<id>/ 的綁定資料,詳見 docs/ARCHITECTURE.md。
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ def resolve_asset(rel, asset_dir, pack_dir, pack_first=False):
     """素材路徑解析鏈:asset_dir 與模板包目錄二擇一命中(順序由 pack_first 決定)。
 
     light 包 = asset_dir 優先(舊 spec 的 assets/... 路徑不變);非 light 包
-    預設包目錄優先,防止沙箱裡 light 的 assets/ 遮蔽新包素材(TEMPLATE_PACKS §3)。
+    預設包目錄優先,防止沙箱裡 light 的 assets/ 遮蔽新包素材(ARCHITECTURE §5)。
     全部不存在時回傳第一候選(讓呼叫端的存在性檢查印出主要路徑)。
     """
     candidates = [Path(pack_dir) / rel, Path(asset_dir) / rel] if pack_first \

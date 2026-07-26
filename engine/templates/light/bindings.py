@@ -3,7 +3,7 @@
 
 - **BUILDERS(本檔)**:cover/agenda/closing/story/stage 五種「從零繪製」頁型,
   座標與品牌色寫死,為 light 專屬 grandfather(builtin 僅 light 允許,
-  新模板一律 clone+fill,見 docs/TEMPLATE_PACKS.md §1)。
+  新模板一律 clone+fill,見 docs/ARCHITECTURE.md §4)。
 - **FILLS(同目錄 bindings.json)**:五種模板頁自動填充頁型
   (p14/17/29/33/54),經 engine/tools/fills_engine.py 解譯;Phase 2 已驗證
   與原 Python fills 產出 shape 樹全等(docs/WORKLOG.md §20.3),Phase 3 正式切換。

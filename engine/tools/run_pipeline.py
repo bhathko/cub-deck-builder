@@ -22,7 +22,7 @@
   python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
       --asset-dir /mnt/data --out /mnt/data/deck.pptx [--plan render_plan.json]
 
-模板選擇(TEMPLATE_PACKS §4):spec 的 deck.template(省略=light)或
+模板選擇(ARCHITECTURE §6):spec 的 deck.template(省略=light)或
 --template-pack <id>;模板檔預設=選定包的 template.pptx,--template 為
 顯式覆寫(試模板工作流)。--packs-root 預設=tools 上層的 templates/。
 
@@ -73,7 +73,7 @@ def main(argv):
     plan = Path(a["--plan"]) if a.get("--plan") else None
     validator = Path(a.get("--validator") or asset_dir / "validate_slide_spec_gpts.py")
 
-    # 模板包解析(TEMPLATE_PACKS §4):一次解析,四階段共用同一結果
+    # 模板包解析(ARCHITECTURE §6):一次解析,四階段共用同一結果
     spec_deck = {}
     if spec.exists():
         try:

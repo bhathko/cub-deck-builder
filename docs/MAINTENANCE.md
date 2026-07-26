@@ -16,7 +16,7 @@
 新頁型若要全自動產出,另需在該包 `engine/templates/<id>/bindings.json` 加
 fill 條目(宣告式 op 詞彙表;builtin 僅 light 的 `bindings.py`)→ 過
 `template_admin.py golden` → 重打包該模板 zip。架構見
-[`TEMPLATE_PACKS.md`](TEMPLATE_PACKS.md)。
+[`ARCHITECTURE.md`](ARCHITECTURE.md)。
 
 **契約改版的連動**:golden fixtures 重派生
 (`template_admin.py golden --regen-specs`)→ **全部已註冊模板包重跑 golden**;

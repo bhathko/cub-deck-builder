@@ -6,7 +6,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 # register-template(新模板註冊精靈)
 
 > **狀態:已啟用(2026-07-25,Phase 2 落地)。** 架構與工具鏈規格見
-> `docs/TEMPLATE_PACKS.md`;工具鏈 = `engine/release/template_admin.py`
+> `docs/ARCHITECTURE.md`;工具鏈 = `engine/release/template_admin.py`
 > (new/freeze/lint/golden/register/pack/isolation/list)+
 > `engine/tools/fills_engine.py`(op 解譯器,v1.1 為 7 op 含 chart),light 五種 fill 頁型的
 > 宣告式重寫已通過 shape 樹全等驗證(含 min 刪格與 max 溢出路徑)。
@@ -24,7 +24,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 
 規則本體的單一真相來源(相對 repo 根;本檔只留摘要,不複製規則):
 
-- `docs/TEMPLATE_PACKS.md` — 模板包結構、manifest 欄位、op 詞彙表、驗收與發佈規則
+- `docs/ARCHITECTURE.md` — 模板包結構、manifest 欄位、op 詞彙表、驗收與發佈規則
 - `engine/rules/validate_slide_spec_gpts.py` `PAGE_TYPES` — fill 級頁型候選集
 - `engine/rules/page_types.md` — clone 級頁型候選集(語意分類與容量)
 - `engine/tools/README_TOOLS.md` — 工具鐵律與錯誤修法慣例
@@ -38,7 +38,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
    那是工程師的三處同步流程,不在本 skill 內。
 2. **零隨機、零自由 Python**:shape id 與座標唯一來源 = `inspect_template.py`
    輸出;綁定只能用 7 個填充 op(set/delete/rows/list/add_textbox/resize/
-   chart)加 `keep` 覆蓋宣告,詞彙表與全覆蓋原則見 docs/TEMPLATE_PACKS.md §3。
+   chart)加 `keep` 覆蓋宣告,詞彙表與全覆蓋原則見 docs/ARCHITECTURE.md §5。
    表達不了 → 該頁型降級 clone,不是變通、不寫 Python、不擴詞彙表。
 3. **golden 才算數**:任何 bindings/manifest 改動,必須重跑
    `template_admin.py golden` 綠了才能宣稱完成。「看起來應該對了」不是完成;
