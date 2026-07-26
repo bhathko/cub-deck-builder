@@ -201,8 +201,15 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 
 ```
 201b46c03c4d010b121d3b25d86edd6cd323e26ef249b7f6f9d3689638294c9d  tools.zip
-74dc425c5d71eb250170300b183d6a2ee7795214f08b2041b94d98545582a881  template_light.zip
+4ae29989eaf2032e157973d09ae15249d10919270da8fb804b458146807e3b60  template_light.zip
 ```
+
+(2026-07-27 fit 盲點修復後重量測:agenda/cover 的 4 條**手寫**容量換成工具
+量測值(subtitle 28→30、date 12→13、presenters 20→15、cover.subtitle 5 不變),
+自此全部 49 條 overrides 皆 `fit` 產出,`--reset` 保護完整——2026-07-26 註記
+的「agenda 容量不受 --reset 保護」例外已消除。**template_light.zip 改 sha**
+(manifest 容量 + version 2026-07-27.1 → .2);tools.zip 未動。instructions
+v2.3 → v2.4-20260727(同日 validator 加容量壓縮豁免,該散檔要刪舊傳新)。)
 
 (2026-07-27 builtin 死碼清除:上一批把 light 的 builtin 降到 0,這批把**模式本身**
 從引擎拆掉。支援等級只剩 fill/clone/unsupported;render_deck 的 plan `mode=builtin`

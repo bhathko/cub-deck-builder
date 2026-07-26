@@ -674,14 +674,18 @@ golden fixtures 由 42 降為 38,`02_full_10p` 因少兩頁改名 `02_full_8p`�
 **單一**文字框(選填欄位缺值自動略行)。這是引擎版本事件,但它解的是通用形狀
 ——「一個佔位符裝一份清單」在任何人類做的模板裡都常見,不是 light 特例。
 
-**踩到的工具盲點(未修):`fit` 對物件清單無能。** agenda 的整份 `items` 映射到
-`items.item`,那是物件節點;`fit_capacity.py:662` 只在 `kind == "text"` 時寫
+**踩到的工具盲點(2026-07-27 已修):`fit` 對物件清單無能。** agenda 的整份
+`items` 映射到 `items.item`,那是物件節點;fit 只在 `kind == "text"` 時寫
 `max_chars`,遇物件**靜默跳過**——既不收緊也不警告,於是 `fit --dry-run` 印出
 「零縮字」而 golden 實際把 18pt 縮成 14pt。所以 agenda 的 `subtitle 28 字`
-是實測後手寫的(R12 說手改視為違規,此處是盲點迫使的例外,已在 R7 註記)。
-要修得讓 fit 把物件清單的容量分配到各文字子欄位。同類缺口還有一個:
-cover 的 `date`/`presenters` 合併進一框用 `slot: "$.slots"`,而
-`slot_shape_map` 比對的是 `"$.slots."`(有結尾點),也對應不到。
+一度是實測後手寫的(盲點迫使的例外)。同類缺口:cover 的 `date`/`presenters`
+合併進一框用 `slot: "$.slots"`,而 `slot_shape_map` 比對的是 `"$.slots."`
+(有結尾點),也對應不到。**修法(見 fit_capacity 檔頭陷阱 16)**:容量分配
+到樣板逐行引用的文字子欄位,同行多欄位按基準契約比例分行寬、再按欄位字寬
+換回字數(date 主流是半形);修復過程還抓到陷阱 6 的多欄位變形——
+`probe_char(paths[0])` 恰好取到 number 就用半形「0」探測,量出 55 字假上限
+(CJK 實際 30)。重量測後 4 條手寫容量全數換成工具產出(subtitle 28→30、
+date 12→13、presenters 20→15),49 條 overrides 自此完整受 `--reset` 保護。
 
 **踩到的第二個坑(已修):`prepare_env` 的沙箱幽靈檔。** `prepare_env.py` 原本用
 `copytree(dirs_exist_ok=True)` 就地覆蓋——**只覆蓋、從不刪除**。所以 engine 端
@@ -765,8 +769,8 @@ builtin 繪製器呼叫 `resolve_asset(..., pack_first=pack.pack_first)`。容�
 
 **待執行**:
 
-- 修 `fit_capacity` 的兩個對應盲點(物件清單、`$.slots` 合併框),
-  修好後對 agenda 與 cover 重跑 `fit` 把手寫的容量換成工具產出(見 §10.5)。
+- ~~修 `fit_capacity` 的兩個對應盲點~~(2026-07-27 已修,含第三個
+  多欄位探測字元盲點;agenda/cover 手寫容量已換成工具量測值,見 §10.5)。
 - 讓 `golden --regen-specs` 清掉不再屬於契約的 fixture(見 §10.5)。
 - `R-L1`:smoke spec 與 `engine/rules/slide_spec.example.json` 的文字改短到
   符合現行容量(19 條容量錯誤,`fit` 收緊後 spec 沒跟著改)。
