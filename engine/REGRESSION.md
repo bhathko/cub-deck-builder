@@ -7,7 +7,20 @@
 > 各模板包另有專屬案例(如 `engine/templates/light/REGRESSION.md`),
 > 動到哪個包就跑哪個包 + 本檔共用案例。
 
-前置:在 repo 根目錄執行;`$RT` 為全新暫存目錄(每次回歸重建,不得重用)。
+**正式跑法是一鍵 runner**(2026-07-27 起;純標準庫 + subprocess,Windows 原樣可跑):
+
+```bash
+python3 engine/release/regress.py            # 全部案例;--list / --only / --skip 見 --help
+```
+
+任一案例紅即 exit 1;案例間相依(R3–R5 用 R2 的產物)由 runner 自動處理,
+含 light 包的 R-L0/R-L1(R-L2 clone 抽測是唯一仍為人工的案例)。為什麼收進
+工具:散文夾貼指令的回歸必然被跳過——R9 曾紅 11 個 commit 沒人發現。本檔
+其餘內容是各案例的**規格與解說**(測什麼、為什麼、預期輸出的由來),手動
+單跑或診斷時照下方指令;**新增/修改案例必須與 `regress.py` 同步**,只改
+文件等於沒改(runner 才是被跑的那份)。
+
+以下為手動單跑的前置:在 repo 根目錄執行;`$RT` 為全新暫存目錄(每次回歸重建,不得重用)。
 命令為 POSIX shell 語法(macOS/Linux)。Windows 維護者(公司禁 WSL,僅
 PowerShell/cmd):多行 `python3 -c "..."` 區塊請存成 `.py` 檔執行以避開引號
 地獄,`for` 迴圈與 `$RT` 自行改寫;日常產檔不受此限——skill 的命令全平台通用。

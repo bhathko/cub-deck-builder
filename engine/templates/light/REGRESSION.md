@@ -4,6 +4,8 @@
 > 其中 R2/R3/R8 = 本包的渲染/QA 回歸)。本檔補包專屬案例;
 > `$RT` 沿根檔定義。渲染需 python-pptx(沒裝時 `python3` 換
 > `uv run --with python-pptx python`)。
+> **R-L0/R-L1 已收進一鍵 runner**(`python3 engine/release/regress.py`),
+> 只有 R-L2(clone 抽測)仍為人工。
 
 ## R-L0|包完整性
 

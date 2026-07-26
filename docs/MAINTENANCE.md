@@ -89,7 +89,9 @@ skill 帶著跑盤點→映射→綁定→黃金驗收→註冊)。
 
 0. □ `python engine/release/template_admin.py sync-docs` exit 0
    (派生檔與機器真相一致;`pack` 也會擋,這裡先跑只是早點知道)
-1. □ 該模板包 REGRESSION 綠 + `engine/REGRESSION.md` 全部 R 案例全符
+1. □ `python3 engine/release/regress.py` exit 0(引擎級全部 R 案例 + light
+   R-L0/R-L1 一鍵跑完;案例規格見 `engine/REGRESSION.md`)+ 動到的模板包
+   自身 REGRESSION 綠(R-L2 類人工案例)
 2. □ `python engine/release/template_admin.py isolation` 白名單過
    (模板目錄外的改動已拆 commit)
 3. □ `python engine/release/template_admin.py pack --id <id>` 重打包
