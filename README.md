@@ -21,7 +21,7 @@ docs/              治理文件(架構設計、決策紀錄、維護手冊、回
 | **想懂多模板架構怎麼設計的** | [`docs/TEMPLATE_PACKS.md`](docs/TEMPLATE_PACKS.md)(模板包公式、op 詞彙表、註冊流程) |
 | **要在 ChatGPT 建這個 GPT** | [`gpts/README.md`](gpts/README.md)(上傳什麼、怎麼設定、能力邊界) |
 | **要發版 / 換裝 GPT Builder** | [`gpts/DEPLOY.md`](gpts/DEPLOY.md)(一頁操作稿:刪什麼、傳什麼、8 條驗收指令原文) |
-| **設計師 / 非技術同事** | [`docs/給設計師的白話說明.md`](docs/給設計師的白話說明.md)(白話版:這東西在做什麼、怎麼提需求;**附錄有自己動手註冊新模板的逐步指令**) |
+| **設計師 / 非技術同事** | [`docs/給設計師/`](docs/給設計師/)(白話文件夾:先看該資料夾的 README 挑一份讀;含「自己動手註冊模板」的逐步指令) |
 | **產出不如預期、想回報問題** | [`docs/FEEDBACK.md`](docs/FEEDBACK.md)(怎麼回饋才會真的變好 + 台帳) |
 | **發版前要跑回歸** | [`engine/REGRESSION.md`](engine/REGRESSION.md)(R0–R10 可執行案例) |
 | **產檔被閘門擋下、看到 ERROR** | [`engine/tools/README_TOOLS.md`](engine/tools/README_TOOLS.md)(錯誤→修法對照表,每種錯只有一種修法) |

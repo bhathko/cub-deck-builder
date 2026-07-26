@@ -71,7 +71,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `engine/examples/demo_output_*.pptx`    | 本機實測產出,眼見為憑                                                    | 不上傳                           |
 | `engine/templates/light/assets_src/`    | 素材可編輯源檔(隨包;打包 template_light.zip 時以 arcname `assets/` 映射) | 不上傳,留在 repo                 |
 | `engine/templates/`(其餘檔案)           | 模板包源碼與治理文件(INDEX、TEMPLATE_LIFECYCLE、各包 REGRESSION/FEEDBACK) | 不上傳,留在 repo                 |
-| `../docs/給設計師的白話說明.md`         | 非技術版說明:設計理念、檔案角色、頁型升級與回饋方式(發給使用者/設計師)   | 不上傳,直接發給人看              |
+| `../docs/給設計師/`                     | 非技術版說明(4 份:入口 + 專案說明 + 路線 A/B),整包發給設計師           | 不上傳,直接發給人看              |
 | `../docs/FEEDBACK.md`                   | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
 | `feedback_evidence/`                    | GPT Builder 實測對話逐字稿(FEEDBACK 台帳引用的證據)                       | 不上傳,留在 repo                 |
 | `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R10 可執行案例與預期結果                                | 不上傳,留在 repo                 |
