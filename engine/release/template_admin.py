@@ -507,8 +507,17 @@ def cmd_golden(args) -> int:
                     json.dump(spec, f, ensure_ascii=False, indent=1)
                     f.write("\n")
                 n += 1
+        # 集合外的 fixture 一律刪除。只寫不刪的話,頁型移除後過期檔案會留在
+        # engine/golden/——而 R11 用「有沒有 diff」檢查,內容沒變的殭屍檔
+        # 永遠查不出來(2026-07-26 builtin 清零就漏了四份,靠人工 git rm)。
+        expected = {f"{pt}.{v}.json" for pt in PAGE_TYPES for v in ("min", "max")}
+        stale = sorted(p for p in GOLDEN_DIR.glob("*.json") if p.name not in expected)
+        for p in stale:
+            p.unlink()
+            print(f"  已刪除過期 fixture:{p.name}(頁型已不在契約)")
         print(f"已重派生 {n} 份 golden fixtures → {GOLDEN_DIR}"
-              f"({len(PAGE_TYPES)} 種頁型 × min/max;契約快照,非實跑素材)")
+              f"({len(PAGE_TYPES)} 種頁型 × min/max;契約快照,非實跑素材"
+              + (f";清除 {len(stale)} 份過期檔" if stale else "") + ")")
         return 0
     only = [t.strip() for t in args.page_types.split(",")] if args.page_types else None
     return run_golden(pack_dir_of(args), only,

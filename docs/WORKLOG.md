@@ -771,7 +771,8 @@ builtin 繪製器呼叫 `resolve_asset(..., pack_first=pack.pack_first)`。容�
 
 - ~~修 `fit_capacity` 的兩個對應盲點~~(2026-07-27 已修,含第三個
   多欄位探測字元盲點;agenda/cover 手寫容量已換成工具量測值,見 §10.5)。
-- 讓 `golden --regen-specs` 清掉不再屬於契約的 fixture(見 §10.5)。
+- ~~讓 `golden --regen-specs` 清掉不再屬於契約的 fixture~~(2026-07-27 已修:
+  重派生時刪除契約集合外的 .json 並列出)。
 - `R-L1`:smoke spec 與 `engine/rules/slide_spec.example.json` 的文字改短到
   符合現行容量(19 條容量錯誤,`fit` 收緊後 spec 沒跟著改)。
   (R2b 已於 2026-07-27 以「容量壓縮豁免」政策修復,見 §2.4.1 翻轉三;

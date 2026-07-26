@@ -376,7 +376,10 @@ git diff --exit-code engine/golden/*.json; echo "exit=$?"
 
 預期:`exit=0`(無差異)。**非 0 = 有人改了頁型契約卻沒重派生快照**
 ——修法是把重派生的結果一起 commit。
-(Phase 4 加 chart 頁型時就漏過這步,靠稽核才發現;R11 就是為了不再靠人記得。)
+(Phase 4 加 chart 頁型時就漏過這步,靠稽核才發現;R11 就是為了不再靠人記得。
+2026-07-27 起 `--regen-specs` 會**刪除**契約集合外的過期 fixture——以前只寫
+不刪,頁型移除後殭屍檔內容沒變,本案例的 diff 檢查永遠查不出來,builtin
+清零那批就漏了四份靠人工 git rm。)
 
 ## R12|誠實容量:contract 上限不得觸發縮字
 
