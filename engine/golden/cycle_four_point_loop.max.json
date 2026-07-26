@@ -19,24 +19,24 @@
     "center_theme": "center_the",
     "steps": [
      {
-      "number": "01",
-      "label": "label測測測測測測測",
-      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+      "number": "1",
+      "label": "1.label測測測測測",
+      "detail": "1.detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "number": "01",
-      "label": "label測測測測測測測",
-      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+      "number": "2",
+      "label": "2.label測測測測測",
+      "detail": "2.detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "number": "01",
-      "label": "label測測測測測測測",
-      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+      "number": "3",
+      "label": "3.label測測測測測",
+      "detail": "3.detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "number": "01",
-      "label": "label測測測測測測測",
-      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+      "number": "4",
+      "label": "4.label測測測測測",
+      "detail": "4.detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      }
     ]
    }

@@ -81,9 +81,19 @@ def set_text_keep_style(shape, text) -> None:
             run._r.insert(list(run._r).index(run._r.find(qn("a:t"))), copy.deepcopy(rPr_tpl))
 
 
+# 數學英數符號區(U+1D400–U+1D7FF):粗體/花體的英數字,字面像 CJK 但字寬同半形。
+# 模板用它排步驟編號徽章(如 p35 的 𝟭𝟮𝟯𝟰),誤判成全形會讓 0.34 吋的框假性溢出。
+_NARROW_RANGES = ((0x1D400, 0x1D7FF),)
+
+
 def _char_units(s: str) -> float:
-    """以 em 為單位的估算寬度:CJK≈1,半形≈0.55。"""
-    return sum(1.0 if ord(c) > 0x2E80 else 0.55 for c in s)
+    """以 em 為單位的估算寬度:CJK≈1,半形與數學英數符號≈0.55。"""
+    def unit(c):
+        o = ord(c)
+        if any(lo <= o <= hi for lo, hi in _NARROW_RANGES):
+            return 0.55
+        return 1.0 if o > 0x2E80 else 0.55
+    return sum(unit(c) for c in s)
 
 
 def _first_run_size_pt(shape) -> float:
@@ -117,14 +127,18 @@ def estimate_overflow(shape, text=None, size_pt=None):
     avail_h_pt = max((shape.height - mt - mb) / EMU_PER_PT, 1.0)
 
     cap_em = avail_w_pt / size_pt  # 一行放得下幾個 em
-    # 窄到一行只放得下約一個字 = 刻意的直式堆疊設計(如「優點」側標),不估
-    if cap_em < 1.6:
-        return {"fits": True, "lines": len(text), "needed_pt": 0.0,
-                "avail_pt": round(avail_h_pt, 1), "size_pt": size_pt}
+    # 窄框(一行約一個字)是刻意的直式堆疊設計(如「優點」側標、步驟編號徽章)。
+    # **不能因此就當作一定放得下**——舊版在這裡無條件 return fits=True,結果
+    # 0.34 吋的編號框塞「01」會折成兩行破版,偵測器卻完全看不到(偽陰性)。
+    # 正確做法是照樣算行數(窄框每行約一字),只是由框高決定放不放得下。
+    # wrap="none" = 框設定為不自動換行,文字只會橫向超出框線,不會折行堆高。
+    # 這類框(模板用於年份標籤、英文徽章)行數固定等於硬換行數,不能按框寬折算,
+    # 否則短字串在窄框會被誤判成多行溢出。
+    no_wrap = tf._bodyPr.get("wrap") == "none"
     lines = 0
     for hard_line in text.split("\n"):
         units = _char_units(hard_line)
-        lines += max(1, math.ceil(units / max(cap_em, 0.1)))
+        lines += 1 if no_wrap else max(1, math.ceil(units / max(cap_em, 0.1)))
     needed_pt = lines * size_pt * LINE_SPACING
     # 單行文字在 PowerPoint 不會被裁切(框高偏小只是視覺貼邊),不算溢出;
     # 真正的問題是換行後行數超出框高 → 文字溢到卡片外。

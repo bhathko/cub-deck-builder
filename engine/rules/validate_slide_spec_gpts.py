@@ -362,7 +362,9 @@ PAGE_TYPES = {
             "steps": {
                 "kind": "list", "min": 4, "max": 4, "required": True,
                 "item": {"kind": "object", "fields": {
-                    "number": T(2, provenance=False),  # 循環序號,結構性標籤
+                    # 模板 p35 的編號徽章只有 0.34 吋寬(原文是單一粗體數字 𝟭𝟮𝟯𝟰),
+                    # 放兩位數會折成兩行破版 → 上限 1 字,不是 "01" 這種補零寫法。
+                    "number": T(1, provenance=False),  # 循環序號,結構性標籤
                     "label": T(12),
                     "detail": T(40),
                 }},

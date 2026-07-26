@@ -339,31 +339,41 @@ def cmd_lint(args) -> int:
 # ---------------------------------------------------------------------------
 # golden
 # ---------------------------------------------------------------------------
-def _variant_text(name, max_chars, variant):
+def _variant_text(name, max_chars, variant, path=""):
+    """派生變體文字。**清單項目一律帶序號前綴**——golden 的用途是讓人目檢綁定
+    對不對,若每格文字都一樣(舊版全填 "01"、全填 "detail測測…"),就看不出
+    敘事方向是左到右還是右到左,也看不出綁定有沒有把第 3 項填進第 1 格。
+    序號放最前面,即使文字被縮字或截斷也還看得見。巢狀清單用 "2-4" 形式。
+    """
     if name == "value":
-        return "99.9%"
+        return f"{path or '9'}9.9%"[:6]
     if name == "values":
         return "9.9"  # 圖表數值:純數字字串(chart op 會 float 轉換)
     if name == "number":
-        return "01"
+        # 編號框常是「一個字寬」的徽章(light p35 只有 0.34 吋),補零成 "01"
+        # 會折行破版 → 位數一律受 max_chars 限制。
+        tail = (path or "1").split("-")[-1]
+        return (f"{int(tail):0{max_chars}d}" if tail.isdigit() else tail)[:max_chars]
+    tag = f"{path}." if path else ""
     if variant == "min":
-        t = f"【{name}】待填"
-        return t if len(t) <= max_chars else "待填"[:max_chars]
-    return (name + "測" * max_chars)[:max_chars]
+        t = f"【{tag}{name}】待填"
+        return t if len(t) <= max_chars else (tag + "待填")[:max_chars]
+    return (tag + name + "測" * max_chars)[:max_chars]
 
 
-def _variant_slot(name, slot, variant, page_type):
+def _variant_slot(name, slot, variant, page_type, path=""):
     from make_skeleton import FIXED
     kind = slot["kind"]
     if kind == "text":
         fixed = FIXED.get((page_type, name))
-        return fixed if fixed else _variant_text(name, slot["max_chars"], variant)
+        return fixed if fixed else _variant_text(name, slot["max_chars"], variant, path)
     if kind == "list":
-        n = slot["min"] if variant == "min" else slot["max"]
-        return [_variant_slot(name, slot["item"], variant, page_type)
-                for _ in range(max(n, slot["min"]))]
+        n = max(slot["min"] if variant == "min" else slot["max"], slot["min"])
+        return [_variant_slot(name, slot["item"], variant, page_type,
+                              f"{path}-{i + 1}" if path else str(i + 1))
+                for i in range(n)]
     if kind == "object":
-        return {fn: _variant_slot(fn, fs, variant, page_type)
+        return {fn: _variant_slot(fn, fs, variant, page_type, path)
                 for fn, fs in slot["fields"].items()
                 if variant == "max" or fs.get("required", True)}
     raise ValueError(kind)

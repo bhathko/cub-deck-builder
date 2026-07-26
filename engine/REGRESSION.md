@@ -163,9 +163,16 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-aaeb8a6faa7dd65142291b4991de5908135272522421ee58d8835d0a4dab07c6  tools.zip
+e19c2392050f1197655f6ca19abc482307a64f92e174137584361da4684656a7  tools.zip
 c7d9089b67344230830ec0f4264b80365734a740abc92f3726f56cde803987ab  template_light.zip
 ```
+
+(2026-07-26 目檢回饋修正:qa_check 溢出不再靜默只印前 5(舊版把 79 條顯示成
+5 條)、estimate_overflow 修三處誤判(窄框不再無條件視為放得下、數學英數符號
+𝟭𝟮𝟯𝟰 不再當全形、wrap="none" 框不按框寬折行)、golden 變體文字加序號前綴
+(舊版每格都填一樣的字,看不出綁定有沒有把第 3 項填進第 1 格)。tools.zip 因
+text_tools/qa_check 變動而改 sha;同一份 examples/02_full_10p.json 用新舊引擎
+渲染字級零差異——估算器改動只在契約上限的極端情況生效。)
 
 (2026-07-26 v2.1:一次註冊 10 種純文字頁型(p16/20/22/24/30/35/38/40/47/50),
 light 支援矩陣由「全自動 11 / 半自動 42」變為「全自動 21 / 半自動 32」,

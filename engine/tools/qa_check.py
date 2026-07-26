@@ -99,6 +99,8 @@ def main(argv):
     ap.add_argument("--pptx", required=True)
     ap.add_argument("--template-pack", help="模板包 id 或目錄(省略=spec deck.template→light)")
     ap.add_argument("--packs-root", help="模板包根目錄(預設=tools 上層的 templates/)")
+    ap.add_argument("--overflow-all", action="store_true",
+                    help="列出全部溢出疑慮(預設只列最嚴重 5 條 + 總量)")
     args = ap.parse_args(argv)
 
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8-sig"))  # 容忍 BOM
@@ -177,8 +179,20 @@ def main(argv):
                                      shp.shape_id, tt.shape_text(shp)[:20]))
 
     warns = list(dict.fromkeys(warns))  # 去重(字體警告易重複)
-    for ratio, num, sid, txt in sorted(overflow_all, reverse=True)[:5]:
+    # 溢出:先報總量與受影響頁,再列最嚴重前 5。**不可只印前 5 就當全部**——
+    # 舊版靜默截斷曾讓 79 條溢出對外顯示成 5 條,PASS 報告因此嚴重低估問題規模。
+    if overflow_all:
+        pages = sorted({num for _, num, _, _ in overflow_all})
+        warns.append(f"溢出疑慮共 {len(overflow_all)} 條,分布於 {len(pages)} 頁"
+                     f"(p{', p'.join(map(str, pages))})— 沙箱估算,請逐頁開檔確認")
+    shown = sorted(overflow_all, reverse=True)
+    if not args.overflow_all:
+        shown = shown[:5]
+    for ratio, num, sid, txt in shown:
         warns.append(f"p{num}: 溢出疑慮 x{ratio:.1f}(id={sid}「{txt}…」)— 沙箱估算,請開檔確認")
+    if len(overflow_all) > len(shown):
+        warns.append(f"(另有 {len(overflow_all) - len(shown)} 條較輕微溢出未列出,"
+                     f"完整清單請加 --overflow-all)")
 
     if fails:
         print(f"✗ FAIL ({len(fails)})")
