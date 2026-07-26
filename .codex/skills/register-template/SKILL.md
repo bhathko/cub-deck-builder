@@ -35,7 +35,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
    `page_types.md`(clone 級)。比對不到就回報「無對應,建議跳過或降級」,
    禁止發明新頁型名;`PAGE_TYPES`/schema/registry/page_types.md/golden fixtures
    /qa 規則/引擎程式碼對本 skill **全部唯讀**。需要動它們 = 停止並回報,
-   那是工程師的三處同步流程,不在本 skill 內。
+   那是工程師的契約同步流程,不在本 skill 內。
 2. **零隨機、零自由 Python**:shape id 與座標唯一來源 = `inspect_template.py`
    輸出;綁定只能用 7 個填充 op(set/delete/rows/list/add_textbox/resize/
    chart)加 `keep` 覆蓋宣告,詞彙表與全覆蓋原則見 docs/ARCHITECTURE.md §5。

@@ -5,13 +5,14 @@
 manifest.json、bindings.json、page_map.md、assets/;light 另有 builders-only
 的 bindings.py)。
 
-## ★ 關鍵事實:21 種註冊頁型完全自動,不需要你寫任何計畫
+## ★ 關鍵事實:註冊頁型完全自動,不需要你寫任何計畫
 
-cover / agenda / closing / story_chapter_statement / stage_dual_track_roadmap
-→ 內建版面;vision_goal_center_balance / info_three_column_category /
-data_line_trend_comparison(含圖表數據替換)/ data_two_group_metric_comparison /
-evaluation_option_score_pros_cons / pyramid_layered_maturity_detail
-→ 自動填入模板頁(填充綁定在模板包 `bindings.json`,由 fills_engine 解譯;
+**這個模板包支援哪些頁型、哪些是全自動,跑 `make_skeleton.py --list` 會印出來**——
+它直接讀模板包 manifest,是當下的唯一真相。**不要**依本卡或任何文件寫死的頁型
+清單/數量判斷:那些會過期,而過期的清單會讓你誤以為某個可用的頁型不能用。
+
+全自動有兩種實作,對你來說沒差別(都不需要 plan):內建版面(引擎直接繪製)、
+自動填入模板頁(填充綁定在模板包 `bindings.json`,由 fills_engine 解譯;
 light 的內建版面繪製器在 bindings.py)。
 **整份 spec 都是註冊頁型時,流程只有三條指令,你不產任何中間檔。**
 
@@ -35,7 +36,7 @@ python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
 
 使用者要骨架:`python /mnt/data/tools/make_skeleton.py --types cover,agenda,...,closing --out ...`
 
-## 只有「未涵蓋頁型」(page_types.md 其他 30+ 種)才需要 plan
+## 只有「未涵蓋頁型」(page_types.md 裡未註冊的那些)才需要 plan
 
 寫該頁 plan 前先查參考頁形狀(省 token:只用 --summary / --page N,不要 --all 印出):
 ```bash

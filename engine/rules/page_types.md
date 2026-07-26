@@ -1,7 +1,8 @@
 ## 參考頁型
 本檔是**跨模板共用的頁型語意庫**:定義每種頁型的適用情境、視覺結構與內容容量。
 版面唯一準則是**選定模板包**的 `template.pptx`(預設 light;沙箱路徑
-`/mnt/data/templates/<模板id>/template.pptx`)。21 種已註冊頁型由該包全自動產出;
+`/mnt/data/templates/<模板id>/template.pptx`)。已註冊頁型(契約見
+`page_types_registry.md`,當下全集跑 `make_skeleton.py --list`)由該包全自動產出;
 本檔其他頁型走 render_plan 複製改字——**「頁型 → 該模板第幾頁」的對照查該包的
 `page_map.md`**(各模板不同,不再列於本檔),寫 plan 前先用
 `inspect_template.py --pptx <該包 template.pptx> --page N` 盤點。

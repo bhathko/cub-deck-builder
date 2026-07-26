@@ -17,16 +17,16 @@ docs/              文件(先看 docs/README.md 挑一份;架構/維護/決策�
 | --- | --- |
 | **第一次接手這個 repo** | ① 跑一次下方「本機產一份簡報」(眼見為憑)→ ② [`AGENTS.md`](AGENTS.md)(11 條硬規則,唯一必背)→ ③ [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)(現行結構) |
 | **在這個 repo 工作的 agent** | [`AGENTS.md`](AGENTS.md) 是流程契約;Claude Code 另見 [`CLAUDE.md`](CLAUDE.md) |
-| **要改規則 / 加模板 / 發新版** | [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md)(三處同步、重打包、發佈 checklist) |
+| **要改規則 / 加模板 / 發新版** | [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md)(契約同步、重打包、發佈 checklist) |
 | **想一次看懂系統現在長什麼樣** | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)(目錄、管線、模板包、綁定、驗收——**只講現況**) |
 | **要在 ChatGPT 建這個 GPT** | [`gpts/README.md`](gpts/README.md)(上傳什麼、怎麼設定、能力邊界) |
 | **要發版 / 換裝 GPT Builder** | [`gpts/DEPLOY.md`](gpts/DEPLOY.md)(一頁操作稿:刪什麼、傳什麼、8 條驗收指令原文) |
 | **設計師 / 非技術同事** | [`docs/給設計師/`](docs/給設計師/)(白話文件夾:先看該資料夾的 README 挑一份讀;含「自己動手註冊模板」的逐步指令) |
 | **產出不如預期、想回報問題** | [`docs/FEEDBACK.md`](docs/FEEDBACK.md)(怎麼回饋才會真的變好 + 台帳) |
 | **想知道某個設計當初為什麼這樣決定** | [`docs/WORKLOG.md`](docs/WORKLOG.md)(歷史檔;**不是現況說明**) |
-| **發版前要跑回歸** | [`engine/REGRESSION.md`](engine/REGRESSION.md)(R0–R12 可執行案例) |
+| **發版前要跑回歸** | [`engine/REGRESSION.md`](engine/REGRESSION.md)(R 系列可執行案例) |
 | **產檔被閘門擋下、看到 ERROR** | [`engine/tools/README_TOOLS.md`](engine/tools/README_TOOLS.md)(錯誤→修法對照表,每種錯只有一種修法) |
-| **要寫 / 看懂 slide_spec.json** | [`engine/rules/page_types_registry.md`](engine/rules/page_types_registry.md)(21 種註冊頁型的槽位契約 + light 實際容量表) |
+| **要寫 / 看懂 slide_spec.json** | [`engine/rules/page_types_registry.md`](engine/rules/page_types_registry.md)(註冊頁型的槽位契約 + light 實際容量表) |
 | **想知道現在有哪些模板可用** | [`engine/templates/INDEX.md`](engine/templates/INDEX.md),或跑 `python engine/tools/make_skeleton.py --list` |
 
 ## 常用工作

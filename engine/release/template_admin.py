@@ -10,11 +10,12 @@
   fit --id <id>                             量測版位真正裝得下多少字,寫 capacity_overrides
   register --id <id>                        原子性註冊:lint→golden→light 回歸→isolation
   pack [--id <id> | --tools]                打 template_<id>.zip / tools.zip(正斜線+檢查)
+  sync-docs [--write]                       重生「派生自機器真相」的文件片段(pack 會先擋)
   isolation                                 git diff 對照模板隔離白名單
   list                                      列出所有包
 
 直譯器:new/freeze/golden/register 需 python-pptx(本機無則用
-`uv run --with python-pptx python`);lint/pack/isolation/list 純標準庫。
+`uv run --with python-pptx python`);lint/pack/sync-docs/isolation/list 純標準庫。
 命令一律單行 python、相對路徑,三種 shell 原樣可跑。
 """
 from __future__ import annotations
@@ -579,8 +580,21 @@ def _zip_add(z, src: Path, arcname: str):
     z.writestr(zi, src.read_bytes())
 
 
+def cmd_sync_docs(args) -> int:
+    """重生派生檔(schema enum、INDEX 表格);理由與刻意不做的事見 sync_docs.py 檔頭。"""
+    import sync_docs
+    return sync_docs.run(write=args.write)
+
+
 def cmd_pack(args) -> int:
     import zipfile
+    # 派生檔漂移 → 不准產出 zip。這是本檢查唯一有強制力的掛載點:硬規則 5
+    # 「改動即重打包」讓 pack 成為推上 GPTs 的必經路徑,漂移就沒有交付物。
+    # (掛在文件/checklist/opt-in hook 的做法,本 repo 已證偽兩次——見 sync_docs.py 檔頭。)
+    import sync_docs
+    if sync_docs.run(write=False):
+        print("✗ pack 中止:派生檔與機器真相不符,先修好再打包")
+        return 1
     if args.tools:
         out = DIST / "tools.zip"
         names = sorted(f.name for f in TOOLS.iterdir() if f.suffix in (".py", ".md"))
@@ -685,6 +699,8 @@ def main(argv):
     p = sub.add_parser("fit"); p.add_argument("--id", required=True)
     p.add_argument("--packs-root"); p.add_argument("--dry-run", action="store_true")
     p.add_argument("--reset", action="store_true")
+    p = sub.add_parser("sync-docs")
+    p.add_argument("--write", action="store_true", help="實際重生(預設只檢查)")
     p = sub.add_parser("isolation"); p.add_argument("--packs-root")
     p = sub.add_parser("list"); p.add_argument("--packs-root")
 
@@ -700,7 +716,7 @@ def main(argv):
         return 2
     return {"new": cmd_new, "freeze": cmd_freeze, "lint": cmd_lint,
             "golden": cmd_golden, "register": cmd_register, "pack": cmd_pack,
-            "fit": cmd_fit,
+            "fit": cmd_fit, "sync-docs": cmd_sync_docs,
             "isolation": cmd_isolation, "list": cmd_list}[args.cmd](args)
 
 

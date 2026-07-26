@@ -5,13 +5,26 @@
 > **何時讀**:動 `engine/` 任何東西之前;要把改動推到 GPTs 之前。
 > 硬規則以 [`AGENTS.md`](../AGENTS.md) 為準,本檔是它的操作版。
 
-## 1. 改頁型契約 → 三處同步
+## 1. 改頁型契約 → 契約同步
 
-`engine/rules/` 是共用語意契約的單一真相來源,改頁型契約時**三處一起改**:
+`engine/rules/` 是共用語意契約的單一真相來源。改頁型契約時:
 
-1. `engine/rules/validate_slide_spec_gpts.py` 的 `PAGE_TYPES`(真相來源)
-2. `engine/rules/slide_spec.schema.json` 的 `page_type` enum
-3. `engine/rules/page_types_registry.md`(1 的人類可讀版)
+1. **改 `engine/rules/validate_slide_spec_gpts.py` 的 `PAGE_TYPES`**
+   ——唯一手寫真相,只有這一處要動腦。
+2. **跑 `python engine/release/template_admin.py sync-docs --write`**
+   ——重生 `slide_spec.schema.json` 的 `page_type` enum。
+   **這一步不靠人記得**:`pack` 會先跑同一個檢查,漂移就打不出 zip
+   (掛載理由見 `engine/release/sync_docs.py` 檔頭)。
+3. **手改 `engine/rules/page_types_registry.md`**(1 的人類可讀版)
+   ——目前唯一還要手動同步的一處。它約三分之一是人寫語意(適用情境、版面
+   限制、閱讀順序),機械生成會弄丟而且**機器測不出來**,所以刻意不生成;
+   要收斂得先設計 prose side-car,理由與已知陷阱見 `sync_docs.py` 檔頭。
+
+**文件裡一律不要寫「共 N 種頁型」。** 寫死的數字會過期,而過期的數字是
+功能性缺陷——2026-07-26 `engine/rules/outline_to_ppt_skill.md` 寫「十一種」
+讓 GPT 拒用另外 10 種可用頁型(同型缺陷見 commit `3f22aff`)。要數量就指向
+`make_skeleton.py --list`。**不要**寫 regex 去掃這些數字:實測命中率
+1 真 : 2 假警報 : 1 漏報,一半是雜訊的紅燈只會訓練出無視紅燈的習慣。
 
 新頁型若要全自動產出,另需在該包 `engine/templates/<id>/bindings.json` 加
 fill 條目(宣告式 op 詞彙表;builtin 僅 light 的 `bindings.py`)→
@@ -28,7 +41,7 @@ fill 條目(宣告式 op 詞彙表;builtin 僅 light 的 `bindings.py`)→
 
 **設計師自助加開頁型**走 `.codex/skills/add-page-types/SKILL.md`
 (設計師版說明在 `docs/給設計師/03-路線B-自己動手.md` 的 A10 節);
-那條路徑允許動三處同步,與「註冊全新模板」的 `register-template` 分工不同。
+那條路徑允許動契約同步,與「註冊全新模板」的 `register-template` 分工不同。
 
 **契約改版的連動**:golden fixtures 重派生
 (`template_admin.py golden --regen-specs`)→ **全部已註冊模板包重跑 golden**;
@@ -74,9 +87,9 @@ skill 帶著跑盤點→映射→綁定→黃金驗收→註冊)。
 > 註冊/改動在 repo 端完成後,發佈是**人工步驟**,逐項勾;
 > Builder 端的逐步操作與驗收指令原文見 [`../gpts/DEPLOY.md`](../gpts/DEPLOY.md)。
 
-0. □ 頁型數量若有變動,掃一次文件內的「N 種註冊頁型」數字
-   (`grep -rn "種註冊頁型\|種全自動" --include="*.md" .`)
-1. □ 該模板包 REGRESSION 綠 + `engine/REGRESSION.md` R0–R12 全符
+0. □ `python engine/release/template_admin.py sync-docs` exit 0
+   (派生檔與機器真相一致;`pack` 也會擋,這裡先跑只是早點知道)
+1. □ 該模板包 REGRESSION 綠 + `engine/REGRESSION.md` 全部 R 案例全符
 2. □ `python engine/release/template_admin.py isolation` 白名單過
    (模板目錄外的改動已拆 commit)
 3. □ `python engine/release/template_admin.py pack --id <id>` 重打包
@@ -87,7 +100,8 @@ skill 帶著跑盤點→映射→綁定→黃金驗收→註冊)。
    同名檔要**刪舊傳新**)
 7. □ Builder 驗收:問「你現在是哪一版?」核對 instructions 版與 roster;
    用該模板 golden/smoke spec 產一份 qa PASS;light 抽測一份確認不受影響
-8. □ `engine/templates/INDEX.md` 狀態更新;通知團隊
+8. □ `engine/templates/INDEX.md` 表格已由 `sync-docs --write` 重生
+   (新包要先手動加一列);通知團隊
 
 ## 6. 版控紀律
 

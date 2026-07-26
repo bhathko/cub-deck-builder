@@ -7,7 +7,7 @@ description: 設計師要「讓某個模板多支援幾種版型/頁面」時使
 
 > **與 `register-template` 的分工**:那支是「拿到一個**新的 .pptx**,從零建一個模板包」;
 > 本支是「模板**已經註冊過**,只是要讓它多支援幾種頁面」。
-> 兩者最大差別:本支**允許並且必須**改共用契約(三處同步),那支明文禁止。
+> 兩者最大差別:本支**允許並且必須**改共用契約(契約同步),那支明文禁止。
 
 ## 先看清楚使用者要的是哪一件事
 
@@ -25,11 +25,13 @@ description: 設計師要「讓某個模板多支援幾種版型/頁面」時使
 
 1. **零發明頁型**:候選只能來自 `engine/rules/page_types.md` 已有的 `###` 條目。
    模板裡有一頁但頁型庫沒有對應語意 → 停下來回報,那需要先擴頁型庫(工程師)。
-2. **三處同步一個不能少**:`validate_slide_spec_gpts.py` 的 `PAGE_TYPES` /
-   `slide_spec.schema.json` 的 `page_type` enum / `page_types_registry.md`。
-   漏一處會出現「驗證器認得、schema 不認」的鬼打牆。改完立刻
+2. **契約同步只有一處要動腦**:改 `validate_slide_spec_gpts.py` 的 `PAGE_TYPES`
+   (唯一手寫真相),改完立刻
    `python -c "import sys;sys.path.insert(0,'engine/rules');import validate_slide_spec_gpts"`
-   確認匯入不炸。
+   確認匯入不炸,再跑
+   `python engine/release/template_admin.py sync-docs --write` 重生
+   `slide_spec.schema.json` 的 enum(忘了跑也沒關係——`pack` 會擋)。
+   `page_types_registry.md` 仍要手改(步驟 2)。
 3. **容量不准手填**:字數與清單長度一律由
    `template_admin.py fit --id <id>` 量測後寫進該包的 `capacity_overrides`。
    憑感覺填的下場是「閘門 PASS、版面壞掉」——2026-07-26 就是這樣,
@@ -70,7 +72,7 @@ uv run --with python-pptx python engine/tools/inspect_template.py \
 `engine/rules/page_types.md` 該頁型的「視覺結構」與「內容容量」——
 契約的槽位與數量以它為依據,不要自己發明欄位。
 
-## 步驟 2|定語意契約(三處同步)
+## 步驟 2|定語意契約(契約同步)
 
 寫進 `PAGE_TYPES`,格式照抄鄰居:
 
@@ -208,23 +210,35 @@ python engine/release/template_admin.py pack --id light
 shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 ```
 
-同步更新(**手改的計數字串很容易漏,逐項對**):
+> `pack` 會先跑 `sync-docs --check`:`slide_spec.schema.json` 的 enum 或
+> `engine/templates/INDEX.md` 的表格沒跟上,**這兩行會直接失敗、產不出 zip**。
+> 修法是 `template_admin.py sync-docs --write`,不是繞過。
 
-- `page_map.md`:該列 clone→fill,**還有檔尾的統計句**
-  (「共 N 筆:builtin x、fill y、clone z」——上一批就漏了這句)
-- `page_types.md` 該節補「已註冊頁型」標記句
-- `page_types_registry.md`:「本檔下列 N 種」「這 N 種由 render_deck.py 全自動
-  產出」兩處(容量表由 `fit` 自動重生,不用手改)
-- `gpts/instructions.md`:版本字串 + 兩處「N 種註冊頁型」
-- `manifest.json` 的 `version` 進版
-- `engine/REGRESSION.md` R7 的 sha 基準
+同步更新:
 
-掃一次確認沒漏:`grep -rn "種註冊頁型\|種全自動\|共 [0-9]* 筆" --include="*.md" .`
+- **機器會管的(忘了也擋得住)**:`slide_spec.schema.json` 的 enum、
+  `engine/templates/INDEX.md` 的表格 → `sync-docs --write`;
+  `page_types_registry.md` 的容量表 → `fit` 自動重生。
+- **還是要手改的**:
+  - `page_map.md` 該列 clone→fill,**還有檔尾的統計句**
+    (「共 N 筆:builtin x、fill y、clone z」;它與同檔表格自洽,對一下就好)
+  - `page_types.md` 該節補「已註冊頁型」標記句
+  - `page_types_registry.md` 新增該頁型的一節(槽位契約 + 適用情境)
+  - `manifest.json` 的 `version` 進版、`gpts/instructions.md` 的版本字串
+  - `engine/REGRESSION.md` R7 的 sha 基準
+
+**不要在任何文件寫「現在共 N 種頁型」。** 過期的數字不是小錯,是功能性缺陷——
+2026-07-26 `outline_to_ppt_skill.md` 寫「十一種」讓 GPT 拒用另外 10 種可用頁型
+(同型缺陷見 commit `3f22aff`)。要講數量就指向 `make_skeleton.py --list`。
+也**不要**寫 regex 掃這些數字:實測 1 真命中 : 2 假警報 : 1 漏報
+(中文「十一種」掃不到、WORKLOG 的歷史數字會誤報),半數雜訊的紅燈只會被無視。
+
 最後跑 `lint --all` + `golden` 確認沒改壞。
 
 給設計師的交付摘要用白話:
 「多加了 3 種全自動頁面(三大數字 KPI、四點循環、卡片網格),
-現在全自動 24 種。之後產檔直接說要哪種版面就好。」
+之後產檔直接說要哪種版面就好。」
+(要報總數就先跑 `make_skeleton.py --list` 讀當下的數字,不要沿用本例的數字。)
 
 ---
 
@@ -234,7 +248,7 @@ shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 | --- | --- |
 | lint:全覆蓋原則違反,某 shape 未被覆蓋 | 那個框要嘛綁槽位、要嘛 `delete`、要嘛 `keep`+reason。三者選一,不能不理 |
 | lint:inventory 缺第 N 頁快照 | **先確認 manifest 該頁型 mode 已改成 `fill`**,再跑 `freeze`。freeze 只認 mode=fill 的頁,mode 沒改的話重跑幾次都一樣 |
-| lint:fill 級必須是已註冊語意頁型 | 三處同步漏了 `PAGE_TYPES`,或頁型名拼錯 |
+| lint:fill 級必須是已註冊語意頁型 | 契約同步漏了 `PAGE_TYPES`,或頁型名拼錯 |
 | lint:圖表未被 chart op 覆蓋 / SmartArt | 補 `chart` op;補不了 → 該頁維持 clone / unsupported |
 | validator:字數超過上限(golden 自己的派生) | 契約上限比 golden 派生的變體文字還短 → 跑 `fit` 重量,別手改 |
 | golden FAIL:文字壓到別的元素 | 跑 `fit` 收緊;若 fit 說「放不下」= 版位真的不夠,降級或請設計師改版位 |
@@ -261,7 +275,7 @@ shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 | 「字變小了 / 大小不一致」 | 被縮字(不該再發生) | 跑 `fit`;若 fit 說收斂了 → 回報維護者,可能是新的量測死角 |
 | 「這頁還留著範例文字」 | 契約外的內容性元素沒刪 | 補 `delete` |
 | 「順序跑掉了」 | 綁定的格位順序與閱讀方向不符 | 用 golden 的 `1. 2. 3.` 前綴對照,重排 `list` 的 items 順序 |
-| 「這頁我不要了」 | 降級 | manifest 改回 `clone`,三處同步的契約可留(無害)或一併移除 |
+| 「這頁我不要了」 | 降級 | manifest 改回 `clone`,契約同步寫下的契約可留(無害)或一併移除 |
 
 ## 迭代與降級
 

@@ -19,9 +19,15 @@
    排版紀律)在 `engine/rules/`;**模板知識(模板本體、綁定、素材、視覺
    常數)在 `engine/templates/<id>/`,manifest.json 為機器真相**(多模板架構
    見 `docs/ARCHITECTURE.md`)。`gpts/instructions.md` 是 GPTs 指示的原稿。
-2. **三處同步**:改頁型契約時,`engine/rules/validate_slide_spec_gpts.py` 的
-   `PAGE_TYPES`、`engine/rules/slide_spec.schema.json` 的 enum、
-   `engine/rules/page_types_registry.md` 三處一起改。
+2. **契約同步**:`engine/rules/validate_slide_spec_gpts.py` 的 `PAGE_TYPES` 是
+   頁型契約**唯一手寫真相**。改完:①跑
+   `python engine/release/template_admin.py sync-docs --write` 重生
+   `slide_spec.schema.json` 的 enum(**機器強制**:漂移時 `pack` 會拒絕打包);
+   ②`engine/rules/page_types_registry.md` **目前仍須手改**(它有約三分之一是
+   人寫語意,尚未生成;刻意不生成的理由見 `engine/release/sync_docs.py` 檔頭)。
+   文件一律**不寫「共 N 種頁型」**——寫死的數字會過期,而過期的數字會讓模型
+   拒用新頁型(2026-07-26 實際發生過,見 commit `3f22aff`);要數量就指向
+   `make_skeleton.py --list`。
 3. **渲染層零隨機**:版面確定性是本專案的核心資產,不得在 renderer 加入任何
    隨機性或「AI 自由發揮」;多樣性只能來自頁型庫擴充。
 4. **綁定與模板 pptx 硬耦合,以包為界**:每包填充綁定(shape id)住在
@@ -64,14 +70,40 @@
 
 ## 常用指令(本機需 Python 3 + python-pptx)
 
-```
+### 產檔三步(依序跑,前一步 exit 0 才進下一步)
+
+**1. spec 閘門**——產檔前擋結構/槽位數量/字數/頁碼/素材與防幻覺追溯
+
+```bash
 python engine/rules/validate_slide_spec_gpts.py --spec <spec.json> --asset-dir <素材根目錄>
-python engine/tools/render_deck.py --spec <spec> --asset-dir <素材根目錄> --out <out.pptx>   # 模板檔自動取自選定包(deck.template,預設 light)
-python engine/tools/qa_check.py --spec <spec> --pptx <out.pptx>
-python engine/tools/inspect_template.py --pptx engine/templates/light/template.pptx --summary
-python engine/tools/inspect_template.py --verify engine/templates/light                        # 模板改版漂移偵測
 ```
 
-> 維護與發佈的操作步驟(三處同步、重打包、發佈 checklist)見
+**2. 產檔**——模板檔自動取自選定包(`deck.template`,預設 `light`)
+
+```bash
+python engine/tools/render_deck.py --spec <spec> --asset-dir <素材根目錄> --out <out.pptx>
+```
+
+**3. 產檔後自檢**——擋頁數不符/內容遺漏/文字壓到鄰欄,並警示溢出與字體
+
+```bash
+python engine/tools/qa_check.py --spec <spec> --pptx <out.pptx>
+```
+
+### 模板盤點(寫綁定或模板改版時)
+
+**盤點形狀樹**——一頁一行的概覽,拿 shape id 當替換錨點前先跑
+
+```bash
+python engine/tools/inspect_template.py --pptx engine/templates/light/template.pptx --summary
+```
+
+**漂移偵測**——模板改版必跑,sha 不符 = 盤點未完成,不得發版
+
+```bash
+python engine/tools/inspect_template.py --verify engine/templates/light
+```
+
+> 維護與發佈的操作步驟(契約同步、重打包、發佈 checklist)見
 > [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md);回饋處理見
 > [`docs/FEEDBACK.md`](docs/FEEDBACK.md)。

@@ -1,4 +1,4 @@
-# REGRESSION — 引擎級發版前回歸(R0–R12)
+# REGRESSION — 引擎級發版前回歸
 
 > **用途**:發版前的可執行回歸案例與預期結果,涵蓋 archive 完整性、閘門正反例、
 > 稽核、QA、多模板與全包 lint。
@@ -163,9 +163,15 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-c5737f139359dcef3931d4d197243a23f2ca1e3a0ef9af98202139693bc40b69  tools.zip
+596a036ccc920cfa9eb9c0eb235ace4a6bde210ec41ae0bc3b6921b7e991dff3  tools.zip
 9748436d31db51380423f88a5355c300f0912b18d5e6a6cf079fc19c32463b85  template_light.zip
 ```
+
+(2026-07-26 tools.zip 由 `c5737f13…` 換成 `596a036c…`:清掉 `README_TOOLS.md`
+與 `render_deck.py` 檔頭寫死的「21 種註冊頁型」與其後**只列 10–11 個名字**的
+清單——那是功能性缺陷,模型照著讀會誤以為其餘頁型不能用(同型缺陷見
+commit `3f22aff`)。兩處都改成指向 `make_skeleton.py --list`。
+template_light.zip 未動,不需重傳。)
 
 (2026-07-26 碰撞判準:設計師目檢 p4/p10/p22/p30 指出「不是 autofit 沒超過,
 是 autofit 後跑到了不該出現字的位置」。qa_check 新增文字碰撞檢查(FAIL 級),
@@ -352,3 +358,43 @@ python engine/tools/qa_check.py --spec ppt_out/_neg.json \
 自己的文字」;`wrap="none"` 的標籤框文字往右長但仍在卡片底板內、沒碰到鄰欄
 文字,就不算破版。稽核時不要拿 `fits=False` 當漏報。
 
+
+## R13|派生檔與機器真相同步(pack 已內建,本項是人工複核)
+
+`engine/rules/slide_spec.schema.json` 的 `page_type` enum 與
+`engine/templates/INDEX.md` 的模板包表格,都是**從機器真相派生**的抄本
+(前者來自 validator `PAGE_TYPES`,後者來自各包 `manifest.json`)。
+抄本會漂,而且漂了沒有任何測試會紅——schema enum 尤其危險:**全 repo 沒有
+任何程式消費它**(無 `jsonschema` import;整份刪掉管線照樣 exit 0),
+它唯一的消費者是 GPTs 端模型的語意檢索,所以漏改在 repo 端 100% 測不到,
+卻會讓線上模型拒用新頁型(同型缺陷見 commit `3f22aff`)。
+
+```bash
+python3 engine/release/template_admin.py sync-docs; echo "exit=$?"
+```
+
+預期:`exit=0`,輸出 `✓ sync-docs:2 個派生檔與機器真相一致`。
+非 0 = 有人改了契約或 manifest 卻沒重生派生檔 —— 修法是
+`sync-docs --write` 後把結果一起 commit。
+
+**這一項平常不必手動跑**:`pack` 已經內建同一個檢查,漂移就打不出 zip
+(掛載理由見 `engine/release/sync_docs.py` 檔頭——把同步規則寫進文件的做法,
+本 repo 在 2026-07-26 一天之內被證偽兩次)。本項存在是為了讓回歸清單能
+獨立複核閘門本身沒壞。驗證閘門真的會擋:
+
+```bash
+cp engine/templates/INDEX.md /tmp/INDEX.bak
+python3 - <<'PY'
+import pathlib
+p = pathlib.Path("engine/templates/INDEX.md")
+p.write_text(p.read_text(encoding="utf-8").replace("registered", "draft", 1), encoding="utf-8")
+PY
+python3 engine/release/template_admin.py pack --tools; echo "exit=$?"   # 預期 1,且 zip 未被改寫
+cp /tmp/INDEX.bak engine/templates/INDEX.md && rm /tmp/INDEX.bak
+```
+
+**注意生成器刻意不涵蓋 `page_types_registry.md` 的契約節**(約 36% 是人寫語意,
+且人寫段落在一節內有前/中/尾三種位置,機械生成會弄丟閱讀順序而機器測不出來)、
+也不做「掃描文件裡的 N 種」regex 檢查(實測 1 真命中 : 2 假警報 : 1 漏報)。
+那兩塊的正解是**讓數字消失**——文件不寫「共 N 種」,改指
+`make_skeleton.py --list`,已於 2026-07-26 全面套用。理由詳見 `sync_docs.py` 檔頭。

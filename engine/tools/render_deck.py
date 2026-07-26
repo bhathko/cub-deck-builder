@@ -9,13 +9,12 @@
 fill 填充)住在模板包 `templates/<id>/bindings`,本工具經 pack_loader 載入
 選定包後 dispatch;預設包 = light(spec 未寫 deck.template 時)。
 
-★ light 包 21 種註冊頁型完全自動,不需要 plan:
-   builtin(版面內建):cover, agenda, closing, story_chapter_statement,
-                        stage_dual_track_roadmap
-   fill(模板頁自動填充):vision_goal_center_balance,
-        info_three_column_category, data_two_group_metric_comparison,
-        evaluation_option_score_pros_cons, pyramid_layered_maturity_detail
+★ 註冊頁型完全自動,不需要 plan:
+   builtin(版面內建,引擎直接繪製)與 fill(模板頁自動填充,綁定在該包
+   bindings.json)兩種實作,對呼叫端沒差別。
    → 整份 spec 都是註冊頁型時,直接跑本工具即可,LLM 不需要產任何計畫。
+   哪些頁型屬於哪一級**依模板包而定**,跑 `make_skeleton.py --list` 查當下實況;
+   這裡刻意不列清單/數量,寫死了就會隨模板加開頁型而過期。
 
 ★ 只有「未涵蓋頁型」(page_types.md 頁型庫其他頁型)才需要 plan 條目:
    clone 模板頁 + 文字替換編輯清單。plan 也可覆寫自動頁(以 plan 為準)。

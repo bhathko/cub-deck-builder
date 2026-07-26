@@ -26,7 +26,7 @@
 | 文字溢出、字級跑掉、文字壓到隔欄 | **跑 `template_admin.py fit --id <包>` 重新量測**,它會寫進該包 `capacity_overrides` 並重生 registry 的容量表。**不要手改 registry 的容量表或 capacity_overrides**(會被下次 fit 覆蓋);fit 說「放不下」= 版位真的不夠 → 降級該頁型或請設計師改版位 |
 | 版面跟模板不像、元素亂跑 | `engine/rules/page_types.md` 該頁型的「視覺結構」描述補細節(位置、比例講死) |
 | 配色、卡片樣式、logo/頁碼不對 | `engine/rules/style_guide.md` 補規則;色值本身改該模板包 manifest 的 `style` |
-| 明顯違規的 JSON 沒被擋 / 合規的被誤擋 | `engine/rules/validate_slide_spec_gpts.py`(三處同步,見 [`MAINTENANCE.md`](MAINTENANCE.md)) |
+| 明顯違規的 JSON 沒被擋 / 合規的被誤擋 | `engine/rules/validate_slide_spec_gpts.py`(契約同步,見 [`MAINTENANCE.md`](MAINTENANCE.md)) |
 | 破圖、頁序錯、Section 殘留、機械問題 | `engine/tools/` 對應腳本,改完重打包 tools.zip |
 | 同一頁型每次產出長得不一樣 | 最強解:把該頁型升級成該模板包的 fill 綁定(全自動、零隨機) |
 | 它跳過驗證就產檔 | `gpts/instructions.md` 絕對規則區加重申;驗收時堅持要看 PASS 輸出 |

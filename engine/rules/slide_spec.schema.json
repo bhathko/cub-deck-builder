@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ppt-ai/slide_spec.schema.json",
   "title": "Slide Spec",
-  "description": "內容與渲染之間的中間層。LLM 只輸出這份 JSON（選 page_type + 填精確字串），不碰排版或畫圖。本檔做結構層驗證；每種 page_type 的槽位數量/字數/來源追溯等深層規則由 validate_slide_spec.py 執行。",
+  "description": "內容與渲染之間的中間層。LLM 只輸出這份 JSON（選 page_type + 填精確字串），不碰排版或畫圖。本檔做結構層驗證；每種 page_type 的槽位數量/字數/來源追溯等深層規則由 validate_slide_spec_gpts.py 執行。",
   "type": "object",
   "required": [
     "deck",
@@ -66,11 +66,11 @@
         },
         "page_type": {
           "type": "string",
-          "description": "必須是 validate_slide_spec.py 之 PAGE_TYPES 註冊表中的鍵；下列 enum 為目前已註冊者。新增版型時兩處都要加。",
+          "description": "必須是 validate_slide_spec_gpts.py 之 PAGE_TYPES 註冊表中的鍵。本 enum 由 `template_admin.py sync-docs --write` 從 PAGE_TYPES 生成,不要手改——手改會在下次 sync-docs 被蓋掉,而且 pack 會先擋下來。",
           "enum": [
             "cover",
-            "agenda",
             "closing",
+            "agenda",
             "vision_goal_center_balance",
             "info_three_column_category",
             "data_line_trend_comparison",

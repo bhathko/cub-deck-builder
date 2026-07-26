@@ -52,7 +52,8 @@ slide_spec.json ──► audit_provenance ──► validator ──► render_
 
 **語意層(跨模板共用)**:`engine/rules/validate_slide_spec_gpts.py` 的
 `PAGE_TYPES` 定義每種頁型的槽位契約(名稱、巢狀、數量、字數、頁碼規則)。
-目前 **21 種**註冊頁型;另有 `page_types.md` 的 30+ 種語意頁型只做基本檢查。
+註冊頁型的當下全集跑 `make_skeleton.py --list`(刻意不在文件寫死數量);
+另有 `page_types.md` 的語意頁型只做基本檢查。
 
 **模板層(每包各自)**:每個模板包宣告自己對每種頁型的支援等級——
 
@@ -137,7 +138,7 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
 
 - **支援矩陣三級**(設計師語言:全自動/半自動/不支援):
   `fill` = 有綁定、過黃金驗收,產檔全自動;`clone` = 只有頁碼映射,產檔走
-  render_plan 複製改字(= 現行 page_types.md 30+ 種的體驗,也是綁定失敗的
+  render_plan 複製改字(= 現行 page_types.md 未註冊頁型的體驗,也是綁定失敗的
   **內建降級層**);`unsupported` = validator 硬擋(附 reason)。
   部分支援是合法結局,不逼全頁型全綠。`builtin` 模式僅 light 允許。
 - **per-頁型素材鍵覆寫**:語意契約的 assets 必要鍵(background/logo)降為
@@ -239,7 +240,7 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
 - `--template <pptx 路徑>` 是相容別名(= light 包 + 覆寫模板檔),
   用於「拿新版模板檔試跑」。
 - **範圍鐵則:模板包只能把既有語意頁型映射到自己的模板頁,不能發明新語意
-  頁型。** 新增語意頁型走三處同步、由工程師把關——這讓「同一份 spec 換
+  頁型。** 新增語意頁型走契約同步、由工程師把關——這讓「同一份 spec 換
   `deck.template` 就換皮」在結構層永遠成立。
 - **outline 一鍵模式按包收斂**:該模式硬帶 `--registered-only --strict`
   且禁 render_plan,所以切頁時**頁型候選 = 該包的全自動集合**
