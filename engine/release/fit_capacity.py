@@ -73,6 +73,13 @@ manifest 的 `capacity_overrides`,讓閘門在產檔前就擋下來要求改稿�
 12. 量 footprint 時要**傳設計字級**。預設會讀「框裡現在的字級」,而訊號①
     的定義就是「字已經被縮小了」——在最需要精準的情境下面積會偏小、
     可容字數高估近一倍。
+16. 物件清單整份併進一框(`set` 的 `item_template`,agenda)與整包 slots
+    合併框(`slot: "$.slots"`,cover 日期列)的終端節點是物件不是文字。
+    2026-07-27 前這兩型被**靜默跳過**——印「零縮字」而 golden 實際縮字,
+    容量只能手寫且不受 `--reset` 保護。現在容量分配到樣板逐行引用的文字
+    子欄位;**同一行多個欄位共用行寬,預算按各欄契約上限比例分**(均分會
+    把 number(4)/title(20) 這種懸殊組合掐死)。對應不到文字子欄位的映射
+    列入警告,不再靜默。
 13. **本工具只會收緊、不會放寬**(避免永久卡在「1 字」)。所以:
     設計師把版位改大之後,**必須加 `--reset` 重量**,不加的話會直接回報
     收斂、上限維持舊的緊值。
@@ -115,6 +122,17 @@ COLLIDE_SLACK = 1.10    # 允許比模板基準多 10%(行距估算誤差)
 MAX_ROUNDS = 8
 
 _NUMERIC_SLOTS = {"value", "values", "number"}
+# 同行預算分配時視為「半形為主」的欄位(僅影響分配換算,不影響量測探測字元):
+# date 的主流寫法是 2026-07-27(半形),但仍可能寫中文日期,所以量測維持全形
+# 安全底線,只在分配時按半形寬度換回字數——否則 cover 日期列的 date 會被分到
+# 7 個全形字,連標準 ISO 日期(10 字元)都過不了閘門。
+_HALF_WIDTH_ISH = _NUMERIC_SLOTS | {"date"}
+_HALF_WIDTH_FACTOR = 0.55
+
+
+def _width_factor(path: str) -> float:
+    tail = [x for x in str(path).split(".") if x != "item"]
+    return _HALF_WIDTH_FACTOR if (tail and tail[-1] in _HALF_WIDTH_ISH) else 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -125,7 +143,10 @@ def norm_slot(slot_path: str) -> str:
 
     `$.slots.columns[0].points[0]`  → `columns.item.points.item`(索引=單一項目)
     `$.slots.columns[0].points[2:]` → `columns.item.points`     (切片=清單本身)
+    `$.slots`(整包合併進一框)      → ``(空字串=slots 根物件)
     """
+    if slot_path == "$.slots":
+        return ""
     p = slot_path[len("$.slots."):] if slot_path.startswith("$.slots.") else slot_path
     return re.sub(r"\[([^\]]*)\]", lambda m: "" if ":" in m.group(1) else ".item", p)
 
@@ -133,6 +154,8 @@ def norm_slot(slot_path: str) -> str:
 def node_at(slots: dict, path: str):
     node = {"kind": "object", "fields": slots}
     for seg in path.split("."):
+        if not seg:
+            continue  # 空字串路徑 = slots 根物件($.slots 整包合併框)
         if seg == "item":
             node = node.get("item", {})
         elif node.get("kind") == "object":
@@ -145,10 +168,15 @@ def node_at(slots: dict, path: str):
 
 
 def parent_list(slots: dict, path: str):
-    """path 形如 a.item / a.b.item → 回傳 (清單路徑, 清單節點)。"""
-    if not path.endswith(".item"):
+    """path 形如 a.item / a.b.item → 回傳 (清單路徑, 清單節點)。
+    物件清單的子欄位(a.item.f)也要能走到清單本身——併進一框的 agenda
+    在「框裝不下這麼多項」時,能縮的旋鈕是 items.max,不是子欄位字數。"""
+    if path.endswith(".item"):
+        lp = path[: -len(".item")]
+    elif ".item." in path:
+        lp = path.rsplit(".item.", 1)[0]
+    else:
         return None, None
-    lp = path[: -len(".item")]
     return lp, node_at(slots, lp)
 
 
@@ -159,57 +187,70 @@ def probe_char(path: str) -> str:
     return "0" if (tail and tail[-1] in _NUMERIC_SLOTS) else "測"
 
 
+def _add_template_lines(add, tmpl: str, prefix: str, sid: int):
+    """樣板逐行拆解:同一行的欄位共用行寬(預算按契約上限比例分),
+    行內的樣板字面字元(「  」「  |  」)是固定開銷。"""
+    for line in tmpl.split("\n"):
+        fields = re.findall(r"\{(\w+)\}", line)
+        if not fields:
+            continue
+        overhead = len(re.sub(r"\{\w+\}", "", line))
+        group = [f"{prefix}.{f}" if prefix else f for f in fields]
+        for gp in group:
+            add(gp, sid, group, overhead)
+
+
 def slot_shape_map(ops: list, slots: dict) -> dict:
-    """{契約路徑: [(shape_id, 這個框要裝幾項)]}。"""
+    """{契約路徑: [(shape_id, 同行欄位群, 行內固定字數)]}。
+
+    同行欄位群 = 與此路徑共用同一行寬的全部契約路徑(含自己);寫容量時
+    行預算按各欄**基準契約**上限比例分。單獨佔一行(絕大多數)= 只有自己、
+    開銷 0,行為與舊版相同。"""
     out: dict = {}
 
-    def add(p, sid, n=1):
-        out.setdefault(p, []).append((sid, n))
+    def add(p, sid, group=None, overhead=0):
+        out.setdefault(p, []).append((sid, group or [p], overhead))
 
     for op in ops:
         kind = op["op"]
-        if kind == "set" and op.get("slot", "").startswith("$.slots."):
+        if kind == "set" and (op.get("slot") == "$.slots"
+                              or op.get("slot", "").startswith("$.slots.")):
             path = norm_slot(op["slot"])
             nd = node_at(slots, path)
-            if op.get("join") and nd and nd.get("kind") == "list":
-                add(path + ".item", op["id"], nd.get("max", 1))   # 整個清單併入一框
+            if op.get("item_template") and nd and nd.get("kind") == "list":
+                # 物件清單整份併進一框(agenda):容量落在樣板逐行引用的文字子欄位
+                _add_template_lines(add, op["item_template"], f"{path}.item", op["id"])
+            elif op.get("template") and nd and nd.get("kind") == "object":
+                # 整包/物件合併框(cover 日期列 slot="$.slots")
+                _add_template_lines(add, op["template"], path, op["id"])
+            elif op.get("join") and nd and nd.get("kind") == "list":
+                add(path + ".item", op["id"])   # 純文字清單整份併入一框
             else:
                 add(path, op["id"])
         elif kind == "rows":
             base = norm_slot(op["slot"])
-            rid = op["row_ids"]
-            nd = node_at(slots, base)
-            extra = (max(0, (nd.get("max", len(rid)) if nd else len(rid)) - len(rid))
-                     if op.get("merge_height_in") else 0)
-            for j, sid in enumerate(rid):
-                add(base + ".item", sid, 1 + (extra if j == len(rid) - 1 else 0))
+            for sid in op["row_ids"]:
+                add(base + ".item", sid)
         elif kind == "list":
             base = norm_slot(op["slot"])
-            nd = node_at(slots, base)
-            ov = op.get("overflow") or {}
-            # 切片 [2:] 表示前 2 項由別的 op 負責,溢出量要扣掉這個位移
-            m = re.search(r"\[(\d+):\]", op["slot"])
-            offset = int(m.group(1)) if m else 0
-            extra = (max(0, (nd.get("max", 0) if nd else 0) - offset - len(op["items"]))
-                     if ov else 0)
             for it in op["items"]:
                 for st in it.get("sets", []):
                     s, sid = st["slot"], st["id"]
                     if st.get("template"):
-                        fields = re.findall(r"\{(\w+)\}", st["template"])
-                        for f in fields:
-                            add(f"{base}.item.{f}", sid, len(fields))
+                        # 刻意不做同行比例分(維持既有量測值):這型框的欄位
+                        # 各自被完整行寬量過並多輪收斂,現值已實證可行。
+                        for f in re.findall(r"\{(\w+)\}", st["template"]):
+                            add(f"{base}.item.{f}", sid)
                     elif st.get("join"):
                         sub = base + ".item" if s == "@" else base + ".item." + s[2:]
-                        sn = node_at(slots, sub)
-                        add(sub + ".item", sid,
-                            sn.get("max", 1) if sn and sn.get("kind") == "list" else 1)
+                        add(sub + ".item", sid)
                     elif s == "@":
                         add(base + ".item", sid)
                     else:
                         add(base + ".item." + s[2:], sid)
+            ov = op.get("overflow") or {}
             if ov.get("merge_into_id"):
-                add(base + ".item", ov["merge_into_id"], 1 + extra)
+                add(base + ".item", ov["merge_into_id"])
         elif kind == "add_textbox":
             for sl in op.get("slots", []):
                 path = norm_slot(sl)
@@ -416,9 +457,9 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
     for pt, ent in fills.items():
         table: dict = {}
         for path, pairs in slot_shape_map(ent["ops"], PAGE_TYPES[pt]["slots"]).items():
-            for sid, _ in pairs:
+            for sid, group, overhead in pairs:
                 if sid is not None:
-                    table.setdefault(sid, []).append(path)
+                    table.setdefault(sid, []).append((path, group, overhead))
         sid2paths[pt] = table
     # add_textbox 的槽位:靠文字內容反推(變體文字帶槽位名)
     addbox = {}
@@ -555,7 +596,7 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
         out = Presentation(str(made))
         overrides = dict(manifest.get("capacity_overrides") or {})
         live = apply_capacity_overrides(PAGE_TYPES, overrides)
-        changes, unmapped, stuck = [], [], []
+        changes, unmapped, stuck, opaque = [], [], [], []
 
         for idx, slide in enumerate(out.slides):
             if idx >= len(seq):
@@ -618,14 +659,18 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
                     # 多個槽位(prefix + 兩個 slots 用 join 串起來),所以要比對
                     # 文字裡出現的**所有**識別字,不能只取第一個。
                     found = set(re.findall(r"[a-z_]{3,}", shape.text_frame.text))
-                    paths = [p for p in addbox.get(pt, [])
+                    paths = [(p, [p], 0) for p in addbox.get(pt, [])
                              if [x for x in p.split(".") if x != "item"][-1] in found] or None
                     if not paths:
                         unmapped.append((idx + 1, sid, shape.text_frame.text[:20]))
                         continue
                 o = tpl_shapes.get(pt, {}).get(sid)
                 design = tt._first_run_size_pt(o if o is not None else shape)
-                ch = probe_char(paths[0])
+                # 陷阱 6 的多欄位變形:一框承載多個欄位時,只要有任何非數字
+                # 欄位就得用全形探測——曾因 paths[0] 恰好是 number 而用半形
+                # 「0」量出 55 字的假上限(實際 CJK 上限是 30)。
+                chs = {probe_char(p) for p, _, _ in paths}
+                ch = "測" if "測" in chs else "0"
                 n = len(shape.text_frame.text.split("\n"))
                 neighbours = _neighbour_footprints(slide, sid, base, tt)
                 cap = _clean_cap(shape, g, n, ch, design, neighbours, tt, o)
@@ -640,7 +685,7 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
                     while k > 1 and _clean_cap(shape, g, k, ch, design, neighbours, tt, o) < MIN_CHARS:
                         k -= 1
                     shrunk_list = False
-                    for path in paths:
+                    for path, _, _ in paths:
                         lp, ln = parent_list(slots, path)
                         if not (ln and ln.get("kind") == "list"):
                             continue
@@ -658,20 +703,41 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
                     # 下一輪重量就解決了。只有整輪都無變更時才是真的卡住。
                     stuck.append((idx + 1, pt, paths[0], sid))
                     continue
-                for path in paths:
+                for path, group, overhead in paths:
                     nd = node_at(slots, path)
                     if not nd or nd.get("kind") != "text":
+                        # 陷阱 16:對應到非文字節點 = 本工具不認識的 op 組合,
+                        # 容量無處可寫。以前這裡靜默跳過,印「零縮字」而 golden
+                        # 實際在縮——寧可吵鬧。
+                        opaque.append((idx + 1, sid, path))
                         continue
+                    eff = cap
+                    if len(group) > 1 or overhead:
+                        # 同行多欄位共用行寬:行預算(全形量測)扣掉樣板字面
+                        # 開銷後,按各欄**基準契約**上限比例分,再按欄位字寬
+                        # 換回字數(半形為主的欄位同樣寬度能寫更多字)。用基準
+                        # 而非 merged 值,比例才不隨收斂輪次漂移(冪等);均分
+                        # 會把 number(4)/title(20) 這種懸殊組合掐死。
+                        gcaps = {gp: (node_at(PAGE_TYPES[pt]["slots"], gp) or {}).get("max_chars", 1)
+                                 for gp in group}
+                        total = sum(gcaps.values()) or 1
+                        width_share = (cap - overhead) * gcaps.get(path, 1) / total
+                        eff = max(int(width_share / _width_factor(path)), 1)
                     key = f"{pt}.slots.{path}.max_chars"
-                    if overrides.get(key, nd["max_chars"]) > max(cap, 1):
-                        overrides[key] = max(cap, 1)
-                        changes.append((pt, path, "字數", max(cap, 1)))
+                    if overrides.get(key, nd["max_chars"]) > max(eff, 1):
+                        overrides[key] = max(eff, 1)
+                        changes.append((pt, path, "字數", max(eff, 1)))
 
         if unmapped and verbose:
             print(f"  ⚠ 第 {rnd} 輪有 {len(unmapped)} 個問題框對應不到槽位"
                   f"(綁定可能用了本工具不認識的 op 組合):")
             for pg, sid, txt in unmapped[:6]:
                 print(f"      golden p{pg} shape id={sid} 「{txt}」")
+        if opaque and verbose:
+            print(f"  ⚠ 第 {rnd} 輪有 {len(opaque)} 個映射落在非文字節點"
+                  f"(容量無處可寫,綁定用了本工具不認識的組合):")
+            for pg, sid, p in opaque[:6]:
+                print(f"      golden p{pg} shape id={sid} → {p}")
         if stuck and not changes and verbose:
             print("  ⚠ 以下版位在任何字數下都放不了有意義的內容"
                   f"(至少 {MIN_CHARS} 個中文字)——建議該頁型降級 clone,"
@@ -682,8 +748,8 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
             sync_registry_table(manifest, verbose=verbose)
             if verbose:
                 print(f"✓ 第 {rnd} 輪:零縮字、零新增侵入 → 收斂"
-                      + ("" if not unmapped else "(但有未對應框,見上)"))
-            return 0 if not (unmapped or stuck) else 1
+                      + ("" if not (unmapped or opaque) else "(但有未對應/非文字框,見上)"))
+            return 0 if not (unmapped or stuck or opaque) else 1
         if verbose:
             print(f"第 {rnd} 輪:收緊 {len(changes)} 項  "
                   + ", ".join(f"{a}.{b.split('.')[-1]}({c}→{d})" for a, b, c, d in changes[:4])
