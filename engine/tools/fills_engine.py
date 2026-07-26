@@ -25,6 +25,12 @@ list op 的項目內用 "@"(元素本身)與 "@.field"(元素欄位)。
 詞彙表版本紀事(擴充=引擎版本事件,對全部已註冊包跑回歸後才發):
   v1.1(2026-07-25,Phase 4):+`chart` op(圖表數據替換;WORKLOG §8 第二級)
   與 set 的 `delete_if_missing` 修飾詞(選填槽位缺值時刪框)。
+  v1.2(2026-07-26):+`set` 的 `item_template` 修飾詞——物件清單逐項套版後併成
+  多段落,填進**單一**文字框(選填欄位缺值自動略去該行)。原本 `template` 只吃
+  單一物件,清單只能 `join` 成字串(物件會變成 Python repr)。為 light 的 agenda
+  綁 p9 而加,但「一個佔位符裝一份清單」是任何人類模板的常見形狀,非 light 特例。
+  注意:此修飾詞讓一個框承載整份清單,容量由 fit 的「整個清單併入一框」分支
+  量測(fit_capacity.slot_shape_map 需 op 同時有 `join`)。
 """
 from __future__ import annotations
 
@@ -65,8 +71,40 @@ def resolve_path(spec_slide, path):
     return cur
 
 
+class _Blank(dict):
+    """format_map 用:缺鍵回空字串。
+
+    item_template 專用——契約裡的選填欄位(如 agenda 的 subtitle)在某些項目
+    不存在,套版時不該炸 KeyError。代價是欄位名打錯也會靜默變空字串,所以
+    `template`(欄位皆必填)刻意維持嚴格的 format(**value)。
+    """
+
+    def __missing__(self, key):
+        return ""
+
+
 def _render_value(value, mod, where):
-    """依修飾詞把槽位值轉成字串:template(dict 格式化)/ join(list 併接)。"""
+    """依修飾詞把槽位值轉成字串。
+
+    item_template — 物件清單 → 逐項套版後併成多段落(填單一文字框用)
+    template      — 單一物件 → 一段文字(欄位皆必填,缺鍵即 KeyError)
+    join          — 清單併接的分隔字串(預設換行)
+    """
+    if "item_template" in mod:
+        if not isinstance(value, list):
+            raise fill_helpers.FillError(f"{where}: item_template 修飾詞需要清單槽位")
+        parts = []
+        for i, item in enumerate(value):
+            if not isinstance(item, dict):
+                raise fill_helpers.FillError(
+                    f"{where}: item_template 的第 {i + 1} 項不是物件")
+            # 選填欄位缺值 → 整行空白 → 略去該行,否則多出空段落擠壞行距
+            kept = [ln.rstrip() for ln in
+                    mod["item_template"].format_map(_Blank(item)).split("\n")
+                    if ln.strip()]
+            if kept:
+                parts.append("\n".join(kept))
+        return mod.get("join", "\n").join(parts)
     if "template" in mod:
         if not isinstance(value, dict):
             raise fill_helpers.FillError(f"{where}: template 修飾詞需要物件槽位")

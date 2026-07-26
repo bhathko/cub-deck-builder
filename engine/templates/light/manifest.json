@@ -1,7 +1,7 @@
 {
   "template_id": "light",
   "display_name": "Cathay 淺色企業風",
-  "version": "2026-07-26.3",
+  "version": "2026-07-26.4",
   "status": "registered",
   "template_file": "template.pptx",
   "template_sha256": "080ba71991f34f2d0d0670c5d5f605a0b15e4bce46a207e2fad62b6d1c4a48d2",
@@ -61,17 +61,12 @@
       "template_page": 7
     },
     "agenda": {
-      "mode": "builtin"
+      "mode": "fill",
+      "template_page": 9
     },
     "closing": {
       "mode": "fill",
       "template_page": 59
-    },
-    "story_chapter_statement": {
-      "mode": "builtin"
-    },
-    "stage_dual_track_roadmap": {
-      "mode": "builtin"
     },
     "vision_goal_center_balance": {
       "mode": "fill",
@@ -267,6 +262,7 @@
     }
   },
   "capacity_overrides": {
+    "agenda.slots.items.item.subtitle.max_chars": 28,
     "cover.slots.date.max_chars": 12,
     "cover.slots.presenters.max_chars": 20,
     "cover.slots.subtitle.max_chars": 5,

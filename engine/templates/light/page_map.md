@@ -5,15 +5,14 @@
 > 見共用文件 `engine/rules/page_types.md` 與 `page_types_registry.md`;
 > 那邊已不含模板頁碼(Phase 1 拆分完成),**頁碼對照以本檔為唯一來源**。
 
-支援等級:builtin/fill = 全自動(spec 直接產出);clone = 半自動
-(走 render_plan 複製改字);本包無 unsupported 頁型。
+支援等級:fill = 全自動(spec 直接產出);clone = 半自動
+(走 render_plan 複製改字)。本包無 unsupported 頁型,
+**也已無 builtin**——2026-07-26 清零,詳見本檔末節。
 
 | 語意頁型 | 支援等級 | 模板頁 | 備註 |
 | --- | --- | --- | --- |
-| agenda | builtin(全自動,引擎繪製) | — | **待遷 fill**:需模板補一頁 3–6 列(編號圓圈+標題+副標);p9(layout=目錄)視覺對但內容是單一大文字框 |
-| stage_dual_track_roadmap | builtin(全自動,引擎繪製) | — | **待遷 fill**:需模板新畫一頁;且 `annual_cycle`(3–6 格等分滿寬)得先鎖成固定格數 |
-| story_chapter_statement | builtin(全自動,引擎繪製) | — | **待遷 fill**:需模板新畫一頁(p10 是雙圖版面,結構不符) |
 | cover | fill(全自動,clone+填充) | 7 | 2026-07-26 自 builtin 遷入;背景/logo 在 layout「封面(有小標)」內,不吃 spec 的 assets |
+| agenda | fill(全自動,clone+填充) | 9 | 2026-07-26 自 builtin 遷入;layout「目錄」自帶左側色塊與標題,整份 items 用 `item_template` 併進單一內容框(id=2) |
 | vision_goal_center_balance | fill(全自動,clone+填充) | 14 | shape id 見 bindings.json 與 inventory.json |
 | info_three_column_category | fill(全自動,clone+填充) | 17 | shape id 見 bindings.json 與 inventory.json |
 | data_two_group_metric_comparison | fill(全自動,clone+填充) | 29 | shape id 見 bindings.json 與 inventory.json |
@@ -64,24 +63,33 @@
 | structure_relation_map | clone(半自動,需 render_plan) | 58 | 寫 plan 前先 `inspect_template.py --page 58` |
 | closing | fill(全自動,clone+填充) | 59 | 2026-07-26 自 builtin 遷入;滿版背景是 p59 頁面自帶 shape,不吃 spec 的 assets |
 
-共 53 筆:builtin 3、fill 18、clone 32。
+共 51 筆:fill 19、clone 32。
 
-## builtin → fill 遷移進度
+## builtin 清零紀錄(2026-07-26 完成)
 
-builtin 是 light 專屬 grandfather(座標寫死在 `bindings.py`),**目標是清零**——
-新模板一律不得有 builtin(理由見 `docs/WORKLOG.md` §5.3)。遷移判準:模板 pptx
-裡已有對應頁,且版面不需依內容計算幾何。
+builtin 曾是 light 專屬 grandfather(座標寫死在 `bindings.py`),新模板一律
+不得使用(理由見 `docs/WORKLOG.md` §5.3)。本包**已無 builtin**,`bindings.py`
+整檔刪除——light 現在是純 `bindings.json`,與新註冊的模板包同構。
 
-| 頁型 | 狀態 | 卡在哪 |
-| --- | --- | --- |
-| cover | ✅ 已遷(p7) | — |
-| closing | ✅ 已遷(p59) | — |
-| agenda | ⏳ 待模板 | p9 的內容區是單一文字框;需拆成 6 列(編號圓圈+標題+副標),少的列由 `list` op 的 `delete_on_missing` 自動刪 |
-| story_chapter_statement | ⏳ 待模板 | 需新畫:標題+副標、3 組(標籤+卡片)橫排、2 個大卡片(背景/預期成果,條列可用單一文字框) |
-| stage_dual_track_roadmap | ⏳ 待模板 | 需新畫:4 季度標籤、2 lane×(名稱+4 格)、底部 annual_cycle 一列;**且要先決定** annual_cycle 鎖成固定 4 或 6 格(現行 builtin 是等分滿寬,fill 表達不了) |
+| 原 builtin 頁型 | 結局 |
+| --- | --- |
+| cover | 遷 fill / p7(座標本來就是描模板 p7 而來) |
+| closing | 遷 fill / p59 |
+| agenda | 遷 fill / p9;`item_template` 修飾詞(引擎 v1.2)為此而加 |
+| story_chapter_statement | **移除頁型**——無模板頁可綁 |
+| stage_dual_track_roadmap | **移除頁型**——無模板頁可綁 |
 
-遷移後的行為差異(cover 已實測):長主標改由 `shrink_to_fit` 縮字級,不再把副標
-推到下一行——確定性更高,版位完全由設計師掌控。
+行為差異(已實測):
+
+- **cover**:長主標改由 `shrink_to_fit` 縮字級,不再把副標推到下一行。
+  副標受 `capacity_overrides` 限 5 字——p7 的副標框是 `spAutoFit` 且僅 3.24 吋寬,
+  長文會往下長並壓到日期列。
+- **agenda**:編號從空心圓圈變成行內文字(單一文字框畫不出圓形),
+  三個欄位由 `item_template` 套版成「編號␣␣標題 ⏎ 副標」。
+
+後兩個頁型是**從共用契約整個移除**(不是標 unsupported),所以其他模板未來也
+用不到。這牴觸 `docs/WORKLOG.md` 原本「不得為單一模板改共用契約」的先例,是
+2026-07-26 的明示決策——理由與代價見 WORKLOG 該節。
 
 ## 附:light 語意色名對照(page_types.md 視覺描述用;機器真相在 manifest style)
 

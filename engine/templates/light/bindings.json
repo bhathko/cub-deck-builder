@@ -30,6 +30,19 @@
         }
       ]
     },
+    "agenda": {
+      "template_page": 9,
+      "_note": "自 builtin 遷入(2026-07-26)。layout『目錄』自帶左側色塊、『目錄/Contents』標題與 logo,頁面上只有一個內容框(id=2,7.84x4.89 吋)與頁碼佔位符(id=3,引擎會清掉)。整份 items 用 item_template 逐項套版後併進 id=2;原 builtin 的空心圓編號改為行內文字(單一文字框畫不出圓)。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.slots.items",
+          "id": 2,
+          "item_template": "{number}  {title}\n{subtitle}",
+          "join": "\n"
+        }
+      ]
+    },
     "closing": {
       "template_page": 59,
       "_note": "自 builtin 遷入(2026-07-26)。滿版背景圖與遮罩是 p59 頁面自帶的 shape,clone 一併帶入,不吃 spec 的 assets。",

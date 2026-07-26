@@ -67,7 +67,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `dist/template_light.zip`               | light 模板包:template.pptx + manifest + bindings + page_map + 素材(源碼在 `engine/templates/light/`) | 上傳到 Knowledge                 |
 | `dist/tools.zip`                        | 工具腳本 ×11 + 速查卡(源碼在 `engine/tools/`)                                   | 上傳到 Knowledge                 |
 | `engine/examples/01_*.json`–`04_*.json` | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
-| `engine/examples/02_full_10p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
+| `engine/examples/02_full_8p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
 | `engine/examples/05_outline_to_ppt_source.md` | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
 | `engine/examples/demo_output_*.pptx`    | 本機實測產出,眼見為憑                                                    | 不上傳                           |
 | `engine/templates/light/assets_src/`    | 素材可編輯源檔(隨包;打包 template_light.zip 時以 arcname `assets/` 映射) | 不上傳,留在 repo                 |

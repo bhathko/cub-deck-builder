@@ -269,19 +269,6 @@ PAGE_TYPES = {
                 "recommendation": {"kind": "list", "min": 0, "max": 3, "required": False, "item": T(40)},
         },
     },
-    "story_chapter_statement": {
-        "page_number": "required",
-        "assets": ["background", "logo"],
-        "slots": {
-            "subtitle": T(60),
-            "background_points": {"kind": "list", "min": 2, "max": 4, "required": True, "item": T(40)},
-            "story": {
-                "kind": "list", "min": 3, "max": 3, "required": True,
-                "item": {"kind": "object", "fields": {"phase": T(8), "text": T(60)}},
-            },
-            "outcomes": {"kind": "list", "min": 2, "max": 4, "required": True, "item": T(40)},
-        },
-    },
     "pyramid_layered_maturity_detail": {
         "page_number": "required",
         "assets": ["background", "logo"],
@@ -298,22 +285,6 @@ PAGE_TYPES = {
                     "points": {"kind": "list", "min": 2, "max": 4, "required": True, "item": T(30)},
                 }},
             },
-        },
-    },
-    "stage_dual_track_roadmap": {
-        "page_number": "required",
-        "assets": ["background", "logo"],
-        "slots": {
-            "subtitle": T(60),
-            "quarters": {"kind": "list", "min": 4, "max": 4, "required": True, "item": T(12)},
-            "lanes": {
-                "kind": "list", "min": 2, "max": 2, "required": True,
-                "item": {"kind": "object", "fields": {
-                    "name": T(40),
-                    "cells": {"kind": "list", "min": 4, "max": 4, "required": True, "item": T(40)},
-                }},
-            },
-            "annual_cycle": {"kind": "list", "min": 3, "max": 6, "required": True, "item": T(12)},
         },
     },
     "data_three_number_kpis": {

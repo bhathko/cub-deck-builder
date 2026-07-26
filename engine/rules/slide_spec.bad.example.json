@@ -2,7 +2,7 @@
   "deck": {
     "deck_name": "my_project",
     "language": "Traditional Chinese",
-    "slide_count": 10,
+    "slide_count": 8,
     "source": "source/slides.md"
   },
   "slides": [
@@ -228,43 +228,6 @@
     },
     {
       "number": 7,
-      "page_type": "story_chapter_statement",
-      "title": "專案二：服務體驗升級與組織能力演進",
-      "render_page_number": true,
-      "assets": {
-        "background": "assets/backgrounds/content_bg.png",
-        "logo": "assets/logos/cathay_logo.png"
-      },
-      "slots": {
-        "subtitle": "從單點服務改善，推進到標準化、知識化與可複製的服務能力。",
-        "background_points": [
-          "客戶問題類型變多，服務回應品質容易因人而異。",
-          "新人上手需要依賴資深同仁口頭教學。",
-          "跨部門協作時，問題轉派與責任邊界不夠清楚。"
-        ],
-        "story": [
-          {
-            "phase": "過去",
-            "text": "問題來了才處理，經驗留在個人身上。"
-          },
-          {
-            "phase": "現在",
-            "text": "建立服務分級、回應腳本與知識庫。"
-          },
-          {
-            "phase": "未來",
-            "text": "形成可複製的服務模型，讓團隊穩定擴張。"
-          }
-        ],
-        "outcomes": [
-          "提升服務回應一致性",
-          "降低新人訓練成本",
-          "建立可持續更新的知識管理機制"
-        ]
-      }
-    },
-    {
-      "number": 8,
       "page_type": "pyramid_layered_maturity_detail",
       "title": "服務能力需要從個人經驗演進為組織系統",
       "render_page_number": true,
@@ -313,53 +276,7 @@
       }
     },
     {
-      "number": 9,
-      "page_type": "stage_dual_track_roadmap",
-      "title": "年度時程與里程碑",
-      "render_page_number": true,
-      "assets": {
-        "background": "assets/backgrounds/content_bg.png",
-        "logo": "assets/logos/cathay_logo.png"
-      },
-      "slots": {
-        "subtitle": "兩項大型專案以「盤點、建置、推廣、固化」形成年度節奏。",
-        "quarters": [
-          "Q1 盤點",
-          "Q2 建置",
-          "Q3 推廣",
-          "Q4 固化"
-        ],
-        "lanes": [
-          {
-            "name": "專案一：營運數據治理與決策儀表板",
-            "cells": [
-              "Q1：盤點指標、資料來源與報表需求",
-              "Q2：建立指標字典與半自動儀表板",
-              "Q3：擴大使用情境並導入異常提醒",
-              "Q4：固化月度檢視機制與年度成效評估"
-            ]
-          },
-          {
-            "name": "專案二：服務體驗升級與組織能力演進",
-            "cells": [
-              "Q1：整理服務痛點與問題分類",
-              "Q2：建立服務分級、腳本與知識庫",
-              "Q3：推動訓練與跨部門協作流程",
-              "Q4：建立技能矩陣與持續優化機制"
-            ]
-          }
-        ],
-        "annual_cycle": [
-          "盤點問題",
-          "建立標準",
-          "推廣落地",
-          "追蹤成效",
-          "回饋優化"
-        ]
-      }
-    },
-    {
-      "number": 10,
+      "number": 8,
       "page_type": "closing",
       "title": "Thank you",
       "render_page_number": false,

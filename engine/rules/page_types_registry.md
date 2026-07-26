@@ -125,25 +125,11 @@
   - `cons`:1–3 項 × ≤60 字
 - `recommendation`:0–5 項 × ≤40 字(選填)
 
-## story_chapter_statement — 故事情節(章節敘事)
-適用:專案背景 + 過去/現在/未來敘事 + 預期成果。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `background_points`:2–4 項 × ≤40 字
-- `story`:清單固定 3 項,每項 `{phase ≤8 字, text ≤60 字}`
-- `outcomes`:2–4 項 × ≤40 字
-
 ## pyramid_layered_maturity_detail — 金字塔(成熟度分層)
 適用:4–5 層由下而上的能力/成熟度堆疊。頁碼:必須。素材:background、logo。
 - `subtitle` ≤60 字
 - `levels`:4–5 層,每層 `{label ≤20 字, detail ≤40 字}`
 - `side_cards`:0–2 張(選填),每張 `{heading ≤16 字, points 2–4 項 × ≤30 字}`
-
-## stage_dual_track_roadmap — 時程(雙軌 Roadmap)
-適用:4 個季度 × 2 條工作軌 + 年度循環。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `quarters`:固定 4 項 × ≤12 字
-- `lanes`:固定 2 條,每條 `{name ≤40 字, cells 固定 4 格 × ≤40 字}`
-- `annual_cycle`:3–6 項 × ≤12 字
 
 ## data_three_number_kpis — 數據摘要(三大數字 KPI)
 適用:2–3 個最重要的 KPI、成果數字、規模指標或管理摘要。頁碼:必須。素材:background、logo。

@@ -626,10 +626,76 @@ git 已經是完整的追溯路徑。
 緩解:①每條決策標原始章節號 ②保留所有「否決方案」與「後來被推翻」的紀錄
 (那是最容易在重寫中被抹平的東西)③重寫後用獨立 agent 對照原文查核遺漏。(§23.4)
 
+## 10.5 builtin 清零(2026-07-26)——含一個推翻先例的決定
+
+light 曾有 5 個 builtin 頁型(座標寫死在 `bindings.py`,從空白頁繪製)。
+`docs/WORKLOG.md` §5.3 早已判定新模板不得有 builtin,但 light 作為 grandfather
+一直留著。2026-07-26 分兩批清到零,`bindings.py` 整檔刪除——**light 現在是純
+`bindings.json`,與新註冊的模板包同構**,引擎裡的 builtin 分派路徑已無人使用。
+
+**查證推翻了「builtin 是自創版面」的假設。** 追座標發現 `build_cover` 的
+(0.34, 2.85) 對應模板 p7 的 (0.34, 2.91)、`build_closing` 的 (0.86, 3.28)
+對應 p59 的 (0.87, 3.33)——**模板裡本來就有那兩頁**,builtin 是有人打開
+PowerPoint 量座標再敲進 Python。所謂「手工雕刻」就是描圖。
+
+| 原 builtin | 結局 | 為什麼 |
+| --- | --- | --- |
+| cover | fill / p7 | 模板現成 |
+| closing | fill / p59 | 模板現成 |
+| agenda | fill / p9 | layout「目錄」現成,但內容區是單一大文字框 → 加 `item_template` 修飾詞 |
+| story_chapter_statement | **移除頁型** | 無模板頁(p10 是雙圖版面,結構不符) |
+| stage_dual_track_roadmap | **移除頁型** | 無模板頁 |
+
+**推翻的先例:「不得為單一模板改共用契約」。** 後兩個頁型是從
+`engine/rules/` 的 `PAGE_TYPES` **整個刪除**,不是標成 light 的 `unsupported`。
+代價寫清楚:未來任何模板都再也用不到這兩個頁型,即使有設計師畫得出來;
+golden fixtures 由 42 降為 38,`02_full_10p` 因少兩頁改名 `02_full_8p`。
+提出的替代方案是「light 標 unsupported、契約留給未來模板」,使用者在知道
+此代價後仍選擇整個刪除(理由:不留沒有實體版面的頁型)。**若日後要復原**,
+從本次 commit 取回 `PAGE_TYPES` 兩筆與四份 golden fixture 即可,契約是純資料。
+
+**op 詞彙表 v1.2:`set` 的 `item_template` 修飾詞。** 原本 `template` 只吃單一
+物件,物件清單只能 `join` 成 Python repr。新修飾詞逐項套版再併成多段落,填進
+**單一**文字框(選填欄位缺值自動略行)。這是引擎版本事件,但它解的是通用形狀
+——「一個佔位符裝一份清單」在任何人類做的模板裡都常見,不是 light 特例。
+
+**踩到的工具盲點(未修):`fit` 對物件清單無能。** agenda 的整份 `items` 映射到
+`items.item`,那是物件節點;`fit_capacity.py:662` 只在 `kind == "text"` 時寫
+`max_chars`,遇物件**靜默跳過**——既不收緊也不警告,於是 `fit --dry-run` 印出
+「零縮字」而 golden 實際把 18pt 縮成 14pt。所以 agenda 的 `subtitle 28 字`
+是實測後手寫的(R12 說手改視為違規,此處是盲點迫使的例外,已在 R7 註記)。
+要修得讓 fit 把物件清單的容量分配到各文字子欄位。同類缺口還有一個:
+cover 的 `date`/`presenters` 合併進一框用 `slot: "$.slots"`,而
+`slot_shape_map` 比對的是 `"$.slots."`(有結尾點),也對應不到。
+
+**踩到的第二個坑(已修):`prepare_env` 的沙箱幽靈檔。** `prepare_env.py` 原本用
+`copytree(dirs_exist_ok=True)` 就地覆蓋——**只覆蓋、從不刪除**。所以 engine 端
+刪掉 `bindings.py` 後,`ppt_out/templates/light/` 的舊複本仍在,`pack_loader`
+讀到它 → `BUILDERS` 悄悄蓋過 `bindings.json` 的 fill → 產出是**舊 builtin 版面**,
+而管線每一行訊息都顯示正常。本次差點就用這個被污染的結果宣稱驗證通過
+(golden 因為直接指向 `engine/templates/light` 而沒被騙,兩邊對照才發現)。
+修法:三個子目錄改成**先 `rmtree` 再 `copytree`**——沙箱是衍生物,一律重建。
+另把 `REQUIRED` 的 `bindings.py` 改成 `bindings.json`(列 `.py` 會讓任何新包
+永遠「未就緒」)。驗證方式:比對 `engine/templates` 與 `ppt_out/templates`
+的檔案集合,幽靈與缺檔都必須為空。
+
+**順帶發現的既有問題(皆已用 `git archive HEAD` 對照證實非本次造成)**:
+
+- `golden --regen-specs` **只寫不刪**。頁型移除後舊 fixture 留在
+  `engine/golden/`,而 R11 用 `git diff --exit-code` 檢查——過期檔案內容沒變,
+  所以**查不出來**。本次手動 `git rm` 四份。
+- `R2b` 的預期寫「PASS(4/4 階段)」,實際在 `--strict` 下有 9 條相似度錯誤。
+- `R-L1` 的 smoke spec 與 `engine/rules/slide_spec.example.json` 各有 19 條
+  容量錯誤,是先前 `fit` 收緊容量後 spec 沒跟著改短。
+
 ## 11. 待辦與已知限制
 
 **待執行**:
 
+- 修 `fit_capacity` 的兩個對應盲點(物件清單、`$.slots` 合併框),
+  修好後對 agenda 與 cover 重跑 `fit` 把手寫的容量換成工具產出(見 §10.5)。
+- 讓 `golden --regen-specs` 清掉不再屬於契約的 fixture(見 §10.5)。
+- 更新 `R2b` 與 `R-L1` 的預期,或把對應 spec 的文字改短到符合現行容量。
 - GPT Builder 端的 v2.0 換裝與驗收(照 `gpts/DEPLOY.md`)——這步只有擁有者能做。
 - 等第一個**真實設計師模板**走一次 register-template:那是 op 詞彙表覆蓋率
   的真實檢驗(目前只用 light 複本演練過)。

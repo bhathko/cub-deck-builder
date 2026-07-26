@@ -35,9 +35,11 @@ for z, dest in [('gpts/dist/tools.zip','$RT/tools'),
 cp engine/rules/validate_slide_spec_gpts.py "$RT/"
 ```
 
-預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 十一支腳本 +
+預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 腳本 +
 README_TOOLS、`templates/light/`(模板包:template.pptx + manifest.json +
-bindings.json + bindings.py + page_map.md + `assets/`)、validator。
+bindings.json + page_map.md + `assets/`)、validator。
+**light 自 2026-07-26 起無 `bindings.py`**(builtin 清零,見該包 page_map.md);
+`bindings.py` 是 builtin 繪製器的載體,任何包都不該再有。
 素材與模板隨包出貨,
 `$RT` 根**不再有** `assets/` 與 `light_template.pptx`(工具經 pack_loader
 解析,素材檢查有包內兜底)。
@@ -45,7 +47,7 @@ bindings.json + bindings.py + page_map.md + `assets/`)、validator。
 ## R1|examples 四份 validator 預期 exit
 
 ```bash
-for f in 01_minimal_4p 02_full_10p 03_advanced_unregistered_6p 04_broken_should_fail; do
+for f in 01_minimal_4p 02_full_8p 03_advanced_unregistered_6p 04_broken_should_fail; do
   python3 "$RT/validate_slide_spec_gpts.py" --spec "engine/examples/$f.json" --asset-dir "$RT" >/dev/null 2>&1
   echo "$f exit=$?"
 done
@@ -59,8 +61,8 @@ done
 (02 是直供模式範例,`deck_name: my_project` 本就不符 outline 模式規則,repo 不改它):
 
 ```bash
-python3 "$RT/tools/run_pipeline.py" --spec engine/examples/02_full_10p.json \
-  --slides engine/examples/02_full_10p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
+python3 "$RT/tools/run_pipeline.py" --spec engine/examples/02_full_8p.json \
+  --slides engine/examples/02_full_8p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
 ```
 
 預期:exit≠0,`[E] deck.deck_name「my_project」≠ 第一頁內容頁 slide[3] 的 title「年度工作總覽」`。
@@ -70,12 +72,12 @@ python3 "$RT/tools/run_pipeline.py" --spec engine/examples/02_full_10p.json \
 ```bash
 python3 -c "
 import json
-s = json.load(open('engine/examples/02_full_10p.json'))
+s = json.load(open('engine/examples/02_full_8p.json'))
 s['deck']['deck_name'] = '年度工作總覽'
 json.dump(s, open('$RT/spec02_fixed.json','w'), ensure_ascii=False, indent=2)
 "
 python3 "$RT/tools/run_pipeline.py" --spec "$RT/spec02_fixed.json" \
-  --slides engine/examples/02_full_10p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
+  --slides engine/examples/02_full_8p.source_slides.md --asset-dir "$RT" --out "$RT/deck02.pptx"
 ```
 
 預期:exit=0,末行 `管線結果:PASS(4/4 階段)`。
@@ -112,7 +114,7 @@ s['slides'][5]['title'] = '來源沒有的注入標題'
 json.dump(s, open('$RT/spec02_inject.json','w'), ensure_ascii=False)
 "
 python3 "$RT/tools/audit_provenance.py" --spec "$RT/spec02_inject.json" \
-  --slides engine/examples/02_full_10p.source_slides.md; echo "exit=$?"
+  --slides engine/examples/02_full_8p.source_slides.md; echo "exit=$?"
 ```
 
 預期:exit=1,`[E] slide[6] 頂層 title「來源沒有的注入標題」未逐字出現在該頁來源區塊`。
@@ -127,7 +129,7 @@ raw = open('$RT/spec02_fixed.json').read().replace('\"95%\"','\"9%\"')
 open('$RT/spec02_token.json','w').write(raw)
 "
 python3 "$RT/tools/audit_provenance.py" --spec "$RT/spec02_token.json" \
-  --slides engine/examples/02_full_10p.source_slides.md; echo "exit=$?"
+  --slides engine/examples/02_full_8p.source_slides.md; echo "exit=$?"
 ```
 
 預期:exit=1,`[E] slide[5].slots.kpis[2].value:數字 token「9」在來源區塊無精確對應:「9%」`。
@@ -163,9 +165,26 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-596a036ccc920cfa9eb9c0eb235ace4a6bde210ec41ae0bc3b6921b7e991dff3  tools.zip
-5485822a0fe4b63541d88b3aeba50b7cccf751030bd06e121337dfd69a189eac  template_light.zip
+e9601dad944bcf4c0c4fcabb6bfdf46b7e4f72f2f08524151e67859b78afde15  tools.zip
+fabe496e1d5b994ebd4c24afdc5e8ac0ffbe0190583646f81b74020bf05ad641  template_light.zip
 ```
+
+(2026-07-26 builtin 清零(第二批,light@2026-07-26.4):`agenda` 綁 p9,
+`story_chapter_statement` 與 `stage_dual_track_roadmap` **從共用契約整個移除**
+(無模板頁可綁;此決定牴觸「不得為單一模板改共用契約」先例,理由見 WORKLOG)。
+`bindings.py` **整檔刪除**——light 現在是純 bindings.json,與新註冊包同構;
+`$RT/templates/light/` 不再有該檔(R0 預期已同步)。
+**兩個 zip 都改 sha**:tools.zip 因 `fills_engine.py` 加 `item_template` 修飾詞
+(詞彙表 v1.2,引擎版本事件);template_light.zip 因 manifest/bindings.json/
+刪 bindings.py/page_map.md。PAGE_TYPES 21 → 19、golden fixtures 42 → 38、
+light page_types 53 → 51。examples 的 `02_full_10p` 改名 `02_full_8p`
+(移除兩頁後名實不符),連同 `.source_slides.md` 的 `## Slide N` 分節一併重編。
+新增 1 條 agenda capacity_overrides(`subtitle` 28 字)——**手寫,非 fit 產出**:
+fit 把整份清單映射到 `items.item`,那是**物件**節點,而
+`fit_capacity.py:662` 只在 `kind == "text"` 時寫 `max_chars`,遇物件靜默跳過,
+於是印出假的「零縮字」。實測 18pt 邊界:副標 30 字內單行、32 字折兩行就爆框,
+取 28 留餘裕;R12 驗證腳本已確認被縮字 0。**要修這個盲點得讓 fit 會把物件清單
+的容量分配到各文字子欄位**,在那之前 agenda 的容量不受 `fit --reset` 保護。)
 
 (2026-07-26 builtin→fill 遷移第一批:`cover` 綁 p7、`closing` 綁 p59,
 `bindings.py` 的 BUILDERS 移除這兩支(連同只有 build_cover 用的 `_em` 死碼),
@@ -197,7 +216,7 @@ template_admin 依模板實際版位量測後產生(非人工填)。結果:contr
 5 條)、estimate_overflow 修三處誤判(窄框不再無條件視為放得下、數學英數符號
 𝟭𝟮𝟯𝟰 不再當全形、wrap="none" 框不按框寬折行)、golden 變體文字加序號前綴
 (舊版每格都填一樣的字,看不出綁定有沒有把第 3 項填進第 1 格)。tools.zip 因
-text_tools/qa_check 變動而改 sha;同一份 examples/02_full_10p.json 用新舊引擎
+text_tools/qa_check 變動而改 sha;同一份 examples/02_full_8p.json(當時檔名 02_full_10p) 用新舊引擎
 渲染字級零差異——估算器改動只在契約上限的極端情況生效。)
 
 (2026-07-26 v2.1:一次註冊 10 種純文字頁型(p16/20/22/24/30/35/38/40/47/50),

@@ -16,7 +16,7 @@
   uv run --with python-pptx python engine/devtools/trace_page.py \
       --spec engine/examples/01_minimal_4p.json --page 3
   uv run --with python-pptx python engine/devtools/trace_page.py \
-      --spec engine/examples/02_full_10p.json --all
+      --spec engine/examples/02_full_8p.json --all
 """
 from __future__ import annotations
 
