@@ -13,7 +13,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 > 帶 pptx 操作的子命令(new/freeze/golden/register)依 prepare_env
 > 提示加渲染前綴(如 `uv run --with python-pptx python`)。
 
-這是 `ppppai` repo 多模板架構的註冊前端:所有機械動作由 repo 腳本完成,
+這是 `cub-deck-builder` repo 多模板架構的註冊前端:所有機械動作由 repo 腳本完成,
 你只負責五件事——**盤點轉述、提映射草案、依確認寫 bindings.json、
 跑驗收指令並如實轉述、把設計師的目檢意見翻成綁定修正**。版面與規則你零創作。
 

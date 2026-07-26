@@ -1,4 +1,4 @@
-# ppt_ai2 — 確定性簡報產生器
+# cub-deck-builder — 確定性簡報產生器
 
 把「合規的 slide_spec.json(或一段大綱)→ 公司規範的 16:9 繁中可編輯簡報」
 做成可重複使用的**單引擎**,再以兩個前端交付:ChatGPT GPTs 與本機 Codex CLI。

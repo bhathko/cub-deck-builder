@@ -1,11 +1,11 @@
 ---
 name: outline-to-ppt
-description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec.json、要求產出 PPT/簡報時使用。照 ppppai repo 的 GPTs 確定性管線在本機執行:大綱→slides.md→make_skeleton→slide_spec.json→run_pipeline(稽核→驗證→渲染→QA)→交付 Cathay 淺色風 16:9 繁中可編輯 .pptx。Triggers:「幫我把大綱轉成簡報/PPT」「產出 PPT」「outline to ppt」「這是我的 slide_spec.json 幫我產檔」。
+description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec.json、要求產出 PPT/簡報時使用。照 cub-deck-builder repo 的 GPTs 確定性管線在本機執行:大綱→slides.md→make_skeleton→slide_spec.json→run_pipeline(稽核→驗證→渲染→QA)→交付 Cathay 淺色風 16:9 繁中可編輯 .pptx。Triggers:「幫我把大綱轉成簡報/PPT」「產出 PPT」「outline to ppt」「這是我的 slide_spec.json 幫我產檔」。
 ---
 
 # outline-to-ppt(Codex 本機版 GPTs 簡報產生器)
 
-這是 `ppppai` repo GPTs 建置包的本機執行版:所有機械動作由 repo 既有腳本完成,
+這是 `cub-deck-builder` repo GPTs 建置包的本機執行版:所有機械動作由 repo 既有腳本完成,
 你只負責四件事——**切頁、選頁型、把來源文字填入骨架槽位、跑指令並如實轉述結果**。
 渲染層零隨機且冪等:同一份輸入重跑一萬次結果都一樣,所以修錯永遠是
 「改輸入的某一條 → 整條重跑」。

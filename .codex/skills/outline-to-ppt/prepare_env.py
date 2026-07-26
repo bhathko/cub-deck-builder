@@ -38,11 +38,11 @@ REQUIRED = [
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--repo", default=".", help="ppppai repo 根目錄(預設=目前目錄)")
+    ap.add_argument("--repo", default=".", help="cub-deck-builder repo 根目錄(預設=目前目錄)")
     repo = Path(ap.parse_args().repo).resolve()
     engine = repo / "engine"
     if not engine.is_dir():
-        print(f"[E] {repo} 不是 ppppai repo(找不到 engine/):先 cd 到 repo 根目錄或加 --repo")
+        print(f"[E] {repo} 不是 cub-deck-builder repo(找不到 engine/):先 cd 到 repo 根目錄或加 --repo")
         return 1
 
     work = repo / "ppt_out"

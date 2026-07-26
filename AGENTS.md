@@ -1,4 +1,4 @@
-# AGENTS.md — ppt_ai2 流程契約(所有 agent 共用)
+# AGENTS.md — cub-deck-builder 流程契約(所有 agent 共用)
 
 > 團隊共用、隨 repo 分享的流程契約。任何 agent 在本 repo 工作時**必須**遵循。
 > 2026-07-25 起本 repo = **簡報產生器:單引擎(`engine/`)+ 兩個延伸應用**
