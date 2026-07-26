@@ -11,6 +11,7 @@
 | 這個設計當初為什麼這樣決定?否決過什麼? | [WORKLOG.md](WORKLOG.md) | 大(歷史檔) |
 | 產出不如預期,怎麼回報才會真的變好 | [FEEDBACK.md](FEEDBACK.md) | 小 |
 | 我是設計師 / 非技術同事 | [給設計師/](給設計師/) | 一個資料夾,先看它的 README |
+| 我要「加開幾種頁型」而不是註冊新模板 | [`../.codex/skills/add-page-types/SKILL.md`](../.codex/skills/add-page-types/SKILL.md) | 小(設計師版在路線 B 的 A10) |
 
 ## 讀的順序(第一次接手)
 

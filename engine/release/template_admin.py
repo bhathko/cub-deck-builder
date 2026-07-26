@@ -7,6 +7,7 @@
   lint [--id <id> | --all]                  manifest/綁定靜態檢查(含全覆蓋原則)
   golden --id <id> [--page-types a,b]       黃金驗收:min/max 渲染+qa+冪等雙跑
   golden --regen-specs                      從 PAGE_TYPES 重派生 engine/golden/(契約改版用)
+  fit --id <id>                             量測版位真正裝得下多少字,寫 capacity_overrides
   register --id <id>                        原子性註冊:lint→golden→light 回歸→isolation
   pack [--id <id> | --tools]                打 template_<id>.zip / tools.zip(正斜線+檢查)
   isolation                                 git diff 對照模板隔離白名單
@@ -38,6 +39,7 @@ DEFAULT_PACKS = ENGINE / "templates"
 DIST = REPO / "gpts" / "dist"  # GPTs 前端的上傳產物(zips)
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(RULES))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from validate_slide_spec_gpts import PAGE_TYPES, apply_capacity_overrides  # noqa: E402
 
@@ -468,11 +470,15 @@ def run_golden(pack_dir: Path, only=None, out_dir: Path | None = None) -> int:
     if json.loads(s1.read_text()) != json.loads(s2.read_text()):
         print("✗ 冪等實證失敗:連跑兩次 shape 樹不一致(渲染層有隨機性?)")
         return 1
-    if _run("qa", [sys.executable, TOOLS / "qa_check.py", "--spec", spec_path,
-                   "--pptx", deck1, "--template-pack", pack_dir]):
-        return 1
+    # 驗收檔在 qa 之前就複製出來:它是**診斷用**的,qa 紅時反而最需要開檔看。
+    # 舊版只在 PASS 時複製,結果 fit_capacity 這類量測工具讀到的是上一次成功
+    # 的舊檔,兩個收斂訊號都不會反應(2026-07-26 踩過)。
     final = out_dir / f"golden_{pid}.pptx"
     shutil.copy2(deck1, final)
+    if _run("qa", [sys.executable, TOOLS / "qa_check.py", "--spec", spec_path,
+                   "--pptx", deck1, "--template-pack", pack_dir]):
+        print(f"(未通過的驗收檔仍已寫出供診斷:{final})")
+        return 1
     print(f"golden PASS:{len(spec['slides'])} 頁(每 fill 頁型 min+max)"
           f",冪等雙跑一致 → 目檢檔 {final}")
     return 0
@@ -649,6 +655,13 @@ def cmd_list(args) -> int:
     return 0
 
 
+def cmd_fit(args) -> int:
+    """量測版位容量 → capacity_overrides(演算法與已知陷阱見 fit_capacity.py 檔頭)。"""
+    import fit_capacity
+    root = Path(args.packs_root) if args.packs_root else DEFAULT_PACKS
+    return fit_capacity.run(args.id, root, dry_run=args.dry_run, reset=args.reset)
+
+
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -669,6 +682,9 @@ def main(argv):
     common(sub.add_parser("register"))
     p = sub.add_parser("pack"); p.add_argument("--id"); p.add_argument("--tools", action="store_true")
     p.add_argument("--packs-root")
+    p = sub.add_parser("fit"); p.add_argument("--id", required=True)
+    p.add_argument("--packs-root"); p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--reset", action="store_true")
     p = sub.add_parser("isolation"); p.add_argument("--packs-root")
     p = sub.add_parser("list"); p.add_argument("--packs-root")
 
@@ -684,6 +700,7 @@ def main(argv):
         return 2
     return {"new": cmd_new, "freeze": cmd_freeze, "lint": cmd_lint,
             "golden": cmd_golden, "register": cmd_register, "pack": cmd_pack,
+            "fit": cmd_fit,
             "isolation": cmd_isolation, "list": cmd_list}[args.cmd](args)
 
 

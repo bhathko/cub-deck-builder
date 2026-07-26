@@ -312,9 +312,45 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
 | `pack --id <id>`(`--tools` 打 tools.zip) | 打 `gpts/dist/template_<id>.zip`(或 tools.zip;一律 Python zipfile、正斜線 arcname、打包後 infolist 反斜線檢查 + sha 核對,任一不符 exit 1) |
 | `isolation` | 讀 `git diff --name-only` 對照白名單(§7) |
 | `golden --regen-specs` | 從 PAGE_TYPES 重新派生 golden fixtures(契約改版時用,工程師專用) |
+| `fit --id <id>` | 量測版位真正裝得下多少字/幾項,寫入該包 `capacity_overrides`(見 §7.3) |
 
 驗收判準:**機器綠(golden all PASS)+ 設計師目檢點頭,缺一不可**
 (qa 溢出是 CJK 啟發式 WARN,機器綠不保證視覺不爆框)。
+
+### 7.3 容量誠實化:上限由量測決定,不由手填
+
+**原則(設計師 2026-07-26 定調)**:
+
+> 字級是被設計過的。內容塞不下時正確做法是改寫更短或換頁型,不是用小一號的字體。
+
+`PAGE_TYPES` 的字數/長度只是**跨模板預設值**;各包真正裝得下多少寫在自己的
+`capacity_overrides`,由 `template_admin.py fit` 量測後產生(**不得手填**)。
+
+為什麼:憑感覺填的上限會讓「閘門 PASS、版面壞掉」。實例——light 宣告
+`core_mission` 60 字,版位是 2.10×0.50 吋 24pt(模板原文 4 字);塞滿時渲染器
+靜默把字縮到 12pt,32 頁 golden 有 **99 個框被縮**,validator/qa 全綠,
+設計師目檢才發現。修正後同一批頁型:被縮字 0、qa 警告 0。
+
+配套的三個機制:
+
+1. **`shrink_to_fit` 不動 autofit 框**(`spAutoFit` 會長高、`normAutofit` 由
+   PowerPoint 自行縮字,那是模板原本的排版方式)。字級不再被引擎偷改。
+2. **qa 檢查「文字壓到別的元素」並列為 FAIL**(不是警告)。判準是
+   **不得比模板原本更侵入鄰欄**——模板本身就有刻意疊在一起的設計
+   (light p47 的徽章與副字、p29 的 44pt 數字),絕對零重疊會誤殺。
+   幾何工具在 `text_tools.walk_absolute / text_footprint / text_collisions`。
+3. **`fit` 的四個收斂訊號**:①框被縮字 ②文字侵入鄰欄且比模板更糟
+   ③autofit 框長得比設計師自己那份還高 ④`add_textbox` 新增框裝不進自己的框。
+   全部歸零才收斂;兩個旋鈕是 `max_chars` 與清單 `max`。
+
+**「裝得進自己的框」不是充分條件**。設計師的原話:「有時候不是 autofit 沒超過,
+是 autofit 後跑到了不該出現字的位置」——`wrap="none"` 的框往右長、autofit 的框
+往下長,結果壓到鄰欄。這是 2026-07-26 目檢 p4/p10/p22/p30 抓出來的失效模式。
+
+改 `fit_capacity.py` 前**先讀該檔檔頭的「9 個已知量測陷阱」**(清單路徑的
+`.item`、索引 vs 切片語意、併格框的長度公式、一框多欄位、`add_textbox` 的
+跨槽位預算、探測字元要用中文、群組座標換算、碰撞基準取自模板、
+只收「範圍會隨文字變大」的那一方)。每一個都真的踩過。
 ## 8. 已知限制與未定案
 
 **限制(接受並帶緩解)**:

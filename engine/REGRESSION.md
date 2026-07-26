@@ -164,7 +164,7 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 
 ```
 05f0f3f00c273f63f110bf3e6688b28bc71a601ac960b4f281aecdb6ce4eb835  tools.zip
-c71e4caa67d19b65bf14c904bdf5b67a3b5a938ccbc7dafaaaf241d6e905d48f  template_light.zip
+23dfd920b25d9f5ee797886e18edcfac2e0050770414771650f6c65d43fb95dd  template_light.zip
 ```
 
 (2026-07-26 碰撞判準:設計師目檢 p4/p10/p22/p30 指出「不是 autofit 沒超過,
@@ -276,9 +276,15 @@ autofit 的框會往下長,結果壓到鄰欄。qa_check 用 `tt.text_collisions
 
 - `shrink_to_fit` 不動 autofit 框(交給 PowerPoint 長高,那是模板原本的排版方式)
 - 各包用 `capacity_overrides` 宣告自己版位真正裝得下的量,閘門據此擋
-- 重新量測:清空 `capacity_overrides` → 跑 golden → 對仍被縮字/超高的框收緊 →
-  重複到收斂。判準是「在**設計字級**下裝得進**渲染後的框**」;autofit 框的
-  上限放寬到「設計師自己那份原文需要的高度」。
+- 重新量測**用工具,不要手做**:
+
+```bash
+python engine/release/template_admin.py fit --id light --reset
+```
+
+  它會反覆「跑 golden → 找出被縮字/侵入鄰欄的框 → 收緊上限」直到四個訊號
+  全部歸零。演算法與 9 個已知量測陷阱見 `engine/release/fit_capacity.py` 檔頭。
+  本節的數值即由它產生;手改 `capacity_overrides` 視為違規。
 
 驗證有沒有退化(應為 0 / 0):
 

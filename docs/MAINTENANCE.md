@@ -14,9 +14,21 @@
 3. `engine/rules/page_types_registry.md`(1 的人類可讀版)
 
 新頁型若要全自動產出,另需在該包 `engine/templates/<id>/bindings.json` 加
-fill 條目(宣告式 op 詞彙表;builtin 僅 light 的 `bindings.py`)→ 過
-`template_admin.py golden` → 重打包該模板 zip。架構見
-[`ARCHITECTURE.md`](ARCHITECTURE.md)。
+fill 條目(宣告式 op 詞彙表;builtin 僅 light 的 `bindings.py`)→
+**`template_admin.py fit --id <id>` 量容量** → 過 `template_admin.py golden`
+→ 重打包該模板 zip。架構見 [`ARCHITECTURE.md`](ARCHITECTURE.md)。
+
+**字數與清單長度不准手填。** `PAGE_TYPES` 裡的值只是跨模板的預設,
+各包真正裝得下多少由 `fit` 量測後寫進該包 `capacity_overrides`。
+憑感覺填的下場是「閘門 PASS、版面壞掉」:2026-07-26 發現 light 有 43 個
+槽位超額(`core_mission` 宣告 60 字、版位只放得下 11 字),渲染器靜默把字
+縮到 12pt,32 頁 golden 有 99 個框被縮而所有自動檢查全綠。
+原則(設計師定調):**字級是設計過的,塞不下要改稿或換頁型,不是縮字。**
+演算法與 9 個已知量測陷阱見 `engine/release/fit_capacity.py` 檔頭。
+
+**設計師自助加開頁型**走 `.codex/skills/add-page-types/SKILL.md`
+(設計師版說明在 `docs/給設計師/03-路線B-自己動手.md` 的 A10 節);
+那條路徑允許動三處同步,與「註冊全新模板」的 `register-template` 分工不同。
 
 **契約改版的連動**:golden fixtures 重派生
 (`template_admin.py golden --regen-specs`)→ **全部已註冊模板包重跑 golden**;
