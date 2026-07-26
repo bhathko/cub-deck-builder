@@ -14,7 +14,7 @@ description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec
 
 - `engine/rules/outline_to_ppt_skill.md` — 大綱模式完整規則(GPTs 版;把
   `/mnt/data` 路徑換成本文的 `ppt_out/`,其餘規則照用)
-- `engine/rules/page_types_registry.md` — 11 種註冊頁型的槽位契約(填槽前必讀)
+- `engine/rules/page_types_registry.md` — 21 種註冊頁型的槽位契約(填槽前必讀)。**字數與清單長度以檔尾「light 模板的實際容量」表為準**——那是量測出來的版位真實容量,上方各節的數字只是跨模板預設值
 - `engine/tools/README_TOOLS.md` — 錯誤→修法對照表 + 工具鐵律(FAIL 時必讀)
 
 ## 鐵律
@@ -23,7 +23,7 @@ description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec
    報告人、結論。缺料欄位一律填固定字串「待補充」(來源已標「待補充/待確認/
    待定/TBD」者原樣沿用)。可不依來源產生的值只有:agenda 順序編號、比較頁
    固定標題「改善前/改善後」、closing 的 `Thank you`。
-2. **大綱模式只用 11 種註冊頁型**(validator `PAGE_TYPES` 為準),禁止未註冊
+2. **大綱模式只用註冊頁型**(validator `PAGE_TYPES` 為準,目前 21 種;數量會隨模板加開而變,不要寫死),禁止未註冊
    頁型、禁止 render_plan。缺資料不是換版面的理由——照樣建頁、缺欄填「待補充」。
 3. **骨架必用 `make_skeleton.py`**,禁止徒手建 JSON 結構、頁碼、素材路徑。
 4. **禁止現寫 Python 取代管線腳本**;禁止手動修補 `deck.pptx` 產出。
@@ -108,6 +108,7 @@ python .codex/skills/outline-to-ppt/prepare_env.py
    頁數、驗證通過、QA 通過、如實列出 WARN、以及「待補清單」(仍為佔位符的頁
    與欄位,沒有就寫無)。不要把整份 JSON 貼進對話。提醒使用者用 PowerPoint
    開啟檢查文字溢出(中文寬度估算不準,溢出要人工看)。
+   **qa 若 FAIL 在「文字壓到別的元素」,那不是警告**:縮短它指出的那個槽位再整條重跑,不可交付。系統不會自動縮字遷就——字級是設計過的,塞不下就要改稿。
 
 ## 模式 B:直供 JSON 模式(使用者給的是 slide_spec.json)
 

@@ -26,7 +26,7 @@ docs/              文件(先看 docs/README.md 挑一份;架構/維護/決策�
 | **想知道某個設計當初為什麼這樣決定** | [`docs/WORKLOG.md`](docs/WORKLOG.md)(歷史檔;**不是現況說明**) |
 | **發版前要跑回歸** | [`engine/REGRESSION.md`](engine/REGRESSION.md)(R0–R12 可執行案例) |
 | **產檔被閘門擋下、看到 ERROR** | [`engine/tools/README_TOOLS.md`](engine/tools/README_TOOLS.md)(錯誤→修法對照表,每種錯只有一種修法) |
-| **要寫 / 看懂 slide_spec.json** | [`engine/rules/page_types_registry.md`](engine/rules/page_types_registry.md)(11 種註冊頁型的槽位契約) |
+| **要寫 / 看懂 slide_spec.json** | [`engine/rules/page_types_registry.md`](engine/rules/page_types_registry.md)(21 種註冊頁型的槽位契約 + light 實際容量表) |
 | **想知道現在有哪些模板可用** | [`engine/templates/INDEX.md`](engine/templates/INDEX.md),或跑 `python engine/tools/make_skeleton.py --list` |
 
 ## 常用工作
