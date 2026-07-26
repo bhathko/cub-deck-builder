@@ -74,7 +74,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `../docs/給設計師/`                     | 非技術版說明(4 份:入口 + 專案說明 + 路線 A/B),整包發給設計師           | 不上傳,直接發給人看              |
 | `../docs/FEEDBACK.md`                   | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
 | `feedback_evidence/`                    | GPT Builder 實測對話逐字稿(FEEDBACK 台帳引用的證據)                       | 不上傳,留在 repo                 |
-| `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R10 可執行案例與預期結果                                | 不上傳,留在 repo                 |
+| `../engine/REGRESSION.md`               | 發版前本機回歸:R0–R12 可執行案例與預期結果                                | 不上傳,留在 repo                 |
 | `../docs/WORKLOG.md`                    | 決策紀錄:架構演進、取捨理由、已知風險,接手必讀                           | 不上傳,留在 repo                 |
 
 > 已經建好、只是要發新版?直接用 [`DEPLOY.md`](DEPLOY.md)(一頁操作稿)。
@@ -176,7 +176,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 ### 發版前本機回歸
 
 本機以全新暫存目錄跑 [`engine/REGRESSION.md`](../engine/REGRESSION.md) 的
-R0–R10 全部案例(archive 完整性、examples 預期 exit、稽核/title 注入/數字 token
+R0–R12 全部案例(archive 完整性、examples 預期 exit、稽核/title 注入/數字 token
 閘門、QA WARN 仍 PASS、strict 與直供全流程、fixture 純淨度、Knowledge 清單與
 hash、多模板雙包、全包 lint),全綠才發版;重打包 zip 後同步更新該檔的 hash 基準。
 
@@ -229,7 +229,7 @@ GPTs 只有**擁有者**能編輯,所以要指定一位管理者(建議就是維
    規則化流程見 [`docs/FEEDBACK.md`](../docs/FEEDBACK.md)。
 4. **改完先驗收再發版**:完整步驟見 [`docs/MAINTENANCE.md`](../docs/MAINTENANCE.md)
    的「發佈 checklist」;上傳前跑本檔「驗收測試」全部項目 +
-   [`engine/REGRESSION.md`](../engine/REGRESSION.md) R0–R10。
+   [`engine/REGRESSION.md`](../engine/REGRESSION.md) R0–R12。
 
 > 改頁型契約、加模板、重打包 zip 的操作細節,一律見
 > [`docs/MAINTENANCE.md`](../docs/MAINTENANCE.md)——那些是**引擎級**維護,

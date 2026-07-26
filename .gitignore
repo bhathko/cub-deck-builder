@@ -37,3 +37,6 @@ $RECYCLE.BIN/
 # 一般暫存
 *.tmp
 *.bak
+
+# 工作流用的臨時 worktree(不入版控)
+/.claude/worktrees/

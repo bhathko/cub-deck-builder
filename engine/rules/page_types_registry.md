@@ -266,43 +266,37 @@
 | cycle_four_point_loop | `steps[].detail` | ≤40 字 | **≤34 字** |
 | cycle_four_point_loop | `subtitle` | ≤60 字 | **≤50 字** |
 | data_line_trend_comparison | `rows[].cells[]` | ≤20 字 | **≤4 字** |
-| data_line_trend_comparison | `rows[].heading` | ≤8 字 | **≤4 字** |
-| data_line_trend_comparison | `series[].name` | ≤8 字 | **≤3 字** |
-| data_three_number_kpis | `kpis[].detail` | ≤30 字 | **≤13 字** |
-| data_three_number_kpis | `kpis[].label` | ≤12 字 | **≤6 字** |
-| data_three_number_kpis | `kpis[].value` | ≤6 字 | **≤2 字** |
+| data_three_number_kpis | `kpis[].detail` | ≤30 字 | **≤12 字** |
 | data_three_number_kpis | `subtitle` | ≤60 字 | **≤50 字** |
-| data_two_group_metric_comparison | `after.points` | 2–6 項 | **2–4 項** |
+| data_two_group_metric_comparison | `after.points` | 2–6 項 | **2–3 項** |
 | data_two_group_metric_comparison | `after.points[]` | ≤40 字 | **≤16 字** |
-| data_two_group_metric_comparison | `before.points` | 2–6 項 | **2–4 項** |
+| data_two_group_metric_comparison | `before.points` | 2–6 項 | **2–3 項** |
 | data_two_group_metric_comparison | `before.points[]` | ≤40 字 | **≤16 字** |
 | data_two_group_metric_comparison | `kpis[].label` | ≤30 字 | **≤8 字** |
 | data_two_group_metric_comparison | `subtitle` | ≤60 字 | **≤50 字** |
-| evaluation_option_score_pros_cons | `options[].cons` | 1–3 項 | **1–2 項** |
-| evaluation_option_score_pros_cons | `options[].cons[]` | ≤60 字 | **≤17 字** |
+| evaluation_option_score_pros_cons | `options[].cons` | 1–3 項 | **1–1 項** |
+| evaluation_option_score_pros_cons | `options[].cons[]` | ≤60 字 | **≤34 字** |
 | evaluation_option_score_pros_cons | `options[].name` | ≤24 字 | **≤9 字** |
 | evaluation_option_score_pros_cons | `options[].pros` | 1–4 項 | **1–2 項** |
-| evaluation_option_score_pros_cons | `options[].pros[]` | ≤60 字 | **≤17 字** |
-| evaluation_option_score_pros_cons | `recommendation` | 0–5 項 | **0–3 項** |
-| evaluation_option_score_pros_cons | `recommendation[]` | ≤40 字 | **≤13 字** |
-| evaluation_option_score_pros_cons | `recommended` | ≤20 字 | **≤13 字** |
+| evaluation_option_score_pros_cons | `options[].pros[]` | ≤60 字 | **≤20 字** |
+| evaluation_option_score_pros_cons | `recommendation[]` | ≤40 字 | **≤7 字** |
+| evaluation_option_score_pros_cons | `recommended` | ≤20 字 | **≤7 字** |
 | evaluation_option_score_pros_cons | `subtitle` | ≤60 字 | **≤50 字** |
 | info_card_grid | `subtitle` | ≤60 字 | **≤50 字** |
 | info_horizontal_explanation_rows | `rows[].points` | 1–3 項 | **1–2 項** |
 | info_horizontal_explanation_rows | `subtitle` | ≤60 字 | **≤49 字** |
 | info_three_column_category | `columns[].heading` | ≤20 字 | **≤13 字** |
 | info_three_column_category | `columns[].points` | 2–6 項 | **2–4 項** |
-| info_three_column_category | `columns[].points[]` | ≤40 字 | **≤14 字** |
+| info_three_column_category | `columns[].points[]` | ≤40 字 | **≤17 字** |
 | info_three_column_category | `subtitle` | ≤60 字 | **≤50 字** |
 | phase_concept_three_column_explanation | `concept` | ≤8 字 | **≤4 字** |
 | phase_concept_three_column_explanation | `concept_labels[].name` | ≤8 字 | **≤4 字** |
 | phase_three_column_action_cards | `phases[].detail` | ≤60 字 | **≤54 字** |
-| pyramid_layered_maturity_detail | `levels[].detail` | ≤40 字 | **≤20 字** |
+| pyramid_layered_maturity_detail | `levels[].detail` | ≤40 字 | **≤21 字** |
 | pyramid_layered_maturity_detail | `side_cards[].heading` | ≤16 字 | **≤9 字** |
 | pyramid_layered_maturity_detail | `side_cards[].points` | 2–4 項 | **2–2 項** |
 | pyramid_layered_maturity_detail | `side_cards[].points[]` | ≤30 字 | **≤18 字** |
 | pyramid_layered_maturity_detail | `subtitle` | ≤60 字 | **≤56 字** |
-| stage_timeline_progress | `axis_labels[]` | ≤8 字 | **≤2 字** |
 | stage_timeline_progress | `subtitle` | ≤60 字 | **≤50 字** |
 | stage_year_cards | `stages[].details[]` | ≤30 字 | **≤15 字** |
 | stage_year_cards | `stages[].heading` | ≤16 字 | **≤7 字** |
@@ -315,8 +309,9 @@
 | vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
 | vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
 
-(共 51 個槽位。由 `template_admin.py` 依模板實際版位量測收斂產生,
-非人工填寫:條件是「設計字級下不縮字」且「文字佔用範圍不比模板原本更侵入鄰欄」。)
+(共 45 個槽位。**本表由 `template_admin.py fit` 自動重生,
+不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、
+文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)
 
 ---
 

@@ -163,8 +163,8 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-05f0f3f00c273f63f110bf3e6688b28bc71a601ac960b4f281aecdb6ce4eb835  tools.zip
-23dfd920b25d9f5ee797886e18edcfac2e0050770414771650f6c65d43fb95dd  template_light.zip
+f990b5c8d70bf28230660a4d25a28e479460bee461ae26afc0aa53c9c59f0474  tools.zip
+baa413ef3f3e68a9aec224405ea7cf79974ce4a9c8d7c03f29390d821db92fc6  template_light.zip
 ```
 
 (2026-07-26 碰撞判準:設計師目檢 p4/p10/p22/p30 指出「不是 autofit 沒超過,
@@ -286,26 +286,69 @@ python engine/release/template_admin.py fit --id light --reset
   全部歸零。演算法與 9 個已知量測陷阱見 `engine/release/fit_capacity.py` 檔頭。
   本節的數值即由它產生;手改 `capacity_overrides` 視為違規。
 
-驗證有沒有退化(應為 0 / 0):
+驗證有沒有退化。**頁序不要硬寫**——加開或降級頁型後就過期,會靜默對到錯的
+模板頁而假 PASS(舊版腳本就是這樣):
 
 ```bash
 python - <<'EOF'
-import sys, json; sys.path.insert(0,'engine/tools')
+import sys, json; sys.path.insert(0,'engine/tools'); sys.path.insert(0,'engine/rules')
 from pptx import Presentation
 import text_tools as tt
-seq="14 14 17 17 29 29 33 33 54 54 16 16 20 20 22 22 24 24 25 25 30 30 35 35 38 38 40 40 47 47 50 50".split()
-def walk(ss):
-    for s in ss:
-        if s.shape_type==6: yield from walk(s.shapes)
-        else: yield s
-tpl=Presentation('engine/templates/light/template.pptx'); g=Presentation('ppt_out/golden_light.pptx')
-TP={i:{s.shape_id:s for s in walk(sl.shapes) if s.has_text_frame} for i,sl in enumerate(tpl.slides,1)}
-shr=0
-for i,sl in enumerate(g.slides,1):
-    for s in walk(sl.shapes):
-        if not s.has_text_frame or not s.text_frame.text.strip(): continue
-        o=TP[int(seq[i-1])].get(s.shape_id)
-        if o is not None and tt._first_run_size_pt(s) < tt._first_run_size_pt(o)-0.5: shr+=1
-print("被縮字的框:", shr, "(必須是 0)")
+m = json.load(open('engine/templates/light/manifest.json'))
+fills = list(json.load(open('engine/templates/light/bindings.json'))["fills"])
+order = [pt for pt in m["page_types"] if pt in fills]      # = golden 的派生順序
+seq = [pt for pt in order for _ in ("min", "max")]
+page_of = {pt: e["template_page"] for pt, e in m["page_types"].items()
+           if e.get("mode") == "fill"}
+tpl = Presentation('engine/templates/light/template.pptx')
+g = Presentation('ppt_out/golden_light.pptx')
+assert len(g.slides) == len(seq), f"頁數不符:golden {len(g.slides)} vs 預期 {len(seq)}"
+T = {pt: {s.shape_id: s for s in tt.iter_text_shapes(tpl.slides[pg-1].shapes)}
+     for pt, pg in page_of.items()}
+BASE = {pt: {frozenset((a.shape_id, b.shape_id)): ar
+             for ar, a, b in tt.text_collisions(tpl.slides[pg-1])}
+        for pt, pg in page_of.items()}
+shr = worse = 0
+for i, sl in enumerate(g.slides, 1):
+    pt = seq[i-1]
+    for s in tt.iter_text_shapes(sl.shapes):
+        o = T[pt].get(s.shape_id)
+        if o is not None and tt._first_run_size_pt(s) < tt._first_run_size_pt(o) - 0.5:
+            shr += 1; print(f"  縮字 p{i} {pt} id{s.shape_id}")
+    for ar, a, b in tt.text_collisions(sl):
+        ref = BASE[pt].get(frozenset((a.shape_id, b.shape_id)), 0.0)
+        if ar > max(ref * 1.10, 0.03):
+            worse += 1; print(f"  侵入 p{i} {pt} id{a.shape_id}x{b.shape_id} {ar:.2f}in2")
+print(f"被縮字 {shr} / 比模板更侵入鄰欄 {worse} — 兩者都必須是 0")
 EOF
 ```
+
+**反向測試也要做**,否則不知道偵測器還活著。做法是**改 spec 再直接渲染**
+(繞過閘門,但內容與 spec 對得上——否則會先卡在「內容未出現」那條檢查,
+證明不了碰撞偵測有沒有壞):
+
+```bash
+python - <<'EOF'
+import json
+s = json.load(open('ppt_out/golden_light.spec.json'))
+for sl in s['slides']:
+    if sl['page_type'] == 'data_three_number_kpis':
+        for k in sl.get('slots', {}).get('kpis', []):
+            k['detail'] = '刻意超長的說明文字用來驗證碰撞偵測會不會擋下來真的很長'
+s['deck'].pop('template', None)
+json.dump(s, open('ppt_out/_neg.json', 'w'), ensure_ascii=False, indent=2)
+EOF
+python engine/tools/render_deck.py --spec ppt_out/_neg.json \
+  --template-pack engine/templates/light --asset-dir <素材根> --out ppt_out/_neg.pptx
+python engine/tools/qa_check.py --spec ppt_out/_neg.json \
+  --pptx ppt_out/_neg.pptx --template-pack engine/templates/light; echo "exit=$?"
+```
+
+預期 exit=1,且輸出含 `[F] p21/p22: 文字壓到別的元素 0.71 平方吋`。
+**exit=0 代表偵測器壞了**——那比破版本身更嚴重,所有後續驗收都會假綠。
+
+**注意 `fit` 收斂後仍會有一堆 `estimate_overflow()['fits'] == False` 的框,
+那是正確的。** 判準是「文字範圍不比模板更侵入鄰欄」,不是「每個框都裝得下
+自己的文字」;`wrap="none"` 的標籤框文字往右長但仍在卡片底板內、沒碰到鄰欄
+文字,就不算破版。稽核時不要拿 `fits=False` 當漏報。
+

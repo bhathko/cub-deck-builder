@@ -233,10 +233,14 @@ def walk_absolute(shapes, tf=(0.0, 0.0, 1.0, 1.0)):
             yield s, L, T, W, H
 
 
-def text_footprint(shape, left, top, width, height):
+def text_footprint(shape, left, top, width, height, size_pt=None):
     """文字實際佔用的矩形 (x0, y0, x1, y1),單位吋;無文字回傳 None。
 
     可能大於形狀本身:wrap="none" 往旁邊長、行數超出框高往下長(autofit)。
+
+    `size_pt` 不給時用框內現有字級。**量容量時務必傳設計字級**——否則在
+    「渲染器已經把字縮小」的情境下會用縮小後的字量,面積偏小、可容字數
+    高估近一倍,寫出的上限在設計字級下仍然放不下。
     """
     tf = shape.text_frame
     text = tf.text
@@ -246,7 +250,7 @@ def text_footprint(shape, left, top, width, height):
     mr = (tf.margin_right if tf.margin_right is not None else 91440) / EMU_PER_IN
     mt = (tf.margin_top if tf.margin_top is not None else 45720) / EMU_PER_IN
     mb = (tf.margin_bottom if tf.margin_bottom is not None else 45720) / EMU_PER_IN
-    size = _first_run_size_pt(shape)
+    size = size_pt or _first_run_size_pt(shape)
     avail_w = max(width - ml - mr, 0.05)
     avail_h = max(height - mt - mb, 0.05)
     no_wrap = tf._bodyPr.get("wrap") == "none"

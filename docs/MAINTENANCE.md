@@ -24,7 +24,7 @@ fill 條目(宣告式 op 詞彙表;builtin 僅 light 的 `bindings.py`)→
 槽位超額(`core_mission` 宣告 60 字、版位只放得下 11 字),渲染器靜默把字
 縮到 12pt,32 頁 golden 有 99 個框被縮而所有自動檢查全綠。
 原則(設計師定調):**字級是設計過的,塞不下要改稿或換頁型,不是縮字。**
-演算法與 9 個已知量測陷阱見 `engine/release/fit_capacity.py` 檔頭。
+演算法與 15 個已知量測陷阱見 `engine/release/fit_capacity.py` 檔頭。
 
 **設計師自助加開頁型**走 `.codex/skills/add-page-types/SKILL.md`
 (設計師版說明在 `docs/給設計師/03-路線B-自己動手.md` 的 A10 節);
@@ -76,7 +76,7 @@ skill 帶著跑盤點→映射→綁定→黃金驗收→註冊)。
 
 0. □ 頁型數量若有變動,掃一次文件內的「N 種註冊頁型」數字
    (`grep -rn "種註冊頁型\|種全自動" --include="*.md" .`)
-1. □ 該模板包 REGRESSION 綠 + `engine/REGRESSION.md` R0–R10 全符
+1. □ 該模板包 REGRESSION 綠 + `engine/REGRESSION.md` R0–R12 全符
 2. □ `python engine/release/template_admin.py isolation` 白名單過
    (模板目錄外的改動已拆 commit)
 3. □ `python engine/release/template_admin.py pack --id <id>` 重打包

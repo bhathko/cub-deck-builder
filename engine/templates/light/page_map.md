@@ -64,7 +64,7 @@
 | structure_org_chart_roles | clone(半自動,需 render_plan) | 57 | 寫 plan 前先 `inspect_template.py --page 57` |
 | structure_relation_map | clone(半自動,需 render_plan) | 58 | 寫 plan 前先 `inspect_template.py --page 58` |
 
-共 53 筆:builtin 5、fill 6、clone 42。
+共 53 筆:builtin 5、fill 16、clone 32。
 
 ## 附:light 語意色名對照(page_types.md 視覺描述用;機器真相在 manifest style)
 

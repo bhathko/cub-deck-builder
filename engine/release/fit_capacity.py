@@ -15,17 +15,32 @@
 所以上限必須等於「版位在**設計字級**下真正裝得下的量」,由本工具量測後寫進
 manifest 的 `capacity_overrides`,讓閘門在產檔前就擋下來要求改稿。
 
-## 兩個收斂訊號
+## 四個收斂訊號
 
 單看「文字裝不裝得進自己的框」不夠——設計師的原話是
 「有時候不是 autofit 沒超過,是 autofit 後跑到了不該出現字的位置」。
-所以每輪 golden 之後檢查兩件事:
+所以每輪 golden 之後檢查四件事:
 
-1. **有框被縮字** → 字級被動了(非 autofit 框)
-2. **文字佔用範圍侵入鄰欄** → 比模板原本更糟(`wrap="none"` 往右長、
-   autofit 往下長,壓到隔欄)
+1. **有框被縮字** → 字級被動了(非 autofit 框)。
+2. **文字佔用範圍侵入鄰欄且比模板原本更糟** → `wrap="none"` 往右長、
+   autofit 往下長,壓到隔欄。
+3. **autofit 框長得比「設計師自己那份原文需要的高度」還高** → 即使旁邊是
+   空的、沒撞到人,版面也已經不是設計師排的樣子,所以也算壞。
+4. **`add_textbox` 新增的框裝不進自己宣告的幾何** → 它沒有模板對照、沒有
+   設計師基準可放寬,x/y/w/h 是綁定自己寫的,就必須自己裝得下。
 
-兩者都歸零才算收斂。
+四個都歸零才算收斂。**注意收斂條件的實作是「本輪沒有任何提案」**,
+與「訊號全滅」不完全等價:量到的上限不比現行更緊時就不會產生提案。
+所以 `fit` 回 0 之後,發版前仍要照 REGRESSION R12 獨立驗一次。
+
+另外兩個先於主迴圈的前置修正(幾何可直接算出、不需迭代):
+
+- **平行欄位格位數對稱**:同一契約清單綁到多組平行版位時(三欄、左右兩側),
+  上限取各組格位數的**最小值**。light p17 三欄是 6/6/4 格,上限開到 5 只有
+  第三欄會併格 → 三欄長得不一樣(設計師目檢 p4 抓到)。分組鍵**必須保留
+  索引**,正規化掉會把三欄併成一組、檢查永遠不觸發。
+- **`add_textbox` 的跨槽位預算**:prefix + 多個槽位用 join 串成一條字串放進
+  一個框,限制是「總長度」。逐槽位算容量必然算錯。
 
 ## 已知的量測陷阱(全部已在本檔處理,改動前先讀)
 
@@ -49,12 +64,35 @@ manifest 的 `capacity_overrides`,讓閘門在產檔前就擋下來要求改稿�
    絕對零重疊會把模型誤差與設計意圖一起罰掉。
 9. 收緊對象只能選「佔用範圍會隨文字長度變大」的那一方:`wrap="square"` 的
    框寬度固定,縮它的字數只會減行數,救不了橫向碰撞。
+10. 鄰居的容許重疊量必須跟基準用**同一種算法**(文字範圍 vs 文字範圍)。
+    拿「文字範圍 vs 框」去比會比基準嚴,永遠收斂不了——light p47 的
+    name/caption 兩個框本來就在垂直方向重疊。
+11. `wrap="none"` 的框行數恆等於硬換行數,所以**單行時縱向檢查完全不會擋**。
+    橫向檢查(`fits_w`)不能漏,否則那種槽位等於沒量測過(旁邊剛好是空白
+    就會一路放行到搜尋上界)。
+12. 量 footprint 時要**傳設計字級**。預設會讀「框裡現在的字級」,而訊號①
+    的定義就是「字已經被縮小了」——在最需要精準的情境下面積會偏小、
+    可容字數高估近一倍。
+13. **本工具只會收緊、不會放寬**(避免永久卡在「1 字」)。所以:
+    設計師把版位改大之後,**必須加 `--reset` 重量**,不加的話會直接回報
+    收斂、上限維持舊的緊值。
+14. golden 的 qa 紅是**預期的**(溢出與碰撞正是本工具要消掉的東西),
+    要求 golden exit 0 才繼續會死鎖;但 validator/render 紅必須停,
+    那代表 spec 本身不合法。
+15. `--reset` 會先清空再量,所以它**必須等確認這個包渲染得出來才動手**,
+    否則任何一步失敗都會把包留在「閘門上限幾乎全失、status 仍 registered」
+    的危險狀態。也因此 `--reset` 與 `--dry-run` 不可併用。
 
 用法:
 
     python engine/release/fit_capacity.py --id light            # 量測並寫入
     python engine/release/fit_capacity.py --id light --dry-run   # 只印不寫
     python engine/release/fit_capacity.py --id light --reset     # 先清空再量
+                                                                 # (改過版位大小必須加)
+
+收斂後會**自動重生** `engine/rules/page_types_registry.md` 的容量表——
+那張表是給 LLM 看的,手維護必然與 manifest 漂移(2026-07-26 漂了 18 處:
+模型照表寫卻被閘門退回,或反過來過度自我審查)。
 
 需要 python-pptx(本機沒裝:`uv run --with python-pptx python …`)。
 """
@@ -224,15 +262,25 @@ def _clean_cap(shape, geom, n, ch, size, neighbours, tt, tpl_shape=None):
         original = shape.text_frame.text
         try:
             tt.set_text_keep_style(shape, "\n".join([ch * length] * n))
-            fp = tt.text_footprint(shape, L, T, W, H)
+            fp = tt.text_footprint(shape, L, T, W, H, size_pt=size)
             est = tt.estimate_overflow(shape, size_pt=size)
         finally:
             tt.set_text_keep_style(shape, original)
+        # 縱向:行數超出容許高度
         if est["lines"] > 1:
             allow = est["avail_pt"]
             if tpl_shape is not None and tt.has_autofit(shape):
                 allow = max(allow, tt.estimate_overflow(tpl_shape)["needed_pt"])
             if est["needed_pt"] > allow * COLLIDE_SLACK:
+                return False
+        # 橫向:wrap="none" 的框文字往旁邊長。**這條不能漏**——那種框的
+        # lines 恆等於硬換行數,單行時上面的縱向檢查完全不會擋,只剩碰撞
+        # 判準;旁邊剛好是空白就會一路放行到搜尋上界(等於沒量測)。
+        if not est["fits_w"]:
+            allow_w = est["avail_w_pt"]
+            if tpl_shape is not None:
+                allow_w = max(allow_w, tt.estimate_overflow(tpl_shape)["needed_w_pt"])
+            if est["needed_w_pt"] > allow_w * COLLIDE_SLACK:
                 return False
         if fp is None:
             return True
@@ -252,10 +300,69 @@ def _clean_cap(shape, geom, n, ch, size, neighbours, tt, tpl_shape=None):
 # ---------------------------------------------------------------------------
 # 主流程
 # ---------------------------------------------------------------------------
+REGISTRY = REPO / "engine" / "rules" / "page_types_registry.md"
+_TABLE_HEAD = "\n---\n\n## light 模板的實際容量"
+_TABLE_TAIL = "\n---\n\n## 頁型選擇原則"
+
+
+def sync_registry_table(manifest: dict, verbose=True) -> None:
+    """把 registry 的「實際容量」表由 manifest 重新產生。
+
+    那張表是給 LLM 看的閘門上限。手維護必然漂移——2026-07-26 漂了 18 處
+    (12 個數字不符 + 6 條指向已不存在的 override),症狀是模型照表寫卻被
+    閘門退回,或反過來過度自我審查。所以由 `fit` 收斂後自動重生。
+    只處理 light(其他包若也要出這張表,再擴 pack id 判斷)。
+    """
+    if manifest.get("template_id") != "light" or not REGISTRY.exists():
+        return
+    from validate_slide_spec_gpts import PAGE_TYPES, apply_capacity_overrides
+    merged = apply_capacity_overrides(PAGE_TYPES, manifest.get("capacity_overrides"))
+    rows = []
+
+    def walk(node, base, pt, path=""):
+        if node.get("kind") == "text":
+            if node["max_chars"] != base["max_chars"]:
+                rows.append((pt, path, f"≤{base['max_chars']} 字", f"≤{node['max_chars']} 字"))
+        elif node.get("kind") == "list":
+            if node["max"] != base["max"]:
+                rows.append((pt, path, f"{base['min']}–{base['max']} 項",
+                             f"{node['min']}–{node['max']} 項"))
+            walk(node["item"], base["item"], pt, path + "[]")
+        elif node.get("kind") == "object":
+            for k, v in node["fields"].items():
+                walk(v, base["fields"][k], pt, f"{path}.{k}" if path else k)
+
+    for pt in merged:
+        for k, v in merged[pt]["slots"].items():
+            walk(v, PAGE_TYPES[pt]["slots"][k], pt, k)
+    body = [
+        "", "---", "", "## light 模板的實際容量(**以本表為準**)", "",
+        "上方各節的字數是「語意契約的預設值」。**實際可寫多少,由選定的模板包決定**——",
+        "版位大小是設計師定的,字級也是設計過的,塞不下時請**改寫更短或換頁型**,",
+        "系統不會偷偷縮小字級來遷就,也不會讓文字疊到隔欄。下表列出 light 包與預設值",
+        "不同的槽位;沒列出的沿用上方數字。閘門依本表擋,寫超過會被退回。", "",
+        "| 頁型 | 槽位 | 預設 | light 實際 |", "| --- | --- | --- | --- |",
+    ]
+    for r in sorted(rows):
+        body.append(f"| {r[0]} | `{r[1]}` | {r[2]} | **{r[3]}** |")
+    body += ["", f"(共 {len(rows)} 個槽位。**本表由 `template_admin.py fit` 自動重生,",
+             "不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、",
+             "文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)", ""]
+    text = REGISTRY.read_text(encoding="utf-8")
+    if _TABLE_HEAD in text and _TABLE_TAIL in text:
+        head = text[: text.index(_TABLE_HEAD)]
+        tail = text[text.index(_TABLE_TAIL):]
+    else:
+        head, tail = text.rstrip() , ""
+    REGISTRY.write_text(head + "\n".join(body) + tail, encoding="utf-8")
+    if verbose:
+        print(f"registry 容量表已重生:{len(rows)} 列")
+
+
 def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True) -> int:
     from pptx import Presentation
     import text_tools as tt
-    from validate_slide_spec_gpts import PAGE_TYPES
+    from validate_slide_spec_gpts import PAGE_TYPES, apply_capacity_overrides
 
     pack_dir = Path(pack_id) if Path(pack_id).is_dir() else packs_root / pack_id
     mpath = pack_dir / "manifest.json"
@@ -264,12 +371,30 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
         print(f"✗ 找不到 manifest:{mpath}")
         return 2
     manifest = json.loads(mpath.read_text(encoding="utf-8-sig"))
+    if reset and dry_run:
+        # --reset 會清空並寫回 manifest,--dry-run 又不寫入量測值 → 併用等於
+        # 「把所有閘門上限無聲蒸發」,而 lint/golden 事後仍會全綠。直接擋掉。
+        print("✗ --reset 與 --dry-run 不可併用(會清空上限卻不寫回新值)")
+        return 2
     if reset:
+        # 先確認這個包渲染得出來,再清空——否則任何一步失敗就把包留在
+        # 「閘門上限幾乎全失、status 仍是 registered」的危險狀態。
+        probe = subprocess.run(
+            [sys.executable, str(REPO / "engine/release/template_admin.py"),
+             "golden", "--id", pack_id]
+            + (["--packs-root", str(packs_root)]
+               if packs_root and Path(packs_root) != REPO / "engine" / "templates" else []),
+            capture_output=True, text=True, cwd=str(REPO))
+        if "失敗於「validator」" in probe.stdout or "失敗於「render」" in probe.stdout:
+            print("✗ 這個包目前連渲染都過不了,不清空上限(先修好綁定再來):")
+            print(probe.stdout[-1200:])
+            return 1
+        backup = dict(manifest.get("capacity_overrides") or {})
         manifest["capacity_overrides"] = {}
         mpath.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
                          encoding="utf-8")
         if verbose:
-            print("已清空 capacity_overrides,從零量測")
+            print(f"已清空 capacity_overrides({len(backup)} 條),從零量測")
 
     fills = json.loads(bpath.read_text(encoding="utf-8-sig")).get("fills", {})
     page_of = {pt: e["template_page"] for pt, e in manifest["page_types"].items()
@@ -306,6 +431,60 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
                     if nd and nd.get("kind") == "list":
                         p += ".item"
                     addbox.setdefault(pt, []).append(p)
+
+    # ---- 平行欄位的格位數對稱 ----
+    # 同一個契約清單常被綁到多組平行版位(三欄、左右兩側),各組的實體格位數
+    # 可能不一樣:light p17 三欄分別有 6/6/4 格。上限若開到 5,只有第三欄會
+    # 觸發併格 → 三欄長得不一樣(設計師目檢 p4 抓到的就是這個)。
+    # 這個不變式**可以從綁定算出來**,所以由工具守,不靠文件提醒:
+    # 上限 = 各平行組格位數的最小值。
+    sym = {}
+    for pt, ent in fills.items():
+        slots = PAGE_TYPES[pt]["slots"]
+        counts = {}      # 契約清單路徑 → {平行組 key: 格位數}
+        for op in ent["ops"]:
+            raw = op.get("slot", "")
+            if not raw.startswith("$.slots."):
+                continue
+            path = norm_slot(raw)
+            if op["op"] == "set":
+                nd = node_at(slots, path)
+                if nd and nd.get("kind") == "text" and path.endswith(".item"):
+                    lp = path[: -len(".item")]
+                    # 分組鍵要**保留索引**——索引就是「第幾組平行版位」的身分。
+                    # 正規化掉會把三欄併成一組,對稱檢查永遠不觸發。
+                    key = raw.rsplit("[", 1)[0]          # columns[0].points
+                    counts.setdefault(lp, {}).setdefault(key, 0)
+                    counts[lp][key] += 1
+            elif op["op"] == "list":
+                nd = node_at(slots, path)
+                if nd and nd.get("kind") == "list":
+                    key = re.sub(r"\[[^\]]*:\]$", "", raw)   # 去掉尾端切片,留索引
+                    counts.setdefault(path, {}).setdefault(key, 0)
+                    counts[path][key] += len(op["items"])
+        for lp, groups in counts.items():
+            if len(groups) < 2:
+                continue        # 只有一組 → 沒有對稱問題
+            sym[f"{pt}.slots.{lp}.max"] = min(groups.values())
+    if sym:
+        cur = dict(manifest.get("capacity_overrides") or {})
+        wrote = []
+        for key, n in sym.items():
+            pt = key.split(".slots.")[0]
+            path = key[len(f"{pt}.slots."):-len(".max")]
+            nd = node_at(PAGE_TYPES[pt]["slots"], path)
+            if not (nd and nd.get("kind") == "list"):
+                continue
+            n = max(n, nd["min"])
+            if cur.get(key, nd["max"]) > n:
+                cur[key] = n
+                wrote.append((path, n))
+        if wrote and not dry_run:
+            manifest["capacity_overrides"] = dict(sorted(cur.items()))
+            mpath.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+                             encoding="utf-8")
+        if wrote and verbose:
+            print("平行欄位格位數對稱:" + ", ".join(f"{p}→{v} 項" for p, v in wrote))
 
     # ---- add_textbox 的跨槽位預算 ----
     # 這種 op 把 prefix + 多個槽位用 join 串成**一條字串**放進一個自己宣告
@@ -356,9 +535,11 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
     seq = [pt for pt in order for _ in ("min", "max")]
 
     for rnd in range(1, MAX_ROUNDS + 1):
-        r = subprocess.run([sys.executable, str(REPO / "engine/release/template_admin.py"),
-                            "golden", "--id", pack_id],
-                           capture_output=True, text=True, cwd=str(REPO))
+        cmd = [sys.executable, str(REPO / "engine/release/template_admin.py"),
+               "golden", "--id", pack_id]
+        if packs_root and Path(packs_root) != REPO / "engine" / "templates":
+            cmd += ["--packs-root", str(packs_root)]   # 否則子行程會去量預設包
+        r = subprocess.run(cmd, capture_output=True, text=True, cwd=str(REPO))
         # 量測階段只需要「渲染出來的檔案」。qa 紅是**預期的**——溢出與碰撞
         # 正是本工具要消掉的東西,要求 qa 先綠就成了雞生蛋。
         # 但 validator 紅代表 spec 本身不合法(容量互相矛盾),那必須停。
@@ -373,13 +554,17 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
             return 1
         out = Presentation(str(made))
         overrides = dict(manifest.get("capacity_overrides") or {})
+        live = apply_capacity_overrides(PAGE_TYPES, overrides)
         changes, unmapped, stuck = [], [], []
 
         for idx, slide in enumerate(out.slides):
             if idx >= len(seq):
                 break
             pt = seq[idx]
-            slots = PAGE_TYPES[pt]["slots"]
+            # 用**已套 override** 的契約讀現值。拿基準契約的 max 去算清單長度
+            # 公式(原長 − n + k)會算出比現行還鬆的目標 → 永遠縮不下去 →
+            # 直接掉進 stuck 並誤報「該版位放不了有意義的內容」。
+            slots = live[pt]["slots"]
             base = tpl_base.get(pt, {})
             suspects = set()
 
@@ -494,6 +679,7 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
             for pg, pt, path, sid in stuck:
                 print(f"      {pt}.{path}(golden p{pg} shape id={sid})")
         if not changes:
+            sync_registry_table(manifest, verbose=verbose)
             if verbose:
                 print(f"✓ 第 {rnd} 輪:零縮字、零新增侵入 → 收斂"
                       + ("" if not unmapped else "(但有未對應框,見上)"))
