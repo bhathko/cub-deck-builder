@@ -19,6 +19,10 @@ fallback/validate_slide_spec.py 已移除);改契約時同步 slide_spec.schema.
 抗幻覺核心 = provenance 追溯：
   - 數字：內容槽位裡的每個數字都必須在該頁原文出現（高精準抓捏造 KPI）→ ERROR
   - 文字：字元 bigram 覆蓋率 < 門檻 → WARN（寬鬆，容忍改寫）
+  - 容量壓縮豁免(2026-07-27 政策決定):與該值相關的來源句**全部**放不進
+    版位上限、且值的用詞幾乎全出自來源時,低相似度不警告也不受 --strict
+    升級——誠實容量下的摘要式改寫是被迫的,不是幻覺。數字與標題兩條硬線
+    不經此路徑,完全不受豁免影響。判定見 capacity_compressed()。
   - 草稿佔位符（「待補充」「待確認」「待定」「TBD」）不視為內容事實，
     先剔除再追溯：整格只有佔位符 → 直接通過；佔位符以外的殘餘文字照常檢查。
     支援「先出草稿、之後補資料」的工作流；佔位符本身不含數字，捏造實值仍會被擋。
@@ -46,6 +50,7 @@ DEFAULT_SLIDES = Path("/mnt/data/slides.md")
 DEFAULT_ASSET_DIR = Path("/mnt/data")
 
 COVERAGE_THRESHOLD = 0.55  # 文字 bigram 覆蓋率低於此值 → 疑似未依來源
+CONTAINMENT_THRESHOLD = 0.90  # 容量壓縮豁免:值的內容字元至少九成須出自來源
 
 # 草稿佔位符：使用者授權「先出結構、之後補資料」。這些字串不算內容事實，
 # provenance 追溯前先剔除。改動清單時同步 outline_to_ppt_skill.md 與
@@ -551,6 +556,31 @@ def coverage(spec_str: str, block: str) -> float:
     return len(sb & bigrams(block)) / len(sb)
 
 
+def capacity_compressed(checked: str, max_chars: int, block: str) -> bool:
+    """容量壓縮豁免判定(2026-07-27 政策決定,脈絡見 docs/WORKLOG.md §2.4.1)。
+
+    誠實容量(上限=版位實測)與 strict 相似度會在窄槽位對撞:來源句 22 字、
+    版位只裝得下 17 字時,唯一合法輸出就是摘要式改寫,而 bigram 覆蓋率必然
+    掉到門檻下——改短就不像、像了就超容量,三輪修正也繞不出去。
+
+    豁免僅在「壓縮是被迫的」時成立,兩個條件缺一不可:
+    1. 與此值共享詞彙(至少一個 bigram)的**每一個**來源句都放不進
+       max_chars——只要存在裝得下的來源句,就該逐字引用,不豁免。
+    2. 值的內容字元幾乎全部出自來源區塊(≥ CONTAINMENT_THRESHOLD)——
+       壓縮是「刪字重排」,捏造是「加新詞」,後者照常警告/升級。
+    """
+    sents = [s for s in re.split(r"[。;;!?!?\n]+", block) if norm(s)]
+    vg = bigrams(checked)
+    related = [s for s in sents if vg & bigrams(s)]
+    if not related:
+        return False
+    if any(len(norm(s)) <= max_chars for s in related):
+        return False
+    nv = norm(checked)
+    nb = norm(block)
+    return bool(nv) and sum(1 for ch in nv if ch in nb) / len(nv) >= CONTAINMENT_THRESHOLD
+
+
 NUM_RE = re.compile(r"\d+(?:\.\d+)?")
 
 
@@ -599,6 +629,11 @@ class Report:
         else:
             self.warnings.append((path, msg))
 
+    def info(self, path, msg):
+        """不受 --strict 升級的提示——用於容量壓縮豁免這類「已判定合法,
+        但要留下能見度」的紀錄;塞進 warnings 只是共用輸出格式。"""
+        self.warnings.append((path, msg))
+
 
 # ---------------------------------------------------------------------------
 # 遞迴槽位驗證
@@ -625,7 +660,12 @@ def validate_value(val, slot, path, block, rep: Report):
                         rep.error(path, f"疑似捏造數字 {num!r}（來源頁原文找不到）：「{val}」")
                 cov = coverage(checked, block)
                 if cov < COVERAGE_THRESHOLD:
-                    rep.warn(path, f"文字與來源相似度低 {cov:.2f} < {COVERAGE_THRESHOLD}，可能未依 slides.md：「{val}」")
+                    if capacity_compressed(checked, slot["max_chars"], block):
+                        rep.info(path, f"容量壓縮豁免:相似度 {cov:.2f} 低於門檻,"
+                                       f"但相關來源句均超過版位上限 {slot['max_chars']} 字"
+                                       f"且用詞皆出自來源(被迫壓縮,不升級):「{val}」")
+                    else:
+                        rep.warn(path, f"文字與來源相似度低 {cov:.2f} < {COVERAGE_THRESHOLD}，可能未依 slides.md：「{val}」")
 
     elif kind == "list":
         if not isinstance(val, list):

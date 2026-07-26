@@ -170,7 +170,23 @@ def r2(env: Env):
     if rc != 0 or "管線結果" not in o or "4/4" not in o:
         return False, f"(b) 預期 PASS(4/4 階段),實得 exit={rc}\n{o}"
     env.spec02_fixed, env.deck02 = fixed, env.rt / "deck02.pptx"
-    return True, "(a) deck_name 閘門有效;(b) 修後 4/4 PASS"
+    # (c) 容量壓縮豁免雙向驗證(2026-07-27 政策):刪字重排且用詞全出自來源
+    #     → strict 放行並印豁免提示;帶新詞的同義改寫(「串接」的「接」不在
+    #     來源)→ 仍升級硬擋。豁免判定見 validator 的 capacity_compressed()。
+    for text, want_rc, want_sub, tag in (
+            ("資料串流程", 0, "容量壓縮豁免", "刪字壓縮應放行"),
+            ("串接流程與資料", 1, "相似度低", "同義改寫應仍擋")):
+        s = json.loads(fixed.read_text(encoding="utf-8"))
+        s["slides"][2]["slots"]["core_mission"] = text
+        probe = env.rt / "spec02_exempt_probe.json"
+        probe.write_text(json.dumps(s, ensure_ascii=False), encoding="utf-8")
+        rc, o = run([sys.executable, env.rt / "validate_slide_spec_gpts.py",
+                     "--spec", probe,
+                     "--slides", EXAMPLES / "02_full_8p.source_slides.md",
+                     "--asset-dir", env.rt, "--strict"])
+        if rc != want_rc or want_sub not in o:
+            return False, f"(c) {tag}:exit={rc}(預期 {want_rc})或輸出缺「{want_sub}」\n{o}"
+    return True, "(a) deck_name 閘門有效;(b) 修後 4/4 PASS;(c) 豁免雙向正確"
 
 
 def r3(env: Env):
