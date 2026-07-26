@@ -773,11 +773,14 @@ builtin 繪製器呼叫 `resolve_asset(..., pack_first=pack.pack_first)`。容�
   多欄位探測字元盲點;agenda/cover 手寫容量已換成工具量測值,見 §10.5)。
 - ~~讓 `golden --regen-specs` 清掉不再屬於契約的 fixture~~(2026-07-27 已修:
   重派生時刪除契約集合外的 .json 並列出)。
-- `R-L1`:smoke spec 與 `engine/rules/slide_spec.example.json` 的文字改短到
-  符合現行容量(19 條容量錯誤,`fit` 收緊後 spec 沒跟著改)。
-  (R2b 已於 2026-07-27 以「容量壓縮豁免」政策修復,見 §2.4.1 翻轉三;
-  R9 的同源破損同日修好——配方漏複製 `capacity_overrides`。)
-- GPT Builder 端的 v2.0 換裝與驗收(照 `gpts/DEPLOY.md`)——這步只有擁有者能做。
+- ~~`R-L1`:smoke spec 與 example spec 改短~~(2026-07-27 已修:兩份的
+  20 條容量超額改短,before/after 對照成對刪同類別、數字全保留。
+  R2b 同日以「容量壓縮豁免」政策修復,見 §2.4.1 翻轉三;R9 的同源破損
+  同日修好——配方漏複製 `capacity_overrides`。)
+- GPT Builder 端的換裝與驗收(照 `gpts/DEPLOY.md`)——這步只有擁有者能做。
+  2026-07-27 後要傳的:instructions v2.4、新 `template_light.zip`(容量重量測),
+  以及兩個散檔刪舊傳新——`validate_slide_spec_gpts.py`(容量壓縮豁免)、
+  `slide_spec.example.json`(範例改短到現行容量);tools.zip 未動。
 - 等第一個**真實設計師模板**走一次 register-template:那是 op 詞彙表覆蓋率
   的真實檢驗(目前只用 light 複本演練過)。
 - Windows PowerShell 全流程尚未實機驗證(所有命令已寫成跨平台形式,
