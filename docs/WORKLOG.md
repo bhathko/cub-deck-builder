@@ -785,6 +785,14 @@ builtin 繪製器呼叫 `resolve_asset(..., pack_first=pack.pack_first)`。容�
   的真實檢驗(目前只用 light 複本演練過)。
 - Windows PowerShell 全流程尚未實機驗證(所有命令已寫成跨平台形式,
   首位 Windows 使用者回報即定案)。
+- **視覺回歸(把「已核可版面被改壞」從人眼移交機器)可行性探測
+  (2026-07-27)**:渲染零隨機 → 同輸入必同 pptx,影像比對可行。本機無
+  LibreOffice;`qlmanage` 可出縮圖但只有第一頁;**Microsoft PowerPoint 已
+  安裝**,AppleScript `save as PNG` 兩次嘗試 exit 0 但零產出——研判是
+  Office 沙箱/自動化權限,需要使用者在場點一次同意(系統設定 → 隱私權 →
+  自動化,以及 Office 的檔案存取窗)後重試。可行後的形態:golden pptx →
+  逐頁 PNG → 與已核可基準比對,掛進 regress.py;目檢仍留給新頁型/新模板,
+  機器只守「已核可的不再壞」。
 
 **頁型升級的排程原則**(§8 的三級計畫,多模板後改為按包執行):
 
@@ -814,6 +822,7 @@ builtin 繪製器呼叫 `resolve_asset(..., pack_first=pack.pack_first)`。容�
 | 2026-07-25 | Phase 0–3 | 多模板架構:light 包化 → 引擎模板感知 → 註冊工具鏈與雙 skill → 治理常態化 |
 | 2026-07-25 | Phase 4 | chart 頁型(詞彙表 v1.1);repo 重構為單引擎 + 兩前端 |
 | 2026-07-26 | v2.0 | 文件系統化整理;版控瘦身(.git 230MB→76MB);設計師手冊拆分;本檔改為主題式 |
+| 2026-07-27 | v2.3–v2.4 | builtin 死碼清除;回歸 runner(`regress.py`)一鍵化;容量壓縮豁免(§2.4.1 翻轉三);fit 三盲點修復+手寫容量歸零;regen-specs 補刪除;R2b/R9/R-L1 全數轉綠 |
 
 ## 附錄:怎麼查原始時序紀錄
 
