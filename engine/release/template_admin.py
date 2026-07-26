@@ -468,6 +468,10 @@ def run_golden(pack_dir: Path, only=None, out_dir: Path | None = None) -> int:
 
 def cmd_golden(args) -> int:
     if args.regen_specs:
+        # engine/golden/ 是**跨模板的契約快照**,不是實跑素材(實跑由
+        # run_golden 依各包 merged 契約即時派生)。它唯一的用途是:契約改動時
+        # git diff 會顯示「哪些頁型的形狀變了」——所以刻意不寫 deck.template
+        # (綁模板就不通用了),並由 REGRESSION R11 檢查它與契約同步。
         GOLDEN_DIR.mkdir(exist_ok=True)
         n = 0
         for pt, contract in PAGE_TYPES.items():
@@ -478,6 +482,7 @@ def cmd_golden(args) -> int:
                 keep = [s for s in spec["slides"]
                         if (variant == "min") == (s is spec["slides"][0])]
                 spec["slides"] = [dict(keep[0], number=1)]
+                spec["deck"].pop("template", None)  # 跨模板基準,不綁任何包
                 spec["deck"]["slide_count"] = 1
                 spec["deck"]["deck_name"] = f"golden_{pt}_{variant}"
                 with open(GOLDEN_DIR / f"{pt}.{variant}.json", "w", encoding="utf-8") as f:
@@ -485,7 +490,7 @@ def cmd_golden(args) -> int:
                     f.write("\n")
                 n += 1
         print(f"已重派生 {n} 份 golden fixtures → {GOLDEN_DIR}"
-              f"(基準契約;各包實跑時依 merged 契約即時派生)")
+              f"({len(PAGE_TYPES)} 種頁型 × min/max;契約快照,非實跑素材)")
         return 0
     only = [t.strip() for t in args.page_types.split(",")] if args.page_types else None
     return run_golden(pack_dir_of(args), only,

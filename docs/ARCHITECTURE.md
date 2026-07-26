@@ -18,7 +18,7 @@ engine/     主程序——產 pptx 的一切
   rules/       共用語意契約(驗證器 PAGE_TYPES、schema、頁型語意庫、排版紀律)
   tools/       引擎腳本 ×11(渲染、驗證、自檢、盤點;打包成 tools.zip 出貨)
   templates/   模板包(一模板一目錄;light 為第一個包)
-  golden/      黃金驗收 fixtures(自契約派生,唯讀)
+  golden/      契約快照(全頁型 × min/max;非實跑素材,見 §7.1)
   release/     維護者工具(template_admin.py 註冊工具鏈、wireframe_preview.py)
   examples/    試用範例與 fixture
 gpts/       前端 1:ChatGPT GPTs(instructions + dist/ 上傳 zips + 建置手冊)
@@ -261,8 +261,26 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
 
 ## 7. 驗收與註冊工具鏈
 
-`engine/golden/`:每個註冊頁型兩份固定 spec fixture,由
-`PAGE_TYPES` 契約**確定性派生**(零隨機、進版控、對註冊流程唯讀)。
+### 7.1 兩種 golden,別搞混
+
+| | **實跑的 golden** | **`engine/golden/` 的快照** |
+| --- | --- | --- |
+| 誰產生 | `template_admin.py golden --id <包>` **當場派生** | `golden --regen-specs` 寫檔 |
+| 依據的契約 | 該包的 **merged 契約**(含它的 capacity_overrides) | **共用基準契約** `PAGE_TYPES`,不綁任何模板 |
+| 涵蓋範圍 | 該包的 **fill 頁型** × min/max | **全部註冊頁型** × min/max |
+| 有沒有被程式讀 | — (產生後直接送 validator/render/qa) | **沒有**,只寫不讀 |
+| 用途 | 驗這個模板包做對了沒 | **契約改動時,git diff 看得見形狀變化** |
+
+**所以 `engine/golden/` 的檔案數 = 註冊頁型數 × 2(線性,與模板數無關)**
+——不會因為多了幾個模板就爆增,因為各包實跑時是當場派生、不落檔。
+它們刻意**不寫 `deck.template`**(綁模板就不通用了),
+並由 [`../engine/REGRESSION.md`](../engine/REGRESSION.md) 的 **R11** 檢查
+它與現行契約同步(改契約沒重派生 → R11 紅)。
+
+### 7.2 派生規則與工具鏈
+
+實跑與快照共用同一套派生邏輯,由 `PAGE_TYPES` 契約**確定性派生**
+(零隨機、對註冊流程唯讀)。
 
 **派生規則**(與 make_skeleton **共用同一套**契約走訪/FIXED/placeholder
 實作——import 同一模組,不重寫,確保「保證通過驗證器」的既有性質):

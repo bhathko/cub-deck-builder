@@ -218,3 +218,18 @@ python3 engine/release/template_admin.py lint --all; echo "exit=$?"
 ```
 
 預期:exit=0,每包一行 `✓ <id>: lint OK`(light 另有 grandfather 提示行)。
+
+## R11|golden 契約快照與現行契約同步
+
+`engine/golden/` 是**跨模板的契約快照**(不是實跑素材——實跑由 template_admin
+依各包 merged 契約即時派生)。它的用途是「契約改動時 git diff 看得見形狀變化」,
+所以必須與 `PAGE_TYPES` 保持同步:
+
+```bash
+python3 engine/release/template_admin.py golden --regen-specs
+git diff --exit-code engine/golden/*.json; echo "exit=$?"
+```
+
+預期:`exit=0`(無差異)。**非 0 = 有人改了頁型契約卻沒重派生快照**
+——修法是把重派生的結果一起 commit。
+(Phase 4 加 chart 頁型時就漏過這步,靠稽核才發現;R11 就是為了不再靠人記得。)
