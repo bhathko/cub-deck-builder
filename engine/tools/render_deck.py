@@ -9,7 +9,7 @@
 fill 填充)住在模板包 `templates/<id>/bindings`,本工具經 pack_loader 載入
 選定包後 dispatch;預設包 = light(spec 未寫 deck.template 時)。
 
-★ light 包 11 種註冊頁型完全自動,不需要 plan:
+★ light 包 21 種註冊頁型完全自動,不需要 plan:
    builtin(版面內建):cover, agenda, closing, story_chapter_statement,
                         stage_dual_track_roadmap
    fill(模板頁自動填充):vision_goal_center_balance,

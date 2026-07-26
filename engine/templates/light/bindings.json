@@ -1090,6 +1090,1412 @@
           ]
         }
       ]
+    },
+    "data_three_number_kpis": {
+      "template_page": 30,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 11,
+          "delete_if_missing": true
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.kpis",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.value",
+                  "id": 2
+                },
+                {
+                  "slot": "@.label",
+                  "id": 6
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 8
+                }
+              ],
+              "delete_on_missing": [
+                16
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.value",
+                  "id": 12
+                },
+                {
+                  "slot": "@.label",
+                  "id": 13
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 14
+                }
+              ],
+              "delete_on_missing": [
+                15
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.value",
+                  "id": 18
+                },
+                {
+                  "slot": "@.label",
+                  "id": 42
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 43
+                }
+              ],
+              "delete_on_missing": [
+                17
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "info_horizontal_explanation_rows": {
+      "template_page": 22,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 2
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 20
+        },
+        {
+          "op": "delete",
+          "ids": [
+            4,
+            11,
+            14,
+            15
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.rows",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 5
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 18
+                }
+              ],
+              "delete_on_missing": [
+                5,
+                18
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 6
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 19
+                }
+              ],
+              "delete_on_missing": [
+                6,
+                19
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 7
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 23
+                }
+              ],
+              "delete_on_missing": [
+                7,
+                23
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 12
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 28
+                }
+              ],
+              "delete_on_missing": [
+                12,
+                28
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 13
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 29
+                }
+              ],
+              "delete_on_missing": [
+                13,
+                29
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cycle_four_point_loop": {
+      "template_page": 35,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 11
+        },
+        {
+          "op": "delete",
+          "ids": [
+            42,
+            43
+          ]
+        },
+        {
+          "op": "resize",
+          "id": 37,
+          "top": 3.6,
+          "height": 0.65
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.center_theme",
+          "id": 37
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.steps",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 23
+                },
+                {
+                  "slot": "@.label",
+                  "id": 22
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 21
+                }
+              ],
+              "delete_on_missing": [
+                18
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 27
+                },
+                {
+                  "slot": "@.label",
+                  "id": 26
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 25
+                }
+              ],
+              "delete_on_missing": [
+                24
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 31
+                },
+                {
+                  "slot": "@.label",
+                  "id": 30
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 29
+                }
+              ],
+              "delete_on_missing": [
+                28
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 36
+                },
+                {
+                  "slot": "@.label",
+                  "id": 35
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 34
+                }
+              ],
+              "delete_on_missing": [
+                33
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "phase_three_column_action_cards": {
+      "template_page": 50,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.points_label",
+          "id": 6
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.detail_label",
+          "id": 8
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.phases",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 5
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 13
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 17
+                }
+              ],
+              "delete_on_missing": [
+                7,
+                5,
+                13,
+                14,
+                17
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 3
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 18
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 19
+                }
+              ],
+              "delete_on_missing": [
+                15,
+                3,
+                18,
+                16,
+                19
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 2
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 22
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 23
+                }
+              ],
+              "delete_on_missing": [
+                20,
+                2,
+                22,
+                21,
+                23
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.phases[0].highlight",
+          "id": 14,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.phases[1].highlight",
+          "id": 16,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.phases[2].highlight",
+          "id": 21,
+          "delete_if_missing": true
+        }
+      ]
+    },
+    "stage_year_cards": {
+      "template_page": 40,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "delete",
+          "ids": [
+            42,
+            43
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.stages",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 38
+                },
+                {
+                  "slot": "@.heading",
+                  "id": 21
+                },
+                {
+                  "slot": "@.highlights",
+                  "join": "\n",
+                  "id": 44
+                },
+                {
+                  "slot": "@.details",
+                  "join": "\n",
+                  "id": 45
+                }
+              ],
+              "delete_on_missing": [
+                13,
+                25,
+                28,
+                38,
+                21,
+                44,
+                45
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 39
+                },
+                {
+                  "slot": "@.heading",
+                  "id": 23
+                },
+                {
+                  "slot": "@.highlights",
+                  "join": "\n",
+                  "id": 46
+                },
+                {
+                  "slot": "@.details",
+                  "join": "\n",
+                  "id": 60
+                }
+              ],
+              "delete_on_missing": [
+                15,
+                29,
+                49,
+                53,
+                39,
+                23,
+                46,
+                60
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 40
+                },
+                {
+                  "slot": "@.heading",
+                  "id": 24
+                },
+                {
+                  "slot": "@.highlights",
+                  "join": "\n",
+                  "id": 47
+                },
+                {
+                  "slot": "@.details",
+                  "join": "\n",
+                  "id": 62
+                }
+              ],
+              "delete_on_missing": [
+                18,
+                34,
+                61,
+                40,
+                24,
+                47,
+                62
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "info_card_grid": {
+      "template_page": 20,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 2
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 66
+        },
+        {
+          "op": "delete",
+          "ids": [
+            13,
+            19,
+            21
+          ]
+        },
+        {
+          "op": "resize",
+          "id": 11,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 47,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 56,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 61,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 64,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 70,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 72,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 74,
+          "width": 2.75
+        },
+        {
+          "op": "resize",
+          "id": 51,
+          "height": 1.04
+        },
+        {
+          "op": "resize",
+          "id": 62,
+          "height": 1.04
+        },
+        {
+          "op": "resize",
+          "id": 71,
+          "height": 1.04
+        },
+        {
+          "op": "resize",
+          "id": 75,
+          "height": 1.04
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.cards",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 11
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 18
+                }
+              ],
+              "delete_on_missing": [
+                10,
+                11,
+                18
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 47
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 51
+                }
+              ],
+              "delete_on_missing": [
+                40,
+                47,
+                51
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 56
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 57
+                }
+              ],
+              "delete_on_missing": [
+                41,
+                56,
+                57
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 61
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 62
+                }
+              ],
+              "delete_on_missing": [
+                44,
+                61,
+                62
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 64
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 65
+                }
+              ],
+              "delete_on_missing": [
+                63,
+                64,
+                65
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 70
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 71
+                }
+              ],
+              "delete_on_missing": [
+                67,
+                70,
+                71
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 72
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 73
+                }
+              ],
+              "delete_on_missing": [
+                68,
+                72,
+                73
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 74
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 75
+                }
+              ],
+              "delete_on_missing": [
+                69,
+                74,
+                75
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "stage_timeline_progress": {
+      "template_page": 38,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 49
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 19
+        },
+        {
+          "op": "keep",
+          "ids": [
+            38
+          ],
+          "reason": "右側區塊欄目標籤「進行中 / 後續規劃」,固定結構字樣、不含數字"
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.current_status.heading",
+          "id": 44
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.current_status.points",
+          "join": "\n",
+          "id": 45
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.axis_labels",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 6
+                }
+              ],
+              "delete_on_missing": [
+                6
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 41
+                }
+              ],
+              "delete_on_missing": [
+                41
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 43
+                }
+              ],
+              "delete_on_missing": [
+                43
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 50
+                }
+              ],
+              "delete_on_missing": [
+                50
+              ]
+            }
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.milestones",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 143
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 144
+                }
+              ],
+              "delete_on_missing": [
+                143,
+                144,
+                34
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 148
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 149
+                }
+              ],
+              "delete_on_missing": [
+                148,
+                149,
+                36
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 181
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 182
+                }
+              ],
+              "delete_on_missing": [
+                181,
+                182,
+                37
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "info_before_after_item_compare": {
+      "template_page": 24,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 2
+        },
+        {
+          "op": "delete",
+          "ids": [
+            20,
+            22,
+            26
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.before.heading",
+          "id": 16
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.after.heading",
+          "id": 33
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.before.items",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 6
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 7
+                }
+              ],
+              "delete_on_missing": [
+                6,
+                7
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 8
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 9
+                }
+              ],
+              "delete_on_missing": [
+                8,
+                9,
+                12
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 10
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 11
+                }
+              ],
+              "delete_on_missing": [
+                10,
+                11,
+                48
+              ]
+            }
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.after.items",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 18
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 19
+                }
+              ],
+              "delete_on_missing": [
+                18,
+                19
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 21
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 23
+                }
+              ],
+              "delete_on_missing": [
+                21,
+                23,
+                28
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 24
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 25
+                }
+              ],
+              "delete_on_missing": [
+                24,
+                25,
+                29
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "vision_goal_keyword_orbit": {
+      "template_page": 16,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 2
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 4
+        },
+        {
+          "op": "delete",
+          "ids": [
+            10,
+            11,
+            17,
+            18,
+            25,
+            26
+          ]
+        },
+        {
+          "op": "resize",
+          "id": 9,
+          "top": 3.7,
+          "height": 1.0
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.center_theme",
+          "id": 9
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.keywords",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 12
+                }
+              ],
+              "delete_on_missing": [
+                12
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 20
+                }
+              ],
+              "delete_on_missing": [
+                20
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 14
+                }
+              ],
+              "delete_on_missing": [
+                14
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 22
+                }
+              ],
+              "delete_on_missing": [
+                22
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 13
+                }
+              ],
+              "delete_on_missing": [
+                13
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 21
+                }
+              ],
+              "delete_on_missing": [
+                21
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 15
+                }
+              ],
+              "delete_on_missing": [
+                15
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 24
+                }
+              ],
+              "delete_on_missing": [
+                24
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 16
+                }
+              ],
+              "delete_on_missing": [
+                16
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 23
+                }
+              ],
+              "delete_on_missing": [
+                23
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 19
+                }
+              ],
+              "delete_on_missing": [
+                19
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 27
+                }
+              ],
+              "delete_on_missing": [
+                27
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "phase_concept_three_column_explanation": {
+      "template_page": 47,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.concept",
+          "id": 88
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.concept_labels",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 80
+                },
+                {
+                  "slot": "@.caption",
+                  "id": 81
+                }
+              ],
+              "delete_on_missing": [
+                79
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 86
+                },
+                {
+                  "slot": "@.caption",
+                  "id": 87
+                }
+              ],
+              "delete_on_missing": [
+                85
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.name",
+                  "id": 91
+                },
+                {
+                  "slot": "@.caption",
+                  "id": 92
+                }
+              ],
+              "delete_on_missing": [
+                90
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.column_one.heading",
+          "id": 89
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.column_one.items",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "template": "{label}\n{detail}",
+                  "id": 69
+                }
+              ],
+              "delete_on_missing": [
+                69
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "template": "{label}\n{detail}",
+                  "id": 93
+                }
+              ],
+              "delete_on_missing": [
+                93
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "template": "{label}\n{detail}",
+                  "id": 95
+                }
+              ],
+              "delete_on_missing": [
+                95
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "template": "{label}\n{detail}",
+                  "id": 94
+                }
+              ],
+              "delete_on_missing": [
+                94
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.column_two.heading",
+          "id": 73
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.column_two.points",
+          "row_ids": [
+            96,
+            97,
+            98,
+            99
+          ],
+          "merge_height_in": 1.1
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.column_three.heading",
+          "id": 74
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.column_three.points",
+          "row_ids": [
+            100,
+            101,
+            102,
+            103
+          ],
+          "merge_height_in": 1.45
+        }
+      ]
     }
   }
 }

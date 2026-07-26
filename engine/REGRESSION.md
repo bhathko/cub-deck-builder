@@ -163,9 +163,14 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-0f28453aff2f46b1b69dcd4311edc77ef6b6c131e6a0e80fe43220c9c8ebb97d  tools.zip
-c354fe0194860f3b7a5147f2a82995b3ad1f5f71e67d5c4eb142cd695fd1046f  template_light.zip
+aaeb8a6faa7dd65142291b4991de5908135272522421ee58d8835d0a4dab07c6  tools.zip
+c7d9089b67344230830ec0f4264b80365734a740abc92f3726f56cde803987ab  template_light.zip
 ```
+
+(2026-07-26 v2.1:一次註冊 10 種純文字頁型(p16/20/22/24/30/35/38/40/47/50),
+light 支援矩陣由「全自動 11 / 半自動 42」變為「全自動 21 / 半自動 32」,
+light@2026-07-26.2;tools.zip 變動僅 render_deck.py 註解的頁型數字,
+template_light.zip 增 10 份 fill 綁定 + 重 freeze 的 inventory。)
 
 (2026-07-25 Phase 3:light fills 切換宣告式 bindings.json,bindings.py 瘦身為
 builders-only;light 包版本 2026-07-25.2。同日 repo 重構:引擎移至 engine/、zips 移至

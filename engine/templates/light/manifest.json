@@ -1,7 +1,7 @@
 {
   "template_id": "light",
   "display_name": "Cathay 淺色企業風",
-  "version": "2026-07-26.1",
+  "version": "2026-07-26.2",
   "status": "registered",
   "template_file": "template.pptx",
   "template_sha256": "080ba71991f34f2d0d0670c5d5f605a0b15e4bce46a207e2fad62b6d1c4a48d2",
@@ -102,7 +102,7 @@
       "template_page": 15
     },
     "vision_goal_keyword_orbit": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 16
     },
     "info_sidebar_grid": {
@@ -114,7 +114,7 @@
       "template_page": 19
     },
     "info_card_grid": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 20
     },
     "info_center_hub_support": {
@@ -122,7 +122,7 @@
       "template_page": 21
     },
     "info_horizontal_explanation_rows": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 22
     },
     "info_dual_column_detail_matrix": {
@@ -130,7 +130,7 @@
       "template_page": 23
     },
     "info_before_after_item_compare": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 24
     },
     "data_line_trend_comparison": {
@@ -150,7 +150,7 @@
       "template_page": 28
     },
     "data_three_number_kpis": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 30
     },
     "data_three_radar_score_comparison": {
@@ -166,7 +166,7 @@
       "template_page": 34
     },
     "cycle_four_point_loop": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 35
     },
     "cycle_dual_core_feedback": {
@@ -182,7 +182,7 @@
       "template_page": 53
     },
     "stage_timeline_progress": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 38
     },
     "stage_phase_swimlane": {
@@ -190,7 +190,7 @@
       "template_page": 39
     },
     "stage_year_cards": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 40
     },
     "stage_period_cards": {
@@ -218,7 +218,7 @@
       "template_page": 46
     },
     "phase_concept_three_column_explanation": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 47
     },
     "phase_before_now_future_transition": {
@@ -230,7 +230,7 @@
       "template_page": 49
     },
     "phase_three_column_action_cards": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 50
     },
     "phase_input_process_output_flow": {

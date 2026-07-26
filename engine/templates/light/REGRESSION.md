@@ -27,7 +27,7 @@ python3 "$RT/tools/run_pipeline.py" --spec engine/templates/light/examples/smoke
 ```
 
 預期:exit=0,末行 `管線結果:PASS(3/3 階段)`(等同根 R8,測物固定為本包
-smoke spec;10 頁註冊頁型(第 11 種 data_line 由 golden 覆蓋))。
+smoke spec;10 頁註冊頁型(其餘註冊頁型由 golden 覆蓋))。
 
 ## R-L2|clone 抽測(半自動路徑)
 

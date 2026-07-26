@@ -14,8 +14,8 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 因為驗證器只用 Python 標準庫,閘門(字數/槽位數量/頁碼規則/素材檢查)在 GPTs 裡
 是**真的會執行**的程式,不是只靠 prompt 約束。
 
-閘門分兩級:`page_types_registry.md` 裡的 **11 種註冊頁型**走完整槽位契約檢查;
-`page_types.md` 頁型庫的**其他 40+ 種頁型**也可以用,驗證器對它們只做基本檢查,
+閘門分兩級:`page_types_registry.md` 裡的 **21 種註冊頁型**走完整槽位契約檢查;
+`page_types.md` 頁型庫的**其他 30+ 種頁型**也可以用,驗證器對它們只做基本檢查,
 容量由模型比照 page_types.md 自律。
 使用者不會寫 JSON 也沒關係:**直接貼上段落大綱就會自動走一鍵產檔**(`/outline-to-ppt` 是同義觸發詞,可打可不打;想逐步確認要明講)。一鍵流程會保存來源、只選完整註冊頁型、產生並嚴格驗證 JSON,接著直接渲染與 QA;缺個別資料以「待補充」佔位繼續,只有來源不足或三輪修正後閘門仍失敗才停止。
 
@@ -39,9 +39,9 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `make_skeleton.py`    | 依頁型清單產「保證過驗證器」的 spec 骨架                            |
 | `README_TOOLS.md`     | 給模型的速查卡:標準三步指令 + plan 格式 + 鐵律                      |
 
-**11 種註冊頁型 = 純 script 產出,LLM 零參與**(含折線趨勢頁圖表數據):使用者 JSON → 驗證 → render_deck
+**21 種註冊頁型 = 純 script 產出,LLM 零參與**(含折線趨勢頁圖表數據):使用者 JSON → 驗證 → render_deck
 自動產檔 → qa_check,全程模型只負責跑指令和轉述結果。只有用到 page_types.md
-其他 40+ 種頁型的頁,模型才需要寫一小段 render_plan(該頁的文字替換清單)。
+其他 30+ 種頁型的頁,模型才需要寫一小段 render_plan(該頁的文字替換清單)。
 
 反循環機制:render_deck 每次從模板重新生成整份檔,錯誤(UNMATCHED/qa FAIL)
 永遠回到「改輸入的某一條」再整檔重跑——不存在「刪掉壞頁再補一頁」這種
@@ -56,9 +56,9 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | --------------------------------------- | ------------------------------------------------------------------------ | -------------------------------- |
 | `instructions.md`                       | GPTs 系統指示全文(含版本代號)                                            | 貼進 GPT Builder「Instructions」 |
 | `engine/rules/validate_slide_spec_gpts.py` | 驗證器(兩級閘門;PAGE_TYPES 單一真相來源)                                 | 上傳到 Knowledge                 |
-| `engine/rules/page_types_registry.md`   | slide_spec.json 撰寫指南 + 11 種註冊頁型契約                             | 上傳到 Knowledge                 |
+| `engine/rules/page_types_registry.md`   | slide_spec.json 撰寫指南 + 21 種註冊頁型契約                             | 上傳到 Knowledge                 |
 | `engine/rules/outline_to_ppt_skill.md`  | 段落大綱一鍵產生合規 JSON、渲染 PPT 與 QA 的繁中工作流                   | 上傳到 Knowledge                 |
-| `engine/rules/page_types.md`            | 完整頁型庫 40+ 種(跨模板語意庫;頁碼對照在各模板包 page_map.md)           | 上傳到 Knowledge                 |
+| `engine/rules/page_types.md`            | 完整頁型庫 50+ 種(跨模板語意庫;頁碼對照在各模板包 page_map.md)           | 上傳到 Knowledge                 |
 | `engine/rules/style_guide.md`           | 視覺規範(排版紀律共用;視覺常數以 light 包 manifest 為機器真相)           | 上傳到 Knowledge                 |
 | `engine/rules/slide_spec.schema.json`   | spec 結構定義                                                            | 上傳到 Knowledge                 |
 | `engine/rules/slide_spec.example.json`  | 通過驗證的完整範例                                                       | 上傳到 Knowledge                 |
@@ -111,7 +111,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 > **v2.0 狀態(2026-07-25):多模板架構 Phase 1 已在本機實作;GPT Builder
 > 驗收待執行;尚未發布。** 下列 GPT Builder 項目是發版閘門,不是已通過紀錄。
 > ⚠ 實測回報「卡在一半說無法用工具產生/沒有穩定的工具鏈/請上傳工具」的第一
-> 檢查點:問 GPT「你現在是哪一版?」——不是 `v2.0-20260725` 就代表 Builder 端
+> 檢查點:問 GPT「你現在是哪一版?」——不是 `v2.1-20260726` 就代表 Builder 端
 > 還在跑舊版,先同步 instructions 與 10 個知識檔(特別是 outline_to_ppt_skill.md、
 > tools.zip 與 template_light.zip;**並刪除舊的 assets.zip 與
 > light_template.pptx**)再測。兩次實測失敗紀錄見 FEEDBACK #1、#2。
@@ -192,7 +192,7 @@ hash、多模板雙包、全包 lint),全綠才發版;重打包 zip 後同步更
    只在未涵蓋頁型的 render_plan(哪個框填哪段字),錯了是改一條 plan 重跑。
    模型看不到知識庫裡的參考圖片(GPTs 對知識庫圖檔沒有視覺理解),精緻度仍需
    設計師收尾。
-   另外:未註冊頁型(page_types.md 那 40+ 種)的槽位容量只靠模型自律,程式閘門
+   另外:未註冊頁型(page_types.md 那 30+ 種)的槽位容量只靠模型自律,程式閘門
    對它們只驗基本結構與素材存在;需要嚴格保證的頁型,長期解是把它註冊進
    `PAGE_TYPES`(流程見 [`docs/MAINTENANCE.md`](../docs/MAINTENANCE.md) §1)。
    若使用 `/outline-to-ppt`,每次都以本次原文覆寫 /mnt/data/slides.md,再以

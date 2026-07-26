@@ -1,0 +1,45 @@
+{
+ "deck": {
+  "deck_name": "golden_cycle_four_point_loop_max",
+  "language": "Traditional Chinese",
+  "slide_count": 1
+ },
+ "slides": [
+  {
+   "number": 1,
+   "page_type": "cycle_four_point_loop",
+   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "render_page_number": true,
+   "assets": {
+    "background": "assets/backgrounds/content_bg.png",
+    "logo": "assets/logos/cathay_logo.png"
+   },
+   "slots": {
+    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "center_theme": "center_the",
+    "steps": [
+     {
+      "number": "01",
+      "label": "label測測測測測測測",
+      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+     },
+     {
+      "number": "01",
+      "label": "label測測測測測測測",
+      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+     },
+     {
+      "number": "01",
+      "label": "label測測測測測測測",
+      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+     },
+     {
+      "number": "01",
+      "label": "label測測測測測測測",
+      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -5,7 +5,7 @@
 manifest.json、bindings.json、page_map.md、assets/;light 另有 builders-only
 的 bindings.py)。
 
-## ★ 關鍵事實:11 種註冊頁型完全自動,不需要你寫任何計畫
+## ★ 關鍵事實:21 種註冊頁型完全自動,不需要你寫任何計畫
 
 cover / agenda / closing / story_chapter_statement / stage_dual_track_roadmap
 → 內建版面;vision_goal_center_balance / info_three_column_category /
@@ -35,7 +35,7 @@ python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
 
 使用者要骨架:`python /mnt/data/tools/make_skeleton.py --types cover,agenda,...,closing --out ...`
 
-## 只有「未涵蓋頁型」(page_types.md 其他 40+ 種)才需要 plan
+## 只有「未涵蓋頁型」(page_types.md 其他 30+ 種)才需要 plan
 
 寫該頁 plan 前先查參考頁形狀(省 token:只用 --summary / --page N,不要 --all 印出):
 ```bash

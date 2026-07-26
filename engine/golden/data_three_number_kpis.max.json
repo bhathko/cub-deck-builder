@@ -1,0 +1,39 @@
+{
+ "deck": {
+  "deck_name": "golden_data_three_number_kpis_max",
+  "language": "Traditional Chinese",
+  "slide_count": 1
+ },
+ "slides": [
+  {
+   "number": 1,
+   "page_type": "data_three_number_kpis",
+   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "render_page_number": true,
+   "assets": {
+    "background": "assets/backgrounds/content_bg.png",
+    "logo": "assets/logos/cathay_logo.png"
+   },
+   "slots": {
+    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "kpis": [
+     {
+      "value": "99.9%",
+      "label": "label測測測測測測測",
+      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測"
+     },
+     {
+      "value": "99.9%",
+      "label": "label測測測測測測測",
+      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測"
+     },
+     {
+      "value": "99.9%",
+      "label": "label測測測測測測測",
+      "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測"
+     }
+    ]
+   }
+  }
+ ]
+}

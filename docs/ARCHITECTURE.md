@@ -52,7 +52,7 @@ slide_spec.json ──► audit_provenance ──► validator ──► render_
 
 **語意層(跨模板共用)**:`engine/rules/validate_slide_spec_gpts.py` 的
 `PAGE_TYPES` 定義每種頁型的槽位契約(名稱、巢狀、數量、字數、頁碼規則)。
-目前 **11 種**註冊頁型;另有 `page_types.md` 的 40+ 種語意頁型只做基本檢查。
+目前 **21 種**註冊頁型;另有 `page_types.md` 的 30+ 種語意頁型只做基本檢查。
 
 **模板層(每包各自)**:每個模板包宣告自己對每種頁型的支援等級——
 
@@ -137,7 +137,7 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
 
 - **支援矩陣三級**(設計師語言:全自動/半自動/不支援):
   `fill` = 有綁定、過黃金驗收,產檔全自動;`clone` = 只有頁碼映射,產檔走
-  render_plan 複製改字(= 現行 page_types.md 40+ 種的體驗,也是綁定失敗的
+  render_plan 複製改字(= 現行 page_types.md 30+ 種的體驗,也是綁定失敗的
   **內建降級層**);`unsupported` = validator 硬擋(附 reason)。
   部分支援是合法結局,不逼全頁型全綠。`builtin` 模式僅 light 允許。
 - **per-頁型素材鍵覆寫**:語意契約的 assets 必要鍵(background/logo)降為

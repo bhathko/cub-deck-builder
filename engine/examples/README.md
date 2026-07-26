@@ -9,7 +9,7 @@
 | 檔案 | 測什麼 | 預期結果 |
 |---|---|---|
 | `01_minimal_4p.json` | 最小可用:封面、目錄、三欄說明、封底,全部是註冊頁型 | 驗證 PASS,產出 4 頁 pptx;適合第一次試跑與展示給主管 |
-| `02_full_10p.json` | 完整 10 頁,涵蓋 10 種註冊頁型(同知識庫範例;第 11 種 data_line_trend_comparison 由 golden 覆蓋) | 驗證 PASS(可能有 WARN),**零 plan 全自動**產出 10 頁 |
+| `02_full_10p.json` | 完整 10 頁,涵蓋 10 種註冊頁型(同知識庫範例;其餘註冊頁型由 golden 覆蓋) | 驗證 PASS(可能有 WARN),**零 plan 全自動**產出 10 頁 |
 | `03_advanced_unregistered_6p.json` | 混用未註冊頁型(`cycle_four_point_loop`、`vision_goal_hub_spoke`) | 驗證 PASS 但有 WARN;這兩頁需要 GPTs 寫 clone plan,重點看版面是否照模板第 35、13 頁重建 |
 | `04_broken_should_fail.json` | 故意違規的 spec(結構/數量/字數問題) | 驗證 **FAIL**,GPTs 必須列出錯誤並「拒絕產檔」;如果它照樣產出 PPT,代表閘門沒守住,要回報 |
 

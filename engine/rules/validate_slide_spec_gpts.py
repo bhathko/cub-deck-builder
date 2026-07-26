@@ -311,6 +311,231 @@ PAGE_TYPES = {
             "annual_cycle": {"kind": "list", "min": 3, "max": 6, "required": True, "item": T(12)},
         },
     },
+    "data_three_number_kpis": {
+        # 三大數字 KPI(模板 p30):中央橫向 3 組「大數字 + 短標題 + 1-2 行說明」,
+        # 內容容量 2-3 個(page_types.md);只有 2 個時第 3 組整組刪除,不留空位。
+        # subtitle 為選填:內容容量未列副標,但版面上方有副標框——缺值時由 bindings
+        # 的 set.delete_if_missing 整框刪掉,不留佔位字。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60, required=False),
+            "kpis": {
+                "kind": "list", "min": 2, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "value": T(6),      # 66pt 大數字框(w=1.33~1.76 吋),含單位/%
+                    "label": T(12),     # 數字下方短標題(w=1.72 吋,單行)
+                    "detail": T(30),    # 補充說明(w=2.56 吋 × 2 行 @14pt)
+                }},
+            },
+        },
+    },
+    "info_horizontal_explanation_rows": {
+        # 橫向說明列(模板 p22):上方淡綠主題帶 = subtitle;內容區 5 組
+        # 「短標籤框 + 長說明框」橫列(label 框 w=2.78in、說明框 w=9.11in/14pt)。
+        # 版面左側直排類別標示與右上子導覽為模板佔位字樣,契約無對應槽位 → 綁定端一律 delete。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "rows": {
+                "kind": "list", "min": 4, "max": 5, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(12),
+                    "points": {"kind": "list", "min": 1, "max": 3, "required": True, "item": T(40)},
+                }},
+            },
+        },
+    },
+    "cycle_four_point_loop": {
+        # 四點循環(light p35):中央大型綠色循環箭頭 + 左右各 2 組步驟。
+        # 容量依 page_types.md「內容容量」:副標 1 句、中央循環主題 1 個、
+        # 步驟固定 4 組(編號 + 步驟名稱 + 1-2 句說明)。只有 3 步請改用
+        # cycle_three_node_process(本頁型不接受 3 步,min=max=4)。
+        # 中央圓內模板另有「副標文字 / 重點文字」兩個示範框,契約無對應槽位,
+        # 綁定一律 delete(留著=捏造)。步驟名稱建議 4-8 字(循環頁型共通規則)。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "center_theme": T(10),
+            "steps": {
+                "kind": "list", "min": 4, "max": 4, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "number": T(2, provenance=False),  # 循環序號,結構性標籤
+                    "label": T(12),
+                    "detail": T(40),
+                }},
+            },
+        },
+    },
+    "phase_three_column_action_cards": {
+        # 三欄行動卡(模板 p50):3 欄卡片,每欄 = 箭頭階段標題 + 上半列點
+        # + 中間重點句(選填)+ 下半段落說明;左側兩個小方塊是「內容層級標籤」
+        # (上=列點區、下=段落區),屬結構字樣故 provenance=False。
+        # 版面標題下方到箭頭列僅 0.32 吋,page_types.md 容量亦無副標 → 本頁型無 subtitle 槽位。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "points_label": T(6, provenance=False),
+            "detail_label": T(6, provenance=False),
+            "phases": {
+                "kind": "list", "min": 3, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "heading": T(12),
+                    "points": {"kind": "list", "min": 3, "max": 5, "required": True, "item": T(16)},
+                    "highlight": T(16, required=False),
+                    "detail": T(60),
+                }},
+            },
+        },
+    },
+    "stage_year_cards": {
+        # 年度策略卡(模板 p40):上方年度線 3 個節點 + 下方 3 欄卡片,
+        # 每欄 = 深色重點區塊(highlights)+ 白色細項區塊(details);中欄有綠框強調
+        # (強調位置烙在模板上,不開槽位)。版面標題下方直接是年度線,
+        # **無副標位置 → 本頁型無 subtitle 槽位**(同 data_line_trend_comparison)。
+        # 左側兩個列標籤框(id 42/43)在模板上是「標題」佔位字,page_types.md
+        # 的內容容量未列此欄 → 綁定一律 delete(留著=捏造)。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "stages": {
+                "kind": "list", "min": 3, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(8),
+                    "heading": T(16),
+                    "highlights": {"kind": "list", "min": 2, "max": 4, "required": True, "item": T(20)},
+                    "details": {"kind": "list", "min": 3, "max": 5, "required": True, "item": T(30)},
+                }},
+            },
+        },
+    },
+    "info_card_grid": {
+        # 卡片網格(light p20):2 列 × 4 欄共 8 格,每格 = 小標 + 1–3 條短說明。
+        # 容量取自 page_types.md:卡片 6–8 張、每張「1 個小標 + 1-2 句說明或 2-3 個短列點」。
+        # 字數上限由模板框反推(綁定端另有 resize 校正框寬/框高):
+        #   heading 框 wrap="none" 單行不換行,加寬到 2.75 吋 / 18pt → 一行約 10 字;
+        #   內文框 2.75 吋 / 14pt → 一行約 13 字、框高 4 行,points 以換行併入同一框,
+        #   故每條 ≤12 字 × 至多 3 條(= 3 行)才保證不溢出卡片。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "cards": {
+                "kind": "list", "min": 6, "max": 8, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "heading": T(10),
+                    "points": {"kind": "list", "min": 1, "max": 3, "required": True,
+                               "item": T(12)},
+                }},
+            },
+        },
+    },
+    "stage_timeline_progress": {
+        # 單線時間軸(模板 p38):底部 4 個刻度膠囊 + 3 個里程碑(2 個在軸上、
+        # 1 個在軸下)+ 右側「進行中 / 後續規劃」說明區。右側區塊的欄目標籤
+        # 「進行中 / 後續規劃」由模板固定提供(keep),不佔槽位。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "axis_labels": {"kind": "list", "min": 4, "max": 4, "required": True, "item": T(8)},
+            "milestones": {
+                "kind": "list", "min": 3, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {"label": T(8), "detail": T(40)}},
+            },
+            "current_status": {"kind": "object", "fields": {
+                "heading": T(12),
+                "points": {"kind": "list", "min": 1, "max": 2, "required": True, "item": T(60)},
+            }},
+        },
+    },
+    "info_before_after_item_compare": {
+        # 前後/兩方案項目對照(light 模板 p24):左右各一塊圓角底板,每側 3 張
+        # 項目卡(名稱徽章 + 短列點),中央箭頭示轉換。
+        # 版面標題下方直接是兩區塊,**無副標位置** → 本頁型無 subtitle 槽位。
+        # 左右項目固定各 3 項(page_types.md「左右各 3 個項目」+「數量應一致」,
+        # 用固定長度在契約層強制對稱,驗證器無法跨槽位比長度)。
+        # 字數上限對照 p24 框寬(縮字下限 12pt):
+        #   heading  框 1.32in @20pt → 6 字(7 字起溢出)
+        #   name     框 1.66×1.22in @18pt → 12 字(3 行)
+        #   points   右側說明框 3.37in @14pt → 一行 16 字;4 點 = 4 行剛好填滿
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "before": {"kind": "object", "fields": {
+                "heading": T(6, provenance=False),  # 「導入前」等結構性對照標籤
+                "items": {
+                    "kind": "list", "min": 3, "max": 3, "required": True,
+                    "item": {"kind": "object", "fields": {
+                        "name": T(12),
+                        "points": {"kind": "list", "min": 2, "max": 4,
+                                   "required": True, "item": T(16)},
+                    }},
+                },
+            }},
+            "after": {"kind": "object", "fields": {
+                "heading": T(6, provenance=False),
+                "items": {
+                    "kind": "list", "min": 3, "max": 3, "required": True,
+                    "item": {"kind": "object", "fields": {
+                        "name": T(12),
+                        "points": {"kind": "list", "min": 2, "max": 4,
+                                   "required": True, "item": T(16)},
+                    }},
+                },
+            }},
+        },
+    },
+    "vision_goal_keyword_orbit": {
+        # 願景關鍵詞環繞(light 模板 p16):中央深色圓 + 左右兩側關鍵詞雲。
+        # 容量取自 page_types.md:中心主題 1 個、周圍關鍵詞 8–12 個。
+        # 版面實有 16 個關鍵詞框,超出契約上限的 4 個輔助框由綁定固定刪除;
+        # keywords 依「左右交錯、由主到輔」順序填,不足時從尾端刪格位,維持左右平衡。
+        # 中心圓只承載一句 center_theme(模板圓內範例說明與圓上方範例標題一律刪除,
+        # 契約沒有的內容性元素留著=捏造)。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "center_theme": T(14),   # 圓內 w=3.52 吋 @28pt,一行約 8.5 字,兩行以內
+            "keywords": {"kind": "list", "min": 8, "max": 12, "required": True,
+                         "item": T(8)},   # 框 w=2.21–2.62 吋 @20–28pt,一行約 6 字
+        },
+    },
+    "phase_concept_three_column_explanation": {
+        # 概念三欄展開(模板 p47):左側大圓 = 核心概念 + 3 個關鍵標籤;右側三欄
+        # 各 4 個實體格位。容量取自 page_types.md「內容容量」節;第二欄(3–5)與
+        # 第三欄(4–6)超出 4 格的項目由 rows op 併入該欄最後一格。
+        # 版面無副標位置(標題下方即三欄欄標)→ 本頁型無 subtitle 槽位。
+        # 字數上限為實測值(text_tools.estimate_overflow,shrink 下限 12pt):
+        # detail 24 / caption 6 / column_two 40 即爆框,故壓在 20 / 4 / 36。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "concept": T(8),
+            "concept_labels": {
+                "kind": "list", "min": 0, "max": 3, "required": False,
+                "item": {"kind": "object", "fields": {"name": T(8), "caption": T(4)}},
+            },
+            "column_one": {"kind": "object", "fields": {
+                "heading": T(10),
+                "items": {
+                    "kind": "list", "min": 3, "max": 4, "required": True,
+                    "item": {"kind": "object", "fields": {"label": T(12), "detail": T(20)}},
+                },
+            }},
+            "column_two": {"kind": "object", "fields": {
+                "heading": T(10),
+                "points": {"kind": "list", "min": 3, "max": 5, "required": True, "item": T(36)},
+            }},
+            "column_three": {"kind": "object", "fields": {
+                "heading": T(10),
+                "points": {"kind": "list", "min": 4, "max": 6, "required": True, "item": T(24)},
+            }},
+        },
+    },
 }
 
 

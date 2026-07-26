@@ -24,38 +24,38 @@
 | vision_goal_rings | clone(半自動,需 render_plan) | 12 | 寫 plan 前先 `inspect_template.py --page 12` |
 | vision_goal_hub_spoke | clone(半自動,需 render_plan) | 13 | 寫 plan 前先 `inspect_template.py --page 13` |
 | vision_goal_pyramid | clone(半自動,需 render_plan) | 15 | 寫 plan 前先 `inspect_template.py --page 15` |
-| vision_goal_keyword_orbit | clone(半自動,需 render_plan) | 16 | 寫 plan 前先 `inspect_template.py --page 16` |
+| vision_goal_keyword_orbit | fill(全自動) | 16 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | info_sidebar_grid | clone(半自動,需 render_plan) | 18 | 寫 plan 前先 `inspect_template.py --page 18` |
 | info_icon_bubble_cluster | clone(半自動,需 render_plan) | 19 | 寫 plan 前先 `inspect_template.py --page 19` |
-| info_card_grid | clone(半自動,需 render_plan) | 20 | 寫 plan 前先 `inspect_template.py --page 20` |
+| info_card_grid | fill(全自動) | 20 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | info_center_hub_support | clone(半自動,需 render_plan) | 21 | 寫 plan 前先 `inspect_template.py --page 21` |
-| info_horizontal_explanation_rows | clone(半自動,需 render_plan) | 22 | 寫 plan 前先 `inspect_template.py --page 22` |
+| info_horizontal_explanation_rows | fill(全自動) | 22 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | info_dual_column_detail_matrix | clone(半自動,需 render_plan) | 23 | 寫 plan 前先 `inspect_template.py --page 23` |
-| info_before_after_item_compare | clone(半自動,需 render_plan) | 24 | 寫 plan 前先 `inspect_template.py --page 24` |
+| info_before_after_item_compare | fill(全自動) | 24 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | data_line_trend_comparison | fill(全自動,clone+填充+圖表數據) | 25 | shape id 見 bindings.json 與 inventory.json |
 | data_table_kpi_chart_insights | clone(半自動,需 render_plan) | 26 | 寫 plan 前先 `inspect_template.py --page 26` |
 | data_kpi_bar_callout_dashboard | clone(半自動,需 render_plan) | 27 | 寫 plan 前先 `inspect_template.py --page 27` |
 | data_dual_percentage_balance | clone(半自動,需 render_plan) | 28 | 寫 plan 前先 `inspect_template.py --page 28` |
-| data_three_number_kpis | clone(半自動,需 render_plan) | 30 | 寫 plan 前先 `inspect_template.py --page 30` |
+| data_three_number_kpis | fill(全自動) | 30 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | data_three_radar_score_comparison | clone(半自動,需 render_plan) | 31 | 寫 plan 前先 `inspect_template.py --page 31` |
 | evaluation_vs_criteria_matrix | clone(半自動,需 render_plan) | 32 | 寫 plan 前先 `inspect_template.py --page 32` |
 | cycle_three_node_process | clone(半自動,需 render_plan) | 34 | 寫 plan 前先 `inspect_template.py --page 34` |
-| cycle_four_point_loop | clone(半自動,需 render_plan) | 35 | 寫 plan 前先 `inspect_template.py --page 35` |
+| cycle_four_point_loop | fill(全自動) | 35 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | cycle_dual_core_feedback | clone(半自動,需 render_plan) | 36 | 寫 plan 前先 `inspect_template.py --page 36` |
 | cycle_multi_step_loop | clone(半自動,需 render_plan) | 37 | 寫 plan 前先 `inspect_template.py --page 37` |
-| stage_timeline_progress | clone(半自動,需 render_plan) | 38 | 寫 plan 前先 `inspect_template.py --page 38` |
+| stage_timeline_progress | fill(全自動) | 38 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | stage_phase_swimlane | clone(半自動,需 render_plan) | 39 | 寫 plan 前先 `inspect_template.py --page 39` |
-| stage_year_cards | clone(半自動,需 render_plan) | 40 | 寫 plan 前先 `inspect_template.py --page 40` |
+| stage_year_cards | fill(全自動) | 40 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | stage_period_cards | clone(半自動,需 render_plan) | 41 | 寫 plan 前先 `inspect_template.py --page 41` |
 | stage_horizon_matrix | clone(半自動,需 render_plan) | 42 | 寫 plan 前先 `inspect_template.py --page 42` |
 | stage_year_transition_architecture | clone(半自動,需 render_plan) | 43 | 寫 plan 前先 `inspect_template.py --page 43` |
 | stage_multi_year_gantt_summary | clone(半自動,需 render_plan) | 44 | 寫 plan 前先 `inspect_template.py --page 44` |
 | stage_vertical_timeline_detail | clone(半自動,需 render_plan) | 45 | 寫 plan 前先 `inspect_template.py --page 45` |
 | stage_monthly_gantt | clone(半自動,需 render_plan) | 46 | 寫 plan 前先 `inspect_template.py --page 46` |
-| phase_concept_three_column_explanation | clone(半自動,需 render_plan) | 47 | 寫 plan 前先 `inspect_template.py --page 47` |
+| phase_concept_three_column_explanation | fill(全自動) | 47 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | phase_before_now_future_transition | clone(半自動,需 render_plan) | 48 | 寫 plan 前先 `inspect_template.py --page 48` |
 | phase_four_step_workflow_matrix | clone(半自動,需 render_plan) | 49 | 寫 plan 前先 `inspect_template.py --page 49` |
-| phase_three_column_action_cards | clone(半自動,需 render_plan) | 50 | 寫 plan 前先 `inspect_template.py --page 50` |
+| phase_three_column_action_cards | fill(全自動) | 50 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | phase_input_process_output_flow | clone(半自動,需 render_plan) | 51 | 寫 plan 前先 `inspect_template.py --page 51` |
 | phase_step_ladder_cards | clone(半自動,需 render_plan) | 52 | 寫 plan 前先 `inspect_template.py --page 52` |
 | pyramid_three_level_center_explanation | clone(半自動,需 render_plan) | 53 | 寫 plan 前先 `inspect_template.py --page 53` |

@@ -1,0 +1,88 @@
+{
+ "deck": {
+  "deck_name": "golden_info_card_grid_max",
+  "language": "Traditional Chinese",
+  "slide_count": 1
+ },
+ "slides": [
+  {
+   "number": 1,
+   "page_type": "info_card_grid",
+   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "render_page_number": true,
+   "assets": {
+    "background": "assets/backgrounds/content_bg.png",
+    "logo": "assets/logos/cathay_logo.png"
+   },
+   "slots": {
+    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "cards": [
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     },
+     {
+      "heading": "heading測測測",
+      "points": [
+       "points測測測測測測",
+       "points測測測測測測",
+       "points測測測測測測"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
