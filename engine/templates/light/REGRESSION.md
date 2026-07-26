@@ -20,10 +20,10 @@ print('自洽檢查', 'OK' if len(m['page_types']) == sum(c.values()) else '不�
 "
 ```
 
-預期:`manifest sha OK`、`自洽檢查 OK`、53 筆。
+預期:`manifest sha OK`、`自洽檢查 OK`,筆數與 `page_map.md` 的統計句一致。
 
-**mode 分佈刻意不寫死預期值**——builtin 正在逐步遷往 fill(進度見
-`page_map.md` 的遷移表),寫死的比例會過期。要對照當下分佈跑
+**mode 分佈刻意不寫死預期值**——builtin 已於 2026-07-26 清零,但加開頁型仍會讓
+fill/clone 比例變動,寫死的數字會過期。要對照當下分佈跑
 `python engine/tools/make_skeleton.py --list`;`page_map.md` 的統計句與同檔
 表格互為校驗。
 
@@ -35,7 +35,7 @@ python3 "$RT/tools/run_pipeline.py" --spec engine/templates/light/examples/smoke
 ```
 
 預期:exit=0,末行 `管線結果:PASS(3/3 階段)`(等同根 R8,測物固定為本包
-smoke spec;10 頁註冊頁型(其餘註冊頁型由 golden 覆蓋))。
+smoke spec;8 頁註冊頁型,其餘註冊頁型由 golden 覆蓋)。
 
 ## R-L2|clone 抽測(半自動路徑)
 
