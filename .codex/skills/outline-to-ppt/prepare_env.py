@@ -30,8 +30,8 @@ REQUIRED = [
     "tools/render_deck.py",
     "tools/qa_check.py",
     "templates/light/manifest.json",
-    # bindings.json(非 .py):light 自 2026-07-26 起無 builtin,bindings.py 已刪。
-    # 任何模板包的填充綁定都該是宣告式 json——這裡列 .py 會讓新包永遠「未就緒」。
+    # bindings.json(非 .py):填充綁定一律是宣告式 json,bindings.py 已於
+    # 2026-07-26 廢除,pack_loader 現在遇到它會直接 PackError(見下方 rmtree 註解)。
     "templates/light/bindings.json",
     "templates/light/template.pptx",
     "validate_slide_spec_gpts.py",
@@ -55,7 +55,8 @@ def main() -> int:
     # 刪掉的檔案會在沙箱裡變成幽靈。light 刪掉 bindings.py 後,ppt_out 的舊複本
     # 仍被 pack_loader 讀到,BUILDERS 於是悄悄蓋過 bindings.json 的 fill——
     # 產出是舊 builtin 版面,而所有訊息都顯示正常。沙箱是**衍生物**,
-    # 一律重建才能保證與 engine/ 等價。
+    # 一律重建才能保證與 engine/ 等價。(pack_loader 現已對 bindings.py 硬擋,
+    # 同型殘留會吵鬧地失敗;但那是第二道防線,重建仍是第一道。)
     for sub in ("assets", "tools", "templates"):
         shutil.rmtree(work / sub, ignore_errors=True)
     shutil.copytree(engine / "templates" / "light" / "assets_src", work / "assets",

@@ -107,7 +107,7 @@ def _pack_rows() -> dict[str, list[str]]:
             m.get("display_name", ""),
             m.get("version", "?"),
             m.get("status", "?"),
-            f"{sum(x in ('builtin', 'fill') for x in modes)}"
+            f"{sum(x == 'fill' for x in modes)}"
             f" / {sum(x == 'clone' for x in modes)}"
             f" / {sum(x == 'unsupported' for x in modes)}",
             f"template_{tid}.zip",

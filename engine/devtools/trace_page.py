@@ -69,15 +69,7 @@ def trace_slide(prs, pack, raw_fills, spec_slide):
     num, pt = spec_slide["number"], spec_slide["page_type"]
     print(f"\n{'=' * 78}\np{num}  page_type = {pt}")
 
-    # 三條路由與 render_deck.py 的主迴圈一致(builtin / fill / 需要 plan)
-    if pt in pack.builders:
-        fn = pack.builders[pt]
-        print("  路徑:builtin —— 由程式從空白頁畫出來")
-        print(f"  實作:engine/templates/{pack.id}/bindings.py  →  {fn.__name__}()")
-        print(f"  讀到的 spec 槽位:{list((spec_slide.get('slots') or {}).keys())}")
-        print("  (builtin 沒有宣告式 op 可攤開,要看座標請直接讀那支函式)")
-        return
-
+    # 兩條路由與 render_deck.py 的主迴圈一致(fill / 需要 plan)
     if pt not in raw_fills:
         print("  路徑:無自動支援 → 需要 render_plan.json 的 clone 條目")
         return
@@ -141,7 +133,6 @@ def main(argv):
     print(f"spec        : {args.spec}")
     print(f"模板包      : {pack.id}@{pack.version}   ({pack.dir})")
     print(f"模板檔      : {tpl}")
-    print(f"builtin 頁型: {sorted(pack.builders)}")
     print(f"fill 頁型   : {len(raw_fills)} 種")
 
     targets = spec["slides"]

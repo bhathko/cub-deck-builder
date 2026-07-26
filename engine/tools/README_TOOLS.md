@@ -2,8 +2,7 @@
 
 前置:tools.zip 已解壓到 /mnt/data/tools/,validate_slide_spec_gpts.py 與
 模板包已解壓在 /mnt/data/templates/<模板id>/(預設 light;含 template.pptx、
-manifest.json、bindings.json、page_map.md、assets/;light 另有 builders-only
-的 bindings.py)。
+manifest.json、bindings.json、page_map.md、assets/)。
 
 ## ★ 關鍵事實:註冊頁型完全自動,不需要你寫任何計畫
 
@@ -11,9 +10,8 @@ manifest.json、bindings.json、page_map.md、assets/;light 另有 builders-only
 它直接讀模板包 manifest,是當下的唯一真相。**不要**依本卡或任何文件寫死的頁型
 清單/數量判斷:那些會過期,而過期的清單會讓你誤以為某個可用的頁型不能用。
 
-全自動有兩種實作,對你來說沒差別(都不需要 plan):內建版面(引擎直接繪製)、
-自動填入模板頁(填充綁定在模板包 `bindings.json`,由 fills_engine 解譯;
-light 的內建版面繪製器在 bindings.py)。
+全自動 = 自動填入模板頁:clone 模板實頁再依模板包 `bindings.json` 填字
+(由 fills_engine 解譯),不需要 plan。
 **整份 spec 都是註冊頁型時,流程只有三條指令,你不產任何中間檔。**
 
 ## 標準流程 = 一條指令(run_pipeline 依序跑 稽核→驗證→渲染→QA,任一 FAIL 即停)

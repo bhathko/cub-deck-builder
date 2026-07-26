@@ -14,7 +14,7 @@
    - Phase 2 起:`template_admin.py lint` + `golden --id <id>` 全綠
      (id 沒變但幾何漂移造成的視覺壞版,只有 golden+目檢抓得到);
    - 之前(light 現行):本機跑根 REGRESSION R2/R3/R8 + 包內 R-L0~R-L2,
-     產出開檔目檢五個 fill 頁型。
+     產出開檔目檢本次動到的 fill 頁型(當下全集跑 `make_skeleton.py --list`)。
 5. **版本**:manifest `version` bump(`YYYY-MM-DD.N`)+ `INDEX.md` 更新。
 6. **打包發佈**:照 [`docs/MAINTENANCE.md`](../../docs/MAINTENANCE.md) §2 重打
    對應 zip、§5 走發佈 checklist(instructions 版本字串、Builder 刪舊傳新)。sha 不符 = 盤點未完成,不得發版。

@@ -24,7 +24,7 @@
 | 填充綁定為什麼從 Python 改成 JSON | 條件變了:單模板時 DSL 是多餘間接,多模板時它是安全邊界 | [4](#4-渲染層的四次翻轉) |
 | 為什麼塞不下不能自動縮字 | 字級是設計過的;縮字把版面問題偷偷轉成視覺不一致,而所有自動檢查都是綠的 | [4](#4-渲染層的四次翻轉) |
 | 為什麼「裝得進自己的框」不算驗過 | autofit 會長高、wrap=none 會往右長,真正的破版是文字跑到別人的位置上 | [4](#4-渲染層的四次翻轉) |
-| 為什麼新模板不能有 builtin 頁型 | builtin 是座標寫死的手工雕刻,錯誤面大且無法被 lint 覆蓋 | [5](#5-多模板架構) |
+| 為什麼**沒有** builtin 頁型了 | 結論與理由都被推翻:builtin 不是手工雕刻而是描模板頁,所以能整批遷成 fill;2026-07-26 清零、07-27 連分派路徑一起刪 | [10.5](#105-builtin-清零2026-07-26含一個推翻先例的決定) / [10.6](#106-builtin-死碼清除2026-07-27把無人使用變成不存在) |
 | 為什麼 GPT 會「說做不到」 | 先查版本(指示層)→ 再查環境 → 最後才是模型等級 | [6](#6-與-llm-前端的攻防) |
 | 缺資料時為什麼是「待補充」而不是省略 | v1.7 翻轉:原規則把「不捏造」與「不留佔位」綁在一起,導致整體停止 | [2.4.1](#241-兩次翻轉輸入形態與缺料處理) |
 | 直供 JSON 模式到底驗了什麼 | 只驗結構/數量/字數/頁碼/素材,**內容真假完全沒驗** | [3.2](#32-閘門擋不住什麼誠實邊界) |
@@ -688,6 +688,64 @@ cover 的 `date`/`presenters` 合併進一框用 `slot: "$.slots"`,而
 - `R-L1` 的 smoke spec 與 `engine/rules/slide_spec.example.json` 各有 19 條
   容量錯誤,是先前 `fit` 收緊容量後 spec 沒跟著改短。
 
+## 10.6 builtin 死碼清除(2026-07-27)——把「無人使用」變成「不存在」
+
+§10.5 收在「引擎裡的 builtin 分派路徑**已無人使用**」。無人使用不等於不存在:
+`pack_loader` 仍會 `exec_module` 任何包目錄下的 `bindings.py` 並讓它的 `BUILDERS`
+蓋過 `bindings.json`,`MODES` 仍收 `builtin`,`PACK_WHITELIST` 仍會把 `bindings.py`
+打進 zip。**那是 §10.5 那起沙箱幽靈檔事故的機制原封不動留著**——只差沒有人放檔案。
+本批把整條拆掉。
+
+**關鍵決定:`bindings.py` 存在 = 硬錯誤,不是忽略。** 兩處把關:`pack_loader`
+載入期 `PackError`(render exit 2)、`template_admin lint` 報錯(exit 1)。
+選「忽略」會讓殘留檔靜靜地不生效,選「硬擋」則讓它吵鬧地失敗;幽靈檔事故的教訓
+是**靜默才是災難**,所以取後者。反向測試進 R10(種一支檔進去,兩道防線都必須紅)
+——沒有反向測試就不知道偵測器還活著。
+
+拆掉的東西:`render_deck` 的 plan `mode=builtin` 與 `pack.builders` 兩條分支
+(plan 合法 mode 只剩 `clone`)、`trace_page` 的 builtin 路由、`pack_loader` 的
+`bindings.py` 載入與 `Pack.builders`/`_JsonBindings`、`MODES` 的 `builtin`、
+`PACK_WHITELIST` 的 `bindings.py`、六處 `in ("builtin","fill")` 殭屍條件。
+另清掉三處只有 builtin 繪製器用過的死碼:`pptx_toolkit.add_blank_slide`、
+`fill_helpers.resolve_asset`,以及 `pptx_toolkit` 並列的 6 個 accent 色常數
+(`COLOR_MUTED/GREEN/PURPLE/BLUE/LINE` 與 `FONT_EN`)。**用
+`git show 67e63ec:…/bindings.py` 對照證實**唯一呼叫者就是已刪的 builders
+(素材解析的活實作是 validator 的 `asset_exists`)。色常數那筆順帶修掉一個架構
+違規:色碼是**模板專屬知識**,真相在各包 manifest 的 `style.colors`,卻有一份
+light 專用的複本寫死在模板無關的引擎檔裡;`FONT_ZH`/`COLOR_DARK` 因頁碼框仍在用
+而保留,檔頭註解也一併改正(原本寫「render_deck / text_tools 共用」,但
+`text_tools` 根本沒 import 這支檔)。
+
+`Pack.pack_first` 也一併移除:它是 `Pack.builders` 的同族孤兒,唯一消費者是
+builtin 繪製器呼叫 `resolve_asset(..., pack_first=pack.pack_first)`。容易看漏是
+因為 validator 的 `load_pack_context` 另有一個同名的 dict 鍵**還活著**(素材解析
+真的靠它),grep `pack_first` 會撈到 4 筆而誤以為有人在用——同名不同物。
+
+**這幾筆純看 builtin 關鍵字掃不到**——找法是把已刪的 `bindings.py` 從 git 撈回來
+看它 import 了什麼、傳了哪些參數,再回頭查那些符號現在還有沒有呼叫者。刪一個模組
+時,它的「唯一使用者」身分會讓別處的共用件靜靜變成孤兒;而孤兒的名字通常跟被刪的
+東西無關,所以關鍵字掃描一定漏。
+
+**出貨包裡的一句話也是缺陷。** `light/bindings.json` 的 `_note` 用現在式寫
+「剩餘 builtin 頁型在同目錄 `bindings.py` 的 BUILDERS」——那是整個
+`template_light.zip` 裡唯一宣稱 builtin 仍在運作的文字,模型讀了會去找一支不存在
+的檔。同型缺陷見 `3f22aff`。light@2026-07-26.4 → 2026-07-27.1,兩支 zip 都重打。
+
+**歸屬方法:HEAD worktree 對照,不用推理。** 跑回歸時 R2b 與 R9 都紅,但
+`git worktree add <tmp> HEAD` 跑同一組指令證實**改動前就是一樣的紅**,不是本批造成。
+這比「我的改動理論上不影響那條路徑」可靠——§10.5 差點被污染的沙箱騙過,就是
+推理式驗證的代價。
+
+- **R9 的根因已定並修好**:配方複製 light 的 `page_types` 與 `bindings.json`,
+  卻沒複製 `capacity_overrides`。`d6e6373` 之後那份覆寫是承重的(契約上限遠大於
+  版位實際容量),於是 lightcopy 用契約上限產 max 變體 → qa 溢出 FAIL。補一行
+  `m['capacity_overrides'] = src['capacity_overrides']` 後 `register exit=0`
+  (lightcopy 全自動 19)。順帶清掉 R9 預期裡寫死的「12 頁 / 6 種 fill 頁型」。
+- **R2b 仍紅,已二分定位**:同樣壞在 `d6e6373`,前一個 commit `4924e22` 是 0 個
+  相似度錯誤。容量收緊後 example 02 的槽位文字被壓成摘要式改寫,掉到 strict 的
+  0.55 門檻以下。修法牽涉內容政策(硬規則 6),三個選項列在 R2b 的警告框裡,
+  **未擅自決定**。
+
 ## 11. 待辦與已知限制
 
 **待執行**:
@@ -695,7 +753,10 @@ cover 的 `date`/`presenters` 合併進一框用 `slot: "$.slots"`,而
 - 修 `fit_capacity` 的兩個對應盲點(物件清單、`$.slots` 合併框),
   修好後對 agenda 與 cover 重跑 `fit` 把手寫的容量換成工具產出(見 §10.5)。
 - 讓 `golden --regen-specs` 清掉不再屬於契約的 fixture(見 §10.5)。
-- 更新 `R2b` 與 `R-L1` 的預期,或把對應 spec 的文字改短到符合現行容量。
+- `R2b` 與 `R-L1`:選一個修法(改來源用詞 / 放寬 strict 門檻 / 換測資),
+  或把對應 spec 的文字改短到符合現行容量。R2b 已二分定位到 `d6e6373`,
+  三個選項與代價見 `engine/REGRESSION.md` R2b 的警告框(§10.6)。
+  (R9 的同源破損已於 2026-07-27 修好——配方漏複製 `capacity_overrides`。)
 - GPT Builder 端的 v2.0 換裝與驗收(照 `gpts/DEPLOY.md`)——這步只有擁有者能做。
 - 等第一個**真實設計師模板**走一次 register-template:那是 op 詞彙表覆蓋率
   的真實檢驗(目前只用 light 複本演練過)。

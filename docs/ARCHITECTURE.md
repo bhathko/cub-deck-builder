@@ -60,7 +60,6 @@ slide_spec.json ──► audit_provenance ──► validator ──► render_
 | 等級 | 意思 | 產檔行為 |
 | --- | --- | --- |
 | `fill` | 全自動 | clone 模板實頁 + 依 `bindings.json` 填字 |
-| `builtin` | 全自動(**僅 light**) | 從零繪製(座標寫死的 grandfather) |
 | `clone` | 半自動 | 走 render_plan(AI 寫一張「哪個框換什麼字」的小抄) |
 | `unsupported` | 不支援 | validator 硬擋,附原因 |
 
@@ -73,7 +72,7 @@ slide_spec.json ──► audit_provenance ──► validator ──► render_
 engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a-z0-9_]{2,31}$
   template.pptx                      ← 模板本體(檔名固定,身分由目錄名決定)
   manifest.json                      ← 機器可讀真相來源(§2)
-  bindings.json                      ← 填充綁定(宣告式 op,§3;light 例外為 bindings.py)
+  bindings.json                      ← 填充綁定(宣告式 op,§3;唯一形式,不得改用 .py)
   page_map.md                        ← 人類可讀:語意頁型→模板頁+支援等級(含 unsupported 明列)
   inventory.json                     ← freeze 產物:綁定頁 shape 樹快照 + pptx sha256
   assets/                            ← backgrounds/*.png、logos/*.png(隨包出貨;fill 頁通常不需要,見 §2)
@@ -83,16 +82,18 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
   registration_state.json            ← 註冊進度存檔(僅 draft 期存在,支援中斷續作)
 ```
 
-- **light 是第一個包**:`engine/templates/light/`,現行 `fills.py` 的 FILLS 與
-  `render_deck.py` 的 BUILDERS **原封搬入** `bindings.py`(grandfather,零行為改變);
-  `light_template.pptx` 與 `assets.zip` 內容併入包內。
-- **新模板不得有 builtin**:cover/agenda/closing 等 5 種 builtin 頁型在新模板
-  一律要求模板 pptx 內含對應頁,以 fill 模式綁定(設計師在 PowerPoint 改版面,
-  不在 Python 調座標);模板缺頁 → 該頁型 unsupported。builtin 僅 light 保留。
+- **light 是第一個包**:`engine/templates/light/`,`light_template.pptx` 與
+  `assets.zip` 內容併入包內。它曾有一支 builders-only 的 `bindings.py`
+  (grandfather),2026-07-26 builtin 清零後整檔刪除——light 現在是純
+  `bindings.json`,與新註冊的包同構,不再有任何專屬例外。
+- **沒有 builtin 這個模式**:cover/agenda/closing 這類「版面內建」頁型一律要求
+  模板 pptx 內含對應頁,以 fill 模式綁定(設計師在 PowerPoint 改版面,
+  不在 Python 調座標);模板缺頁 → 該頁型 unsupported。引擎已無從零繪製的路徑,
+  包內出現 `bindings.py` 由 `pack_loader` 與 `lint` 兩處硬擋。
 - **新模板的 fill 頁預設免素材**:fill 模式是 clone 模板實頁,背景/logo 已
-  烙在頁面裡,不需要 spec 提供 assets(這正是 builtin「空白頁+貼背景圖+貼 logo」
-  工法與 fill 工法的本質差異)。素材檔只在 clone 參考頁需求或未來照片頁型時
-  才進包。
+  烙在頁面裡,不需要 spec 提供 assets(已廢除的 builtin 工法是「空白頁+貼背景圖
+  +貼 logo」,才需要 spec 交素材——這是兩種工法的本質差異)。素材檔只在 clone
+  參考頁需求或未來照片頁型時才進包。
 ```json
 {
   "template_id": "corp_dark",
@@ -140,11 +141,11 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
   `fill` = 有綁定、過黃金驗收,產檔全自動;`clone` = 只有頁碼映射,產檔走
   render_plan 複製改字(= 現行 page_types.md 未註冊頁型的體驗,也是綁定失敗的
   **內建降級層**);`unsupported` = validator 硬擋(附 reason)。
-  部分支援是合法結局,不逼全頁型全綠。`builtin` 模式僅 light 允許。
+  部分支援是合法結局,不逼全頁型全綠。
 - **per-頁型素材鍵覆寫**:語意契約的 assets 必要鍵(background/logo)降為
   **預設值**;包內 `page_types.<pt>.assets` 可覆寫必要鍵集(新包 fill 頁
   一律 `[]` = 免素材,§1)。validator 取「包覆寫,無則契約預設」;
-  素材存在性檢查經 pack 的 `resolve_asset`(§3)。light 包不覆寫,
+  素材存在性檢查經 validator 的 `asset_exists`(同序:pack_first)。light 包不覆寫,
   行為同現行。
 - **主題與幾何收編**:`style.allowed_fonts` 取代 qa_check 寫死的 ALLOWED_FONTS;
   `asset_defaults` 取代 make_skeleton 寫死的 BG/LOGO(**映射慣例明訂**:
@@ -166,7 +167,7 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
 
 填充綁定是**宣告式 JSON**(`bindings.json`),由 `engine/tools/fills_engine.py`
 逐 op 執行;註冊時 AI 只產 JSON、不產 Python。**op 詞彙表固定**——目前
-7 個填充 op(v1.1,含 chart)加 `keep` 覆蓋宣告,下表形式欄位為節錄,
+7 個填充 op(含 chart)加 `keep` 覆蓋宣告,下表形式欄位為節錄,
 完整欄位以 bindings schema 為準:
 
 | op | 用途 | 形式(關鍵欄位) |
@@ -179,20 +180,22 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
 | `add_textbox` | p54 無副標佔位→動態補建;p33 建議列(recommended+recommendation 串接、前綴「建議:」、皆空不建框) | `{"op":"add_textbox","slots":["$.slots.recommended","$.slots.recommendation"],"prefix":"建議:","join":"、","skip_if_empty":true,"x":0.85,"y":6.42,"w":11.8,"h":0.36,"pt":14,"bold":true}`(字型取 manifest `style.font_zh`) |
 | `resize` | p14 中心圓文字框加高讓長句留在圓內 | `{"op":"resize","id":37,"top":3.25,"height":1.00}` |
 
-(`keep` 不算填充 op,是覆蓋宣告;填充 op 計數 v1.0=6、v1.1=7(+chart)。)
+(`keep` 不算填充 op,是覆蓋宣告;填充 op 計數 v1.0=6、v1.1=7(+chart);
+v1.2 沒有加 op,加的是 `set` 的 `item_template` 修飾詞。詞彙表紀事以
+`fills_engine.py` 檔頭為準。)
 
 三個配套原則:
 
 - **全覆蓋原則**:每個 fill 頁的綁定,模板頁上**所有含文字的 shape** 必須被
   set/rows/list/delete/keep 之一覆蓋,lint 硬檢查。`keep` 僅限不含數字、
-  非內容語意的固定結構字樣(欄目標籤、章節字、「目錄」之類——對應 light
-  builtin 主動畫上的 Contents/背景/預期成果等字樣,新模板該類字烙在模板頁上,
+  非內容語意的固定結構字樣(欄目標籤、章節字、「目錄」之類——已廢除的 builtin
+  是由程式主動畫上 Contents/背景/預期成果這類字,改 fill 後它們烙在模板頁上,
   刪了版面語意反而殘缺);qa/audit 不追溯 keep 字樣。判準:含任何數字或
   可能被誤讀為內容事實的字樣不得 keep,只能 delete。
-- **表達力的驗證方式**:light 的 5 種 fill 頁型有一份等價的宣告式重寫,
+- **表達力的驗證方式**:light 最早的 5 種 fill 頁型有一份等價的宣告式重寫,
   與原 Python 實作產出的 shape 樹**全等**(含最少/最滿兩種變體),
-  這是詞彙表夠用的實證。個別頁型若真的表達不了,該頁型留 grandfather
-  或降級 clone,並把缺口記錄下來供未來評估擴 op。
+  這是詞彙表夠用的實證。個別頁型若真的表達不了,該頁型降級 clone,
+  並把缺口記錄下來供未來評估擴 op。
 
 - **鐵則:表達不了 = 降級 clone,絕不在註冊對話中擴詞彙表、絕不讓 LLM
   現寫 Python。** 詞彙表擴充是「引擎版本事件」:由工程師加 op、補 schema、
@@ -205,14 +208,14 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
 
 - `fill_helpers.py`:自 fills.py 抽出 `FillError`/`index_shapes`/`Ctx`/
   `_fill_rows`(公開化為 `fill_rows`),並把 p33/p54 兩處**內聯** add_textbox
-  樣板整併為新 helper `add_styled_textbox`(light 的 bindings.py 與
-  fills_engine 共用)。
+  樣板整併為新 helper `add_styled_textbox`(供 fills_engine 的
+  `add_textbox` op 使用)。
 - `fills_engine.py`:bindings.json 解譯器(op 執行器 + bindings schema 驗證;
   op 依序執行、`shrink_to_fit` 收尾 min 12pt 同現行、shape id 不存在即
   FillError,訊息格式同現行並加註包 id/version)。
 - `pack_loader.py`:`load_pack(cli_arg, spec_deck, packs_root, asset_dir) -> Pack`,
-  提供 `.manifest .template_path(驗雜湊) .fills .builders .merged_page_types
-  .style .asset_defaults`;素材解析 `resolve_asset`:**light 包 = asset_dir
+  提供 `.manifest .template_path(驗雜湊) .fills .merged_page_types
+  .style .asset_defaults`;素材解析(validator `asset_exists`):**light 包 = asset_dir
   優先、包目錄兜底(舊 spec 的 `assets/...` 路徑不變);非 light 包 =
   包目錄優先、asset_dir 兜底**(防跨包遮蔽:本機沙箱 asset_dir 永遠有
   light 的 assets/,若 asset_dir 優先,新包素材檢查會靜默解到 light 的檔)。
@@ -251,7 +254,7 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
 
 | 工具 | 從模板包讀什麼 | 解不到包時 |
 | --- | --- | --- |
-| `render_deck` | 綁定(builders/fills)、模板檔、頁碼框與清除窗 | 退回 light |
+| `render_deck` | 綁定(fills)、模板檔、頁碼框與清除窗 | 退回 light |
 | `validator` | 合併容量覆寫、per-頁型素材鍵、三級閘門(unsupported 擋、非全自動 WARN) | 退回單模板行為 |
 | `qa_check` | 字體白名單、頁碼偵測窗 | 內建 light 常數 |
 | `make_skeleton` | 素材預設、合併容量、`--list` 三級支援;骨架寫入 `deck.template` | 退回 light |
@@ -293,7 +296,7 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
   槽位填固定樣本 `"99.9%"` → 測**溢出併入與縮字路徑**。
 - 共通:`render_page_number` 依契約 page_number 規則填;assets 鍵依
   merged 必要鍵集填(新包 fill 頁鍵集為 `[]` 即不填;需要時填 manifest
-  `asset_defaults` 路徑,經 resolve_asset 解析);頁型特例沿 make_skeleton
+  `asset_defaults` 路徑,經 validator `asset_exists` 解析);頁型特例沿 make_skeleton
   現規則(closing `main_title` 固定 "Thank you"、agenda `items[].number`
   序號、placeholder 截斷)。
 - 直供 JSON 模式驗(無 --slides,追溯關),契約改動時重新派生,
@@ -311,7 +314,7 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
 | `golden --id <id> [--page-types a,b]` | 對每個 fill 頁型跑 min+max:validator → render(fills_engine)→ qa(帶包字體白名單);**連跑兩次比對 shape 樹全等**(冪等實證);產 `ppt_out/golden_<id>.pptx` 供目檢 |
 | `register --id <id>` | 原子性:lint → golden all(不信任舊戳記)→ **light 回歸**(light golden + examples 01/02 走 run_pipeline)→ isolation 檢查 → 全綠才翻 status=registered;任一紅 → 留 draft |
 | `pack --id <id>`(`--tools` 打 tools.zip) | 打 `gpts/dist/template_<id>.zip`(或 tools.zip;一律 Python zipfile、正斜線 arcname、打包後 infolist 反斜線檢查 + sha 核對,任一不符 exit 1) |
-| `isolation` | 讀 `git diff --name-only` 對照白名單(§7) |
+| `isolation` | 讀 `git status --porcelain`(含未追蹤檔)對照白名單(§7) |
 | `golden --regen-specs` | 從 PAGE_TYPES 重新派生 golden fixtures(契約改版時用,工程師專用) |
 | `fit --id <id>` | 量測版位真正裝得下多少字/幾項,寫入該包 `capacity_overrides`(見 §7.3) |
 

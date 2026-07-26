@@ -31,10 +31,10 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `pptx_toolkit.py`     | 投影片複製(含 rels 重映射,圖不破)/刪除/排序/清 Section              |
 | `text_tools.py`       | 群組內層文字替換(保留原字級顏色)、CJK 溢出估算、縮字                |
 | `pack_loader.py`      | 模板包載入器:解析 `deck.template` → 載入 `templates/<id>/` 綁定       |
-| `fill_helpers.py`     | 填充共用件(Ctx/fill_rows/素材解析);builtin 繪製器在 light 包 bindings.py  |
+| `fill_helpers.py`     | 填充共用件:Ctx(shape id 索引/改字/刪框)、fill_rows、素材解析        |
 | `fills_engine.py`     | bindings.json 解譯器:宣告式 op(v1.1 共 7 個含 chart)驅動各包的 fill 填充 |
 | `inspect_template.py` | 模板盤點:`--summary` 全冊一頁一行、`--page N` 單頁形狀樹(省 token)  |
-| `render_deck.py`      | 主程式:spec(+選配 plan)→ pptx,**冪等整檔重生**;5 種頁型內建版面     |
+| `render_deck.py`      | 主程式:spec(+選配 plan)→ pptx,**冪等整檔重生**;fill 頁全自動        |
 | `qa_check.py`         | 產檔後自檢:內容覆蓋/頁數/Section/字體/頁碼/溢出,只印問題            |
 | `make_skeleton.py`    | 依頁型清單產「保證過驗證器」的 spec 骨架                            |
 | `README_TOOLS.md`     | 給模型的速查卡:標準三步指令 + plan 格式 + 鐵律                      |
@@ -112,7 +112,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 > **v2.0 狀態(2026-07-25):多模板架構 Phase 1 已在本機實作;GPT Builder
 > 驗收待執行;尚未發布。** 下列 GPT Builder 項目是發版閘門,不是已通過紀錄。
 > ⚠ 實測回報「卡在一半說無法用工具產生/沒有穩定的工具鏈/請上傳工具」的第一
-> 檢查點:問 GPT「你現在是哪一版?」——不是 `v2.2-20260726` 就代表 Builder 端
+> 檢查點:問 GPT「你現在是哪一版?」——不是 `v2.3-20260727` 就代表 Builder 端
 > 還在跑舊版,先同步 instructions 與 10 個知識檔(特別是 outline_to_ppt_skill.md、
 > tools.zip 與 template_light.zip;**並刪除舊的 assets.zip 與
 > light_template.pptx**)再測。兩次實測失敗紀錄見 FEEDBACK #1、#2。
@@ -189,7 +189,7 @@ hash、多模板雙包、全包 lint),全綠才發版;重打包 zip 後同步更
    (稽核/驗證/渲染/QA 綁在一條指令裡,跳過閘門=連唯一指令都沒跑,極易察覺);
    使用者驗收時認完整輸出末尾的「管線結果:PASS」行,沒看到就要求重跑。
 2. **視覺一致性:機械部分已確定化,判斷部分仍靠模型。** 複製頁、換字、刪頁、
-   排序、頁碼、五種內建版面都由 tools 腳本固定執行,不再漂移;模型剩下的自由度
+   排序、頁碼、全自動頁型的填充都由 tools 腳本固定執行,不再漂移;模型剩下的自由度
    只在未涵蓋頁型的 render_plan(哪個框填哪段字),錯了是改一條 plan 重跑。
    模型看不到知識庫裡的參考圖片(GPTs 對知識庫圖檔沒有視覺理解),精緻度仍需
    設計師收尾。

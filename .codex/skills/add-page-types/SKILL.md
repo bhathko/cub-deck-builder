@@ -221,7 +221,7 @@ shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
   `page_types_registry.md` 的容量表 → `fit` 自動重生。
 - **還是要手改的**:
   - `page_map.md` 該列 clone→fill,**還有檔尾的統計句**
-    (「共 N 筆:builtin x、fill y、clone z」;它與同檔表格自洽,對一下就好)
+    (「共 N 筆:fill x、clone y」;它與同檔表格自洽,對一下就好)
   - `page_types.md` 該節補「已註冊頁型」標記句
   - `page_types_registry.md` 新增該頁型的一節(槽位契約 + 適用情境)
   - `manifest.json` 的 `version` 進版、`gpts/instructions.md` 的版本字串

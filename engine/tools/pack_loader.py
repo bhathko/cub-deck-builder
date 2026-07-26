@@ -10,16 +10,14 @@
 packs root 預設 = 本檔所在目錄的上一層 /templates(repo: engine/templates;
 沙箱: /mnt/data/templates 或 ppt_out/templates)。
 
-綁定兩形式,可並存(合併語意):
-  - bindings.py:BUILDERS(builtin 繪製器,僅 light grandfather)與選配 FILLS;
-  - bindings.json:宣告式 fills(fills_engine 解譯,新模板唯一路徑)。
-  FILLS 取用順序:py 匯出非空 FILLS → 以 py 為準(json 忽略);否則用 json。
-  BUILDERS 只能來自 py。light 自 Phase 3 起 py 只剩 BUILDERS,fills 走 json。
+綁定只有一種形式:`bindings.json` 的宣告式 fills(fills_engine 解譯)。
+包內出現 `bindings.py` 一律 PackError——那是已廢除的 builtin 繪製器載體
+(2026-07-26 清零),而它曾經會靜默蓋過 bindings.json:沙箱舊複本殘留一支
+bindings.py,產出是舊版面但所有訊息都顯示正常。載入期硬擋,讓殘留吵鬧地失敗。
 """
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import json
 import sys
 from pathlib import Path
@@ -44,16 +42,14 @@ def sha256_file(path) -> str:
 
 
 class Pack:
-    def __init__(self, pack_dir: Path, manifest: dict, bindings_module):
+    def __init__(self, pack_dir: Path, manifest: dict, fills: dict | None = None):
         self.dir = pack_dir
         self.manifest = manifest
         self.id = manifest.get("template_id", pack_dir.name)
         self.version = manifest.get("version", "?")
         self.template_sha256 = manifest.get("template_sha256")
         self.page_types = manifest.get("page_types", {})
-        self.pack_first = manifest.get("asset_resolution", "pack_first") == "pack_first"
-        self.builders = getattr(bindings_module, "BUILDERS", {}) if bindings_module else {}
-        self.fills = getattr(bindings_module, "FILLS", {}) if bindings_module else {}
+        self.fills = fills or {}
 
     def template_hash_matches(self, pptx_path) -> bool:
         """比對實際模板檔與 manifest 雜湊;無宣告值時視為相符(不擋)。"""
@@ -74,43 +70,31 @@ class Pack:
         return None
 
 
-class _JsonBindings:
-    """綁定合併結果:與 Python bindings 模組同介面(FILLS/BUILDERS)。"""
-
-    def __init__(self, fills, builders=None):
-        self.FILLS = fills
-        self.BUILDERS = builders or {}  # builtin 只能來自 bindings.py(僅 light)
-
-
-def _load_bindings(pack_dir: Path, pack_id: str, manifest: dict):
-    if str(_HERE) not in sys.path:  # bindings 需 import fill_helpers/text_tools 等
+def _load_bindings(pack_dir: Path, pack_id: str, manifest: dict) -> dict:
+    if str(_HERE) not in sys.path:  # fills_engine 需 import fill_helpers/text_tools 等
         sys.path.insert(0, str(_HERE))
     py, bj = pack_dir / "bindings.py", pack_dir / "bindings.json"
-    builders, fills = {}, {}
     if py.exists():
-        spec = importlib.util.spec_from_file_location(f"pack_bindings_{pack_id}", py)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        builders = getattr(mod, "BUILDERS", {})
-        fills = getattr(mod, "FILLS", {})  # py FILLS 非空 → 優先(grandfather)
-    if not fills and bj.exists():
-        import fills_engine
-        data = json.loads(bj.read_text(encoding="utf-8-sig"))
-        try:
-            fills = fills_engine.build_fills(data, manifest.get("style") or {})
-        except Exception as e:
-            raise PackError(f"模板包 {pack_id} 的 bindings.json 無法載入:{e}")
-    if not builders and not fills:
-        raise PackError(f"模板包 {pack_id} 缺 bindings(找不到 {py} 或 bindings.json)")
-    return _JsonBindings(fills, builders)
+        raise PackError(
+            f"模板包 {pack_id} 內有 bindings.py({py})——builtin 繪製器已於 2026-07-26 "
+            f"清零,綁定一律走 bindings.json。這支檔通常是舊版殘留(最常見是沒清乾淨的"
+            f"沙箱複本);載著跑會讓產出悄悄退回舊版面,請直接刪除它。")
+    if not bj.exists():
+        raise PackError(f"模板包 {pack_id} 缺綁定(找不到 {bj})")
+    import fills_engine
+    data = json.loads(bj.read_text(encoding="utf-8-sig"))
+    try:
+        return fills_engine.build_fills(data, manifest.get("style") or {})
+    except Exception as e:
+        raise PackError(f"模板包 {pack_id} 的 bindings.json 無法載入:{e}")
 
 
 def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
               packs_root=None, load_bindings: bool = True) -> Pack:
     """解析並載入模板包。pack_arg 可為包 id 或包目錄路徑。
 
-    load_bindings=False:只讀 manifest,不 exec 綁定模組——供純標準庫工具
-    (make_skeleton/run_pipeline/qa_check)使用;bindings 會 import python-pptx,
+    load_bindings=False:只讀 manifest,不解譯 bindings.json——供純標準庫工具
+    (make_skeleton/run_pipeline/qa_check)使用;fills_engine 會 import python-pptx,
     只有 render_deck 真正需要。"""
     spec_id = (spec_deck or {}).get("template")
     if pack_arg and spec_id and Path(pack_arg).name != spec_id and pack_arg != spec_id:
@@ -130,8 +114,8 @@ def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
                          ) if root.is_dir() else "(packs root 不存在)"))
     # utf-8-sig:容忍 Windows 工具寫入的 BOM(同 repo 其他 JSON 讀取慣例)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
-    bindings = None
+    fills = {}
     if load_bindings:
-        bindings = _load_bindings(pack_dir, manifest.get("template_id", pack_dir.name),
-                                  manifest)
-    return Pack(pack_dir, manifest, bindings)
+        fills = _load_bindings(pack_dir, manifest.get("template_id", pack_dir.name),
+                               manifest)
+    return Pack(pack_dir, manifest, fills)

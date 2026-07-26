@@ -31,8 +31,8 @@
 3. **渲染層零隨機**:版面確定性是本專案的核心資產,不得在 renderer 加入任何
    隨機性或「AI 自由發揮」;多樣性只能來自頁型庫擴充。
 4. **綁定與模板 pptx 硬耦合,以包為界**:每包填充綁定(shape id)住在
-   `engine/templates/<id>/bindings.json`(宣告式,fills_engine 解譯;light 另有
-   builders-only 的 bindings.py grandfather),只對同包模板檔有效,以
+   `engine/templates/<id>/bindings.json`(宣告式,fills_engine 解譯;這是唯一
+   形式,包內出現 bindings.py 由 pack_loader 與 lint 硬擋),只對同包模板檔有效,以
    manifest `template_sha256` + inventory.json 對照。模板改版必走
    `engine/templates/TEMPLATE_LIFECYCLE.md`(`inspect_template.py --verify`
    漂移偵測、核對 bindings、golden+examples 全綠才可發版)。
@@ -53,8 +53,9 @@
    規則。`.codex/skills/` 下**所有** skill(含 `register-template`)改動後,
    把 repo 版複製到 `~/.codex/skills/<名稱>/`(含重打同名 zip,POSIX 路徑)。
    本機產物一律進 gitignore 的 `ppt_out/`,嚴禁 commit。
-9. **綁定準入**:新模板的填充綁定一律是宣告式 `bindings.json`(固定 op
-   詞彙表,v1.1 為 7 op 含 chart;`fills_engine` 解譯;表達不了=該頁型降級 clone,嚴禁在註冊對話中擴詞彙表
+9. **綁定準入**:所有模板包的填充綁定一律是宣告式 `bindings.json`(固定 op
+   詞彙表,v1.2:7 個 op(含 chart)+ `set` 的 `item_template` 等修飾詞,
+   當下真相以 `fills_engine.py` 檔頭的詞彙表紀事為準;`fills_engine` 解譯;表達不了=該頁型降級 clone,嚴禁在註冊對話中擴詞彙表
    或改寫 Python);必過 `template_admin.py lint`(含全覆蓋原則)+ `golden`
    (min/max 渲染+qa+連跑兩次 shape 樹全等)才可 register。模板包無權新增
    語意頁型;golden fixtures(`engine/golden/`)對註冊流程唯讀。

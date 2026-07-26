@@ -38,8 +38,9 @@ cp engine/rules/validate_slide_spec_gpts.py "$RT/"
 預期:兩個 zip 都印 `OK`(每筆路徑正斜線);`$RT` 下有 `tools/` 腳本 +
 README_TOOLS、`templates/light/`(模板包:template.pptx + manifest.json +
 bindings.json + page_map.md + `assets/`)、validator。
-**light 自 2026-07-26 起無 `bindings.py`**(builtin 清零,見該包 page_map.md);
-`bindings.py` 是 builtin 繪製器的載體,任何包都不該再有。
+**任何包都不得有 `bindings.py`**(builtin 繪製器的載體,2026-07-26 清零,
+見該包 page_map.md)——解出來若有這支檔就是 zip 打錯了。載入期與 lint
+兩處硬擋,反向測試見 R10。
 素材與模板隨包出貨,
 `$RT` 根**不再有** `assets/` 與 `light_template.pptx`(工具經 pack_loader
 解析,素材檢查有包內兜底)。
@@ -81,6 +82,24 @@ python3 "$RT/tools/run_pipeline.py" --spec "$RT/spec02_fixed.json" \
 ```
 
 預期:exit=0,末行 `管線結果:PASS(4/4 階段)`。
+
+> **⚠ 本案例目前是紅的(已知待辦,見 WORKLOG §10.5 與 §11)。** 實跑會停在
+> 階段 2/4,9 個 `[E] 文字與來源相似度低 … < 0.55 [--strict 升級]`,全在
+> slide 3/4。R3 依賴 R2b 的 `deck02.pptx`,因此連帶跑不動。這段警告寫在這裡,
+> 是因為跑回歸的人只會讀本檔,不會先翻 WORKLOG。
+>
+> 2026-07-27 補上二分結果:壞在 `d6e6373`(誠實容量:契約上限不再靠縮字掩蓋),
+> 前一個 commit `4924e22` 是 0 個相似度錯誤,`d6e6373` 起就是 9 個。機制是
+> 該次把 light 的 `capacity_overrides` 收到版位實際容量,example 02 的槽位文字
+> 被壓縮成摘要式改寫(來源「目前各部門使用不同報表格式,指標口徑不一致。」
+> → spec「報表格式各部門不一」),相似度掉到 0.55 門檻以下。
+> **這是 fixture 與閘門的衝突,不是引擎缺陷**,產檔路徑不受影響。
+>
+> 修法要選一個,牽涉內容政策(AGENTS.md 硬規則 6),先決定再動:
+> (a) 改寫 `02_full_8p.source_slides.md` 讓來源用詞貼近 spec 的短句;
+> (b) 放寬 strict 的相似度門檻或對「容量壓縮後的改寫」給豁免;
+> (c) 換一份本來就短的 fixture 當 R2 測資。
+> 在決定前不要把預期改成 FAIL——那會把缺陷寫成規格。
 
 ## R3|QA 先 WARN 後 PASS,exit 仍 0
 
@@ -165,9 +184,27 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-e9601dad944bcf4c0c4fcabb6bfdf46b7e4f72f2f08524151e67859b78afde15  tools.zip
-fabe496e1d5b994ebd4c24afdc5e8ac0ffbe0190583646f81b74020bf05ad641  template_light.zip
+201b46c03c4d010b121d3b25d86edd6cd323e26ef249b7f6f9d3689638294c9d  tools.zip
+74dc425c5d71eb250170300b183d6a2ee7795214f08b2041b94d98545582a881  template_light.zip
 ```
+
+(2026-07-27 builtin 死碼清除:上一批把 light 的 builtin 降到 0,這批把**模式本身**
+從引擎拆掉。支援等級只剩 fill/clone/unsupported;render_deck 的 plan `mode=builtin`
+與 `pack.builders` 兩條分支、trace_page 的 builtin 路由、pack_loader 的 bindings.py
+載入路徑與 BUILDERS 全部移除。`bindings.py` 從「可載入」變成**兩處硬擋**:
+pack_loader 載入期 PackError + lint 報錯(反向測試見 R10)——留著載入路徑等於留著
+沙箱幽靈檔事故的後門。template_admin 的 `MODES` 移除 builtin,遇到舊 manifest 會
+指路「改綁 fill 或降級 clone」。tools.zip 因 pack_loader/render_deck/make_skeleton/
+README_TOOLS/fill_helpers/pptx_toolkit 六檔變動而改 sha。順帶清掉三處只有 builtin
+繪製器用過的死碼:`pptx_toolkit.add_blank_slide`、`fill_helpers.resolve_asset`
+(活實作是 validator 的 `asset_exists`),以及 `pptx_toolkit` 並列的 6 個 accent
+色常數——色碼是模板專屬知識,真相在各包 manifest 的 `style.colors`,留在模板無關的
+引擎檔裡本身就違反架構原則;`FONT_ZH`/`COLOR_DARK` 因頁碼框仍在用而保留。**template_light.zip 也改 sha**:
+`bindings.json` 的 `_note` 原本用現在式寫「剩餘 builtin 頁型在同目錄 bindings.py」,
+那是整個出貨包裡唯一一句宣稱 builtin 仍在運作的文字,模型讀了會去找一支不存在的
+檔;light@2026-07-26.4 → 2026-07-27.1。instructions 版本字串 v2.2-20260726 →
+v2.3-20260727、roster 同步。產檔行為零變化:light 早已 0 builtin,
+golden 仍 38 頁 PASS、冪等雙跑一致。)
 
 (2026-07-26 builtin 清零(第二批,light@2026-07-26.4):`agenda` 綁 p9,
 `story_chapter_statement` 與 `stage_dual_track_roadmap` **從共用契約整個移除**
@@ -254,6 +291,7 @@ src = json.load(open('engine/templates/light/manifest.json'))
 p = '$PR/lightcopy/manifest.json'; m = json.load(open(p))
 m['style'], m['asset_defaults'], m['page_number'] = src['style'], src['asset_defaults'], src['page_number']
 m['page_types'] = {pt: e for pt, e in src['page_types'].items() if e['mode'] == 'fill'}
+m['capacity_overrides'] = src['capacity_overrides']   # 少這行 golden 必 FAIL,見下方註
 json.dump(m, open(p, 'w'), ensure_ascii=False, indent=2)
 shutil.copy2('engine/templates/light/bindings.json', '$PR/lightcopy/bindings.json')
 shutil.copytree('engine/templates/light/assets_src', '$PR/lightcopy/assets_src', dirs_exist_ok=True)
@@ -262,11 +300,20 @@ python3 engine/release/template_admin.py freeze --id lightcopy --packs-root "$PR
 python3 engine/release/template_admin.py register --id lightcopy --packs-root "$PR"; echo "register exit=$?"
 ```
 
-預期:register exit=0(lint → 自身 golden 12 頁 PASS(6 種 fill 頁型 ×
-min/max;Phase 4 起含 data_line_trend_comparison)含冪等雙跑 → light
-回歸 golden PASS → status=registered)。之後同一份 fill 頁型 spec 分別以
+預期:register exit=0(lint → 自身 golden PASS(頁數 = 該包 fill 頁型數 ×
+min/max,**不要寫死**——複製自 light 就跟著 light 當下的 fill 數走)含冪等雙跑
+→ light 回歸 golden PASS → status=registered)。之後同一份 fill 頁型 spec 分別以
 light 與 `deck.template:"lightcopy"`(帶 `--packs-root "$PR"`)各 render+qa
 一次,兩者皆 PASS 且輸出行分別顯示 `模板包:light@…` 與 `模板包:lightcopy@…`。
+(工作樹有模板目錄外的改動時,register 末尾會印 isolation 越界警告,那是預期的
+提醒而非失敗——見 MAINTENANCE 第 5 節第 2 項。)
+
+**`capacity_overrides` 必須一起複製**(2026-07-27 補):它不是可選的美化設定,
+而是「這個版位真正裝得下多少字」的量測結果。少了它,golden 會用 `PAGE_TYPES` 的
+跨模板契約上限產 max 變體——那個上限遠大於 light 版位的實際容量,於是 qa 直接
+FAIL 在一堆溢出上(`[W] p10: 溢出疑慮 x6.0` 之類)。本案例自 `d6e6373`
+(誠實容量:契約上限不再靠縮字掩蓋)起就一直是紅的,直到 2026-07-27 才被抓到
+——**紅了 11 個 commit 沒人發現,因為沒有人真的跑過 R9**。
 
 ## R10|全包 lint
 
@@ -274,7 +321,24 @@ light 與 `deck.template:"lightcopy"`(帶 `--packs-root "$PR"`)各 render+qa
 python3 engine/release/template_admin.py lint --all; echo "exit=$?"
 ```
 
-預期:exit=0,每包一行 `✓ <id>: lint OK`(light 另有 grandfather 提示行)。
+預期:exit=0,每包一行 `✓ <id>: lint OK`。(light 原本那行 grandfather 提示已隨
+2026-07-27 的 builtin 死碼清除一併收掉,不再出現。)
+
+**反向測試——`bindings.py` 後門的兩道防線還活著嗎?** builtin 曾經能靠一支
+`bindings.py` 悄悄蓋過 `bindings.json` 的 fill(2026-07-26 沙箱幽靈檔事故:
+產出是舊版面,而所有訊息都顯示正常)。種一支進去,兩處都必須紅:
+
+```bash
+printf 'BUILDERS = {}\n' > engine/templates/light/bindings.py
+python3 engine/release/template_admin.py lint --id light; echo "lint exit=$?"
+python3 engine/tools/render_deck.py --spec engine/examples/01_minimal_4p.json \
+  --asset-dir engine/templates/light/assets_src --out "$RT/_guard.pptx"; echo "render exit=$?"
+rm -f engine/templates/light/bindings.py
+```
+
+預期:`lint exit=1` 且印 `包內不得有 bindings.py`;`render exit=2` 且印
+`✗ 模板包載入失敗:模板包 light 內有 bindings.py`。任一 exit=0 = 後門又開了。
+**跑完務必確認那支檔已刪**(`git status` 要乾淨)。
 
 ## R11|golden 契約快照與現行契約同步
 
@@ -379,7 +443,8 @@ python engine/tools/qa_check.py --spec ppt_out/_neg.json \
   --pptx ppt_out/_neg.pptx --template-pack engine/templates/light; echo "exit=$?"
 ```
 
-預期 exit=1,且輸出含 `[F] p21/p22: 文字壓到別的元素 0.71 平方吋`。
+預期 exit=1,且輸出含 `[F] p27/p28: 文字壓到別的元素 0.71 平方吋`
+(頁號隨 fill 頁型增減而移動,2026-07-27 實測為 p27/p28;對不上先確認頁序而非判定壞掉)。
 **exit=0 代表偵測器壞了**——那比破版本身更嚴重,所有後續驗收都會假綠。
 
 **注意 `fit` 收斂後仍會有一堆 `estimate_overflow()['fits'] == False` 的框,

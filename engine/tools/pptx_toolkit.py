@@ -16,15 +16,11 @@ from pptx.oxml.ns import qn
 
 R_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 
-# 品牌常數(style_guide.md 的單一來源;render_deck / text_tools 共用)
+# 頁碼文字框用的兩個常數(唯一消費者是 render_deck)。其餘品牌色不放這裡:
+# 色碼是模板專屬知識,真相在各包 manifest 的 style.colors 與 style_guide.md
+# ——原本並列的 6 個 accent 常數只有 builtin 繪製器用過,已隨 builtin 清零移除。
 FONT_ZH = "Microsoft JhengHei"
-FONT_EN = "Helvetica"
 COLOR_DARK = (0x34, 0x42, 0x52)
-COLOR_MUTED = (0x68, 0x72, 0x7E)
-COLOR_GREEN = (0x58, 0xD4, 0x94)
-COLOR_PURPLE = (0x84, 0x8B, 0xF2)
-COLOR_BLUE = (0x4A, 0xB7, 0xF9)
-COLOR_LINE = (0xD8, 0xDE, 0xE4)
 
 
 def _remap_rids(element, id_map: dict) -> None:
@@ -158,11 +154,3 @@ def clear_sections(prs) -> int:
             pres_el.remove(extLst)
     return removed
 
-
-def add_blank_slide(prs):
-    """新增一頁「乾淨」投影片:挑佔位符最少的 layout,並清掉殘留佔位符。"""
-    best = min(prs.slide_layouts, key=lambda ly: len(ly.placeholders))
-    slide = prs.slides.add_slide(best)
-    for shp in list(slide.shapes):
-        shp._element.getparent().remove(shp._element)
-    return slide

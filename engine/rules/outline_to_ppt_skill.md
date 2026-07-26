@@ -53,8 +53,7 @@ unzip -o /mnt/data/template_light.zip -d /mnt/data/templates/light
 
 `tools.zip` 的工具檔位於壓縮檔根目錄,所以目的地必須是明確建立的
 `/mnt/data/tools`,不要直接解到 `/mnt/data`;`template_light.zip` 是模板包
-(template.pptx、manifest.json、bindings.json、page_map.md、assets/;light 另有
-builders-only 的 bindings.py),解到
+(template.pptx、manifest.json、bindings.json、page_map.md、assets/),解到
 明確建立的 `/mnt/data/templates/light`(多模板架構;使用者指名其他模板時
 改解對應的 `template_<模板id>.zip`,見下方「模板選擇」)。
 
@@ -97,7 +96,7 @@ path separators` 警告並回非零結束碼，但檔案仍會正確解出。環
 
 只選擇已註冊頁型，並遵守：
 
-- 關鍵績效指標、數據比較、雙軌時程頁型：原文有對應數值或時間標籤時優先使用；
+- 關鍵績效指標、數據比較頁型：原文有對應數值時優先使用；
   使用者點名要求該類頁面但缺數據時仍可使用，缺的數值欄位填「待補充」。
 - 原文可形成 3–6 個項目時，才可使用 `agenda`。
 - 原文至少提供主標題時即可使用 `cover`；缺的副標、日期、報告人欄位填「待補充」。

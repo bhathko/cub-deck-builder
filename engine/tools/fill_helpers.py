@@ -8,27 +8,10 @@ add_styled_textbox。本檔不得含任何模板專屬常數(shape id、座標�
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.util import Inches, Pt
 
 import text_tools as tt
-
-
-def resolve_asset(rel, asset_dir, pack_dir, pack_first=False):
-    """素材路徑解析鏈:asset_dir 與模板包目錄二擇一命中(順序由 pack_first 決定)。
-
-    light 包 = asset_dir 優先(舊 spec 的 assets/... 路徑不變);非 light 包
-    預設包目錄優先,防止沙箱裡 light 的 assets/ 遮蔽新包素材(ARCHITECTURE §5)。
-    全部不存在時回傳第一候選(讓呼叫端的存在性檢查印出主要路徑)。
-    """
-    candidates = [Path(pack_dir) / rel, Path(asset_dir) / rel] if pack_first \
-        else [Path(asset_dir) / rel, Path(pack_dir) / rel]
-    for c in candidates:
-        if c.exists():
-            return c
-    return candidates[0]
 
 
 class FillError(Exception):

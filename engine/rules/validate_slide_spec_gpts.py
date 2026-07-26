@@ -107,7 +107,7 @@ def apply_capacity_overrides(base: dict, overrides: dict) -> dict:
 def load_pack_context(packs_root: Path, template_id: str | None, allow_draft=False):
     """讀選定包 manifest,回傳 pack context dict;找不到回 None。
 
-    context 鍵:id/version/dir/modes(page_type→mode)/auto(builtin+fill 集合)/
+    context 鍵:id/version/dir/modes(page_type→mode)/auto(fill 集合)/
     reasons(unsupported 理由)/pack_first(素材解析順序)/page_types(merged 契約)。
     manifest 壞掉或覆寫違規 raise ValueError(前置錯誤,exit 2)。
     allow_draft 僅供註冊 harness(template_admin golden)使用。
@@ -126,7 +126,7 @@ def load_pack_context(packs_root: Path, template_id: str | None, allow_draft=Fal
         "version": manifest.get("version", "?"),
         "dir": mpath.parent,
         "modes": modes,
-        "auto": {pt for pt, m in modes.items() if m in ("builtin", "fill")},
+        "auto": {pt for pt, m in modes.items() if m == "fill"},
         "reasons": {pt: e.get("reason", "") for pt, e in entries.items()
                     if e.get("mode") == "unsupported"},
         "asset_keys": {pt: e.get("assets") for pt, e in entries.items()},
@@ -698,7 +698,7 @@ def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only:
                          f"全自動頁型:{', '.join(sorted(pack['auto']))}。"
                          f"修法(擇一):換頁型/換 deck.template/回註冊流程補註冊。")
             return
-        if pt in contracts and mode not in ("builtin", "fill"):
+        if pt in contracts and mode != "fill":
             if registered_only:
                 rep.error(p, f"頁型 {pt!r} 在模板 {pack['id']!r} 非全自動"
                              f"(需 render_plan),一鍵模式不允許")

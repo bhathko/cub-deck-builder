@@ -27,7 +27,7 @@
 1 真 : 2 假警報 : 1 漏報,一半是雜訊的紅燈只會訓練出無視紅燈的習慣。
 
 新頁型若要全自動產出,另需在該包 `engine/templates/<id>/bindings.json` 加
-fill 條目(宣告式 op 詞彙表;builtin 僅 light 的 `bindings.py`)→
+fill 條目(宣告式 op 詞彙表)→
 **`template_admin.py fit --id <id>` 量容量** → 過 `template_admin.py golden`
 → 重打包該模板 zip。架構見 [`ARCHITECTURE.md`](ARCHITECTURE.md)。
 

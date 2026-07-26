@@ -145,7 +145,7 @@ def main(argv):
     if args.list or not args.types:
         if pack is not None:
             print(f"模板包 {pack.id}@{pack.version} 的頁型支援:")
-            auto = [pt for pt, md in modes.items() if md in ("builtin", "fill")]
+            auto = [pt for pt, md in modes.items() if md == "fill"]
             clone = [pt for pt, md in modes.items() if md == "clone"]
             unsup = [pt for pt, md in modes.items() if md == "unsupported"]
             print(f"  全自動({len(auto)} 種,完整契約檢查):")

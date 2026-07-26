@@ -5,13 +5,12 @@
 產出不對就改輸入(spec 或 render_plan.json)再跑一次,禁止對產出 pptx
 做局部修補(那正是「刪一個壞的再產一個壞的」循環的來源)。
 
-多模板架構(docs/ARCHITECTURE.md):頁型的自動產出實作(builtin 繪製與
-fill 填充)住在模板包 `templates/<id>/bindings`,本工具經 pack_loader 載入
-選定包後 dispatch;預設包 = light(spec 未寫 deck.template 時)。
+多模板架構(docs/ARCHITECTURE.md):頁型的自動產出實作(fill 填充)住在
+模板包 `templates/<id>/bindings.json`,本工具經 pack_loader 載入選定包後
+dispatch;預設包 = light(spec 未寫 deck.template 時)。
 
 ★ 註冊頁型完全自動,不需要 plan:
-   builtin(版面內建,引擎直接繪製)與 fill(模板頁自動填充,綁定在該包
-   bindings.json)兩種實作,對呼叫端沒差別。
+   fill = clone 模板實頁再照綁定填字,綁定在該包 bindings.json。
    → 整份 spec 都是註冊頁型時,直接跑本工具即可,LLM 不需要產任何計畫。
    哪些頁型屬於哪一級**依模板包而定**,跑 `make_skeleton.py --list` 查當下實況;
    這裡刻意不列清單/數量,寫死了就會隨模板加開頁型而過期。
@@ -246,20 +245,11 @@ def main(argv):
 
         if page_plan:  # plan 條目優先(可覆寫自動頁)
             mode = page_plan.get("mode")
-            if mode == "builtin":
-                if pt not in pack.builders:
-                    problems.append(f"p{num}: builtin 不支援頁型 {pt}")
-                    continue
-                pack.builders[pt](prs, spec_slide, asset_dir)
-                modes.append(f"p{num}:builtin")
-            elif mode == "clone":
+            if mode == "clone":
                 apply_clone_plan(prs, spec_slide, page_plan, n_template, problems, pn_cfg)
                 modes.append(f"p{num}:clone{page_plan.get('template_page')}")
             else:
-                problems.append(f"p{num}: 未知 mode {mode!r}(builtin|clone)")
-        elif pt in pack.builders:
-            pack.builders[pt](prs, spec_slide, asset_dir)
-            modes.append(f"p{num}:builtin")
+                problems.append(f"p{num}: 未知 mode {mode!r}(僅支援 clone)")
         elif pt in pack.fills:
             tpl_page, fn = pack.fills[pt]
             slide = tk.clone_slide(prs, tpl_page - 1)

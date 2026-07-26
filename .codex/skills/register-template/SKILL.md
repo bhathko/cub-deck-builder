@@ -8,8 +8,9 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 > **狀態:已啟用(2026-07-25,Phase 2 落地)。** 架構與工具鏈規格見
 > `docs/ARCHITECTURE.md`;工具鏈 = `engine/release/template_admin.py`
 > (new/freeze/lint/golden/register/pack/isolation/list)+
-> `engine/tools/fills_engine.py`(op 解譯器,v1.1 為 7 op 含 chart),light 五種 fill 頁型的
-> 宣告式重寫已通過 shape 樹全等驗證(含 min 刪格與 max 溢出路徑)。
+> `engine/tools/fills_engine.py`(op 解譯器;詞彙表版本與可用修飾詞見該檔檔頭的
+> 紀事,目前 v1.2)。light 最早的五種 fill 頁型的宣告式重寫已通過 shape 樹全等
+> 驗證(含 min 刪格與 max 溢出路徑);light 當下的 fill 全集跑 `make_skeleton.py --list`。
 > 帶 pptx 操作的子命令(new/freeze/golden/register)依 prepare_env
 > 提示加渲染前綴(如 `uv run --with python-pptx python`)。
 

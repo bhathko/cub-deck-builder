@@ -11,7 +11,7 @@
   register --id <id>                        原子性註冊:lint→golden→light 回歸→isolation
   pack [--id <id> | --tools]                打 template_<id>.zip / tools.zip(正斜線+檢查)
   sync-docs [--write]                       重生「派生自機器真相」的文件片段(pack 會先擋)
-  isolation                                 git diff 對照模板隔離白名單
+  isolation                                 git status 對照模板隔離白名單
   list                                      列出所有包
 
 直譯器:new/freeze/golden/register 需 python-pptx(本機無則用
@@ -45,7 +45,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from validate_slide_spec_gpts import PAGE_TYPES, apply_capacity_overrides  # noqa: E402
 
 ID_RE = re.compile(r"^[a-z][a-z0-9_]{2,31}$")
-MODES = {"builtin", "fill", "clone", "unsupported"}
+MODES = {"fill", "clone", "unsupported"}
 OPS = {"set", "delete", "keep", "rows", "list", "add_textbox", "resize", "chart"}
 
 
@@ -218,10 +218,10 @@ def lint_pack(pack_dir: Path) -> list:
     for pt, e in m.get("page_types", {}).items():
         mode = e.get("mode")
         if mode not in MODES:
-            errs.append(f"page_types.{pt}: mode 不合法 {mode!r}")
+            hint = ("(builtin 已於 2026-07-26 清零,改綁 fill 或降級 clone)"
+                    if mode == "builtin" else "")
+            errs.append(f"page_types.{pt}: mode 不合法 {mode!r}{hint}")
             continue
-        if mode == "builtin" and pid != "light":
-            errs.append(f"page_types.{pt}: builtin 僅 light 允許(新模板一律 fill/clone)")
         if pt not in lib:
             errs.append(f"page_types.{pt}: 不存在於語意契約或 page_types.md 語意庫")
         if mode in ("fill", "clone"):
@@ -239,7 +239,7 @@ def lint_pack(pack_dir: Path) -> list:
     need_assets = any((e.get("assets") if e.get("assets") is not None
                        else PAGE_TYPES.get(pt, {}).get("assets", []))
                       for pt, e in m.get("page_types", {}).items()
-                      if e.get("mode") in ("builtin", "fill"))
+                      if e.get("mode") == "fill")
     if need_assets:
         for key, rel in ad.items():
             cands = [pack_dir / rel, pack_dir / rel.replace("assets/", "assets_src/", 1)]
@@ -249,8 +249,8 @@ def lint_pack(pack_dir: Path) -> list:
     inv_path = pack_dir / "inventory.json"
     bj = pack_dir / "bindings.json"
     if (pack_dir / "bindings.py").exists():
-        print(f"  [i] {pid}: 有 bindings.py(BUILDERS/選配 FILLS grandfather,僅 light);"
-              f"fills 以 bindings.json 為準(py 匯出非空 FILLS 才覆蓋)")
+        errs.append("包內不得有 bindings.py(builtin 繪製器已於 2026-07-26 清零,"
+                    "綁定一律走 bindings.json);多半是舊版或沙箱複本殘留,請刪除")
     if bj.exists():
         if not inv_path.exists():
             errs.append("有 bindings.json 但缺 inventory.json(先跑 freeze)")
@@ -315,9 +315,8 @@ def lint_pack(pack_dir: Path) -> list:
                 if naked:
                     errs.append(f"{pt}: 全覆蓋原則違反——含文字 shape 未被"
                                 f" set/rows/list/delete/keep 覆蓋:{naked}")
-    elif not (pack_dir / "bindings.py").exists():
-        if any(e.get("mode") == "fill" for e in m.get("page_types", {}).values()):
-            errs.append("宣告了 fill 頁型但缺 bindings(.json/.py)")
+    elif any(e.get("mode") == "fill" for e in m.get("page_types", {}).values()):
+        errs.append("宣告了 fill 頁型但缺 bindings.json(先寫綁定再 lint)")
     return errs
 
 
@@ -550,7 +549,7 @@ def cmd_register(args) -> int:
     state = pack_dir / "registration_state.json"
     if state.exists():
         state.unlink()  # 註冊完成,draft 進度檔移除
-    fills = [pt for pt, e in m["page_types"].items() if e.get("mode") in ("builtin", "fill")]
+    fills = [pt for pt, e in m["page_types"].items() if e.get("mode") == "fill"]
     clones = [pt for pt, e in m["page_types"].items() if e.get("mode") == "clone"]
     unsup = [pt for pt, e in m["page_types"].items() if e.get("mode") == "unsupported"]
     print(f"★ registered:{pid}@{m['version']} 全自動 {len(fills)} / 半自動 {len(clones)}"
@@ -562,8 +561,7 @@ def cmd_register(args) -> int:
     return 0
 
 
-PACK_WHITELIST = ("template.pptx", "manifest.json", "bindings.py", "bindings.json",
-                  "page_map.md")
+PACK_WHITELIST = ("template.pptx", "manifest.json", "bindings.json", "page_map.md")
 
 
 def _zip_add(z, src: Path, arcname: str):
@@ -663,7 +661,7 @@ def cmd_list(args) -> int:
             m = load_manifest(p)
             modes = [e.get("mode") for e in m.get("page_types", {}).values()]
             print(f"{m.get('template_id', p.name):<12} {m.get('version','?'):<14} "
-                  f"{m.get('status','?'):<11} 全自動 {sum(x in ('builtin','fill') for x in modes)}"
+                  f"{m.get('status','?'):<11} 全自動 {sum(x == 'fill' for x in modes)}"
                   f" / 半自動 {sum(x == 'clone' for x in modes)}"
                   f" / 不支援 {sum(x == 'unsupported' for x in modes)}  {m.get('display_name','')}")
     return 0
