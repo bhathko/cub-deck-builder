@@ -346,7 +346,9 @@ def _variant_text(name, max_chars, variant, path=""):
     序號放最前面,即使文字被縮字或截斷也還看得見。巢狀清單用 "2-4" 形式。
     """
     if name == "value":
-        return f"{path or '9'}9.9%"[:6]
+        # 數字型槽位:帶項次好辨識(第 1 格 "19.9%"、第 2 格 "29.9%"),
+        # 但一律受 max_chars 限制——KPI 大數字框往往只有 4 字寬。
+        return f"{(path or '9').split('-')[-1]}9.9%"[:max_chars]
     if name == "values":
         return "9.9"  # 圖表數值:純數字字串(chart op 會 float 轉換)
     if name == "number":

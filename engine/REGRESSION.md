@@ -146,6 +146,48 @@ grep -cE '## Slide|page_type' engine/examples/05_outline_to_ppt_source.md
 
 預期:輸出 `0`(grep exit=1)。
 
+## R12|誠實容量:contract 上限不得觸發縮字
+
+```bash
+python engine/release/template_admin.py golden --id light
+```
+
+golden 用每個 fill 頁型的 **contract 上限**產 max 變體。通過條件除了 PASS,
+還要 qa 的**溢出警告為 0**——有警告就代表契約允許的量裝不進版位。
+
+原則(2026-07-26 設計師回饋):**字級是設計過的**,內容塞不下時正確做法是
+改寫更短或換頁型,不是把字縮小一號。所以:
+
+- `shrink_to_fit` 不動 autofit 框(交給 PowerPoint 長高,那是模板原本的排版方式)
+- 各包用 `capacity_overrides` 宣告自己版位真正裝得下的量,閘門據此擋
+- 重新量測:清空 `capacity_overrides` → 跑 golden → 對仍被縮字/超高的框收緊 →
+  重複到收斂。判準是「在**設計字級**下裝得進**渲染後的框**」;autofit 框的
+  上限放寬到「設計師自己那份原文需要的高度」。
+
+驗證有沒有退化(應為 0 / 0):
+
+```bash
+python - <<'EOF'
+import sys, json; sys.path.insert(0,'engine/tools')
+from pptx import Presentation
+import text_tools as tt
+seq="14 14 17 17 29 29 33 33 54 54 16 16 20 20 22 22 24 24 25 25 30 30 35 35 38 38 40 40 47 47 50 50".split()
+def walk(ss):
+    for s in ss:
+        if s.shape_type==6: yield from walk(s.shapes)
+        else: yield s
+tpl=Presentation('engine/templates/light/template.pptx'); g=Presentation('ppt_out/golden_light.pptx')
+TP={i:{s.shape_id:s for s in walk(sl.shapes) if s.has_text_frame} for i,sl in enumerate(tpl.slides,1)}
+shr=0
+for i,sl in enumerate(g.slides,1):
+    for s in walk(sl.shapes):
+        if not s.has_text_frame or not s.text_frame.text.strip(): continue
+        o=TP[int(seq[i-1])].get(s.shape_id)
+        if o is not None and tt._first_run_size_pt(s) < tt._first_run_size_pt(o)-0.5: shr+=1
+print("被縮字的框:", shr, "(必須是 0)")
+EOF
+```
+
 ## R7|Knowledge 清單與 archive hash
 
 ```bash
@@ -163,9 +205,14 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-e19c2392050f1197655f6ca19abc482307a64f92e174137584361da4684656a7  tools.zip
-c7d9089b67344230830ec0f4264b80365734a740abc92f3726f56cde803987ab  template_light.zip
+e011841f26431546a3eb31677916be37fbd80f40e4280bd05c6cb0cf0eace9e7  tools.zip
+405f7a528cb8f545dd0ddb1e1e043468cd71b8c93981444df3c700e0d1e3df53  template_light.zip
 ```
+
+(2026-07-26 誠實容量:改採「字級是設計過的,塞不下要改稿或換頁型,不縮字」
+原則。渲染器不再縮 autofit 框的字級;light 的 43 條 capacity_overrides 由
+template_admin 依模板實際版位量測後產生(非人工填)。結果:contract 上限時
+被縮字的框 99 → 0、qa 溢出警告 79 → 0。字體白名單補齊模板自用字型。)
 
 (2026-07-26 目檢回饋修正:qa_check 溢出不再靜默只印前 5(舊版把 79 條顯示成
 5 條)、estimate_overflow 修三處誤判(窄框不再無條件視為放得下、數學英數符號

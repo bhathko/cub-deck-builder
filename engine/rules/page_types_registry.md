@@ -254,6 +254,64 @@
 - 三欄內容量應接近;欄標建議 4–10 字。若要精準流程或日期,改用時程說明頁型。
 ---
 
+## light 模板的實際容量(**以本表為準**)
+
+上方各節的字數是「語意契約的預設值」。**實際可寫多少,由選定的模板包決定**——
+版位大小是設計師定的,字級也是設計過的,塞不下時請**改寫更短或換頁型**,
+系統不會偷偷縮小字級來遷就。下表列出 light 包與預設值不同的槽位;
+沒列出的槽位沿用上方數字。閘門依本表擋,寫超過會被退回。
+
+| 頁型 | 槽位 | 預設 | light 實際 |
+| --- | --- | --- | --- |
+| cycle_four_point_loop | `steps[].detail` | ≤40 字 | **≤34 字** |
+| cycle_four_point_loop | `subtitle` | ≤60 字 | **≤50 字** |
+| data_line_trend_comparison | `rows[].cells[]` | ≤20 字 | **≤13 字** |
+| data_three_number_kpis | `subtitle` | ≤60 字 | **≤50 字** |
+| data_two_group_metric_comparison | `after.points` | 2–6 項 | **2–4 項** |
+| data_two_group_metric_comparison | `after.points[]` | ≤40 字 | **≤16 字** |
+| data_two_group_metric_comparison | `before.points` | 2–6 項 | **2–4 項** |
+| data_two_group_metric_comparison | `before.points[]` | ≤40 字 | **≤16 字** |
+| data_two_group_metric_comparison | `kpis[].label` | ≤30 字 | **≤8 字** |
+| data_two_group_metric_comparison | `subtitle` | ≤60 字 | **≤50 字** |
+| evaluation_option_score_pros_cons | `options[].cons` | 1–3 項 | **1–2 項** |
+| evaluation_option_score_pros_cons | `options[].cons[]` | ≤60 字 | **≤17 字** |
+| evaluation_option_score_pros_cons | `options[].name` | ≤24 字 | **≤9 字** |
+| evaluation_option_score_pros_cons | `options[].pros` | 1–4 項 | **1–2 項** |
+| evaluation_option_score_pros_cons | `options[].pros[]` | ≤60 字 | **≤17 字** |
+| evaluation_option_score_pros_cons | `recommendation` | 0–5 項 | **0–3 項** |
+| evaluation_option_score_pros_cons | `recommendation[]` | ≤40 字 | **≤13 字** |
+| evaluation_option_score_pros_cons | `recommended` | ≤20 字 | **≤13 字** |
+| evaluation_option_score_pros_cons | `subtitle` | ≤60 字 | **≤50 字** |
+| info_card_grid | `subtitle` | ≤60 字 | **≤50 字** |
+| info_horizontal_explanation_rows | `rows[].points` | 1–3 項 | **1–2 項** |
+| info_horizontal_explanation_rows | `subtitle` | ≤60 字 | **≤49 字** |
+| info_three_column_category | `columns[].heading` | ≤20 字 | **≤13 字** |
+| info_three_column_category | `columns[].points` | 2–6 項 | **2–5 項** |
+| info_three_column_category | `columns[].points[]` | ≤40 字 | **≤14 字** |
+| info_three_column_category | `subtitle` | ≤60 字 | **≤50 字** |
+| phase_concept_three_column_explanation | `concept` | ≤8 字 | **≤4 字** |
+| phase_three_column_action_cards | `phases[].detail` | ≤60 字 | **≤54 字** |
+| pyramid_layered_maturity_detail | `side_cards[].heading` | ≤16 字 | **≤9 字** |
+| pyramid_layered_maturity_detail | `side_cards[].points` | 2–4 項 | **2–2 項** |
+| pyramid_layered_maturity_detail | `side_cards[].points[]` | ≤30 字 | **≤18 字** |
+| pyramid_layered_maturity_detail | `subtitle` | ≤60 字 | **≤56 字** |
+| stage_timeline_progress | `subtitle` | ≤60 字 | **≤50 字** |
+| stage_year_cards | `stages[].details[]` | ≤30 字 | **≤15 字** |
+| stage_year_cards | `stages[].heading` | ≤16 字 | **≤7 字** |
+| vision_goal_center_balance | `annual_goal` | ≤60 字 | **≤15 字** |
+| vision_goal_center_balance | `core_mission` | ≤60 字 | **≤11 字** |
+| vision_goal_center_balance | `kpis[].label` | ≤30 字 | **≤9 字** |
+| vision_goal_center_balance | `kpis[].value` | ≤12 字 | **≤9 字** |
+| vision_goal_center_balance | `projects[]` | ≤40 字 | **≤9 字** |
+| vision_goal_center_balance | `subtitle` | ≤60 字 | **≤50 字** |
+| vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
+| vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
+
+(共 43 個槽位;由 `template_admin.py` 依模板實際版位量測後寫入
+`engine/templates/light/manifest.json` 的 `capacity_overrides`,非人工填寫。)
+
+---
+
 ## 頁型選擇原則
 - 不確定用哪個頁型時(或 GPTs 替使用者代擬 JSON 時),依內容結構選最貼近的頁型:
   先看本檔 21 種,沒有合適的再翻 `page_types.md` 的「版型選擇原則」節挑選。

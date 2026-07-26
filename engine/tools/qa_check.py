@@ -137,6 +137,23 @@ def main(argv):
     if has_sections(prs):
         fails.append("殘留 PowerPoint Section 分組(style_guide 禁止)")
 
+    # autofit 框的容許高度:模板同一個框裝設計師原文時需要多高。
+    # light 有多處版位存檔框高小於原文所需(靠 PowerPoint 自動長高排版),
+    # 不放寬的話這些框每次都會誤報溢出——狼來了會蓋掉真的問題。
+    tpl_need = {}
+    if pack is not None:
+        try:
+            tpl = Presentation(str(pack.resolve_template()))
+            for pt, ent in pack.page_types.items():
+                pg = ent.get("template_page")
+                if ent.get("mode") != "fill" or not pg or pg > len(tpl.slides):
+                    continue
+                tpl_need[pt] = {s.shape_id: tt.estimate_overflow(s)["needed_pt"]
+                                for s in tt.iter_text_shapes(tpl.slides[pg - 1].shapes)
+                                if tt.shape_text(s).strip()}
+        except Exception:
+            tpl_need = {}   # 取不到模板就退回原本判準(只會偏嚴,不會漏報)
+
     # 逐頁:槽位文字覆蓋 / 頁碼 / 字體 / 溢出
     overflow_all = []
     for i, spec_slide in enumerate(spec_slides):
@@ -174,9 +191,16 @@ def main(argv):
             if not tt.shape_text(shp).strip():
                 continue
             est = tt.estimate_overflow(shp)
-            if not est["fits"]:
-                overflow_all.append((est["needed_pt"] / max(est["avail_pt"], 1), num,
-                                     shp.shape_id, tt.shape_text(shp)[:20]))
+            if est["fits"]:
+                continue
+            allow = est["avail_pt"]
+            if tt.has_autofit(shp):     # 框會自動長高:放寬到模板原文需要的高度
+                allow = max(allow, tpl_need.get(spec_slide.get("page_type"), {})
+                                            .get(shp.shape_id, 0))
+            if est["needed_pt"] <= allow * 1.08:
+                continue
+            overflow_all.append((est["needed_pt"] / max(allow, 1), num,
+                                 shp.shape_id, tt.shape_text(shp)[:20]))
 
     warns = list(dict.fromkeys(warns))  # 去重(字體警告易重複)
     # 溢出:先報總量與受影響頁,再列最嚴重前 5。**不可只印前 5 就當全部**——

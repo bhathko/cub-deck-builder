@@ -138,7 +138,12 @@ def estimate_overflow(shape, text=None, size_pt=None):
     lines = 0
     for hard_line in text.split("\n"):
         units = _char_units(hard_line)
-        lines += 1 if no_wrap else max(1, math.ceil(units / max(cap_em, 0.1)))
+        if no_wrap:
+            lines += 1
+            continue
+        # 折行數上限 = 字元數:窄到一行放不滿一個字的框(直排側標「優點」),
+        # units/cap_em 會算出比字數還多的行數。一個字最多佔一行。
+        lines += max(1, min(math.ceil(units / max(cap_em, 0.1)), len(hard_line) or 1))
     needed_pt = lines * size_pt * LINE_SPACING
     # 單行文字在 PowerPoint 不會被裁切(框高偏小只是視覺貼邊),不算溢出;
     # 真正的問題是換行後行數超出框高 → 文字溢到卡片外。
@@ -151,8 +156,25 @@ def estimate_overflow(shape, text=None, size_pt=None):
     }
 
 
+def has_autofit(shape) -> bool:
+    """框是否設了「自動調整」:spAutoFit=框長高貼合文字、normAutofit=PowerPoint 自己縮字。
+
+    這兩種框由 PowerPoint 自行消化溢出,我們不該再動字級——模板本身就靠它排版
+    (light p47 的說明框原文就要 3 行、比框高多 56%)。字級是設計過的,塞不下
+    要改稿或換版面,不是偷偷縮小一號。容量由 capacity_overrides 在閘門擋住。
+    """
+    bp = shape.text_frame._bodyPr
+    ns = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+    return bp.find(ns + "spAutoFit") is not None or bp.find(ns + "normAutofit") is not None
+
+
 def shrink_to_fit(shape, min_pt: float = 14.0) -> float:
-    """溢出時逐階(-2pt)縮小全部 run 字級,直到放得下或到 min_pt。回傳最終字級。"""
+    """溢出時逐階(-2pt)縮小全部 run 字級,直到放得下或到 min_pt。回傳最終字級。
+
+    autofit 框跳過(見 has_autofit)。
+    """
+    if has_autofit(shape):
+        return _first_run_size_pt(shape)
     size = _first_run_size_pt(shape)
     while size > min_pt and not estimate_overflow(shape, size_pt=size)["fits"]:
         size -= 2
