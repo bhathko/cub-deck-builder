@@ -60,10 +60,20 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 
 ## 跨平台約定
 
-同 outline-to-ppt:命令全部單行 python、相對路徑、正斜線,
-bash/PowerShell/cmd 原樣可跑;python/python3 名稱與 uv 渲染前綴依
-prepare_env 輸出代換;zip 一律 Python zipfile(POSIX 路徑),
-禁 `Compress-Archive`/檔案總管。
+同 outline-to-ppt:命令全部單行、相對路徑、正斜線,bash/PowerShell/cmd
+原樣可跑(**禁 `&&` 串接與反斜線續行**:PowerShell 5.1 不支援 `&&`,
+續行三種 shell 都會壞)。兩個代換:
+
+1. **直譯器名稱**:macOS/Linux 用 `python3`(mac 的 `python` 常只是 shell
+   alias,在腳本裡叫不到);Windows 用 `python`。
+2. **pptx 前綴**:碰 PowerPoint 檔的子命令(`new`/`freeze`/`golden`/`register`,
+   以及 inspect_template / render_deck / qa_check / wireframe_preview)要加
+   `uv run --with python-pptx python`(wireframe_preview 另需 `--with pillow`);
+   `lint`/`list`/`pack`/`isolation` 純標準庫,直接 `python3` 即可。
+   本機該用哪個,以 prepare_env 印出的「渲染指令前綴」那行為準。
+
+路徑含空格一律用**雙引號**(cmd.exe 不認單引號);zip 一律 Python zipfile
+(POSIX 路徑),禁 `Compress-Archive`/檔案總管。
 
 ## 步驟 0:環境準備(每次 session 先跑)
 
@@ -86,14 +96,17 @@ exit 0 才算就緒,未跑前不得對可行性下任何結論。
 `assets/` 並記入 manifest `asset_defaults`)。
 
 ```
-python engine/release/template_admin.py new --pptx <設計師給的路徑> --id corp_dark --name 企業深色風
+uv run --with python-pptx python engine/release/template_admin.py new --pptx "<設計師給的路徑>" --id corp_dark --name 企業深色風
 ```
+
+(路徑一律用雙引號包住——檔名含空格時不加引號會噴
+`unrecognized arguments`,訊息看不出是空格造成的。)
 
 ## 步驟 2:盤點與體檢報告
 
 ```
-python engine/release/template_admin.py freeze --id corp_dark
-python engine/tools/inspect_template.py --pptx engine/templates/corp_dark/template.pptx --summary
+uv run --with python-pptx python engine/release/template_admin.py freeze --id corp_dark
+uv run --with python-pptx python engine/tools/inspect_template.py --pptx engine/templates/corp_dark/template.pptx --summary
 ```
 
 把摘要翻成設計師語言的體檢報告(不貼原始輸出),例:
@@ -136,8 +149,10 @@ c. 全部確認後貼【最終映射總表】總確認一次,寫入 registration
 
 ```
 python engine/release/template_admin.py lint --id corp_dark
-python engine/release/template_admin.py golden --id corp_dark
+uv run --with python-pptx python engine/release/template_admin.py golden --id corp_dark
 ```
+
+(lint 純標準庫、不需前綴;golden 會 subprocess 起 render/qa,**前綴要加在最外層**。)
 
 FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
 `--page-types a,b` 省時,收尾必跑一次全量。可選配產線框示意輔助自查
@@ -168,7 +183,7 @@ FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
 ## 步驟 6:正式註冊 + 發佈提醒
 
 ```
-python engine/release/template_admin.py register --id corp_dark
+uv run --with python-pptx python engine/release/template_admin.py register --id corp_dark
 ```
 
 成功輸出 = status 翻 registered + 支援矩陣摘要。之後如實轉述腳本印出的
