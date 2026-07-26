@@ -1,966 +1,618 @@
-# WORKLOG — 決策紀錄(歷史檔)
+# WORKLOG — 決策紀錄(主題式)
 
-> **這份不是現況說明。** 想知道「系統現在長什麼樣」請看
-> [`ARCHITECTURE.md`](ARCHITECTURE.md);想知道「該怎麼操作」請看
+> **這份不是現況說明。** 想知道「系統現在長什麼樣」看
+> [`ARCHITECTURE.md`](ARCHITECTURE.md);「該怎麼操作」看
 > [`MAINTENANCE.md`](MAINTENANCE.md)。
 >
-> **用途**:記錄每個設計**為什麼**是這樣、當時否決了什麼、踩過哪些坑。
-> 這裡的「為什麼」在別處找不到——程式碼只告訴你「是什麼」。
+> **用途**:記錄每個設計**為什麼**是這樣、當時**否決了什麼**、後來**有沒有被
+> 推翻**、以及踩過哪些坑。這些在程式碼裡找不到——程式碼只說「是什麼」。
 > **讀者**:接手的 agent / 維護者。
 > **何時讀**:想改某個設計、但不確定它當初為何如此;想避免重犯已知的坑。
-> **不必為了理解現況讀它**——那是 ARCHITECTURE 的工作。
 >
-> **讀法**:章節是時間順序,越後面越接近現況。
->
-> | 想查什麼 | 看哪節 |
-> | --- | --- |
-> | 為什麼是 GPTs + 兩級閘門 | §1–§3 |
-> | 工具層與 fills 的由來 | §7 |
-> | 逐版演進(v1.4–v1.11)與兩次實測失敗 | §12–§17 |
-> | 本機 CLI 前端怎麼來的 | §18 |
-> | 多模板架構的四個 Phase | §20(§20.1–§20.4 是執行紀錄) |
-> | repo 重構的新舊路徑對照 | §21 |
-> | chart 頁型 | §22 |
-> | 文件整理 | §23 |
->
-> **歷史章節的路徑一律保留當時狀態**(如 `gpts/tools/`),不隨重構改寫——
-> 要對照現況查 §21 的對照表。
-> ⚠ 2026-07-20 深夜曾發生誤刪與重建,見 §11。
-
-## 0. 需求背景
-
-使用者的主管希望:設計師透過 ChatGPT 給 spec 就能產出 PPT,而且要包成 GPTs
-讓大家直接用。本 repo 原有一套 spec-first 管線(branch `feat/slide-spec-gate`):
-
-- 內容 SSOT `my_project/source/slides.md` → `my_project/slide_spec.json`
-  →〔`fallback/validate_slide_spec.py` 硬閘門,exit 0 才 render〕→ native-pptx。
-- 主力路徑(baoyu-slide-deck,Codex imagegen 圖生圖)**無法**搬進 GPTs:
-  公司政策生圖只准 Codex imagegen,且 GPTs 沒有等價工具。
-- 所以 GPTs 版移植的是 **fallback 路徑**(不生圖、全部 PowerPoint 可編輯物件,
-  不觸犯生圖政策)。
-
-## 1. 核心洞察(整個設計的支點)
-
-1. `validate_slide_spec.py` **只用 Python 標準庫** → 可以搬進 GPTs 知識庫,
-   由 Code Interpreter 實際執行。閘門因此是「真的會跑的程式」,不是 prompt 約束。
-   這是 GPTs 版與一般「叫 ChatGPT 做 PPT」的本質差異,對主管簡報時的賣點。
-2. `fallback/generate_review_deck.py` 是**寫死 10 頁的一次性腳本,不是通用
-   renderer**(甚至含硬編碼內容)。渲染端無現成資產可搬 → 先靠規則文件框住
-   模型現寫程式碼(v1.1),後來全面工具化(v1.2,見 §7)。
-3. repo 現狀:`page_types.md` 頁型庫有 40+ 種,但驗證器 `PAGE_TYPES` 只註冊 10 種。
-   這個落差是 repo 本來就有的,GPTs 版用「兩級閘門」處理(見 §3)。
-4. GPTs 的限制,影響設計的三條:
-   - 知識庫圖檔**沒有視覺理解** → `rendered_examples/` 58 張參考圖不上傳(無效),
-     版面保真改靠「用 python-pptx 讀 light_template.pptx 的形狀幾何/複製頁」。
-   - Code Interpreter 沙箱**沒有中文字體** → 無法產可靠預覽圖;pptx 本身沒問題
-     (檔案只存字體名稱,在使用者機器上正常)。
-   - GPTs **沒有跨對話記憶** → 回饋必須「規則化」寫回 instructions/knowledge
-     才會永久生效(README 回饋流程節的理論基礎)。
-
-## 2. 演進史
-
-### v0:slides.md 全流程版(已廢棄)
-照搬 repo 流程:使用者貼內容 → GPT 寫 slides.md → 產 spec → 驗證(含 provenance)
-→ 產檔。**廢棄原因**:使用者明確聲明定位——「所有檔案隨 GPTs 內建,使用者只給
-一份合規 JSON 就產出 PPT」。slides.md 是多餘的中間層。
-
-### v1:JSON 直供版(現行架構)
-- 輸入 = 使用者的 slide_spec.json,其他全部內建。
-- **取捨**:沒有 slides.md,provenance 追溯自動關閉(程式行為:找不到 → WARN +
-  略過)。合理化:JSON 是人寫的,內容正確性由撰寫者負責;閘門仍硬擋結構/數量/
-  字數/頁碼/素材。v1.4 起直供 JSON 必須以 `--slides` 明確指向本次獨一且已確認
-  不存在的路徑,不可因沙箱殘留 `/mnt/data/slides.md` 而誤開追溯。
-- `page_types_registry.md` 改寫成使用者導向的「slide_spec.json 撰寫指南」。
-- 絕對規則:GPT 不可增刪改使用者 JSON 的任何文字/數字;修正需展示差異取得同意。
-- **v1.3 內容模式**(使用者給大綱/段落):GPT 切頁選頁型 → 原文逐字存
-  slides.md → 產 spec → 驗證帶 `--slides` **重新開啟已註冊 slots 的來源比對** →
-  每頁摘要確認後才產檔。三條入口(合規 JSON/不合規 JSON 修正循環/內容模式)
-  收斂到同一個確定性出口。
-- **v1.4 一鍵大綱模式**(2026-07-21):`/outline-to-ppt` 將內容模式改成單次授權,
-  不再要求切頁或產檔確認;由獨立繁中 Knowledge workflow 使用 make_skeleton、
-  `--slides --registered-only --strict`、render 與 QA 一次完成。只允許十種註冊頁型,
-  來源不足時安全停止。
-
-### v1 內的兩次重要修正
-1. **模板生成方式**:light_template.pptx + 完整 page_types.md 加入知識庫;
-   版面以模板為準。
-2. **複製頁而非直接改模板頁**(使用者抓到的 bug):同一參考頁可能被多個 spec 頁
-   使用。規則:對每頁 spec 先 deepcopy 參考頁成新投影片(relationships 一併複製,
-   否則圖破),只在複本上改字;最後刪除所有模板原頁、清 Section、按 number 排序。
-
-## 3. 兩級閘門設計(為什麼驗證器要 fork)
-
-`knowledge/validate_slide_spec_gpts.py` 相對原 repo 版的刻意差異:
-1. 路徑改為 CLI 參數(`--spec/--slides/--asset-dir`,預設 /mnt/data)。
-2. **兩級閘門**:`page_type` 在 `PAGE_TYPES` 註冊(10 種)→ 完整槽位契約檢查;
-   未註冊但在 page_types.md 頁型庫 → 降級為 `generic_provenance()` 泛用檢查
-   (有 slides.md 時比對 slots 數字與文字;純 JSON 模式下實際只驗素材存在 + slots 為
-   dict)。數字實作是子字串查找,例如來源 `50` 可能誤讓輸出 `5` 通過;
-   `--registered-only` 可恢復嚴格頁型行為,但不會改變這個數字限制。
-   **動機**:不 fork 的話 40+ 種頁型全不能用。**代價**:未註冊頁型容量靠模型
-   自律,長期正解是把常用頁型補進 `PAGE_TYPES`。
-3. JSON 讀取用 utf-8-sig(容忍 Windows BOM,使用者上傳常見)。
-
-## 4. 檔案清單與角色
-
-見 `README.md` 的表格。特別說明:
-- `knowledge/`(11 檔)= 要上傳 GPTs 的;其餘留在 repo。
-- 檔案形式的判斷準則:**模型要讀的 → 獨立文件(走檢索);程式要讀的 →
-  可打包 zip(走沙箱檔案系統)**。assets.zip/tools.zip 因此打包(省檔位、
-  保留目錄結構、更新原子性),規則文件因此散放。
-- instructions 開頭埋版本字串(目前 `v1.11-20260721`),發版時更新。
-
-## 5. 早期風險(2026-07-20 實測後全數解除)
-
-1. ~~本機沒有 Python,可攜版驗證器從未實跑過~~ **已解除**:見 §7.1。
-2. ~~兩份手寫 example 未經驗證器實跑~~ **已解除**:01/03 皆 PASS。
-3. ~~light_template.pptx 內部結構未逐頁檢視~~ **已解除**:59 頁無 SmartArt;
-   25-27、31 頁含 chart(文字可換、圖表數據不可)。
-4. ~~deepcopy 複製投影片是最可能翻車的環節~~ **已解除**:固化成
-   `tools/pptx_toolkit.py` 的 `clone_slide()`,帶圖頁複製實測通過。
-5. **閘門是指示強制,非系統強制**:模型可能跳過驗證。緩解=要求貼 PASS 輸出;
-   ~~終極解=GPTs Actions 接自家 API~~(2026-07-21 確認 **Actions 因公司政策
-   禁用**,強制上限=沙箱內確定性腳本;v1.8 以 run_pipeline 單一入口緩解)。
-6. bad example 的違規點在「無 slides.md + 兩級閘門」下仍會 FAIL(實測 7 ERROR)。
-
-## 6. 同步鐵律(改規則時)
-
-> `gpts/knowledge/` 即單一真相來源,**三處同步**:
-
-1. `gpts/knowledge/validate_slide_spec_gpts.py` 的 `PAGE_TYPES`(真相來源)
-2. `gpts/knowledge/slide_spec.schema.json` 的 enum
-3. `gpts/knowledge/page_types_registry.md`(1 的人類可讀版)
-
-素材改版:改 `gpts/assets_src/` → 複製為名為 `assets` 的資料夾重打包
-`knowledge/assets.zip`(zip 內根目錄必須叫 assets,spec 路徑才成立)。
-工具改版:改 `gpts/tools/` → 重打包 `knowledge/tools.zip`。
-改完 → 重新上傳知識庫 → 更新 instructions 版本字串 → 跑驗收 → 記入
-FEEDBACK.md 發版。
-
-## 7. 工具層(v1.1,2026-07-20)
-
-六支腳本 + 速查卡放 `gpts/tools/`,打包成 `knowledge/tools.zip`。設計目標=
-「精準產出 + 省 token + 不進 QA 死循環」:
-
-- **模型唯一手產物 = render_plan.json**(v1.2 起僅未涵蓋頁型需要)。所有機械
-  動作(clone 含 rels 重映射、換字保留樣式、刪頁、排序、清 Section、頁碼、
-  內建版面)都在腳本裡。
-- **反循環機制**:render_deck 冪等——每次從模板整檔重生,錯誤一律回到
-  「改輸入的某一條」再重跑;不存在「刪壞頁補一頁」的累積損傷路徑。
-  qa_check 是產檔後第二道程式閘門,只印問題。
-- **省 token**:inspect_template 只准 --summary(一頁一行)或 --page N;
-  全量 dump 進檔案不進對話。README_TOOLS.md 是模型速查卡,鐵律寫死。
-- cover/agenda/closing 的 builtin 版面座標移植自 repo `generate_review_deck.py`
-  (頁碼改依 style_guide 用 28pt,repo 腳本的 14pt 與 style_guide 牴觸,
-  以 style_guide 為準)。
-- make_skeleton 從 validate_slide_spec_gpts import PAGE_TYPES(單一來源);
-  兩檔必須同在 /mnt/data 或父目錄。
-
-### 7.1 本機實測結果(2026-07-20,Python 3.14.6 + python-pptx 1.0.2)
-
-在 scratchpad 搭了模擬 /mnt/data 的沙箱,**整條工具鏈實測通過**:
-
-- 驗證器:repo 正例 PASS(追溯開)、壞例 FAIL(7 ERROR,含捏造數字);
-  examples 01/03 PASS;兩級閘門 WARN 如設計;make_skeleton 混合骨架直接 PASS。
-- 全流程:example 01(4 頁)→ render_plan(p3 clone 模板 17 頁,11 edits +
-  16 deletes)→ render_deck 一次 OK → qa_check PASS 零警告。逐頁驗過:
-  頁序/16:9/替換全中/佔位元素清空/模板頁碼清掉補 28pt/Section 移除。
-- clone 帶圖頁:模板第 11 頁(6 張圖)clone 兩次,重開後圖片 blob 完整可讀。
-- 錯誤路徑:UNMATCHED 與 AMBIGUOUS(撞 11 筆)都被抓住、訊息可操作、exit 1。
-- **模板事實**:共 59 頁,**全部無 SmartArt**;25-27、31 頁含 chart 物件
-  (工具只換文字,圖表數據替換未支援,用到時要回報使用者)。
-- 實測修掉的三個 bug:builtin 文字框漏設 0.06" 內距(補 `_tight_margins`);
-  estimate_overflow 誤報單行文字(改僅多行判溢出);JSON 帶 BOM 會炸
-  (三處讀取改 utf-8-sig)。
-
-### 7.2 fills 自動填充層(v1.2,2026-07-20)
-
-使用者確認「填入應由 script 而非 LLM 做」後實作:
-
-- **`tools/fills.py`**:10 種註冊頁型全部確定化。5 種(vision/info/data/
-  evaluation/pyramid)clone 對應模板頁(p14/17/29/33/54)後把 spec 槽位填進
-  **寫死的 shape id**(clone 保留原模板 id);5 種(cover/agenda/closing/
-  story/stage)為 render_deck 內建版面(story/stage 座標移植自 repo 腳本
-  Slide 7/9)。plan 從必要變**選配**。LLM 在註冊頁型的產檔流程中歸零。
-- 選 Python 填充函式而非 JSON DSL 對照表:刪元素、溢出併列、加高框這些邏輯
-  用程式碼表達自然得多,且對照表也是人工寫,DSL 只是多一層間接。
-- **實測**:10 頁完整範例(全部 10 種頁型)零 plan 一次 render OK,qa_check
-  PASS 零警告;4 頁 plan 路徑回歸通過。產出存 examples/demo_output_*.pptx。
-- 過程再修四件:qa 字體白名單(微軟正黑體=JhengHei 中文名、`+mn-ea` 等主題
-  參照、Noto Sans TC 模板原生);溢出估算跳過窄框直排設計(cap<1.6em);
-  vision 中心圓文字框加高;pyramid 帶上標籤 >6 字時刪框(右列仍呈現全文)。
-
-**最重要的維護風險——硬耦合**:fills.py 寫死了模板五頁的 shape id,與
-light_template.pptx 綁定。**模板改版(哪怕只是重存)可能改變 shape id** →
-FillError 或填錯框。設計上 FillError 會 exit 1,不會靜默產出錯檔。
-
-已知取捨(fills.py docstring 也有記):evaluation 2 方案時第三欄刪除但不
-重新置中;pyramid 4 層時刪頂層;模板分數籤/縮圖(契約無此欄位)一律刪除;
-recommended/recommendation 以底部一行呈現。
-
-## 8. 尚未做、可能的下一步
-
-**【已決策、待執行】fills 全面耦合計畫(2026-07-20 註記,等首輪實測後啟動):**
-- 決策一:渲染層**永不加隨機性**。多樣性來自頁型選擇,不來自 renderer;
-  隨機性會毀掉可重現性與回饋規則化。
-- 決策二:剩餘 ~34 種頁型分三級耦合,不一次做完:
-  (2026-07-25 註:多模板架構落地後,升級一律「按包」執行——寫該包
-  bindings.json 的 fill 條目 + 過 golden,以各包 FEEDBACK.md 分別計數;
-  見 §20.3/§20.4 與 TEMPLATE_PACKS.md。)
-  1. 純文字版型 ~28 種 → 標準套路可直接做;先做設計師圈選的高頻 5-8 種,
-     其餘看 FEEDBACK.md,同頁型出現 2 次 clone+plan 使用就升級成 fills。
-  2. 含 chart 的 4 種(模板 p25-27、31)→ 需 `chart.replace_data` 支援 +
-     spec 定義數據系列格式,獨立排程。
-     (2026-07-25 §22:引擎 chart op 已落地,p25 data_line_trend_comparison
-     已升級 fill;p26/27/31 依同模式按需升級。)
-  3. 含照片的頁型(p11 等)→ assets 機制已可載使用者上傳圖,需定義上傳流程。
-- 使用者計畫:2026-07-21 先實測目前版本(10 種自動頁型)的成效再決定批次。
-
-其他:
-- [ ] 第一次實際部署到 GPT Builder + 跑完驗收(工具鏈本機已全數實測通過,
-      但 ChatGPT 沙箱環境尚未驗過)。
-- ~~評估 GPTs Actions 方案~~(2026-07-21 否決:公司政策禁用 Actions,不再提議)。
-- ~~選配:wireframe_preview.py~~(2026-07-25 完成:`engine/release/wireframe_preview.py`,PIL+系統中文字型,本機目檢輔助;見 §21.1)。
-- ~~裝 git + 首次 commit~~(已完成:2026-07-21 起以 git 保護,見 commit 歷史)。
-
-## 9. 維護提醒(工具層)
-
-改 `gpts/tools/*` 之後必須重打包:
-`Compress-Archive -Path gpts\tools\* -DestinationPath gpts\knowledge\tools.zip -Force`
-再重新上傳 tools.zip 到 GPTs 知識庫 + 更新 instructions 版本字串。
-
-**light_template.pptx 改版時(最容易踩的雷)**:fills.py 寫死了 p14/17/29/33/54
-的 shape id。改版後必跑:
-1. `inspect_template.py --page N` 重盤點五頁,核對 fills.py 內的 id 常數
-2. 本機跑 examples 01 + 02(零 plan)→ render + qa 全綠
-3. 重打包 tools.zip、連同新模板一起重新上傳、更新版本字串
-
-## 10. repo 瘦身(2026-07-20)
-
-使用者確認全面轉向 GPTs 路線後,移除舊管線目錄:
-- 刪除:`.agents/`(baoyu Codex skill)、`fallback/`、`my_project/`。
-- 搬移:`my_project/assets` → `gpts/assets_src/`;`my_project/source/slides.md`
-  → `gpts/examples/02_full_10p.source_slides.md`(provenance fixture)。
-- 其餘可用資產已複製進 `gpts/knowledge/`。rendered_examples 參考圖隨
-  my_project 刪除(GPTs 對知識庫圖檔無視覺理解,無用途)。
-- 根目錄 `README.md`/`AGENTS.md`/`CLAUDE.md` 改寫為 GPTs 建置包定位;
-  同步鐵律由四處簡化為三處(見 §6)。
-
-## 11. 誤刪事故與重建(2026-07-20 深夜)
-
-- 事故:瘦身完成後,使用者誤按 Shift+Delete,`gpts/` 全數消失(繞過資源回收筒);
-  同時 repo 被還原成原始狀態(舊管線目錄回來了),連同瘦身前備份 zip 一起遺失。
-- 重建來源:①scratchpad 測試沙箱(AppData 下,未被波及)保有**全部 7 支工具
-  的實測最終版**、驗證器(缺 BOM/docstring 三個小修正,已補)、範例 01/02 spec、
-  兩份 demo 產出、模板頁盤點 JSON;②還原回來的 repo 提供 knowledge 所有源檔;
-  ③文件類(README/WORKLOG/instructions/registry/速查卡/FEEDBACK/範例 03)
-  由 Claude Code 從對話脈絡重寫。
-- 重建後已重跑完整回歸(validator 正反例 + 10 頁零 plan + 4 頁 plan + qa)確認
-  與事故前行為一致。
-- **教訓(必執行)**:①立刻裝 git(`winget install Git.Git`)並 commit;
-  ②每次重大變更後重做備份 zip 且放到 repo 外;③scratchpad 沙箱意外成為
-  第三份備份——但它是暫存目錄,不可依賴。
-
-## 12. 一鍵大綱轉簡報(v1.4,2026-07-21)
-
-實際使用發現,原本 v1.3 內容模式藏在長 Instructions 中,模型仍可能漏存
-`slides.md`、手寫錯 `render_page_number`,且使用者取得 JSON 後還要再下指令產 PPT。
-
-本版新增 `knowledge/outline_to_ppt_skill.md`、`/outline-to-ppt` 與未切頁測試來源
-`examples/05_outline_to_ppt_source.md`:
-
-- 使用者一次貼大綱即授權 JSON、validator、render、QA 與雙檔交付,不再中途確認。
-- 先用 `make_skeleton.py` 取得契約正確的頁碼、素材與槽位結構,再填入來源內容;
-  `PAGE_TYPE_LIST` 指定與呼叫放在同一個可執行區塊,每次替換範例 literal。
-- 強制 `--slides --registered-only --strict`,只用十種完整註冊頁型。每次 outline run
-  都覆寫本次完整來源與 `/mnt/data/slides.md`,禁止附加或沿用舊內容。
-- 直供 JSON 則以 `--slides` 指向本次獨一且確認不存在的路徑,搭配
-  既不加 `--registered-only` 也不加 `--strict` 的一般模式,刻意關閉追溯,避免
-  outline→JSON 混合模式繼承舊 `slides.md`,並保留兩級頁型與未註冊頁型 render plan
-  流程。缺來源與未註冊頁型 WARN 在此模式是預期結果；錯加 `--strict` 會把缺來源
-  WARN 升級成 ERROR,錯加 `--registered-only` 會硬擋未註冊頁型。
-- 缺少封面日期或報告人時省略 cover,不補值;來源不足就停止。
-- `assets.zip` 內含 `assets/`,所以解到 `/mnt/data`;`tools.zip` 的工具在 archive root,
-  所以先建立 `/mnt/data/tools` 再解到該目錄。封裝回歸必須使用解出的 renderer/QA。
-- validator 最多自動修正三輪,且只能改結構或來源支援的縮字/拆頁。QA 的成功條件
-  是 exit 0 且完整輸出**包含一行**以 `結果:PASS` 開頭;WARN 可以出現在 PASS 前。
-
-### 12.1 忠實度邊界
-
-validator 會程式化追溯已註冊頁型契約中啟用 provenance 的 `slots`,但不追溯頂層
-`slides[].title` 或 `deck.deck_name`;數字比對也有 `5` 可被來源 `50` 子字串誤滿足的
-限制。因此 v1.4 在 validator 前另做 prompt/workflow audit:
-
-- 每頁頂層 title 必須逐字來自本次對應來源區塊;closing 的 `Thank you` 例外。
-- `deck.deck_name` 等於第一頁非 closing 的來源支援 title,不再要求來源另列簡報名稱。
-- 遞迴盤點 deck name、title、slots 的數字 token 並做精確比對,`5` 不等於 `50`。
-- 唯一可獨立於來源的結構值是 agenda 順序編號、固定比較標題「改善前/改善後」與
-  closing 的 `Thank you`。`recommended`、`recommendation` 等語意建議不得豁免。
-
-這是工作流稽核,不是 validator 新增的程式保證;本版刻意遵守「不改 validator」約束,
-文件也不再宣稱完整 programmatic provenance 或所有捏造數字都由 validator 硬擋。
-
-### 12.2 驗收與發版狀態
-
-本機驗收必須包含:Knowledge 11 檔、archive 固定 hash、從僅複製 Knowledge packages/
-files 與測試輸入開始的正確路徑 bootstrap + strict validator/render/QA、QA WARN→PASS、
-既有 examples 預期 exits、outline→直供 JSON 隔離、title/deck 注入、精確數字與子字串
-限制,以及 fixture 05 不含 `## Slide` 或頁型/視覺方向指示。
-
-GPT Builder 則用 fixture 05 跑完整一鍵案例,並另跑缺封面欄位、封裝 bootstrap、
-QA 警告、mixed mode、title/deck 注入、精確數字、未註冊頁型壓力與來源不足案例。
-完成後才把日期、model/runtime、validator、QA、頁數與 warnings 寫回此節。
-
-2026-07-21 本機證據:靜態契約、Knowledge 11 檔與固定 archive hash 通過;全新暫存
-runtime 只放 Knowledge packages/files 與測試輸入後,依實際封裝層級解壓,strict
-validator、解出的 renderer 與 QA 完成 10 頁全流程。暫存頁碼 mismatch 讓 QA 先印
-1 個 WARN 再印 `結果:PASS`,exit 仍為 0。既有 examples exits 為 0/0/0/1;
-outline→直供 JSON 以不帶 `--strict` 或 `--registered-only` 的直供參數 exit 0 並顯示
-追溯關閉,未註冊直供正例 exit 0、`--registered-only` 負對照 exit 1;title/deck
-注入、`5` 對來源 `50` 的子字串限制與
-完全不存在的 `88` 皆依預期呈現 validator/workflow audit 邊界。這些都是本機證據,
-不取代 GPT Builder 驗收。
-
-**狀態:已在本機實作;GPT Builder 驗收待執行;尚未發布。**
-
-未修改 validator、schema、registry、renderer、template、tools 或 assets,因此不用重打包
-`tools.zip`/`assets.zip`;fixture 05 也不是 Knowledge,上傳數仍是 11。
-
-## 13. 草稿模式 + 環境自癒(v1.7,2026-07-21)
-
-### 13.1 背景:首輪實測失敗的診斷
-
-使用者實測 GPT 常在 `/outline-to-ppt` 中途宣稱「無法用你的工具產生」「腳本都在
-但沒有穩定的工具鏈」。診斷結論:**v1.5/v1.6 的修正(反拒絕規則 7、省略並繼續、
-正斜線重打包的 assets.zip、outline_to_ppt_skill.md)全部只存在本機工作區,從未
-commit、也未同步到 GPT Builder**;Builder 端跑的是舊版指示,失敗行為與舊版一致。
-GPT Builder 驗收始終未執行——踩到的正是唯一沒驗過的一環。同步 + 驗收是一切
-修正生效的先決條件;驗收前先問 GPT「你現在是哪一版?」核對版本字串。
-
-### 13.2 草稿模式(使用者定案的設計修正)
-
-使用者實務工作流是「先做出簡報結構、之後再補資料」,並明確定案:**補齊規格內容
-可以,硬底線是不能用提供的模板/頁型以外的東西**。原規則把「不得捏造事實」與
-「不得出現占位文字」綁在一起,導致缺日期/報告人/KPI 就省略頁面甚至整體停止。
-v1.7 拆開這兩件事:
-
-- **validator**:新增 `PLACEHOLDER_RE`(待補充/待確認/待定/TBD,不分大小寫)與
-  `strip_placeholders()`;兩條 provenance 路徑(註冊槽位 `validate_value`、未註冊
-  `generic_provenance`)都先剔除佔位符再做數字與 bigram 檢查,整格皆佔位符
-  (norm 後為空)則跳過追溯。字數上限、空值、結構檢查不變;佔位符以外的殘餘
-  文字照常嚴查,佔位符本身無數字,捏造實值仍被硬擋。
-- **skill**:「省略並繼續」改為「佔位並繼續」——cover 有主標題即可用,缺欄填
-  「待補充」;點名要求的圖表改以語意最接近的註冊頁型建頁、缺料欄填佔位符;
-  來源沒提及也沒點名的頁不得憑空建立;交付摘要必列「待補清單」。來源不足停止
-  收窄為「擠不出任何一頁有來源標題的內容頁」。`待填`(骨架記號,不得殘留)與
-  「待補充」(合法佔位符)明確區分。稽核例外清單加入佔位符。
-- **instructions v1.7**:新增規則 8(草稿優先、佔位不捏造、版型無例外);規則 7
-  加封殺「沒有穩定的工具鏈」話術;Step 0 改為**每次產檔前**檢查關鍵檔案,
-  沙箱中途重置導致檔案消失時重解壓即可,不得當成工具鏈故障。
-
-### 13.3 同步影響(v1.7 部分)
-
-validator 有改(佔位符白名單)→ 需重新上傳 `validate_slide_spec_gpts.py`;
-PAGE_TYPES 契約未動 → schema enum 與 registry 頁型節不需改,但 registry 補了
-佔位符使用說明。tools/assets 未動,不需重打包(assets.zip 稍早已因正斜線
-重打包,Builder 端仍需刪舊傳新)。發版時 Builder 需更新:instructions 全文 +
-validate_slide_spec_gpts.py + outline_to_ppt_skill.md + page_types_registry.md +
-assets.zip,共 11 檔照清單核對。
-
-## 14. 管線單一入口 + page_types 清理(v1.8,2026-07-21)
-
-前提:使用者確認 **GPTs Actions 因公司政策禁用**——伺服器端系統強制閘門永久
-出局,強制上限=Code Interpreter 內的確定性腳本。因此把「模型串多步」壓到最低:
-
-- **`tools/run_pipeline.py`(產檔單一入口)**:一條指令依序跑
-  audit_provenance → validator → render_deck → qa_check,任一階段非 0 即停。
-  模式自動判定:帶 `--slides` = outline 模式(自動 `--registered-only --strict`,
-  帶 `--source` 加開來源完整性檢查);不帶 = 直供 JSON(自動以 tempfile 產生的
-  獨一不存在路徑關閉追溯,不帶 strict)。`--validate-only` 供未涵蓋頁型先過
-  閘門再寫 plan;`--plan` 透傳給 render_deck。模型的工作塌縮成
-  「填 JSON → 跑一個指令 → 轉述報告」。
-- **`tools/audit_provenance.py`(稽核程式化)**:skill §4 原本靠模型自律的四項
-  稽核變成硬閘門——slides.md 逐行是原文逐字片段、頂層 title 逐字、deck_name=
-  第一內容頁 title、精確數字 token(實測「來源 50/輸出 5」validator 子字串放行、
-  本工具 exit 1 硬擋)。佔位符規則 import 自 validator(單一來源,同 make_skeleton
-  慣例:兩檔需同在 /mnt/data 或父目錄)。
-- **page_types.md 大掃除**:刪 49 行不存在的 `style_reference/rendered_examples`
-  參考圖引用;49 行來源模板改指向知識庫 `light_template.pptx` + inspect/plan 用法;
-  6 個已註冊頁型加「容量以 registry/validator 為準」標記防雙源漂移;**刪除
-  「可拼湊模板元素組新版面」舊管線授權**(牴觸規則 5 與使用者硬底線),改為
-  「選最接近頁型→仍不合就回報使用者」,並明寫工具只支援改字與刪除、不支援重排。
-- instructions v1.8:規則 6 要求用 CI 讀 skill **全文**(防知識檢索只回片段);
-  Step 2-5 併為管線入口流程。README_TOOLS 標準流程改為 run_pipeline 單指令;
-  skill §4/§5/§6 改為腳本稽核 + 管線執行。
-
-本機驗證:audit 正例 PASS;5-vs-50 與 title/deck_name 注入 exit 1;pipeline
-outline 模式 4/4 PASS(佔位符 spec 產出 3 頁)、直供模式 examples 01 3/3 PASS、
-04 停於 validator exit 1。tools.zip 需重打包(9 支腳本),Builder 需重傳
-tools.zip + page_types.md + outline_to_ppt_skill.md + instructions。
-
-**狀態:本機完成;GPT Builder 同步與驗收仍待執行。**
-
-## 15. 免指令觸發 + 修正循環防失智(v1.9,2026-07-21)
-
-使用者實測回報兩個體驗問題:
-
-1. **要記得打 `/outline-to-ppt` 本身就是失敗點**:忘了打就掉進逐步確認的內容
-   模式,體驗又變成「卡住」。v1.9 把路由反轉:貼大綱/段落文字=預設一鍵產檔,
-   `/outline-to-ppt` 降級為同義觸發詞;逐步內容模式改為「使用者明講要逐步確認」
-   才走。貼 JSON 與問問題的路由不變。
-2. **「一被擋下來就失智」的根因是規則自己寫的**:instructions 與 skill 都把
-   「閘門 FAIL」列為合法停止條件(「只有環境缺檔、來源不足或閘門 FAIL 才停止」),
-   模型看到 FAIL 就有理由直接停,三輪修正形同虛設。v1.9 修法:
-   - 停止條件改為「**三輪修正後**閘門仍 FAIL」;新增規則 8:FAIL 是修正循環的
-     入口,三輪內嚴禁宣稱無法繼續、跳關、把問題丟回使用者。
-   - README_TOOLS 新增「**錯誤→修法對照表**」:12 類常見錯誤(字數超限、項目數
-     不符、捏造數字、相似度低、缺必填、頁碼、素材路徑、audit 三類、UNMATCHED、
-     FillError)各對應唯一允許修法,模型照表操課,不必自己發明修法。
-     FillError 是表中唯一「不修、回報維護者」的錯。
-   - skill §5 修正輪要求逐條對照修法表;失敗回報的「閘門失敗」加註
-     「僅限已跑滿三輪」並要求列出各輪已嘗試修法。
-
-README 驗收新增:免指令貼大綱案例(與 /outline-to-ppt 前綴行為必須相同)、
-修正循環案例(刻意超字數 → 應自動縮短/拆頁重跑,不得宣稱無法繼續)。
-README_TOOLS 有改 → tools.zip 重打包;版本 v1.9-20260721。
-
-**狀態:本機完成;GPT Builder 同步與驗收仍待執行。**
-
-## 16. 首次 GPT Builder 實測與 v1.10 補丁(2026-07-21)
-
-首份真實對話證據(repo `gpts/feedback_evidence/2026-07-21-feedback01-builder-chat.txt`,餵 fixture 06 職場禮儀):
-
-**三個失敗行為**:①開場即拒絕——「我無法如實聲稱已完成那些專用內部流程」,
-然後**自行用 python-pptx 手寫程式碼產了一份簡報**(違反規則 2);②被使用者
-質問「妳沒有用腳本產嗎」後才完整背出正確流程;③「請照我們的流程生產」後
-又拋 A/B 選單問滿意度圖表頁怎麼處理——skill 早已定案(最接近註冊頁型+待補充),
-不該問。
-
-**三個好消息**:模型背得出 run_pipeline.py/audit_provenance.py(v1.8+ 知識檔
-上傳成功且可檢索);自述「已確認工具已成功解壓」(沙箱環境正常);手產內容
-保留全部數字並用了待補充(內容規則有讀入)。
-
-**診斷**:模型措辭「你所描述的內部工具流程」「你這個 GPT 所要求的那套」
-把流程當外部要求而非自身系統指示 → 強烈指向 Builder Instructions 欄位仍是
-舊版(知識檔有更新、指示沒貼)。驗證法:問「你現在是哪一版?」。
-新發現的拒絕變體:把「執行腳本」曲解成「被要求**謊稱**已執行」的誠信框架。
-
-**v1.10 補丁**(全部是指示層,工具未動、tools.zip 不需重打包):
-- 規則 7:明寫「真的執行+如實轉述輸出=沒有誠信問題」,封殺「無法如實聲稱」
-  拒絕框架。
-- 規則 2:手產簡報(python-pptx 等)=未經閘門的違規產物,一律不得交付;
-  「正要手寫產檔程式碼」本身就是漏跑流程的訊號。
-- 規則 6 + skill:一鍵流程禁拋 A/B 選項選單;規則已決定的事直接執行
-  (圖表無數據案例明寫「這是固定規則,不得詢問」)。
-- FEEDBACK.md 記入第一筆真實回饋(#1)。
-
-**狀態:待使用者確認 Builder 指示版本後,同步 v1.10 全套重測。**
-
-## 17. 第二次實測與 v1.11 補丁(2026-07-21)
-
-第二份對話證據(repo `gpts/feedback_evidence/2026-07-21-feedback02-builder-chat.txt`,FEEDBACK #2)暴露 v1.10 沒堵到的
-兩個新失敗簽名:
-
-1. **模型不知道知識庫檔案已掛載**:被要求用腳本時,反過來要使用者
-   「把工具資料夾上傳到這個對話」——run_pipeline.py 等就在它的知識庫;
-   直到使用者說「我有給妳呀」它才實際去 /mnt/data 看,然後全部找到。
-   → 根因:模型 context 裡看不到檔案清單,不實際 ls 就斷言「沒有」。
-2. **「缺 outline→spec 腳本」新藉口**:確認工具都在後,又以 tools.zip
-   沒有大綱轉 spec 的腳本為由,要使用者自己提供 slide_spec.json——
-   填骨架本來就是流程分配給模型的工作(規則 2 明列「代擬的 spec」),
-   它沒把兩件事連起來。
-
-**v1.11 補丁**(指示層,工具未動):
-- 開場段落前置鐵律(利用模型對開頭的注意力權重):所有工具自動掛載於
-  /mnt/data、使用者永遠不需上傳、嚴禁開口要求上傳;**說第一句話之前
-  必須先跑完 Step 0 貼輸出**,Step 0 前對可行性下任何結論一律違規。
-- 新規則 10:大綱→slide_spec.json 是模型份內工作,不存在也不需要
-  轉換腳本,嚴禁以此卡住或反要使用者提供 spec。
-- skill:環境節加「自動掛載/嚴禁要求上傳/先 ls 再說」;§3 開頭加
-  「填骨架=你的工作,沒有專用腳本」。
-
-**觀察**:兩輪實測的開場拒絕一模一樣,而 v1.10 規則 7 明文禁止該句式
-——若 Builder 已貼 v1.10 仍如此,下一步該查 GPT 是否跑在較弱模型、
-或 Builder 預覽視窗與已發布版本的指示不同步;若根本沒貼,先貼再測。
-驗證法不變:問「你現在是哪一版?」。
-
-**狀態:待確認 Builder 指示版本 → 同步 v1.11 全套 → 重測 fixture 06。**
-
-### 17.1 根因確認(2026-07-21,兩筆回饋結案)
-
-使用者把 GPT Builder 的 Recommended Model 指定為 **GPT-5.6 Pro** 後,fixture 06
-全流程「跑得很完美」。結論:FEEDBACK #1/#2 的失敗根因是**模型等級**——未指定
-模型時使用者端路由到輕量模型,其指令遵循與工具使用能力不足,產生整套失敗簽名
-(不看 /mnt/data 就宣稱做不到、誠信框架拒絕、手產替代、拋選單)。
-
-處置:README 建置步驟加「Recommended Model 務必指定最強可用模型」;
-v1.7–v1.11 的指示防線**保留不撤**——分享出去的 GPT 管不住每個使用者實際
-跑到的模型(降級/低階方案情境),這些規則是弱模型情境的防線,且指示總長
-僅 ~4.8k 字元,離 8000 上限尚遠,強模型帶著零成本。
-
-## 18. 第二前端:本機 Codex CLI skill(2026-07-24)
-
-需求:除了 ChatGPT GPTs,也要能在 Codex CLI 聊天窗貼大綱直接本機產 pptx。
-做法是**雙前端、單引擎**:新增 `.codex/skills/outline-to-ppt/SKILL.md`
-(repo 版為真相來源;同步安裝到 `~/.codex/skills/outline-to-ppt/` + 同名 zip),
-skill 只內聯環境差異與鐵律摘要,規則本體全部指回 `gpts/knowledge/` 與
-`gpts/tools/`——沒有第二份規則,GPTs 建置包(instructions、11 個知識檔、
-兩個 zip)一個位元組都沒動,對 GPTs 功能零影響。
-
-本機環境與 /mnt/data 的差異(已實測全綠:01_minimal 直供模式 3/3 PASS):
-
-- 工作/輸出目錄 = repo 根的 `ppt_out/`(gitignore),素材由 `gpts/assets_src`
-  複製為 `ppt_out/assets`;run_pipeline 以 `--template`/`--validator` 顯式指向
-  `gpts/knowledge/`,不需搬檔模擬 /mnt/data。
-- 系統 python3 沒有 python-pptx → skill 自動改用
-  `uv run --with python-pptx python`;make_skeleton 需
-  `PYTHONPATH=gpts/knowledge` 才 import 得到 validator 的 PAGE_TYPES。
-
-同步紀律入 AGENTS.md 硬規則 8:改 gpts 規則/工具 → 檢查 skill 摘要 →
-複製到 ~/.codex 並重打 zip。
-
-## 19. 文件結構整理(2026-07-24)
-
-結構評審(懸空引用/重複檔/命名)後的衛生修正,不動任何規則與工具:
-
-- **補回發版回歸**:README 引用的 `docs/superpowers/plans/2026-07-21-*.md`
-  從未進版控(規劃工具留在本機的檔案),新增 `gpts/REGRESSION.md` 取代,
-  R0–R8 全案例 2026-07-24 實測重建。過程中的發現:①02 範例
-  `deck_name=my_project` 會被 audit 擋——它是直供模式範例,保留原樣,回歸
-  改寫成「先驗稽核會擋、修 deck_name 後走完 4/4」;②數字 token 測資要挑
-  該頁區塊沒有的數字(50→5 在 fixture 02 會因「5 天」合法通過,改用 95→9)。
-- **刪除第三份範例副本**:`gpts/examples/slide_spec.example.json` 與 knowledge
-  正本 byte-identical 且 examples/README 未記載(`02_full_10p.json` 為有記載的
-  刻意複本,保留)。
-- **證據檔搬家**:`chat-output*.txt` → `gpts/feedback_evidence/2026-07-21-feedback0N-builder-chat.txt`,
-  FEEDBACK/WORKLOG 四處引用同步更新。
-- **根 README 本機驗證改指 .codex skill 與 REGRESSION.md**,消除與 skill 的
-  同工雙譜(配合 §18 的雙前端單引擎原則)。
-
-### 18.1 Windows(無 WSL)對策(2026-07-24)
-
-團隊 Windows 機器公司禁 WSL,只有 PowerShell/cmd。原本「bash 命令 + PowerShell
-轉換規則」的做法翻譯面太大,改為**把 shell 膠水也 Python 化**:skill 自帶跨平台
-`prepare_env.py`(標準庫),把工具鏈複製成 `ppt_out/` 沙箱(模擬 /mnt/data
-佈局,冪等覆蓋、排除 __pycache__),於是 make_skeleton 免 PYTHONPATH、
-run_pipeline 免 --template/--validator,**所有命令收斂成單行相對路徑 python
-呼叫,三種 shell 原樣可跑**,唯二差異(python/python3 名稱、uv 渲染前綴)由
-prepare_env 輸出提示。macOS 端全流程實測綠;原生 PowerShell 尚未實機驗證,
-首位 Windows 使用者回報即定案。
-
-## 20. 多模板架構設計定稿(2026-07-25,設計階段、未實作)
-
-使用者需求(§8 的延伸):設計師會持續加新模板、每次產檔只指定一種,
-且要能在本機 CLI「透過 prompt」註冊新模板。經全 repo 耦合盤點
-(約 76 處 light 專屬耦合,分四類:shape id 綁定/主題 token/幾何常數/容量數字;
-其中 render_deck 清除窗 11.2" 與 qa_check 偵測窗 11.0" 已互相不一致,
-證明模板知識散落程式碼不可持續)+ 三視角獨立提案(引擎重構/設計師體驗/
-打包營運)綜合定稿,設計全文見 **`gpts/TEMPLATE_PACKS.md`**(多模板架構的
-單一真相來源),配套 skill 草稿見 `.codex/skills/register-template/SKILL.md`
-(**未啟用**,其引用的工具是 Phase 2 交付物,Phase 2 落地且等價驗證
-全綠前不得安裝 ~/.codex)。
-
-核心決策(細節與否決理由見 TEMPLATE_PACKS.md):
-
-- **模板包公式**:模板知識全部收進 `gpts/templates/<id>/` 自足目錄
-  (manifest.json + bindings + page_map.md + inventory + assets);
-  語意契約(槽位結構)維持三處同步共用,容量以 manifest
-  `capacity_overrides`(扁平 dot-path,僅 min/max/max_chars)按包覆寫;
-  新增模板 = 加目錄,不改引擎。
-- **綁定表示法**:新模板一律固定 6-op 宣告式 bindings.json
-  (set/delete/rows/list/add_textbox/resize + keep 覆蓋宣告,自 fills.py
-  特例逐條歸納;表達力最終以 Phase 2 的 light 等價驗證為裁決),
-  由 fills_engine 解譯;表達不了 → 該頁型降級 clone,絕不在註冊對話中
-  擴詞彙表、絕不讓 LLM 現寫 Python。light 的 fills.py/BUILDERS 原封
-  grandfather 進包。
-- **支援矩陣三級**:fill(全自動)/clone(半自動)/unsupported;
-  部分支援是合法結局;builtin 僅 light 保留,新模板 cover/agenda/closing
-  必須是模板實頁走 fill。
-- **spec 選模板**:`deck.template`(省略=light,零破壞);CLI 與 spec
-  衝突 exit 2 硬錯。含 chart 頁禁註冊為 fill(lint 硬擋)。
-- **驗收公式**:golden fixtures(每頁型 min/max 兩變體,自 PAGE_TYPES
-  確定性派生、唯讀)+ 連跑兩次 shape 樹全等(冪等實證)+ 設計師目檢,
-  機器綠與人點頭缺一不可;註冊器原子性內含 light 回歸與 git diff
-  隔離白名單。
-- **打包**:每模板一包 template_<id>.zip;Knowledge 重整後 10 檔、
-  ≤19 紀律,容量約再 9 個模板;GPTs 端零註冊(沙箱無持久化),
-  註冊只在本機 skill。
-- **遷移**:Phase 0 light 包化零行為變(shape 樹 diff 為空;tools.zip
-  repo 端重打但 Phase 1 前禁上傳 Builder)→ Phase 1 引擎 manifest 化 +
-  Knowledge 換裝(含 prepare_env 擴充)→ Phase 2 fills_engine + golden +
-  雙 skill 上線(register-template 與 outline-to-ppt 多模板化同 Phase,
-  含 light 5 頁型 bindings.json 等價驗證)→ Phase 3 治理常態化。
-  AGENTS.md 條文草稿(SSOT 兩處/兩層同步/隔離/準入/檔數預算)隨對應
-  Phase 落地時才改。
-
-**狀態:設計完成;Phase 0 已執行,見 §20.1。**
-
-### 20.1 Phase 0 執行:light 包化(2026-07-25,零行為改變)
-
-- **新引擎件**(進 tools.zip):`fill_helpers.py`(自 fills.py 抽出
-  FillError/index_shapes/Ctx/fill_rows,+新整併 add_styled_textbox)、
-  `pack_loader.py`(包解析:CLI→spec deck.template→light,衝突即錯;
-  importlib 載入包 bindings)。
-- **light 包**:`gpts/templates/light/`——bindings.py(fills.py 全部 +
-  render_deck BUILDERS 及繪製小工具**原封搬入**)、manifest.json(53 筆
-  page_types:builtin 5/fill 5/clone 43,自 page_types.md 49 行來源模板行
-  程式化抽取;收編 style/asset_defaults/page_number 常數)、inventory.json
-  (五個綁定頁 shape 樹快照+sha256)、page_map.md、REGRESSION.md(R-L0~L2)、
-  FEEDBACK.md、examples/smoke_spec.json(=02 範例,10 頁全頁型)。
-- **render_deck.py**:刪 BUILDERS/import fills → pack dispatch;保留頁碼與
-  clone/plan 引擎;輸出加「模板包:light@版本」行;fills.py 刪除。
-- **設計偏差(已回寫 TEMPLATE_PACKS.md)**:①sha 不符在 freeze 工具
-  (Phase 2)落地前僅警告不硬擋(否則堵死 §9 試模板工作流);
-  ②prepare_env 擴充自 Phase 1 提前(REQUIRED+同步 gpts/templates →
-  ppt_out/templates;$RT 回歸環境同步補 templates 複製)。
-- **驗收全綠**:examples 01/02 重構前後 `inspect_template --all` shape 樹
-  **diff 為空**(等價實證)+ qa PASS;根 REGRESSION R0–R8 全符(R2a 停稽核、
-  R2b 4/4、R3 WARN 後 PASS、R4/R5 exit 1、R8 3/3);R-L0/R-L1 綠;
-  ppt_out 沙箱經 prepare_env 後渲染正常。tools.zip 重打
-  (−fills.py、+2 支,R7 基準已更新);**紅線:Phase 1 Knowledge 換裝前
-  不得上傳新 tools.zip 到 Builder**。~/.codex outline-to-ppt 已同步重打 zip;
-  register-template 依閘門未安裝。
-- 文件同步:AGENTS 規則 4 改指 bindings.py+lifecycle、CLAUDE 速覽、
-  README(十支腳本/維護節)、README_TOOLS、REGRESSION R0/R7。
-
-**下一步 = Phase 1(其餘工具接 manifest + deck.template + Knowledge 換裝)。**
-
-### 20.2 Phase 1 執行:引擎模板感知 + Knowledge 換裝(2026-07-25)
-
-- **檔案歸位**:`git mv` knowledge/light_template.pptx → templates/light/
-  template.pptx、gpts/assets_src → templates/light/assets_src。Knowledge 換裝:
-  −assets.zip −light_template.pptx +template_light.zip(pptx+manifest+bindings+
-  page_map+assets;assets_src 以 arcname assets/ 映射),共 10 檔(≤19 紀律,
-  餘 9 個模板位)。新沙箱佈局 = tools.zip → /mnt/data/tools、
-  template_<id>.zip → /mnt/data/templates/<id>,根目錄不再有 assets/ 與模板檔。
-- **五支工具模板感知**:validator(deck.template 解析、CLI/spec 衝突 exit 2、
-  capacity_overrides merge(dot-path 白名單 min/max/max_chars)、三級閘門
-  (unsupported ERROR 附支援清單/非全自動 WARN、--registered-only 升級)、
-  per-頁型 assets 鍵覆寫、素材存在性走包兜底、draft 包拒用);qa_check
-  (allowed_fonts+偵測窗讀 manifest,退回內建常數);make_skeleton(asset_defaults
-  /merged 容量/骨架寫入 deck.template/--list 三級/unsupported 拒產);
-  run_pipeline(單次解析四階段共用、模板檔預設=包內、前置檢查含 manifest、
-  pk 參數透傳);inspect_template --verify(inventory 漂移偵測 exit 1);
-  render_deck 頁碼幾何讀 manifest + --template-pack/--packs-root。
-  schema 加 deck.template。pack_loader 增 resolve_template(包優先、asset-dir
-  兜底)、fill_helpers.resolve_asset(順序由 manifest asset_resolution 宣告:
-  light=asset_dir 優先保相容,非 light 預設包優先防跨包遮蔽)、
-  load_bindings=False manifest-only 模式(make_skeleton 等純標準庫工具用,
-  修掉「載 bindings 即 import pptx」的隱性相依)。
-- **文件同步**:instructions v2.0-20260725(Step 0 解模板包+自證 id@version、
-  roster 行、page_map 查頁碼);outline_to_ppt_skill 環境清單新佈局;
-  page_types.md 結構拆分(49 行來源模板行移除,hex 描述以 light 基準註記
-  保留,逐句去品牌化延後 Phase 3);style_guide 兩層註記+修掉三處
-  style_reference 懸空路徑與「拼湊版面」舊授權(牴觸 v1.8 規則的殘留);
-  registry 加 deck.template 說明;README(包內檔案 10 檔/驗收/維護節)、
-  REGRESSION R0 改鏡射 GPTs 佈局、R7 換雙 zip 基準;AGENTS 規則 1(SSOT
-  兩處)/4/5 改寫與常用指令、CLAUDE 同步;白話說明與 examples/README 更新;
-  prepare_env 新源路徑(模板隨包,ppt_out 根不再放模板副本)。
-- **驗收全綠(2026-07-25 實測)**:新佈局 R0–R8 全符;examples 01/02 產出
-  shape 樹與 Phase 0 前基準**全等**(素材/模板全靠包解析,含無 assets/ 根
-  目錄的新佈局);顯式 "template":"light" 與省略全等;manifest 假值讀取證明
-  ×3(qa 假白名單 66 字體 WARN、make_skeleton 假 logo 路徑、validator 假容量
-  上限 3>2 ERROR,還原後 PASS);unsupported 拒產/拒驗、不存在包與 CLI/spec
-  衝突 exit 2;ppt_out 沙箱全流程 PASS;R-L0/R-L1 綠;inspect --verify 一致。
-- **狀態:本機完成;GPT Builder 換裝與驗收(README 驗收 1–8)待執行。**
-  發佈時 Builder 端:貼 v2.0 instructions、刪 assets.zip 與
-  light_template.pptx、上傳 template_light.zip 與新 tools.zip。
-
-**下一步 = Phase 2(fills_engine + golden + template_admin + 雙 skill 上線)。**
-
-### 20.3 Phase 2 執行:註冊工具鏈 + 雙 skill 上線(2026-07-25)
-
-- **fills_engine.py**(進 tools.zip):6-op 宣告式 bindings.json 解譯器
-  (set/delete/rows/list/add_textbox/resize + keep 覆蓋宣告;槽位路徑支援
-  索引/切片,list 支援 head/tail 對齊、成組刪除、overflow merge_into、
-  delete_when_empty)。pack_loader 接上:無 bindings.py 的包自動走宣告式。
-- **等價驗證(詞彙表最強實證)全數通過**:light 五種 fill 頁型以
-  bindings.json 重寫(存包內,與 bindings.py 並存、.py 生效),與 fills.py
-  產出 shape 樹**全等**——含 example 02 典型內容與 golden 全變體
-  (min 刪格路徑 + max 溢出路徑)。無頁型需留 grandfather 缺口;
-  light 是否切換宣告式留 Phase 3。過程中的兩個設計驗證:①lint 全覆蓋原則
-  抓出 p33「優點/待改善」隱含保留的結構標籤 → keep op 第一個實例;
-  ②模板頁碼框(清除窗內純數字)屬引擎 _finalize 職責 → lint 引擎豁免。
-- **template_admin.py**(gpts/release/,不入 tools.zip):註冊單一入口
-  new/freeze/lint(--all)/golden(--regen-specs)/register/pack(--tools)/
-  isolation/list。golden = merged 契約即時派生 min/max 每 fill 頁型兩變體
-  → validator(--allow-draft,新增旗標解 draft 雞生蛋)→ 渲染連跑兩次
-  shape 樹全等(冪等實證)→ qa → 目檢檔 ppt_out/golden_<id>.pptx;
-  register 原子性含 light 回歸與 isolation 白名單。
-  gpts/golden/ 存 20 份基準契約 fixtures(--regen-specs 派生,對註冊唯讀)。
-- **端到端演練(R9)**:lightcopy 假新模板從 new→manifest→freeze→register
-  全流程 exit 0(自身 golden 10 頁 PASS、light 回歸綠),同 spec 換
-  deck.template 兩包各 render+qa PASS。真實設計師模板待首位使用者。
-- **雙 skill 上線**:register-template 啟用並安裝 ~/.codex(banner 改
-  已啟用);outline-to-ppt 多模板化(指名模板 → make_skeleton
-  --template-pack、頁型候選按包全自動集合收斂、模式 B 由 deck.template
-  自動生效),GPTs 端 outline_to_ppt_skill.md 同步。README_TOOLS 錯誤表
-  加「頁型不受模板支援」列;README 新增「多模板發佈 checklist」節;
-  AGENTS 新增規則 9(綁定準入)/10(隔離與註冊入口)/11(Knowledge ≤19),
-  規則 8 擴及所有 skill;REGRESSION 新增 R9/R10。
-- **狀態:本機完成。**Builder 端仍待 Phase 1 的 v2.0 換裝驗收;
-  Phase 3(FEEDBACK 分模板營運、light 切換宣告式、fills 三級升級按包執行)
-  依 TEMPLATE_PACKS §8 常態進行。
-
-### 20.4 Phase 3 執行:治理常態化(2026-07-25)
-
-- **light 切換宣告式綁定**:pack_loader 合併語意定稿——BUILDERS 只能來自
-  bindings.py;FILLS 取 py 匯出非空者優先(grandfather),否則用
-  bindings.json。light 的 bindings.py 瘦身為 builders-only(五個 fill 函式
-  與 _P17/_P33/_P54 對照表移除,~300 行 Python 退役),fills 正式由
-  bindings.json 經 fills_engine 生效。驗收:examples 01/02 切換後 shape 樹
-  仍與 Phase 0 前基準**全等**;golden 10 頁 PASS(冪等雙跑);lint 完整性
-  檢查改為 bindings.json 存在即查(訊息同步改寫)。light 版本 bump
-  2026-07-25.2(manifest/INDEX/instructions roster 三處同步)。
-- **FEEDBACK 分模板營運**:根台帳加「模板」欄(light/<包id>/引擎/指示),
-  既有 #1/#2 歸「指示」;模板專屬回饋謄入各包 FEEDBACK.md,fills 升級
-  計數按包;§8 三級升級計畫加按包執行註記。
-- **pre-commit(選配)決策:不裝 hook**——isolation/lint 已入
-  README 發佈 checklist 與 REGRESSION R10,git hook 屬本機配置不進版控,
-  維持手跑紀律。
-- 多模板架構 Phase 0–3 至此全部落地;常態工作=按包升級 fills、
-  處理分模板回饋、等首位設計師真實模板走 register-template。
-  Builder 端 v2.0 換裝驗收仍待執行(README 驗收 1–8)。
-
-## 21. repo 重構:單引擎 + 兩個延伸應用(2026-07-25)
-
-使用者指出結構問題:引擎(工具/規則/模板包)全在 `gpts/` 底下,彷彿是 GPTs
-的附屬品——但「雙前端、單引擎」早是鐵律,目錄應反映它。重構對照:
-
-| 舊 | 新 |
+> **本檔於 2026-07-26 從時間序日記重寫為主題式**;每條決策後的 `§N` 是原始
+> 日記的章節號。原始時序版在 git history:
+> `git show 8fcc875:docs/WORKLOG.md`(或該 commit 之前任一版)。
+> 時間軸速查見文末附錄。
+
+## 決策索引
+
+| 想查什麼 | 一句話結論 | 在哪節 |
+| --- | --- | --- |
+| 為什麼不讓 AI 畫版面 | 版面零隨機是核心資產,多樣性只能來自頁型庫 | [2](#2-五條核心原則) |
+| 為什麼閘門擋不住「模型跳過驗證」 | 公司禁 GPTs Actions,強制上限就是沙箱腳本 | [1](#1-外部約束先讀這節)、[3](#3-閘門為什麼是兩級擋得住什麼擋不住什麼) |
+| 為什麼有些頁型是「半自動」 | 頁型庫 40+ 種但契約只註冊 11 種,不 fork 就全不能用 | [3](#3-閘門為什麼是兩級擋得住什麼擋不住什麼) |
+| 填充綁定為什麼從 Python 改成 JSON | 條件變了:單模板時 DSL 是多餘間接,多模板時它是安全邊界 | [4](#4-渲染層的三次翻轉) |
+| 為什麼新模板不能有 builtin 頁型 | builtin 是座標寫死的手工雕刻,錯誤面大且無法被 lint 覆蓋 | [5](#5-多模板架構) |
+| 為什麼 GPT 會「說做不到」 | 先查版本(指示層)→ 再查環境 → 最後才是模型等級 | [6](#6-與-llm-前端的攻防) |
+| 缺資料時為什麼是「待補充」而不是省略 | v1.7 翻轉:原規則把「不捏造」與「不留佔位」綁在一起,導致整體停止 | [2.4.1](#241-兩次翻轉輸入形態與缺料處理) |
+| 直供 JSON 模式到底驗了什麼 | 只驗結構/數量/字數/頁碼/素材,**內容真假完全沒驗** | [3.2](#32-閘門擋不住什麼誠實邊界) |
+| 圖表數據替換有什麼硬約束 | 純數字字串(保數字追溯)+ 值數必須等於時間點數 | [4](#4-渲染層的三次翻轉) |
+| 背景圖被壓縮過嗎?畫質有損嗎? | 11.28MB→1.36MB,alpha 為匯出 artifact,實質無損並經目檢 | [8.3.1](#831-動到設計師的素材要留下無損的證據) |
+| 為什麼本機 CLI 不自己寫一份規則 | 雙前端單引擎:規則本體只有一份,skill 只內聯環境差異 | [7](#7-雙前端單引擎) |
+| 改頁型契約為什麼要同步三個地方 | 三份定義不同步會出現「schema 過但 validator 擋」 | [8](#8-工程紀律) |
+| 為什麼 zip 打包要固定時戳 | 否則每次重打包 sha 都變,git 每次多一個 19MB blob | [8](#8-工程紀律) |
+| 踩過哪些坑、別再犯什麼 | 誤刪事故、chart part 共用、float 尾零… | [9](#9-事故與踩過的坑) |
+| 文件為什麼分成這幾份 | 現況/操作/為什麼/回饋四種問題,四份文件 | [10](#10-文件體系) |
+
+## 1. 外部約束(先讀這節)
+
+**很多決策只有放回當時的約束才看得懂。** 這些約束不是我們選的,是環境給的:
+
+| 約束 | 造成的設計後果 |
 | --- | --- |
-| gpts/tools/ | engine/tools/ |
-| gpts/knowledge/(8 個散檔) | engine/rules/ |
-| gpts/knowledge/(2 個 zip) | gpts/dist/ |
-| gpts/templates/、golden/、examples/、release/ | engine/ 同名目錄 |
-| gpts/REGRESSION.md | engine/REGRESSION.md |
-| gpts/{WORKLOG,FEEDBACK,TEMPLATE_PACKS,白話說明} | repo 根 |
-| gpts/(保留) | README(建置手冊)、instructions.md、dist/、feedback_evidence/ |
+| **公司政策:生圖只准 Codex imagegen**,GPTs 沒有等價工具 | 只能移植「不生圖、全部 PowerPoint 可編輯物件」的 fallback 路徑;主力的圖生圖管線整條搬不進來(§0) |
+| **公司政策禁用 GPTs Actions**(2026-07-21 確認) | 伺服器端系統強制閘門**永久出局**。強制上限 = Code Interpreter 內的確定性腳本 → 這是「把模型串多步壓到最低、做 run_pipeline 單一入口」的唯一理由(§5.5、§14) |
+| **公司禁 WSL**,Windows 機器只有 PowerShell/cmd | 所有指令必須單行、相對路徑、三種 shell 通用;shell 膠水全部 Python 化;禁 `&&` 串接與反斜線續行(§18.1) |
+| **GPTs 沒有跨對話記憶** | 對話裡糾正它只救這一次;回饋必須「規則化」寫回檔案才會永久生效——這是整個回饋流程的理論基礎(§1.4) |
+| **GPTs 知識庫圖檔沒有視覺理解** | 58 張渲染參考圖上傳無效,不上傳;版面保真改靠程式讀模板的形狀幾何(§1.4) |
+| **Code Interpreter 沙箱沒有中文字體** | 產不出可靠預覽圖;但 pptx 本身沒問題(檔案只存字體名稱)。溢出只能請使用者開 PowerPoint 人工看(§1.4) |
+| **GPTs 沙箱無持久化、Knowledge 唯讀** | 模板註冊工具鏈只能在本機,GPTs 端零註冊能力(§20) |
+| **Knowledge 檔數上限 20** | 素材與工具打成 zip 省檔位;守 ≤19 紀律,約可容 9 個模板包(§4、§20.2) |
+| **沙箱路徑固定 `/mnt/data`** | 驗證器路徑改 CLI 參數;`assets.zip` 內根目錄必須叫 `assets`(spec 路徑才成立);`tools.zip` 的工具在 archive root 所以要先建目錄再解(§3.1、§12) |
+| **驗證器必須零第三方依賴** | 只用 Python 標準庫,才搬得進知識庫由 Code Interpreter 實跑——這讓閘門是「真的會跑的程式」而非 prompt 約束(§1.1) |
+| **本機無 python-pptx 且不能全域安裝** | 渲染類指令一律 `uv run --with python-pptx python`;mac 的 `python` 常只是 shell alias,要用 `python3`(§18、§23.3) |
+| **使用者上傳的 JSON 常帶 Windows BOM** | 所有 JSON 讀取用 `utf-8-sig`(§3.3、§7.1) |
+| **分享出去的 GPT 管不住對方跑到哪個模型** | 弱模型防線不能因為強模型表現好就移除(§17.1) |
+| **改寫已 push 的歷史會逼團隊重新 clone** | 歷史瘦身必須使用者拍板,不能工程師自己決定(§23.2) |
 
-- **沙箱佈局(/mnt/data、ppt_out、$RT)完全不變**,GPTs 端零影響;
-  上傳清單同 10 檔(engine/rules 8 散檔 + gpts/dist 2 zip)。
-- 程式修正:make_skeleton 與 audit_provenance 的 sys.path 候選加
-  `_HERE.parent/"rules"`(repo 直跑免 PYTHONPATH,舊痛點正式消失);
-  template_admin 常數改 ENGINE/RULES/DIST + isolation 白名單改
-  engine/templates 與 gpts/dist;prepare_env 源路徑改 engine/。
-- 文件:機械掃替(特定路徑優先)+ 手改定位敘述(根 README/CLAUDE/AGENTS
-  改為「單引擎+兩延伸應用」;gpts/README 改為「引擎的 GPTs 延伸應用」);
-  WORKLOG 歷史章節路徑**不改寫**(如實保留當時狀態),以本節對照表為準。
-- tools.zip 因兩支腳本補路徑重打(R7 已更新);template_light.zip 內容未變。
-- 驗收:新佈局 R0–R10 全符;repo 直跑 audit/make_skeleton OK;
-  R2b 產出 vs 原始基準 shape 樹**仍全等**;prepare_env/ppt_out 正常。
+**模板事實**(light):共 59 頁、**全部無 SmartArt**;p25–27、p31 含 chart 物件
+(文字可換,圖表數據在 Phase 4 之前不可換)(§5.3、§7.1)。
 
+## 2. 五條核心原則
 
-### 21.1 小掃尾:page_types 去品牌化 + 線框預覽(2026-07-25)
+這五條是整個系統的支點,每一條都有具體的失敗經驗支撐,**不要輕易鬆動**。
 
-- **page_types.md 逐句去品牌化**(補 Phase 1 註記延後、Phase 3 漏執行的項目):
-  37 處色碼/rgba 全數改為語意色名(主色(綠)/輔色(紫)/輔色(藍)/深色(主文字色)
-  /次文字色/分隔線色),檔頭註記同步;light 的色名↔色碼對照表進該包
-  page_map.md 附註(機器真相仍在 manifest style)。自此共用語意庫零硬編碼
-  色值,新模板不再被 light 色票敘述誤導。
-- **wireframe_preview.py**(engine/release/,不入 tools.zip):pptx → 每頁
-  線框 PNG + overview 網格;系統中文字型自動偵測(PingFang/msjh/Noto,
-  無則退回豆腐)。golden 目檢輔助,實測 golden_light 10 頁結構可辨;
-  字級/溢出仍以 PowerPoint 開檔為準。
+### 2.1 渲染層零隨機
 
+**決定**:renderer 不得有任何隨機性或「AI 自由發揮」;多樣性只能來自頁型庫擴充。
+**為什麼**:隨機性會同時毀掉兩件事——可重現性(同一份輸入跑一萬次要一樣)
+與回饋規則化(GPTs 無記憶,回饋只能靠「寫成規則」生效;產出不穩就無法規則化)。
+**否決**:在 renderer 加隨機變化製造版面多樣性。(§8)
 
-## 22. Phase 4:chart 頁型支援(2026-07-25)
+### 2.2 兩道程式閘門
 
-WORKLOG §8 第二級的引擎落地 + 第一個 chart fill 頁型:
+**決定**:產檔前驗規格(validator)、產檔後驗結果(qa_check),任一沒過不得交付。
+**為什麼**:閘門是「真的會執行的程式」,不是 prompt 約束——這是本系統與一般
+「叫 ChatGPT 做簡報」的本質差異。前提是驗證器只用標準庫,才搬得進沙箱。(§1.1)
 
-- **詞彙表 v1.1(引擎版本事件)**:fills_engine 新增 `chart` op
-  (`chart.replace_data` 替換 categories + 1-2 系列;spec 端 values =
-  **純數字字串**,維持 validator 數字追溯;每系列值數必須等於時間點數,
-  渲染前 FillError 硬擋)與 set 的 `delete_if_missing` 修飾詞。
-- **clone_slide chart part 深複製**(pptx_toolkit):實測抓到的真 bug——
-  clone 預設共用 relationship 目標,同參考頁 clone 出的多頁圖表共用同一
-  chart part,第二次 replace_data 蓋掉第一頁(golden min/max 同值)。
-  修法:chart part 與內嵌 xlsx 逐頁複製(colors/style/userShapes 樣式件
-  照舊共用),rId 重映射。
-- **qa_check 圖表讀取**:讀 chart XML `<c:v>` 原文(系列名/類別/數值),
-  不走 plots API——float 轉換會吃掉尾零("22.0"→"22")造成 spec 比對誤殺
-  (實測抓到)。
-- **第 11 種註冊頁型 `data_line_trend_comparison`**(模板 p25,三處同步):
-  categories 6-10、series 1-2(name+values)、rows 2-3(heading+cells 3-5);
-  本頁型無 subtitle(版面無副標位)。light 綁定含:chart op、圖例群組
-  成組刪(1 系列時刪第二圖例)、三列說明區(rows[2] 選填以
-  delete_if_missing/delete_when_empty 收拾)、軸標籤刪除。
-  lint 的「chart 頁禁 fill」改為「每個圖表必須被 chart op 覆蓋」。
-- **驗收**:golden 12 頁 PASS(冪等雙跑;min=6×1 且第二圖例正確刪除、
-  max=10×2);真實內容 spec 全管線 3/3 PASS 且讀回數據正確;
-  值數不符與非數字值兩個錯誤路徑 exit 1;R0-R10 全符;
-  R2b 產出 vs 原始基準 shape 樹仍全等。light@2026-07-25.3。
-- p26(表格+柱狀)/p27(KPI 儀表板)/p31(雷達×3)依同模式按需升級
-  (雷達頁 3 個 chart = 3 個 chart op,詞彙表已支援)。
+### 2.3 修計畫,不修產出
 
-## 23. 文件系統化整理 + gitignore 擴充(2026-07-26)
+**決定**:render_deck 冪等,每次從模板整檔重生;錯了就改輸入的某一條再重跑。
+**為什麼**:禁止「刪掉壞頁再補一頁」這種增量修補——那條路會累積損傷,
+最後進入 QA 死循環。**否決**:對產出 pptx 局部修補。(§7)
 
-使用者回報:「.md 檔散落各處都有 README,看起來非常雜亂」。診斷後的三個真問題:
-①根目錄 7 個 .md 主次不分(入口/契約/決策史/設計/台帳/白話說明混在一起);
-②沒有總索引,新人不知道從哪讀起;③`gpts/README.md` 307 行混了 GPTs 建置手冊
-與**引擎級**維護內容(三處同步、發佈 checklist——那些不限於 GPTs 前端)。
+### 2.4 內容忠實:寧可留白,不可捏造
 
-- **新增 `docs/`**:治理文件從根目錄移入(WORKLOG、TEMPLATE_PACKS、FEEDBACK、
-  給設計師的白話說明);根目錄只留工具慣例要求的三個(README/AGENTS/CLAUDE)。
-- **新增 `docs/MAINTENANCE.md`**:從 gpts/README 抽出的引擎級維護手冊
-  (三處同步、重打包、模板改版、新增模板、發佈 checklist、版控紀律)。
-  gpts/README 瘦身 307→234 行,尾巴改為「同步紀律(GPTs 端)」並指回 docs。
-- **`docs/FEEDBACK.md` 併入「怎麼回饋才會真的變好」**(原在 gpts/README):
-  台帳與回饋方法終於同處,回報者只需讀一份。
-- **README 改寫為文件地圖**:「我該讀哪一份?」表格以**讀者情境**索引
-  (第一次接手/agent/要改規則/想懂架構/建 GPT/設計師/回報問題/跑回歸),
-  另附常用工作與引擎目錄速查。
-- **頁首統一三段式**(用途/讀者/何時讀):docs 四份 + engine/REGRESSION.md +
-  examples/README;`engine/rules/*` 與 README_TOOLS 刻意不加(它們是上傳
-  GPTs 給模型讀的知識檔,加 meta 只是浪費 context)。同名分層檔
-  (REGRESSION/FEEDBACK)頁首明確標示層級與另一份的位置。
-- **交叉引用全面掃替**(.md 與 .py docstring);WORKLOG 歷史章節路徑依 §21
-  慣例保留當時狀態,頁首補讀法說明。
-- **機器檢查**:markdown 相對連結 0 失效;孤兒文件偵測(無人提及的 .md)
-  0 筆——過程中補上 `06_workplace_etiquette_source.md` 的說明。
-- **重構遺漏修正**:R7 的 Knowledge 檔數檢查仍指 `engine/rules` 卻預期 10
-  (實際 8 散檔 + 2 zip),改為分開檢查並註明合計 10。
-- **.gitignore 擴充**:`~$*.pptx`(開 pptx 檢查版面時的 Office 鎖定檔,
-  最可能誤 commit)、Windows 產物(Thumbs.db/desktop.ini——團隊有 Windows
-  使用者)、macOS `._*`、Python 虛擬環境與快取、IDE 目錄、一般暫存。
+**決定**:使用者原文是唯一內容來源;缺料一律填「待補充」,絕不補值。
+標題必須逐字取自來源、數字必須在原文出現過(**原文 50 不能變成 5**)。
+**為什麼**:拿捏造的 KPI 去報告會出事,這是不可接受的失敗模式。
+**演進**:v1.3 起內容模式落地 `slides.md` 開啟逐字追溯;v1.8 再把稽核程式化
+(audit_provenance),因為「精確數字 token」validator 的子字串比對擋不住
+——實測「來源 50 / 輸出 5」validator 會放行,audit 硬擋。(§2、§12.1、§14)
 
-### 23.1 整理後的對抗性稽核與修正(2026-07-26)
+### 2.4.1 兩次翻轉:輸入形態與缺料處理
 
-三視角稽核(過時敘述獵人 / 新人導覽測試員 / 版控衛生稽核員)提出 42 項,
-逐條查證後修掉的重點——**其中多數是 Phase 2–4 累積的漂移,不是本次整理造成的**:
+**翻轉一:全流程版 → JSON 直供版(v0 → v1)**
+v0 照搬 repo 流程(使用者貼內容 → GPT 寫 slides.md → 產 spec → 驗證 → 產檔)。
+使用者定案的產品定位推翻了它:「**所有檔案隨 GPTs 內建,使用者只給一份合規
+JSON 就產出 PPT**」——slides.md 是多餘的中間層。
+代價:provenance 追溯自動關閉(見 §3.2)。
+配套的絕對規則:**GPT 不可增刪改使用者 JSON 的任何文字/數字**,
+需要修改時先展示差異並取得同意。
+**但 slides.md 後來回來了**:v1.3 內容模式為了重開逐字追溯,把原文落地成
+slides.md;v1.4 起每次執行都覆寫它。「多餘中間層」的判斷在需要 provenance
+時翻轉——**同一個東西,在不同輸入形態下價值完全不同**。(§2)
 
-- **上傳給模型讀的知識檔有錯(最高優先)**:`README_TOOLS.md` 標題寫「11 種
-  註冊頁型」卻只列 10 種(漏 Phase 4 的 data_line_trend_comparison),且說
-  「shape id 綁定在 bindings.py」(Phase 3 起實際是 bindings.json)。模型照
-  這份會把折線趨勢頁誤判成未涵蓋頁型而去寫 render_plan。
-- **環境檢查清單四處只列 `bindings.py`**(instructions Step 0、
-  outline_to_ppt_skill、REGRESSION R0):非 light 包規範上不得有 builtin、
-  只有 bindings.json,照舊清單檢查會誤判「環境缺檔」。已全部改為 bindings.json
-  (light 另有 builders-only 的 .py)。
-- **README 的三行上手命令實際跑不起來**(prepare_env 不會產生 slide_spec.json)
-  → 補上「拿一份現成 spec」那步並實測整條可跑。
-- **style_guide.md 還留著舊管線行為**:「先產逐頁預覽圖 → 停下來問使用者 →
-  才產正式 my_project.pptx」——與現行「不生圖、一鍵模式禁中途確認」直接打架,
-  且 my_project/ 早於 2026-07-20 移除。整節改寫為 run_pipeline 單一入口 +
-  交付判準;順帶清掉最後一處 style_reference 懸空路徑。
-- **golden fixtures 缺 Phase 4 頁型**:`--regen-specs` 沒在加 chart 頁型後重跑,
-  20 → 22 檔補齊(「契約漂移證據」對第 11 種頁型原本是空的)。
-- **R9 預期頁數過時**(10 → 12 頁,6 種 fill × min/max);gpts/README 工具表
-  漏 `fills_engine.py`、R0–R8 → R0–R10;抽章節後的懸空指向(gpts/README「見
-  下方維護節」、TEMPLATE_LIFECYCLE 指 gpts/README 維護節、examples/README 指
-  不存在的 engine/README.md);白話說明還在講已退役的 fills.py;
-  register skill 的 6-op vs 鐵律 7-op 自相矛盾。
-- **導覽補強**:README 表格補「被閘門擋下看 README_TOOLS」「要寫 spec 看
-  registry」「有哪些模板看 INDEX」三列,第一列改為有序三步;白話說明新增
-  「想換一整套版型?——新增模板包」一節(設計師只做三件事:交 pptx、
-  用嘴回答頁型、目檢點頭)。
-- **版控衛生**:
-  - **打包改為可重現**(`_zip_add` 固定 1980-01-01 時戳與權限):過去 zip 記錄
-    檔案 mtime,每次重打包 sha 都變 → git 每次多一個 19MB blob(歷史已累積
-    17 個 zip blob、125MB)。改完後「內容沒變 → sha 不變 → git 不產生新 blob」,
-    R7 的 sha 基準也終於等於「內容是否變動」。實測連打兩次 sha 相同。
-  - 新增 `.gitattributes`(`* text=auto eol=lf` + 二進位標記):團隊有 Windows
-    使用者,CRLF 會汙染 diff 也會讓 zip 位元組漂移。
-  - `.gitignore` 補錨定(`/ppt_out/` 等只忽略 repo 根)與 Windows/Office 項
-    (`.~lock.*#`、`ehthumbs.db`、`$RECYCLE.BIN/`、`*.lnk`、`*.stackdump`)。
-    實測 `git check-ignore` 對全部追蹤檔零誤傷。
-- **驗收**:R0–R10 全綠、golden 12 頁 PASS、lint --all 綠、R2b 產出 vs 原始
-  基準 shape 樹仍全等、README 三行命令實測 PASS、連結 0 失效、孤兒文件 0。
+**翻轉二:省略並繼續 → 佔位並繼續(v1.7)**
+原規則把「不得捏造事實」與「不得出現占位文字」**綁在一起**,後果是:
+缺日期/報告人/KPI 時,模型會省略該欄位、甚至省略整頁、甚至整體停止。
+使用者的實務工作流恰好相反——「**先做出簡報結構、之後再補資料**」。
+使用者定案的硬底線原話:「**補齊規格內容可以,硬底線是不能用提供的
+模板/頁型以外的東西**」。
+拆開後的機制:validator 有 `PLACEHOLDER_RE`,追溯前先剔除佔位符
+(「待補充/待確認/待定/TBD」)——整格皆佔位符就跳過追溯,
+佔位符以外的殘餘文字照常嚴查,**捏造實值仍硬擋**。
+**易混淆**:`待填` 是 make_skeleton 的骨架記號(**不得殘留**),
+「待補充」才是合法佔位符。(§13.2)
 
-**待使用者決定(未動)**:①`gpts/dist/*.zip` 是否改為 gitignore(打包已可
-重現,重要性大降,但 clone 後要跑一行 pack 才有可上傳的 zip);②歷史瘦身
-(`git filter-repo` 移除舊 zip blob 可讓 .git 從 ~190MB 降到 ~60MB,但**改寫
-已 push 的歷史**,團隊其他 clone 要重來);③`cover_bg.png` 11.3MB 偏大
-(1920×1080 + 去 alpha + oxipng 預估可降到 1MB 級,連帶 template.pptx、
-zip、demo_output 各省約 10MB),但那是設計師的素材,壓縮牽涉畫質。
+### 2.5 封閉 LLM 的輸出空間
 
-### 23.2 版控瘦身、素材壓縮與換裝操作稿(2026-07-26)
+**決定**:LLM 只做「決策」(選頁型、填哪個欄位),不做「執行」;
+所有機械動作(clone、換字、刪頁、排序、頁碼)都在腳本裡。
+**為什麼**:模型的自由度就是不確定性的來源。這條原則後來反覆出現在各處決定裡
+——make_skeleton 禁手打 JSON、註冊時 AI 只產 JSON 不產 Python、
+outline 模式禁現寫 Python。(§7、§20)
 
-使用者對 §23.1 留的三個開放問題定案後執行:
+**一條被撤銷的授權**:舊管線曾允許「拼湊模板元素組成新版面」。
+v1.8 撤掉它,理由是牴觸使用者硬底線,而且**工具本來就只支援「改字」與
+「刪除」,不支援移動或重排**——授權模型做工具做不到的事,只會得到幻覺。
+取代方案:選最接近的頁型 → 仍不合就回報使用者。
+以後若有人為了版面彈性重提「讓模型拼元素」,這就是反駁依據。(§14)
 
-- **打包可重現(前置)**:`_zip_add` 固定 1980-01-01 時戳與權限。實證價值在
-  瘦身後得到最強驗證——**瘦身後重新打包的 zip 與瘦身前位元組完全相同**,
-  sha 也與 R7 基準一致。意義:未來 zip 內容沒變就不會產生新 blob,
-  R7 的 sha 從此等於「內容是否變動」。
-- **cover_bg.png 壓縮**:4405×2477 RGBA(11.28MB)→ 1920×1080 RGB(1.36MB)。
-  決策前的技術查證:alpha 的極值雖是 0–255,但 alpha<255 的像素恰為 4,405 個
-  = 圖寬,即單一列的匯出 artifact,**移除 alpha 實質無損**;壓縮後與原圖
-  逐像素平均差異 0.03/255(並排對照已目檢確認一致)。連帶
-  template_light.zip 19M→9.2M、demo_output_01 15M→5.1M(demo 已重產)。
-  light bump 2026-07-26.1(素材改版屬包內容變更)。
-- **歷史瘦身**:`git filter-repo` 移除歷史中 22 個 zip/pyc blob(154MB),
-  **`.git` 230MB → 66MB**;重新 commit 現行 zip 後 76MB(省 67%)。
-  30 個 commit 完整保留、`git fsck` 無誤、非 zip 檔案零遺失。
-  移除路徑:`gpts/knowledge/{tools,template_light,assets}.zip`(舊佈局)、
-  `gpts/dist/{tools,template_light}.zip`(舊版本)、所有 `*.pyc`。
-  瘦身前已備份 bundle 與 .git 副本到 scratchpad(session 期間有效)。
-  **filter-repo 依其安全設計移除了 origin**,force push 由使用者執行
-  (見下方);GitHub 上的歷史在 push 前仍是舊的。
-- **新增 `gpts/DEPLOY.md`**:v2.0 換裝一頁操作稿——Step 0 本機確認 sha、
-  Step 1 貼 instructions、Step 2 **先刪** assets.zip 與 light_template.pptx
-  **再傳** 10 檔、Step 3 Capabilities/Model、Step 4 八條可直接貼給 GPT 的
-  驗收指令(含 Phase 4 圖表頁數據替換驗證)、Step 5 收尾。
-  README 文件地圖與 MAINTENANCE 發佈節都指向它。
-- 驗收:R1/R2b/R8/R10 全綠、golden 12 頁、`--verify` 盤點一致、
-  基準 shape 樹仍全等、瘦身後乾淨沙箱管線 PASS。
+## 3. 閘門:為什麼是兩級、擋得住什麼、擋不住什麼
 
-**待使用者執行(需遠端權限)**:恢復 origin 並 force push 改寫後的歷史;
-push 後所有 commit hash 會變,團隊其他 clone 必須重新 clone。
+### 3.1 為什麼驗證器要 fork 成兩級
 
-### 23.3 設計師動手教學(2026-07-26)
+repo 本來就有個落差:`page_types.md` 頁型庫有 40+ 種,但驗證器的 `PAGE_TYPES`
+只註冊 10 種(現為 11 種)。
 
-使用者要求白話說明補「檔案擺哪、下什麼指令」的教學。做法是先用 workflow
-**實際從零跑一遍註冊**(含中文檔名與空格這種設計師真實情境),再依真實輸出
-與錯誤訊息寫教學——文件裡每條指令與每則錯誤都是實測過的,不是憑印象寫。
+**決定**:註冊頁型走完整槽位契約檢查;未註冊但在頁型庫的頁型降級為
+「泛用防幻覺檢查」——**但這個降級的保護力取決於有沒有來源檔**:
+有 `slides.md` 時捏造數字 ERROR、相似度低 WARN(槽位數量/字數仍不受檢);
+**直供 JSON 模式下沒有比對基準,泛用檢查實際只驗素材存在 + slots 是 dict**
+(程式行為:`block=None` 時整個 provenance 直接 return)。
+**為什麼**:不 fork 的話 40+ 種頁型全不能用。
+**代價(明知而接受)**:未註冊頁型的容量靠模型自律。長期正解是把常用頁型
+補進 `PAGE_TYPES`——這就是後來「頁型升級」成為系統主要成長路徑的由來。(§1.3、§3.2)
 
-- **白話說明重構**:原「想換一整套版型」節加入**路線 A(交給管理者)/
-  路線 B(自己來)分流表**;新增「三件事別搞混」界線表——實走稽核指出原文
-  把三件事混成一句話是最大誤解來源:①交一整套新模板(設計師可自己發起)
-  ②讓某頁型在自己包裡變全自動(仍在精靈範圍)③發明全新語意頁型
-  (要工程師走三處同步)。判準寫成一句白話:「我的模板要支援某種頁型」
-  可以自己來,「這世界上要多一種頁型」不行。
-- **新增附錄 A0–A9(逐步指令版)**:開終端機(Mac/Windows 各自)→ 用拖曳
-  完成 cd → 模板檔不用搬(工具會自己複製,原檔不動)→ prepare_env 印出的
-  前綴怎麼看 → 五步指令表 → 判斷成敗的關鍵字 → 風險分級 → 「正常的紅字」
-  → 紅字三步驟 → 何時停手找管理者。
-- **實走抓到的真坑全部寫進去**:①路徑含空格不加引號 → `unrecognized
-  arguments`,訊息完全沒提空格(最容易卡死);②漏 uv 前綴 → 一整段
-  Traceback,只有最後一行有用;③剛 new+freeze 後 lint/golden **必紅**是
-  正常中繼狀態;④golden 有 ⚠ WARN 但仍 PASS,判準只看有沒有 `golden PASS`;
-  ⑤wireframe_preview 的前綴多 `--with pillow`;⑥`--id` 只吃小寫英數底線。
-- **順手修 register-template SKILL.md 的真 bug**:四個指令區塊全是裸
-  `python …`,設計師照抄在 mac 必失敗(mac 的 `python` 常只是 shell alias,
-  且 new/freeze/golden/register 需要 python-pptx)。已補上 uv 前綴與雙引號,
-  跨平台約定改寫為「直譯器名稱 + pptx 前綴」兩條明確代換規則,並加註
-  禁 `&&` 串接與反斜線續行(PowerShell 5.1 不支援)。
-- 順手修白話說明過時數字(半自動 40 → 42 種)。
-- **驗收**:教學裡每條指令以暫存 packs-root 實跑一次,輸出與文件逐字相符
-  (含兩則「正常的紅字」與 id 不合法);連結 0 失效、MD060 0;repo 未被污染。
+### 3.2 閘門擋不住什麼(誠實邊界)
 
-### 23.4 文件再整理:現況與歷史分家(2026-07-26)
+- **直供 JSON 模式沒有來源追溯**,而且是**刻意關掉的**:v1.4 起要求以
+  `--slides` 指向「本次獨一且確認不存在」的路徑,避免沙箱殘留的
+  `/mnt/data/slides.md` 誤開追溯、讓上一輪的來源污染這一輪。
+  合理化理由是「JSON 是人寫的,內容正確性由撰寫者負責」——**但這代表
+  直供模式下,擋的只有結構/數量/字數/頁碼/素材,內容真假完全沒驗**。(§2、§12)
+- **擋不住模型跳過驗證**:閘門是「指示強制」不是「系統強制」。原本的終極解是
+  GPTs Actions 接自家 API,**2026-07-21 確認公司政策禁用,永久出局**。
+  緩解:要求模型貼出 PASS 輸出 + v1.8 的 run_pipeline 單一入口
+  (步驟數是卡死率的分母)。(§5.5、§14)
+- **validator 的數字比對是子字串**:來源有 `50` 時,輸出 `5` 會被放行。
+  這是 v1.4 自我設下「不改 validator」約束的後果,由 v1.8 的
+  audit_provenance 用「精確 token 比對」補上。**回歸測資要注意**:
+  挑數字時要挑該頁區塊沒有的(50→5 在某 fixture 會因「5 天」合法通過,
+  改用 95→9)。(§12.1、§14、§19)
+- **validator 不追溯頂層 `title` 與 `deck_name`**:同樣由 audit 補。(§12.1)
+- **溢出偵測是 CJK 啟發式**:機器綠不保證視覺不爆框,所以驗收一定要人開檔看。
 
-使用者回報「完全不知道要看哪份 document」,並指出「推導過程可以整理成現有
-架構」。診斷:`TEMPLATE_PACKS.md`(460 行)混了三種東西——設計藍圖(現況)、
-AGENTS 條文草稿(已全部併入 AGENTS,純歷史)、Phase 0–4 遷移計畫與執行註記
-(已全部落地,純歷史);WORKLOG 則從頭到尾是推導過程,卻沒說清楚「別拿它
-當現況」。結果是想知道「現在長什麼樣」的人,得在遷移史裡自己挖。
+### 3.3 FAIL 是修正循環的入口,不是停止條件
 
-- **新增 `docs/ARCHITECTURE.md`(324 行)= 現況說明**:三層結構、產檔管線、
-  頁型兩級與模板三級、模板包與 manifest、bindings 與 op 詞彙表、選模板規則、
-  驗收與註冊工具鏈、已知限制。**刻意不含設計辯論與演進史**。
-  §6 原本是「逐支工具改動清單」(遷移產物),改寫成「各工具的模板感知行為」
-  表;全檔清掉 Phase 語氣(`grep Phase` = 0)。
-- **刪除 `docs/TEMPLATE_PACKS.md`**:現況部分入 ARCHITECTURE,
-  §7 條文草稿與 §8 遷移計畫已由 AGENTS.md 與本檔 §20.1–§20.4 承載,不再重複。
-  全 repo 20+ 處引用機械更新,**章節號同步對照**(舊 §1/2→§4、§3→§5、
-  §4→§6、§5→§7)。
-- **WORKLOG 頭部改寫**:第一句就是「**這份不是現況說明**」,並指路
-  ARCHITECTURE(現況)與 MAINTENANCE(操作);加「想查什麼 → 看哪節」對照表。
-  內容一行未刪——歷史紀錄的價值就是完整,刪了無法復原判斷脈絡。
-- **新增 `docs/README.md`(31 行)= 文件索引**:一句話分工
-  (架構/操作/為什麼/回饋)、第一次接手的閱讀順序、以及「這幾份的邊界」
-  (避免找錯地方)。
-- 驗收:連結 0 失效、孤兒 0、MD060 0;工具鏈 lint/render 正常。
+**背景**:v1.9 之前,instructions 把「閘門 FAIL」列為合法停止條件,
+模型看到 FAIL 就有理由直接停,三輪修正形同虛設。
+**決定**:停止條件改為「**三輪修正後**仍 FAIL」;並在 README_TOOLS 建立
+「錯誤→修法對照表」,每種錯只有一種允許的修法,模型照表操課不必自己發明。
+**唯一例外**:註冊頁型出現 `FillError` → 不修,停止並回報維護者
+(那是模板改版問題,不是輸入問題)。(§15)
 
-**四份治理文件的定位自此明確**:ARCHITECTURE=現在長什麼樣、
-MAINTENANCE=怎麼做、WORKLOG=為什麼(歷史檔)、FEEDBACK=哪裡不對。
+### 3.4 介面決策:「使用者要記得做某件事」本身就是失敗點
+
+v1.4 的一鍵大綱模式要打 `/outline-to-ppt` 才會觸發。實際使用發現:
+**忘了打就掉回逐步確認模式,體驗又變成「卡住」**——而「要記得打指令」
+這件事本身就是失敗點。
+
+v1.9 把路由反轉:**貼大綱 = 預設一鍵產檔**,`/outline-to-ppt` 降級為同義
+觸發詞(打不打都一樣),v1.3 的逐步確認模式改為「使用者明講要逐步確認」
+才走。這個原則可以外推:**任何依賴使用者記得某個步驟的設計,都要問一句
+「忘記的時候會怎樣」**。(§15)
+
+## 4. 渲染層的三次翻轉
+
+這是整份紀錄裡最值得讀的一章——**同一個問題,判斷隨條件改變翻轉了兩次**。
+
+### 第一次:模型現寫程式碼 → Python 填充函式(v1.1 → v1.2)
+
+**起點**:渲染端沒有現成資產可搬(`generate_review_deck.py` 是寫死 10 頁的
+一次性腳本,含硬編碼內容),所以 v1.1 先靠規則文件框住模型「現寫程式碼」。
+**推翻它的理由**:使用者定案「填入應由 script 而非 LLM 做」。v1.2 建 `fills.py`,
+10 種註冊頁型全部確定化,**LLM 在註冊頁型的產檔流程中歸零**,
+render_plan 從必要變選配。(§1.2、§7、§7.2)
+
+### 第二次:Python 填充函式 → 宣告式 JSON 綁定(v1.2 → Phase 2)
+
+v1.2 當時**明確否決過 JSON DSL**,理由白紙黑字:「刪元素、溢出併列、加高框
+這些邏輯用程式碼表達自然得多,且對照表也是人工寫,DSL 只是多一層間接」(§7.2)。
+
+**Phase 2 推翻了它**,理由是**條件變了**:
+
+- 單模板時,DSL 確實是多餘的間接層(只有一份綁定,誰寫都一樣)。
+- 多模板時,綁定變成「**每個新模板都要新增一份**」,而且是**註冊對話中由 LLM
+  生成**的。此時 JSON 與 Python 的差別不再是表達力,而是**信任面**:
+  JSON 是資料、Python 是可執行碼,且後者隨 zip 進 GPTs 沙箱執行。
+- 這也與「封閉 LLM 輸出空間」原則一致(§2.5)。
+
+**表達力怎麼證明夠用**:不是用嘴保證,而是把 light 五種 fill 頁型以宣告式重寫,
+與原 Python 實作產出的 shape 樹**逐 shape 全等**(含最少/最滿兩變體)。
+**否決的替代方案**:每模板一個 Python bindings.py(審查成本隨模板數線性成長);
+混合式(宣告式 + Python 逃生口)——實測 5 個 fill 函式**每個**都含至少一項
+需要逃生口的特例,逃生口使用率會是 100%,等於 Python 加一層儀式。(§20、§20.3)
+
+### 第三次(局部):詞彙表擴充是「引擎版本事件」
+
+**決定**:op 詞彙表固定;**表達不了 = 該頁型降級 clone**,不是擴詞彙表。
+擴充只能由工程師做,且要對全部已註冊包跑回歸。
+**為什麼**:如果註冊對話能擴詞彙表,那「封閉輸出空間」就破功了。
+v1.1 加 `chart` op 就是照這個流程走的(§22)。
+
+**chart op 的契約與它的理由**(這些約束不是隨便定的):
+
+- **spec 端的數值是「純數字字串」**(如 `"42.5"`,禁單位與 `%`)——
+  這樣 validator 的數字追溯才管得到它(數字若包在單位裡就比對不了)。
+- **每個系列的值數必須等於時間點數**,渲染前 FillError 硬擋——
+  數量不一致產出的圖表會靜默錯位。
+- 同時**翻轉了一條 lint 規則**:多模板定稿時原本明訂「含 chart 頁**禁**
+  註冊為 fill」(當時引擎沒有 chart 能力,fill 了等於「文字換了、圖表數據
+  沒換」的靜默捏造源);chart op 落地後改成「**每個圖表必須被 chart op
+  覆蓋**」,未覆蓋才擋。禁令的目的從來不是禁 chart,而是禁靜默捏造。(§20、§22)
+
+### 這章的教訓
+
+**別把「當時的正確」誤讀成「永遠的正確」。** §7.2 否決 DSL 的理由在當時完全成立;
+翻轉它的不是「原本想錯了」,而是「多模板讓成本結構變了」。
+以後再遇到類似判斷,先問:**當初那個理由的前提還在嗎?**
+
+## 5. 多模板架構
+
+### 5.1 為什麼要重構(問題的規模)
+
+需求是「設計師會持續加新模板,每次產檔只指定一種」。動工前先做了全 repo
+耦合盤點:**約 76 處 light 專屬耦合**,分四類——綁定(shape id、頁碼)、
+主題 token(色票、字型、字體白名單)、幾何常數(頁碼框/偵測窗、logo 位置)、
+容量數字(max_chars、清單上下限)。
+
+其中一個發現特別能說明「散落的常數為什麼不可持續」:**render_deck 的頁碼清除窗
+用 `>11.2"`、qa_check 的偵測窗用 `>11.0"`——兩者早就不一致了**,只是單模板下
+沒人發現。收進 manifest 時刻意保留兩個值(精確保存現行行為,不趁改制偷改)。(§20)
+
+### 5.2 公式與界線
+
+**公式**:把模板知識從引擎抽離,收進「一模板一目錄」的自足模板包;
+引擎只認 manifest,語意契約跨模板共用,綁定資料每包各自持有——
+**新增模板 = 加一個目錄,不改引擎**。
+
+**界線(三件事別混)**:①交一整套新模板(設計師可自己發起)②讓某頁型在自己
+的包裡變全自動(仍在註冊精靈範圍)③發明新的語意頁型(要工程師走三處同步)。
+白話判準:「我的模板要支援某種頁型」可以自己來,「這世界上要多一種頁型」不行。
+
+**為什麼要有這條界線**:語意契約跨模板共用是「同一份 spec 換 `deck.template`
+就換皮」的前提;讓模板包能自己新增頁型,契約就碎片化了。(§20)
+
+### 5.3 幾個關鍵取捨
+
+- **新模板不得有 builtin 頁型**(builtin 只保留給 light 作 grandfather)。
+  builtin 是座標寫死的手工雕刻(cover 的寬度估算、agenda 的 spacing 公式),
+  錯誤面大且無法被 lint 覆蓋;fill 模式與設計師的工作方式一致
+  (在 PowerPoint 裡改版面,不是在 Python 裡調座標)。**代價**:新模板的
+  封面/目錄/封底必須在 pptx 裡真的有那幾頁。(§20)
+- **CLI 與 spec 的模板指定衝突 → exit 2 硬錯**,不靜默擇一。
+  沉默優先會讓「同一份輸入在不同跑法產出不同結果」,牴觸確定性。(§20.2)
+- **部分支援是合法結局**:支援矩陣分 fill/clone/unsupported 三級,
+  不逼新模板支援全部頁型——否則多數真實模板永遠註冊不完。(§20)
+- **素材解析順序刻意不對稱**:light 走「asset_dir 優先」(保既有 spec 相容),
+  非 light 包走「包內優先」(防跨包素材遮蔽——沙箱裡 asset_dir 永遠有 light 的
+  assets/,若統一成 asset_dir 優先,新包的素材檢查會靜默解到 light 的檔)。
+  由 manifest 的 `asset_resolution` 宣告。**別為了「統一」把它改成同一種**。(§20.2)
+- **明知而接受的視覺瑕疵**(fills 時代就有,現在仍在):evaluation 只有 2 個
+  方案時第三欄刪除但**不重新置中**(右側留白);pyramid 4 層時刪頂層。
+  修它們的成本高於收益,但要知道它們是刻意的、不是 bug。(§7.2)
+- **規則衝突的裁決先例**:builtin 版面座標移植自舊 repo 腳本,但頁碼字級
+  舊腳本是 14pt、style_guide 是 28pt → **以 style_guide 為準**。
+  兩份來源打架時,以「規範文件」而非「既有實作」為準。(§7)
+- **light 遷移全程零行為改變**,而且是用機器證明的:examples 產出的
+  shape 樹與重構前**逐 shape 全等**(pptx 二進位含 zip 時戳不可比,
+  所以比 shape 樹而非 byte)。這條驗收貫穿 Phase 0–4,每個 Phase 都跑。(§20.1–§20.4)
+
+### 5.4 驗收機制:機器綠 + 人點頭,缺一不可
+
+- **golden fixtures**:每個 fill 頁型兩份 spec(最少內容測刪格路徑、
+  最滿內容測溢出路徑),**自契約確定性派生**、進版控、對註冊流程唯讀
+  ——「不得為了過驗收改考卷」。
+- **冪等實證**:golden 會連跑兩次比對 shape 樹全等——把「零隨機」從信仰
+  變成每次都跑的回歸案例。
+- **register 原子性**:lint → golden → **light 回歸** → isolation,
+  全綠才翻 `registered`;而且不信任先前的綠燈,每次重跑。
+- **假值注入**:改 manifest 塞三個假值(假字體白名單、假 logo 路徑、
+  假容量上限),確認 qa/make_skeleton/validator 的行為**跟著變**,再改回來
+  ——這是「證明程式真的在讀 manifest,而不是還在走硬編碼」的唯一方法。
+  重構時最容易出現的假象就是「改了設定但程式其實沒讀」。(§20.2)
+- **人點頭不可省**:qa 的溢出是 CJK 啟發式,機器綠不保證視覺不爆框。(§20.3)
+
+## 6. 與 LLM 前端的攻防
+
+這章記錄的是**模型不照規則走時的失敗簽名與對應防線**。價值在於:
+下次看到類似症狀,先查這裡而不是重新推理。
+
+### 6.0 更早的一次失敗:根因完全不同
+
+在模型等級那件事之前,還有一次失敗,**根因是「本機改完 ≠ 線上生效」**:
+v1.5/v1.6 的修正只存在本機工作區,從未 commit、也未同步到 GPT Builder,
+Builder 端跑的是舊指示。當時的反省很直白——「**GPT Builder 驗收始終未執行,
+踩到的正是唯一沒驗過的一環**」。
+
+這件事的產物是一個沿用至今的診斷法:**instructions 開頭埋版本字串,
+先問 GPT「你現在是哪一版?」**。答錯就代表 Builder 端沒同步,不必再往下查。
+(§4、§13.1、§16)
+
+**所以看到 GPT「不聽話」時,診斷順序是:先確認版本(指示層)→ 再確認環境
+(要它實際 ls /mnt/data)→ 最後才懷疑模型等級。** 三層搞混會查錯方向。
+
+### 6.1 兩次實測失敗與根因
+
+首次與二次 GPT Builder 實測(證據存 `gpts/feedback_evidence/`)出現整套失敗行為:
+
+1. **開場即拒絕**:「我無法如實聲稱已完成那些專用內部流程」——把「執行工具」
+   曲解成「被要求謊稱已執行」的誠信框架,然後**自己用 python-pptx 手產簡報**。
+2. **反過來要使用者上傳工具**:run_pipeline.py 等就在它的知識庫裡,但它
+   「不實際 ls 就斷言沒有」。
+3. **以「缺 outline→spec 腳本」為由卡住**,要使用者自己提供 slide_spec.json
+   ——填骨架本來就是流程分配給它的工作。
+4. **拋 A/B 選單**問已經定案的事(圖表無數據怎麼處理)。
+
+**根因(2026-07-21 確認)**:這兩次(FEEDBACK #1/#2)是**模型等級**。
+使用者把 Recommended Model 指定為最強模型後,全流程「跑得很完美」。
+不是規則沒寫,是弱模型的指令遵循不足。
+
+**診斷方法論(值得複用)**:當時刻意同時記下「**三個好消息**」來定位問題層——
+①模型背得出 run_pipeline/audit_provenance ⇒ 知識檔上傳成功且可檢索
+②它自述已解壓工具 ⇒ 沙箱環境正常
+③手產的內容保留了全部數字並用了「待補充」⇒ 內容規則有讀進去。
+三層都正常,問題就只剩模型本身。**只記失敗行為會讓人瞎猜,記下「哪些是對的」
+才能把範圍縮到一層。**
+(一個未排除的假說留在這:Builder 預覽視窗與已發布版本的指示可能不同步。)
+(§16、§17、§17.1)
+
+### 6.2 防線為什麼保留不撤
+
+根因既然是模型等級,防線(v1.10/v1.11 那些反拒絕條文)還有必要嗎?**有**:
+
+- 分享出去的 GPT **管不住每個使用者實際跑到的模型**(降級、低階方案情境)。
+- 成本可量化:指示總長僅約 4.8k 字元,離 8000 上限尚遠,**強模型帶著零成本**。
+
+所以 README 的建置步驟加了「Recommended Model 務必指定最強可用模型」,
+同時防線一條都不撤。(§17.1)
+
+### 6.3 防線的四種寫法(可複用的模式)
+
+- **封殺特定拒絕句式**:明寫「真的執行 + 如實轉述輸出 = 沒有誠信問題」,
+  直接堵住「無法如實聲稱」這個框架。
+- **把「先做」寫成前置條件**:「說第一句話之前必須先跑完 Step 0 並貼出輸出」
+  ——利用模型對開頭的注意力權重。
+- **移除模糊地帶**:規則已定案的事明寫「這是固定規則,不得詢問」,
+  斷掉拋選單的空間。
+- **別依賴知識庫檢索**:要模型用 Code Interpreter **讀 skill 全文**,
+  因為 RAG 可能只回片段,模型憑片段行動就會漏步驟。(§14、§16、§17)
+
+## 7. 雙前端、單引擎
+
+**決定**:`.codex/skills/` 是同一條管線的本機前端,**只內聯環境差異**
+(沙箱佈局、指令前綴),規則本體一律指回 `engine/rules/` 與 `engine/tools/`。
+**為什麼**:規則寫兩份必然漂移。新前端上線時 GPTs 建置包「一個位元組都沒動」,
+對既有功能零影響。(§18)
+
+**跨平台的處理方式演進**:原本想寫「bash 命令 + PowerShell 轉換規則」,
+但翻譯面太大;改為**把 shell 膠水也 Python 化**——`prepare_env.py` 建沙箱,
+於是所有命令收斂成單行相對路徑 python 呼叫,三種 shell 原樣可跑。
+唯二差異(直譯器名稱、uv 前綴)由 prepare_env 印出來告訴使用者。(§18.1)
+
+**註冊入口只在本機**:GPTs 沙箱無持久化、Knowledge 唯讀,註冊本質是
+repo commit + 重打包 + 人工重傳,只可能在本機發生。(§20)
+
+## 8. 工程紀律
+
+### 8.1 同步鐵律:改契約要動三個地方
+
+`validator 的 PAGE_TYPES`(真相來源)/ `schema 的 enum` / `page_types_registry.md`
+(人類可讀版)。**為什麼**:三份定義不同步會出現「schema 過但 validator 擋」
+這種鬼打牆。原本是四處,repo 瘦身後簡化為三處。(§6、§10)
+
+多模板後演進為**兩層**:語意契約三處同步(共用,禁寫模板資訊);
+模板綁定一包自洽(只動包內檔 + 重打該包 zip,禁寫槽位契約)。
+**關鍵**:同步處數**不隨模板數成長**。(§20)
+
+**知識庫檔案該散放還是進 zip**,判準是:**模型要讀的 → 獨立文件**(走檢索);
+**程式要讀的 → 打包 zip**(走沙箱檔案系統)。打包的三個好處:省檔位、
+保留目錄結構、更新有原子性。加新規則檔或新模板時都用得到這條。(§4)
+
+### 8.2 硬耦合要用機器強制,不能靠紀律
+
+綁定與模板 pptx 是硬耦合(shape id),模板改版可能改變 id → FillError 或填錯框。
+單模板時靠「WORKLOG 寫流程 + 人記得跑」;多模板時這條紀律必然失守,
+所以改成 `template_sha256` + `inventory.json` + `inspect_template --verify`
+機器比對。**FillError 一律 exit 1 不靜默降級**——寧可炸,也不要產出
+「看起來像對的錯檔」。(§7.2、§9、§20)
+
+### 8.3 打包必須可重現
+
+**問題**:zip 記錄檔案 mtime,每次重打包 sha 都變 → git 每次多一個 19MB blob
+(歷史一度累積 17 個 zip blob、125MB)。
+**修法**:打包時固定時戳與權限(1980-01-01)。
+**副作用(正面)**:REGRESSION R7 的 sha 基準從此等於「內容是否真的變了」;
+歷史瘦身後重新打包的 zip 與瘦身前**位元組相同**,反過來驗證了這條修正。(§23.1、§23.2)
+
+**打包鐵律**:zip 一律 POSIX 正斜線。用 PowerShell `Compress-Archive` 或
+檔案總管壓縮會塞 Windows 反斜線,Linux `unzip` 會警告並回非零 exit,
+**誘發 GPTs 誤判環境壞掉**。(§6)
+
+### 8.3.1 動到設計師的素材,要留下「無損」的證據
+
+`cover_bg.png` 原本 4405×2477 RGBA、**11.28MB**,連帶讓 template zip、
+demo 產出各自膨脹約 10MB。壓成 1920×1080 RGB 後只剩 1.36MB。
+
+**這是動到設計師交付物的決定,所以先做查證再動手**:
+- alpha 通道的極值雖是 0–255,但 `alpha<255` 的像素**恰好 4,405 個 = 圖片寬度**
+  ——那是單一列的匯出 artifact,不是設計意圖,**移除 alpha 實質無損**。
+- 壓縮後與原圖逐像素比對:平均差異 **0.03/255**,並產並排對照圖目檢確認。
+- 連帶 `template_light.zip` 19M→9.2M、`demo_output_01` 15M→5.1M;
+  demo 已重產,light 包版本 bump 至 2026-07-26.1。
+
+**為什麼要記這段**:未來設計師問「我的背景圖是不是被改過、畫質有沒有損失」
+要答得出來;也避免有人不明就裡把 11MB 原圖換回去。(§23.2)
+
+### 8.4 版控衛生
+
+- `.gitattributes`(`eol=lf` + binary 標記):團隊有 Windows 使用者,
+  CRLF 會汙染 diff,也會讓 zip 位元組漂移。
+- `.gitignore` 最容易漏的一項:**`~$*.pptx`**——開 pptx 檢查版面時的 Office
+  鎖定檔,最可能被誤 commit。
+- **模板隔離**:涉及某模板的 commit 只准觸碰該包白名單路徑,
+  用 `template_admin.py isolation` 讀 git diff 機器驗證——「不得動到其他模板」
+  若只是文字規則必被違反。
+- **否決 pre-commit hook**:git hook 屬本機配置、不進版控,無法保證團隊都裝;
+  改用發佈 checklist + 回歸案例。(§20.4、§23.1、§23.2)
+
+### 8.5 測試資產的紀律
+
+- **回歸案例要可執行**:REGRESSION.md 的每條都是可貼可跑的指令 + 預期輸出,
+  不是「應該要測 X」這種描述。
+- **fixture 純淨度**:大綱 fixture 必須真的未切頁、無頁型指示,
+  否則測不到「切頁」這個能力。
+- **刻意保留會失敗的範例**:04 是「故意違規」的 spec,預期 exit 1
+  ——它證明閘門真的在做事。
+- **引用只能指向版控內的檔案**:README 曾引用
+  `docs/superpowers/plans/2026-07-21-*.md`——那是規劃工具留在本機、
+  從未進版控的檔案,結果變成懸空引用,後來以 REGRESSION.md 取代。
+- **fixture 的刻意例外要寫進回歸**:02 範例的 `deck_name=my_project`
+  會被 audit 擋(它是直供模式範例,本就不符 outline 規則),
+  **保留原樣不改**,回歸案例改寫成「先驗稽核會擋、修 deck_name 後走完 4/4」
+  ——把例外寫進測試,而不是修改 fixture 去迎合測試。(§12.2、§19)
+
+## 9. 事故與踩過的坑
+
+### 9.1 誤刪事故(2026-07-20 深夜)
+
+repo 瘦身完成後,使用者誤按 Shift+Delete,`gpts/` 全數消失(繞過資源回收筒),
+連同備份 zip 一起遺失。重建來源是三份意外的殘留:scratchpad 測試沙箱
+(保有全部工具的實測最終版)、還原回來的舊 repo、以及對話脈絡。
+
+**教訓(已執行)**:①立刻裝 git 並 commit(repo 在此之前**沒有版控**)
+②重大變更後備份到 repo 外 ③scratchpad 意外成為第三份備份,但它是暫存目錄,
+**不可依賴**。(§11)
+
+### 9.2 clone 相關的坑(踩了兩次,根源相同)
+
+**第一次(v1 就踩到)**:同一參考頁可能被多個 spec 頁使用,直接在模板頁上
+改字會互相踩踏。規則因此定為:**每頁先 deepcopy 參考頁成新投影片,
+relationships 一併複製(否則圖破),只在複本上改字**;最後刪光模板原頁、
+清 Section、按 number 排序。(§2)
+
+**第二次:clone 出來的頁共用 chart part(Phase 4 實測抓到)**
+
+**症狀**:golden 的 min/max 兩頁圖表數據一模一樣,第二次 replace_data 蓋掉第一頁。
+**根因**:`clone_slide` 對 relationship 目標預設「共用」——圖片共用無害,
+但圖表會被改寫。**修法**:chart part 與內嵌 xlsx 逐頁深複製
+(樣式件仍共用)。**這個 bug 只有在「同一參考頁 clone 兩次且都改數據」時才會
+現形**,單頁測試永遠測不到。(§22)
+
+### 9.3 float 尾零讓 qa 誤殺(Phase 4 實測抓到)
+
+qa 若走 plots API 讀圖表數值,`"22.0"` 會變成 float 再變回 `"22"`,
+與 spec 的字串比對失敗。**修法**:讀 chart XML 的 `<c:v>` 原文。(§22)
+
+### 9.4 早期三個實測 bug
+
+builtin 文字框漏設內距;溢出估算誤報單行文字;JSON 帶 BOM 會炸。
+共同點:**都是本機實跑才發現的**,靠讀程式碼看不出來。(§7.1)
+
+### 9.5 文件漂移(2026-07-26 稽核抓到)
+
+三視角稽核提出 42 項,多數不是當次整理造成,而是 **Phase 2–4 累積的漂移**。
+最嚴重的三個:①上傳給模型讀的速查卡漏列新頁型、且綁定說法過時(模型照它會
+把新頁型誤判成未涵蓋)②環境檢查清單四處只列 `bindings.py`,非 light 包會被
+誤判缺檔 ③`style_guide.md` 還留著已廢管線的「先產預覽圖→停下來問使用者」流程,
+與現行「不生圖、一鍵禁確認」直接打架。
+
+**教訓**:**上傳給模型讀的檔案漂移最危險**——人讀到過時敘述會困惑,
+模型讀到會直接走錯路。這類檔案要列進發版檢查。(§23.1)
+
+### 9.6 註冊流程的真實坑(實走驗證抓到)
+
+路徑含空格不加引號 → 錯誤訊息完全不提空格;漏 uv 前綴 → 一整段 Traceback;
+剛 `new`+`freeze` 後跑 lint/golden **必紅**(正常中繼狀態,但訊息像壞掉)。
+**這些都是實際走一遍才發現的**,寫教學前先實走是必要的。(§23.3)
+
+## 10. 文件體系
+
+### 10.1 四種問題,四份文件
+
+使用者的原話是「完全不知道要看哪份 document」。診斷後的分工:
+**ARCHITECTURE 講「現在長什麼樣」、MAINTENANCE 講「怎麼做」、
+WORKLOG 講「為什麼」、FEEDBACK 講「哪裡不對」。**
+
+原本 `TEMPLATE_PACKS.md` 混了三種東西:現況藍圖、已併入 AGENTS 的條文草稿、
+已落地的遷移計畫——想知道現況的人得在遷移史裡挖。拆開後條文草稿與遷移史
+併入本檔,現況入 ARCHITECTURE,該檔退役。(§23.4)
+
+### 10.2 幾條寫作準則(從實作中長出來的)
+
+- **給模型讀的檔案不加人類用的 meta 頁首**:`engine/rules/*` 與 README_TOOLS
+  是上傳給 GPTs 的,context 是稀缺資源;加「用途/讀者/何時讀」只是浪費。
+- **同名分層檔要在頁首標明層級**:`REGRESSION.md`(引擎級)vs
+  `templates/light/REGRESSION.md`(包級)——不標會找錯。
+- **索引用「讀者情境」而非「文件名」**:README 的表格第一欄是
+  「你是誰/想做什麼」,不是「文件清單」。
+- **教學要先實走再寫**:設計師指令教學的每條指令與每則錯誤訊息都來自實際
+  跑一遍(含中文檔名加空格這種真實情境),不是憑印象。
+- **共用文件要去品牌化**:`page_types.md` 原有 37 處 light 色碼,
+  改成語意色名(主色/輔色),實際色值歸各模板包 manifest。(§23、§23.1、§23.3)
+
+### 10.3 歷史檔的處置
+
+**決定**:本檔重寫為主題式,但**原始時序版不另存檔案**——留在 git history。
+**為什麼**:留兩份 WORKLOG 會讓「不知道看哪份」的問題復發;
+git 已經是完整的追溯路徑。
+**風險與緩解**:主題式重寫等於「用現在的理解複述當時的決策」,有失真風險。
+緩解:①每條決策標原始章節號 ②保留所有「否決方案」與「後來被推翻」的紀錄
+(那是最容易在重寫中被抹平的東西)③重寫後用獨立 agent 對照原文查核遺漏。(§23.4)
+
+## 11. 待辦與已知限制
+
+**待執行**:
+
+- GPT Builder 端的 v2.0 換裝與驗收(照 `gpts/DEPLOY.md`)——這步只有擁有者能做。
+- 等第一個**真實設計師模板**走一次 register-template:那是 op 詞彙表覆蓋率
+  的真實檢驗(目前只用 light 複本演練過)。
+- Windows PowerShell 全流程尚未實機驗證(所有命令已寫成跨平台形式,
+  首位 Windows 使用者回報即定案)。
+
+**頁型升級的排程原則**(§8 的三級計畫,多模板後改為按包執行):
+
+1. 純文字版型:標準套路,同頁型被 clone 使用兩次以上就升級成 fill。
+2. 含 chart 的頁型:**引擎已支援**(v1.1 詞彙表加 `chart` op),
+   light 的 p25 已升級;p26/27/31 依同模式按需升級。
+3. 含照片的頁型:機制已可載使用者上傳圖,但上傳流程與歸檔位置未定。
+
+**永久性限制**(不是待辦,是架構事實):閘門無法系統強制(禁 Actions)、
+沙箱產不出可靠預覽(無中文字體)、GPTs 無跨對話記憶(回饋必須規則化)。
+
+---
+
+## 附錄:時間軸速查
+
+主題式閱讀會丟失時間維度,這張表補回來。
+
+| 日期 | 版本/階段 | 主要變更 |
+| --- | --- | --- |
+| 2026-07-20 | v1.0–v1.2 | GPTs 建置包成形;兩級閘門;工具層六支腳本;fills 自動填充;repo 瘦身;**誤刪事故與重建** |
+| 2026-07-21 | v1.4 | 一鍵大綱轉簡報(`/outline-to-ppt`) |
+| 2026-07-21 | v1.7 | 草稿模式(「待補充」佔位)+ 環境自癒 |
+| 2026-07-21 | v1.8 | run_pipeline 單一入口;audit_provenance 稽核程式化;page_types 大掃除 |
+| 2026-07-21 | v1.9 | 免指令觸發;修正循環防「一擋就停」 |
+| 2026-07-21 | v1.10/v1.11 | 兩次 Builder 實測失敗的防線;**根因確認=模型等級** |
+| 2026-07-24 | — | 第二前端(本機 Codex CLI skill);Windows 無 WSL 對策;文件結構整理 |
+| 2026-07-25 | Phase 0–3 | 多模板架構:light 包化 → 引擎模板感知 → 註冊工具鏈與雙 skill → 治理常態化 |
+| 2026-07-25 | Phase 4 | chart 頁型(詞彙表 v1.1);repo 重構為單引擎 + 兩前端 |
+| 2026-07-26 | v2.0 | 文件系統化整理;版控瘦身(.git 230MB→76MB);設計師手冊拆分;本檔改為主題式 |
+
+## 附錄:怎麼查原始時序紀錄
+
+```
+git show 8fcc875:docs/WORKLOG.md          # 重寫前的完整時序版(966 行)
+git log --oneline -- docs/WORKLOG.md      # 這份檔案的所有歷史版本
+git log --all --grep=<關鍵字>              # 用 commit message 找當時的變更
+```
+
+**讀舊版時要用這張路徑翻譯表**——2026-07-25 的 repo 重構把引擎搬了家,
+歷史章節寫的都是舊路徑(當時是對的,刻意不改寫):
+
+| 舊路徑(歷史章節裡看到的) | 現在的位置 |
+| --- | --- |
+| `gpts/tools/` | `engine/tools/` |
+| `gpts/knowledge/`(8 個規則散檔) | `engine/rules/` |
+| `gpts/knowledge/`(2 個 zip) | `gpts/dist/` |
+| `gpts/templates/`、`golden/`、`examples/`、`release/` | `engine/` 下同名目錄 |
+| `gpts/REGRESSION.md` | `engine/REGRESSION.md` |
+| `gpts/WORKLOG.md`、`FEEDBACK.md`、`TEMPLATE_PACKS.md` | `docs/`(TEMPLATE_PACKS 已退役,內容入 ARCHITECTURE) |
+| `gpts/assets_src/` | `engine/templates/light/assets_src/` |
+| `gpts/tools/fills.py` | 已退役——填充改由 `engine/tools/fills_engine.py` + 各包 `bindings.json` |
+| `gpts/knowledge/light_template.pptx` | `engine/templates/light/template.pptx` |
+
+各 commit 的訊息本身也是紀錄——「改了哪些檔案」那類細節刻意不進本檔,
+因為 `git log` 已經有了,重複記只會讓這份文件失焦。
