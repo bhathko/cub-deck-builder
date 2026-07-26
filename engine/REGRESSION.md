@@ -163,9 +163,14 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-e011841f26431546a3eb31677916be37fbd80f40e4280bd05c6cb0cf0eace9e7  tools.zip
-405f7a528cb8f545dd0ddb1e1e043468cd71b8c93981444df3c700e0d1e3df53  template_light.zip
+05f0f3f00c273f63f110bf3e6688b28bc71a601ac960b4f281aecdb6ce4eb835  tools.zip
+c71e4caa67d19b65bf14c904bdf5b67a3b5a938ccbc7dafaaaf241d6e905d48f  template_light.zip
 ```
+
+(2026-07-26 碰撞判準:設計師目檢 p4/p10/p22/p30 指出「不是 autofit 沒超過,
+是 autofit 後跑到了不該出現字的位置」。qa_check 新增文字碰撞檢查(FAIL 級),
+判準為「不得比模板原本更侵入鄰欄」;容量重新收斂,32 頁零縮字、零新增碰撞。
+另修 info_three_column_category 第三欄只有 4 格(另兩欄 6 格)造成的三欄不對稱。)
 
 (2026-07-26 誠實容量:改採「字級是設計過的,塞不下要改稿或換頁型,不縮字」
 原則。渲染器不再縮 autofit 框的字級;light 的 43 條 capacity_overrides 由
@@ -258,7 +263,13 @@ python engine/release/template_admin.py golden --id light
 ```
 
 golden 用每個 fill 頁型的 **contract 上限**產 max 變體。通過條件除了 PASS,
-還要 qa 的**溢出警告為 0**——有警告就代表契約允許的量裝不進版位。
+還要:**溢出警告為 0**、且**沒有「文字壓到別的元素」的 FAIL**。
+
+設計師的原話:「有時候不是 autofit 沒超過,是 autofit 後跑到了不該出現字的
+位置」。所以「裝得進自己的框」不是充分條件——`wrap="none"` 的框會往右長、
+autofit 的框會往下長,結果壓到鄰欄。qa_check 用 `tt.text_collisions` 比對
+文字實際佔用範圍,判準是**不得比模板原本更侵入鄰欄**(模板有幾處刻意疊在
+一起,絕對零重疊會誤殺)。
 
 原則(2026-07-26 設計師回饋):**字級是設計過的**,內容塞不下時正確做法是
 改寫更短或換頁型,不是把字縮小一號。所以:

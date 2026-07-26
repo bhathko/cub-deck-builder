@@ -140,7 +140,7 @@ def main(argv):
     # autofit 框的容許高度:模板同一個框裝設計師原文時需要多高。
     # light 有多處版位存檔框高小於原文所需(靠 PowerPoint 自動長高排版),
     # 不放寬的話這些框每次都會誤報溢出——狼來了會蓋掉真的問題。
-    tpl_need = {}
+    tpl_need, tpl_collide = {}, {}
     if pack is not None:
         try:
             tpl = Presentation(str(pack.resolve_template()))
@@ -151,8 +151,13 @@ def main(argv):
                 tpl_need[pt] = {s.shape_id: tt.estimate_overflow(s)["needed_pt"]
                                 for s in tt.iter_text_shapes(tpl.slides[pg - 1].shapes)
                                 if tt.shape_text(s).strip()}
+                # 碰撞基準:模板原文在同一對形狀上就已經重疊多少。判準是
+                # 「不得比設計師自己的版面更糟」——模板有幾處刻意疊在一起
+                # (p47 徽章與副字、p29 的 44pt 數字),絕對零重疊會誤殺。
+                tpl_collide[pt] = {frozenset((a.shape_id, b.shape_id)): area
+                                   for area, a, b in tt.text_collisions(tpl.slides[pg - 1])}
         except Exception:
-            tpl_need = {}   # 取不到模板就退回原本判準(只會偏嚴,不會漏報)
+            tpl_need, tpl_collide = {}, {}   # 取不到模板就退回原本判準(偏嚴,不漏報)
 
     # 逐頁:槽位文字覆蓋 / 頁碼 / 字體 / 溢出
     overflow_all = []
@@ -201,6 +206,19 @@ def main(argv):
                 continue
             overflow_all.append((est["needed_pt"] / max(allow, 1), num,
                                  shp.shape_id, tt.shape_text(shp)[:20]))
+
+        # 文字碰撞:真正的破版不是「裝不進自己的框」,而是 autofit/wrap=none
+        # 之後文字跑到不該出現的位置(壓到鄰欄)。「裝得下」全綠但版面已壞的
+        # 案例是設計師目檢 golden 抓到的(2026-07-26,light p10/p22/p30)。
+        base = tpl_collide.get(spec_slide.get("page_type"), {})
+        for area, a, b in tt.text_collisions(slide):
+            ref = base.get(frozenset((a.shape_id, b.shape_id)), 0.0)
+            if area > max(ref * 1.10, 0.03):
+                fails.append(
+                    f"p{num}: 文字壓到別的元素 {area:.2f} 平方吋"
+                    f"(id={a.shape_id}「{tt.shape_text(a)[:12]}」 ×"
+                    f" id={b.shape_id}「{tt.shape_text(b)[:12]}」)"
+                    + (f",模板基準僅 {ref:.2f}" if ref else ""))
 
     warns = list(dict.fromkeys(warns))  # 去重(字體警告易重複)
     # 溢出:先報總量與受影響頁,再列最嚴重前 5。**不可只印前 5 就當全部**——

@@ -258,14 +258,19 @@
 
 上方各節的字數是「語意契約的預設值」。**實際可寫多少,由選定的模板包決定**——
 版位大小是設計師定的,字級也是設計過的,塞不下時請**改寫更短或換頁型**,
-系統不會偷偷縮小字級來遷就。下表列出 light 包與預設值不同的槽位;
-沒列出的槽位沿用上方數字。閘門依本表擋,寫超過會被退回。
+系統不會偷偷縮小字級來遷就,也不會讓文字疊到隔欄。下表列出 light 包與預設值
+不同的槽位;沒列出的沿用上方數字。閘門依本表擋,寫超過會被退回。
 
 | 頁型 | 槽位 | 預設 | light 實際 |
 | --- | --- | --- | --- |
 | cycle_four_point_loop | `steps[].detail` | ≤40 字 | **≤34 字** |
 | cycle_four_point_loop | `subtitle` | ≤60 字 | **≤50 字** |
-| data_line_trend_comparison | `rows[].cells[]` | ≤20 字 | **≤13 字** |
+| data_line_trend_comparison | `rows[].cells[]` | ≤20 字 | **≤4 字** |
+| data_line_trend_comparison | `rows[].heading` | ≤8 字 | **≤4 字** |
+| data_line_trend_comparison | `series[].name` | ≤8 字 | **≤3 字** |
+| data_three_number_kpis | `kpis[].detail` | ≤30 字 | **≤13 字** |
+| data_three_number_kpis | `kpis[].label` | ≤12 字 | **≤6 字** |
+| data_three_number_kpis | `kpis[].value` | ≤6 字 | **≤2 字** |
 | data_three_number_kpis | `subtitle` | ≤60 字 | **≤50 字** |
 | data_two_group_metric_comparison | `after.points` | 2–6 項 | **2–4 項** |
 | data_two_group_metric_comparison | `after.points[]` | ≤40 字 | **≤16 字** |
@@ -286,15 +291,18 @@
 | info_horizontal_explanation_rows | `rows[].points` | 1–3 項 | **1–2 項** |
 | info_horizontal_explanation_rows | `subtitle` | ≤60 字 | **≤49 字** |
 | info_three_column_category | `columns[].heading` | ≤20 字 | **≤13 字** |
-| info_three_column_category | `columns[].points` | 2–6 項 | **2–5 項** |
+| info_three_column_category | `columns[].points` | 2–6 項 | **2–4 項** |
 | info_three_column_category | `columns[].points[]` | ≤40 字 | **≤14 字** |
 | info_three_column_category | `subtitle` | ≤60 字 | **≤50 字** |
 | phase_concept_three_column_explanation | `concept` | ≤8 字 | **≤4 字** |
+| phase_concept_three_column_explanation | `concept_labels[].name` | ≤8 字 | **≤4 字** |
 | phase_three_column_action_cards | `phases[].detail` | ≤60 字 | **≤54 字** |
+| pyramid_layered_maturity_detail | `levels[].detail` | ≤40 字 | **≤20 字** |
 | pyramid_layered_maturity_detail | `side_cards[].heading` | ≤16 字 | **≤9 字** |
 | pyramid_layered_maturity_detail | `side_cards[].points` | 2–4 項 | **2–2 項** |
 | pyramid_layered_maturity_detail | `side_cards[].points[]` | ≤30 字 | **≤18 字** |
 | pyramid_layered_maturity_detail | `subtitle` | ≤60 字 | **≤56 字** |
+| stage_timeline_progress | `axis_labels[]` | ≤8 字 | **≤2 字** |
 | stage_timeline_progress | `subtitle` | ≤60 字 | **≤50 字** |
 | stage_year_cards | `stages[].details[]` | ≤30 字 | **≤15 字** |
 | stage_year_cards | `stages[].heading` | ≤16 字 | **≤7 字** |
@@ -307,8 +315,8 @@
 | vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
 | vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
 
-(共 43 個槽位;由 `template_admin.py` 依模板實際版位量測後寫入
-`engine/templates/light/manifest.json` 的 `capacity_overrides`,非人工填寫。)
+(共 51 個槽位。由 `template_admin.py` 依模板實際版位量測收斂產生,
+非人工填寫:條件是「設計字級下不縮字」且「文字佔用範圍不比模板原本更侵入鄰欄」。)
 
 ---
 
