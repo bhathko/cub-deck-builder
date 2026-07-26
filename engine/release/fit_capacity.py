@@ -627,6 +627,18 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
                     suspects.add(s.shape_id)
                     continue
                 est = tt.estimate_overflow(s, size_pt=design)
+                # 橫向溢出(陷阱 11 的偵測端):`wrap="none"` 的框行數恆等於硬
+                # 換行數,單行時下面的縱向檢查一律 continue —— 以前橫向只在
+                # `_clean_cap` 內部查,於是「候選都選不進來」,那種槽位等於
+                # 完全沒量過。2026-07-27 實測:KPI 大數字框(1.43 吋 @66pt)
+                # 填「48 小時」右邊爆出 0.96 吋,fit 卻印收斂,因為它沒撞到
+                # 任何有文字的鄰居,訊號②也不會亮。
+                if not est["fits_w"]:
+                    allow_w = max(est["avail_w_pt"],
+                                  tt.estimate_overflow(o)["needed_w_pt"])
+                    if est["needed_w_pt"] > allow_w * COLLIDE_SLACK:
+                        suspects.add(s.shape_id)
+                        continue
                 if est["lines"] <= 1:
                     continue
                 allow = est["avail_pt"]

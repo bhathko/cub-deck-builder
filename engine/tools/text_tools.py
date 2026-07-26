@@ -100,11 +100,82 @@ def _char_units(s: str) -> float:
     return sum(unit(c) for c in s)
 
 
+def _lst_style_size_pt(text_frame, level: int):
+    """從 txBody 的 `<a:lstStyle><a:lvlNpPr><a:defRPr sz=…>` 取字級(pt)。
+
+    這是 PowerPoint 存「這個佔位符的預設字級」的地方——**不是** run 屬性,
+    也不是 python-pptx `paragraph.font`(那對應 `a:pPr/a:defRPr`)讀得到的。
+    """
+    try:
+        hits = text_frame._txBody.xpath(
+            f"./a:lstStyle/a:lvl{level + 1}pPr/a:defRPr/@sz")
+    except Exception:  # noqa: BLE001 — 樣式查詢不得讓量測整個炸掉
+        return None
+    return int(hits[0]) / 100.0 if hits else None
+
+
+def _inherited_size_pt(shape):
+    """placeholder 沒在 run 上寫字級時,沿 PowerPoint 的繼承鏈找真實字級。
+
+    鏈:自身 txBody 的 lstStyle → layout 同 idx 佔位符 → master 同型佔位符
+    → master 的 txStyles(title/body/other)。查不到回 None。
+
+    **為什麼非查不可**:2026-07-27 實測,light p7 封面主標是 CENTER_TITLE
+    佔位符,run 上沒有 sz,真值 40pt 寫在 layout 的 lstStyle 裡。回退到預設
+    18pt 會讓估算器以為 8 個字只佔 2.0 吋(實際 4.44 吋)→ 判定「裝得下」,
+    於是 fit 不收緊、qa 不報警,而 PowerPoint 一開檔主標就折成兩行壓到副標
+    與日期列。**凡是靠預設值頂替真值的量測,都會在最需要它的地方說謊。**
+    """
+    level = 0
+    try:
+        level = shape.text_frame.paragraphs[0].level or 0
+    except (AttributeError, IndexError):
+        pass
+    own = _lst_style_size_pt(shape.text_frame, level)
+    if own is not None:
+        return own
+    if not getattr(shape, "is_placeholder", False):
+        return None
+    try:
+        idx = shape.placeholder_format.idx
+        ph_type = shape.placeholder_format.type
+        layout = shape.part.slide_layout
+        master = layout.slide_master
+        for holder, match_idx in ((layout, True), (master, False)):
+            for ph in holder.placeholders:
+                same = (ph.placeholder_format.idx == idx if match_idx
+                        else ph.placeholder_format.type == ph_type)
+                if not same:
+                    continue
+                size = _lst_style_size_pt(ph.text_frame, level)
+                if size is not None:
+                    return size
+                for para in ph.text_frame.paragraphs:
+                    if para.font.size is not None:
+                        return para.font.size.pt
+                    for run in para.runs:
+                        if run.font.size is not None:
+                            return run.font.size.pt
+        # master 的 txStyles:標題類走 titleStyle,內文類走 bodyStyle,其餘 otherStyle
+        style = ("titleStyle" if "TITLE" in str(ph_type)
+                 else "bodyStyle" if "BODY" in str(ph_type) else "otherStyle")
+        hits = master.element.xpath(
+            f"./p:txStyles/p:{style}/a:lvl{level + 1}pPr/a:defRPr/@sz")
+        if hits:
+            return int(hits[0]) / 100.0
+    except (AttributeError, KeyError, IndexError):
+        return None
+    return None
+
+
 def _first_run_size_pt(shape) -> float:
     for para in shape.text_frame.paragraphs:
         for run in para.runs:
             if run.font.size is not None:
                 return run.font.size.pt
+    inherited = _inherited_size_pt(shape)
+    if inherited is not None:
+        return inherited
     return DEFAULT_FONT_PT
 
 

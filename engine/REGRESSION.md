@@ -200,9 +200,25 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-201b46c03c4d010b121d3b25d86edd6cd323e26ef249b7f6f9d3689638294c9d  tools.zip
-4ae29989eaf2032e157973d09ae15249d10919270da8fb804b458146807e3b60  template_light.zip
+fcd0293dbf10b0df5869311806cdd4c69633da322b2b2522c794291ce3b39665  tools.zip
+1caef063530dba531c04de940c9b4e61a099680d76b9379777d509f88e0f7507  template_light.zip
 ```
+
+(2026-07-27 量測說謊修復,**兩個 zip 都改 sha**:`text_tools._first_run_size_pt`
+在 run 沒寫字級時直接回退 `DEFAULT_FONT_PT`(18pt),但 placeholder 的真值寫在
+layout/master 的 `<a:lstStyle><a:lvlNpPr><a:defRPr sz=…>`——**全模板 218 個文字框
+都靠繼承取字級**,一律被當成 18pt。症狀:封面主標(4.21 吋框、真值 40pt)填 8 個字,
+估算器以為佔 2.0 吋(實際 4.44 吋)判「裝得下」,fit 不收緊、qa 不報警,
+PowerPoint 一開檔主標就折兩行壓到副標與日期列。**這是實跑產檔時目檢抓到的,
+所有機器檢查全綠。** 同批修 `fit_capacity` 偵測端的陷阱 11:`wrap="none"` 單行框
+在 suspect 迴圈被 `lines<=1` 提前 continue,橫向檢查只在 `_clean_cap` 內部,
+於是那種框「連候選都選不進來」——KPI 大數字框(1.43 吋 @66pt)填「48 小時」
+右邊爆出 0.96 吋而 fit 印收斂,因為它沒撞到任何有文字的鄰居。
+重量測後 light 新增 5 條 override:`cover.main_title` 20→**7**、
+`data_three_number_kpis.value`→**2**(模板原文就是「04」「25」兩位數)、
+同頁 `label`→6、`stage_timeline_progress.axis_labels`→**2**、
+`data_line_trend_comparison.series.name`→3。light@2026-07-27.2 → .3、
+instructions v2.4 → v2.5-20260727。)
 
 (2026-07-27 fit 盲點修復後重量測:agenda/cover 的 4 條**手寫**容量換成工具
 量測值(subtitle 28→30、date 12→13、presenters 20→15、cover.subtitle 5 不變),
