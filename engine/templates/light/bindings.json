@@ -1,10 +1,10 @@
 {
   "engine": 1,
-  "_note": "light 的 fill 頁型宣告式綁定(經 engine/tools/fills_engine.py 解譯;Phase 2 已驗證與原 Python fills 產出 shape 樹全等)。2026-07-26 builtin 清零後本包已無 bindings.py,全部綁定都在本檔;引擎也不再載入 .py 綁定。頁型清單一律以 manifest.json 的 page_types 為準,本註記不列舉。",
+  "_note": "light 的 fill 頁型宣告式綁定(經 engine/tools/fills_engine.py 解譯)。本包全部綁定都在本檔,不存在其他綁定來源;引擎也不載入包內的 .py。頁型清單一律以 manifest.json 的 page_types 為準,本註記不列舉。",
   "fills": {
     "cover": {
       "template_page": 7,
-      "_note": "自 builtin 遷入(2026-07-26)。背景圖與 logo 在 layout『封面(有小標)』裡,clone 自帶,不吃 spec 的 assets。長主標由 shrink_to_fit 縮字級(原 builtin 會把副標推到下一行,遷移後版位固定)。",
+      "_note": "背景圖與 logo 在 layout『封面(有小標)』裡,clone 自帶,不吃 spec 的 assets。長主標由 shrink_to_fit 縮字級,版位固定不推擠副標;副標框窄(3.24 吋、spAutoFit),容量只給 5 字。",
       "ops": [
         {
           "op": "set",
@@ -32,7 +32,7 @@
     },
     "agenda": {
       "template_page": 9,
-      "_note": "自 builtin 遷入(2026-07-26)。layout『目錄』自帶左側色塊、『目錄/Contents』標題與 logo,頁面上只有一個內容框(id=2,7.84x4.89 吋)與頁碼佔位符(id=3,引擎會清掉)。整份 items 用 item_template 逐項套版後併進 id=2;原 builtin 的空心圓編號改為行內文字(單一文字框畫不出圓)。",
+      "_note": "layout『目錄』自帶左側色塊、『目錄/Contents』標題與 logo,頁面上只有一個內容框(id=2,7.84x4.89 吋)與頁碼佔位符(id=3,引擎會清掉)。整份 items 用 item_template 逐項套版後併進 id=2;編號是行內文字(單一文字框畫不出圓)。",
       "ops": [
         {
           "op": "set",
@@ -45,7 +45,7 @@
     },
     "closing": {
       "template_page": 59,
-      "_note": "自 builtin 遷入(2026-07-26)。滿版背景圖與遮罩是 p59 頁面自帶的 shape,clone 一併帶入,不吃 spec 的 assets。",
+      "_note": "滿版背景圖與遮罩是 p59 頁面自帶的 shape,clone 一併帶入,不吃 spec 的 assets。",
       "ops": [
         {
           "op": "set",

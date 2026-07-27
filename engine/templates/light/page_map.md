@@ -5,14 +5,14 @@
 > 見共用文件 `engine/rules/page_types.md` 與 `page_types_registry.md`;
 > 那邊已不含模板頁碼(Phase 1 拆分完成),**頁碼對照以本檔為唯一來源**。
 
-支援等級:fill = 全自動(spec 直接產出);clone = 半自動
-(走 render_plan 複製改字)。本包無 unsupported 頁型,
-**也已無 builtin**——2026-07-26 清零,詳見本檔末節。
+支援等級只有兩級:fill = 全自動(spec 直接產出);clone = 半自動
+(走 render_plan 複製改字)。**每個頁型都對應模板 pptx 裡的一頁實頁**;
+本包無 unsupported 頁型。
 
 | 語意頁型 | 支援等級 | 模板頁 | 備註 |
 | --- | --- | --- | --- |
-| cover | fill(全自動,clone+填充) | 7 | 2026-07-26 自 builtin 遷入;背景/logo 在 layout「封面(有小標)」內,不吃 spec 的 assets |
-| agenda | fill(全自動,clone+填充) | 9 | 2026-07-26 自 builtin 遷入;layout「目錄」自帶左側色塊與標題,整份 items 用 `item_template` 併進單一內容框(id=2) |
+| cover | fill(全自動,clone+填充) | 7 | 背景/logo 在 layout「封面(有小標)」內,不吃 spec 的 assets;長主標由 `shrink_to_fit` 縮字級 |
+| agenda | fill(全自動,clone+填充) | 9 | layout「目錄」自帶左側色塊與標題,整份 items 用 `item_template` 併進單一內容框(id=2);編號是行內文字(單一文字框畫不出圓形) |
 | vision_goal_center_balance | fill(全自動,clone+填充) | 14 | shape id 見 bindings.json 與 inventory.json |
 | info_three_column_category | fill(全自動,clone+填充) | 17 | shape id 見 bindings.json 與 inventory.json |
 | data_two_group_metric_comparison | fill(全自動,clone+填充) | 29 | shape id 見 bindings.json 與 inventory.json |
@@ -61,35 +61,17 @@
 | structure_hierarchy_matrix | clone(半自動,需 render_plan) | 56 | 寫 plan 前先 `inspect_template.py --page 56` |
 | structure_org_chart_roles | clone(半自動,需 render_plan) | 57 | 寫 plan 前先 `inspect_template.py --page 57` |
 | structure_relation_map | clone(半自動,需 render_plan) | 58 | 寫 plan 前先 `inspect_template.py --page 58` |
-| closing | fill(全自動,clone+填充) | 59 | 2026-07-26 自 builtin 遷入;滿版背景是 p59 頁面自帶 shape,不吃 spec 的 assets |
+| closing | fill(全自動,clone+填充) | 59 | 滿版背景與遮罩是 p59 頁面自帶 shape,不吃 spec 的 assets |
 
 共 51 筆:fill 19、clone 32。
 
-## builtin 清零紀錄(2026-07-26 完成)
+## 附:幾個吃過虧的版位限制(容量真相仍在 manifest `capacity_overrides`)
 
-builtin 曾是 light 專屬 grandfather(座標寫死在 `bindings.py`),新模板一律
-不得使用(理由見 `docs/WORKLOG.md` §5.3)。本包**已無 builtin**,`bindings.py`
-整檔刪除——light 現在是純 `bindings.json`,與新註冊的模板包同構。
-
-| 原 builtin 頁型 | 結局 |
-| --- | --- |
-| cover | 遷 fill / p7(座標本來就是描模板 p7 而來) |
-| closing | 遷 fill / p59 |
-| agenda | 遷 fill / p9;`item_template` 修飾詞(引擎 v1.2)為此而加 |
-| story_chapter_statement | **移除頁型**——無模板頁可綁 |
-| stage_dual_track_roadmap | **移除頁型**——無模板頁可綁 |
-
-行為差異(已實測):
-
-- **cover**:長主標改由 `shrink_to_fit` 縮字級,不再把副標推到下一行。
-  副標受 `capacity_overrides` 限 5 字——p7 的副標框是 `spAutoFit` 且僅 3.24 吋寬,
-  長文會往下長並壓到日期列。
-- **agenda**:編號從空心圓圈變成行內文字(單一文字框畫不出圓形),
-  三個欄位由 `item_template` 套版成「編號␣␣標題 ⏎ 副標」。
-
-後兩個頁型是**從共用契約整個移除**(不是標 unsupported),所以其他模板未來也
-用不到。這牴觸 `docs/WORKLOG.md` 原本「不得為單一模板改共用契約」的先例,是
-2026-07-26 的明示決策——理由與代價見 WORKLOG 該節。
+- **cover 副標只給 5 字**:p7 副標框是 `spAutoFit` 且僅 3.24 吋寬,
+  長文會往下長、壓到日期列。主標則相反——由 `shrink_to_fit` 縮字級,不推擠鄰位。
+- **agenda 是單一文字框**:p9 頁面上只有一個內容框(id=2,7.84x4.89 吋),
+  整份 items 由 `item_template` 套版成「編號␣␣標題 ⏎ 副標」後併進去,
+  所以編號畫不出圓形,只能是行內文字。
 
 ## 附:light 語意色名對照(page_types.md 視覺描述用;機器真相在 manifest style)
 

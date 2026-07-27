@@ -24,8 +24,8 @@ print('自洽檢查', 'OK' if len(m['page_types']) == sum(c.values()) else '不�
 
 預期:`manifest sha OK`、`自洽檢查 OK`,筆數與 `page_map.md` 的統計句一致。
 
-**mode 分佈刻意不寫死預期值**——builtin 已於 2026-07-26 清零,但加開頁型仍會讓
-fill/clone 比例變動,寫死的數字會過期。要對照當下分佈跑
+**mode 分佈刻意不寫死預期值**——加開頁型會讓 fill/clone 比例變動,
+寫死的數字會過期。要對照當下分佈跑
 `python engine/tools/make_skeleton.py --list`;`page_map.md` 的統計句與同檔
 表格互為校驗。
 
