@@ -11,9 +11,9 @@ packs root 預設 = 本檔所在目錄的上一層 /templates(repo: engine/templ
 沙箱: /mnt/data/templates 或 ppt_out/templates)。
 
 綁定只有一種形式:`bindings.json` 的宣告式 fills(fills_engine 解譯)。
-包內出現 `bindings.py` 一律 PackError——那是已廢除的 builtin 繪製器載體
-(2026-07-26 清零),而它曾經會靜默蓋過 bindings.json:沙箱舊複本殘留一支
-bindings.py,產出是舊版面但所有訊息都顯示正常。載入期硬擋,讓殘留吵鬧地失敗。
+包內出現 `bindings.py` 一律 PackError——引擎不執行包內 Python,而這種殘留檔
+在引擎還會載入它的年代能靜默蓋過 bindings.json:沙箱舊複本留了一支,
+產出是舊版面而所有訊息都顯示正常。載入期硬擋,讓殘留吵鬧地失敗。
 """
 from __future__ import annotations
 
@@ -76,9 +76,9 @@ def _load_bindings(pack_dir: Path, pack_id: str, manifest: dict) -> dict:
     py, bj = pack_dir / "bindings.py", pack_dir / "bindings.json"
     if py.exists():
         raise PackError(
-            f"模板包 {pack_id} 內有 bindings.py({py})——builtin 繪製器已於 2026-07-26 "
-            f"清零,綁定一律走 bindings.json。這支檔通常是舊版殘留(最常見是沒清乾淨的"
-            f"沙箱複本);載著跑會讓產出悄悄退回舊版面,請直接刪除它。")
+            f"模板包 {pack_id} 內有 bindings.py({py})——引擎不執行包內 Python,"
+            f"綁定一律走 bindings.json。這支檔是舊版殘留(最常見是沒清乾淨的沙箱"
+            f"複本),它在的地方就代表這個包沒同步乾淨;請直接刪除它。")
     if not bj.exists():
         raise PackError(f"模板包 {pack_id} 缺綁定(找不到 {bj})")
     import fills_engine

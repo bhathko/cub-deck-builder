@@ -18,7 +18,7 @@ R_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 
 # 頁碼文字框用的兩個常數(唯一消費者是 render_deck)。其餘品牌色不放這裡:
 # 色碼是模板專屬知識,真相在各包 manifest 的 style.colors 與 style_guide.md
-# ——原本並列的 6 個 accent 常數只有 builtin 繪製器用過,已隨 builtin 清零移除。
+# ——原本並列的 6 個 accent 常數在 2026-07-26 已無任何消費者,一併移除。
 FONT_ZH = "Microsoft JhengHei"
 COLOR_DARK = (0x34, 0x42, 0x52)
 

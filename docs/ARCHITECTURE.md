@@ -83,17 +83,17 @@ engine/templates/<template_id>/        ← 一模板一目錄,id 格式 ^[a-z][a
 ```
 
 - **light 是第一個包**:`engine/templates/light/`,`light_template.pptx` 與
-  `assets.zip` 內容併入包內。它曾有一支 builders-only 的 `bindings.py`
-  (grandfather),2026-07-26 builtin 清零後整檔刪除——light 現在是純
-  `bindings.json`,與新註冊的包同構,不再有任何專屬例外。
-- **沒有 builtin 這個模式**:cover/agenda/closing 這類「版面內建」頁型一律要求
-  模板 pptx 內含對應頁,以 fill 模式綁定(設計師在 PowerPoint 改版面,
-  不在 Python 調座標);模板缺頁 → 該頁型 unsupported。引擎已無從零繪製的路徑,
-  包內出現 `bindings.py` 由 `pack_loader` 與 `lint` 兩處硬擋。
+  `assets.zip` 內容併入包內。它現在是純 `bindings.json`,與新註冊的包同構,
+  沒有任何專屬例外(它曾有的 grandfather 例外已於 2026-07-26 收掉,
+  來龍去脈見 `docs/WORKLOG.md` §10.5–§10.6)。
+- **引擎沒有「從零繪製版面」這條路**:支援等級只有 fill / clone / unsupported
+  三級。cover/agenda/closing 這類「版面內建」頁型一律要求模板 pptx 內含對應頁,
+  以 fill 模式綁定(設計師在 PowerPoint 改版面,不在 Python 調座標);
+  模板缺頁 → 該頁型 unsupported。包內不得夾帶任何 `.py` 綁定,
+  出現 `bindings.py` 由 `pack_loader` 與 `lint` 兩處硬擋。
 - **新模板的 fill 頁預設免素材**:fill 模式是 clone 模板實頁,背景/logo 已
-  烙在頁面裡,不需要 spec 提供 assets(已廢除的 builtin 工法是「空白頁+貼背景圖
-  +貼 logo」,才需要 spec 交素材——這是兩種工法的本質差異)。素材檔只在 clone
-  參考頁需求或未來照片頁型時才進包。
+  烙在頁面裡,不需要 spec 提供 assets。素材檔只在 clone 參考頁需求或未來
+  照片頁型時才進包。
 ```json
 {
   "template_id": "corp_dark",
@@ -188,9 +188,9 @@ v1.2 沒有加 op,加的是 `set` 的 `item_template` 修飾詞。詞彙表紀�
 
 - **全覆蓋原則**:每個 fill 頁的綁定,模板頁上**所有含文字的 shape** 必須被
   set/rows/list/delete/keep 之一覆蓋,lint 硬檢查。`keep` 僅限不含數字、
-  非內容語意的固定結構字樣(欄目標籤、章節字、「目錄」之類——已廢除的 builtin
-  是由程式主動畫上 Contents/背景/預期成果這類字,改 fill 後它們烙在模板頁上,
-  刪了版面語意反而殘缺);qa/audit 不追溯 keep 字樣。判準:含任何數字或
+  非內容語意的固定結構字樣(欄目標籤、章節字、「目錄」之類——Contents、
+  預期成果這類字烙在模板頁上,刪了版面語意反而殘缺);
+  qa/audit 不追溯 keep 字樣。判準:含任何數字或
   可能被誤讀為內容事實的字樣不得 keep,只能 delete。
 - **表達力的驗證方式**:light 最早的 5 種 fill 頁型有一份等價的宣告式重寫,
   與原 Python 實作產出的 shape 樹**全等**(含最少/最滿兩種變體),

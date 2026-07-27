@@ -112,7 +112,8 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 > **v2.0 狀態(2026-07-25):多模板架構 Phase 1 已在本機實作;GPT Builder
 > 驗收待執行;尚未發布。** 下列 GPT Builder 項目是發版閘門,不是已通過紀錄。
 > ⚠ 實測回報「卡在一半說無法用工具產生/沒有穩定的工具鏈/請上傳工具」的第一
-> 檢查點:問 GPT「你現在是哪一版?」——不是 `v2.3-20260727` 就代表 Builder 端
+> 檢查點:問 GPT「你現在是哪一版?」——答案跟 `gpts/instructions.md` 第一行的
+> 版本代號對不上,就代表 Builder 端
 > 還在跑舊版,先同步 instructions 與 10 個知識檔(特別是 outline_to_ppt_skill.md、
 > tools.zip 與 template_light.zip;**並刪除舊的 assets.zip 與
 > light_template.pptx**)再測。兩次實測失敗紀錄見 FEEDBACK #1、#2。

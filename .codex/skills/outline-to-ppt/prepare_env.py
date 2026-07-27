@@ -53,8 +53,8 @@ def main() -> int:
     # 先砍再複製,不用 copytree(dirs_exist_ok=True) 就地覆蓋。
     # 原因(2026-07-26 實地踩到):copytree 只覆蓋、**從不刪除**,所以 engine 端
     # 刪掉的檔案會在沙箱裡變成幽靈。light 刪掉 bindings.py 後,ppt_out 的舊複本
-    # 仍被 pack_loader 讀到,BUILDERS 於是悄悄蓋過 bindings.json 的 fill——
-    # 產出是舊 builtin 版面,而所有訊息都顯示正常。沙箱是**衍生物**,
+    # 仍被 pack_loader 讀到,包內 .py 於是悄悄蓋過 bindings.json 的 fill——
+    # 產出是舊版面,而所有訊息都顯示正常。沙箱是**衍生物**,
     # 一律重建才能保證與 engine/ 等價。(pack_loader 現已對 bindings.py 硬擋,
     # 同型殘留會吵鬧地失敗;但那是第二道防線,重建仍是第一道。)
     for sub in ("assets", "tools", "templates"):

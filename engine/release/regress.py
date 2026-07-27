@@ -128,7 +128,7 @@ def r0(env: Env):
     missing = [str(p.relative_to(rt)) for p in need if not p.exists()]
     if missing:
         return False, f"$RT 佈局缺:{missing}"
-    forbidden = [rt / "templates" / "light" / "bindings.py",   # builtin 載體,不得再出現
+    forbidden = [rt / "templates" / "light" / "bindings.py",   # 已廢除的 .py 綁定,不得再出現
                  rt / "assets", rt / "light_template.pptx"]    # 舊佈局,素材已隨包出貨
     ghosts = [str(p.relative_to(rt)) for p in forbidden if p.exists()]
     if ghosts:

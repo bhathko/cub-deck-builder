@@ -249,8 +249,8 @@ def lint_pack(pack_dir: Path) -> list:
     inv_path = pack_dir / "inventory.json"
     bj = pack_dir / "bindings.json"
     if (pack_dir / "bindings.py").exists():
-        errs.append("包內不得有 bindings.py(builtin 繪製器已於 2026-07-26 清零,"
-                    "綁定一律走 bindings.json);多半是舊版或沙箱複本殘留,請刪除")
+        errs.append("包內不得有 bindings.py(引擎不執行包內 Python,綁定一律走 "
+                    "bindings.json);多半是舊版或沙箱複本殘留,請刪除")
     if bj.exists():
         if not inv_path.exists():
             errs.append("有 bindings.json 但缺 inventory.json(先跑 freeze)")

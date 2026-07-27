@@ -200,9 +200,35 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-fcd0293dbf10b0df5869311806cdd4c69633da322b2b2522c794291ce3b39665  tools.zip
-1caef063530dba531c04de940c9b4e61a099680d76b9379777d509f88e0f7507  template_light.zip
+bd82f72a4c13c5e961702c53e48bb54eff9662826ffb21197ca46dec8b548e51  tools.zip
+b1efa8006730552c8368371332a16a52d43f4151eb673c46e656f2f4e5f61573  template_light.zip
 ```
+
+**這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
+(`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
+不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-07-27 出貨包文字清理——**把 `builtin` 這個已不存在的模式名,從所有描述
+「現況」的文字裡拿掉**。§10.6 那批只修了「宣稱 builtin 仍在運作」的那一句;
+這批的判準更嚴:**用過去式提到它也一樣有害**——模型讀到會去推敲一個不存在的
+模式,人讀到會以為支援等級還有第三種。出貨端:`page_map.md`(表頭、
+cover/agenda/closing 三列備註、整節「builtin 清零紀錄」)與 `bindings.json`
+四段 `_note`;tools.zip 端:`pack_loader` 檔頭與 PackError 訊息、`pptx_toolkit`
+的常數註解。repo 端:ARCHITECTURE 三處(「沒有 builtin 這個模式」改寫為「引擎
+沒有從零繪製版面這條路」)、WORKLOG §5.3 那條**已被推翻卻還寫成現行規則**的
+「新模板不得有 builtin」加刪除線與指路、INDEX 備註欄、light REGRESSION R-L0
+註記、`regress.py` 與 `prepare_env.py` 註解。
+**留下的界線:現況文字零 builtin,歷史紀錄(WORKLOG §10.5/§10.6、本檔)照原樣
+保留**——那裡才是「為什麼沒有 builtin」的答案,刪了等於刪掉推翻先例的證據。
+另刻意保留 `template_admin` 的 `mode == "builtin"` 指路 hint(只在有人真的寫了
+builtin 時觸發,那正是最需要它的時刻)與 pack 裡「刪檔漏四份」的事故註解。
+`page_map.md` 刪掉的遷移表在 WORKLOG §10.5;兩條仍有效的版位限制(cover 副標
+5 字、agenda 單一文字框)改寫成現況說明續留檔內。**兩個 zip 都改 sha,產檔行為
+零變化**(異動全是註記與文件字串,上方基準區塊已同步);
+light@2026-07-27.3 → .4、instructions v2.5 → v2.6-20260727。
+同批修掉 DEPLOY.md/gpts README 三處寫死的舊版本代號(`v2.3-20260727`、
+`light@2026-07-27.1`)——那是驗收步驟自己的預期值,過期後會讓人誤判發版失敗;
+改成指向 `instructions.md` 第一行,不再複製數字。)
 
 (2026-07-27 量測說謊修復,**兩個 zip 都改 sha**:`text_tools._first_run_size_pt`
 在 run 沒寫字級時直接回退 `DEFAULT_FONT_PT`(18pt),但 placeholder 的真值寫在
@@ -270,7 +296,8 @@ manifest/bindings.json/bindings.py/page_map.md 四檔變動而改 sha。
 新增 3 條 cover capacity_overrides——`subtitle` 只有 5 字,因為模板 p7 的副標框
 (id=16)是 `spAutoFit` 且僅 3.24 吋寬,長文會讓框往下長並壓到 id=3 的日期列;
 這是真碰撞不是誤報。剩餘 builtin(agenda/story/stage)待模板補頁,清單見
-`engine/templates/light/page_map.md` 的遷移表。)
+`docs/WORKLOG.md` §10.5 的遷移表(當時放在 `page_map.md`,2026-07-27 隨
+出貨包文字清理移走)。)
 
 (2026-07-26 tools.zip 由 `c5737f13…` 換成 `596a036c…`:清掉 `README_TOOLS.md`
 與 `render_deck.py` 檔頭寫死的「21 種註冊頁型」與其後**只列 10–11 個名字**的
