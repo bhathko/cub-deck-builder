@@ -17,7 +17,12 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 閘門分兩級:`page_types_registry.md` 裡的**註冊頁型**走完整槽位契約檢查;
 `page_types.md` 頁型庫的**其他頁型**也可以用,驗證器對它們只做基本檢查,
 容量由模型比照 page_types.md 自律。
-使用者不會寫 JSON 也沒關係:**直接貼上段落大綱就會自動走一鍵產檔**(`/outline-to-ppt` 是同義觸發詞,可打可不打;想逐步確認要明講)。一鍵流程會保存來源、只選完整註冊頁型、產生並嚴格驗證 JSON,接著直接渲染與 QA;缺個別資料以「待補充」佔位繼續,只有來源不足或三輪修正後閘門仍失敗才停止。
+使用者不會寫 JSON 也沒關係:**直接貼上段落大綱就會自動走一鍵產檔**
+(`/outline-to-ppt` 是同義觸發詞,可打可不打;想逐步確認要明講)。一鍵流程先保存
+來源,列出來源逐字片段、語意同等的全自動候選與實際 counts,由
+`make_skeleton --plan` 先驗模板容量並全局降低重複；版型鎖定後才填內容,
+再嚴格驗證、渲染與 QA。缺個別資料可用「待補充」,但不得拿它湊系統自行選型的
+結構下限。
 
 ## 工具層(`engine/tools/` → `dist/tools.zip`)
 
@@ -36,7 +41,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `inspect_template.py` | 模板盤點:`--summary` 全冊一頁一行、`--page N` 單頁形狀樹(省 token)  |
 | `render_deck.py`      | 主程式:spec(+選配 plan)→ pptx,**冪等整檔重生**;fill 頁全自動        |
 | `qa_check.py`         | 產檔後自檢:內容覆蓋/頁數/Section/字體/頁碼/溢出,只印問題            |
-| `make_skeleton.py`    | 依頁型清單產「保證過驗證器」的 spec 骨架                            |
+| `make_skeleton.py`    | 直供模式依清單產骨架；大綱模式驗候選容量、全局選版並產骨架+slides.md |
 | `README_TOOLS.md`     | 給模型的速查卡:標準三步指令 + plan 格式 + 鐵律                      |
 
 **註冊頁型 = 純 script 產出,LLM 零參與**(含折線趨勢頁圖表數據):使用者 JSON → 驗證 → render_deck
@@ -69,6 +74,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `engine/examples/01_*.json`–`04_*.json` | 四份試用範例(最小/完整/未註冊頁型/故意違規)                              | 不上傳,發給使用者試              |
 | `engine/examples/02_full_8p.source_slides.md` | 已切頁的 validator provenance 測試 fixture                               | 不上傳,測試用                    |
 | `engine/examples/05_outline_to_ppt_source.md` | 真正未切頁、無頁型指示的一鍵大綱輸入 fixture                             | 不上傳,測試用                    |
+| `engine/examples/06_page_type_candidates.json` | 大綱契約先行候選、容量與多樣性選型 fixture                              | 不上傳,測試用                    |
 | `engine/examples/demo_output_*.pptx`    | 本機實測產出,眼見為憑                                                    | 不上傳                           |
 | `engine/templates/light/assets_src/`    | 素材可編輯源檔(隨包;打包 template_light.zip 時以 arcname `assets/` 映射) | 不上傳,留在 repo                 |
 | `engine/templates/`(其餘檔案)           | 模板包源碼與治理文件(INDEX、TEMPLATE_LIFECYCLE、各包 REGRESSION/FEEDBACK) | 不上傳,留在 repo                 |
@@ -142,6 +148,12 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
    `examples/05_outline_to_ppt_source.md` 全文(另用 `/outline-to-ppt` 前綴重測一次,
    行為必須相同)。確認 GPTs 不要求中途確認,且:
    - 環境先出現 `/mnt/data/tools/` 與 `/mnt/data/templates/light/`
+   - 先建立 `page_type_candidates.json`,每頁候選含原文逐字 `source_excerpt`、
+     `fit` 與來源實際 `counts`;沒有先手寫最終頁型序列或 `slides.md`
+   - `make_skeleton.py --plan` 同時帶 `--source`、`--selected-plan-out`、
+     `--slides-out` 與 `--out`;產生 `page_type_plan.json` 後才填 spec
+   - 同等語意候選存在時,選型報告沒有不必要的相鄰 template page 重複；容量
+     不合候選在產骨架前被排除
    - 驗證命令同時含 `--slides --registered-only --strict`
    - 本次原文與 `slides.md` 都覆寫舊檔,沒有混入前次執行內容
    - `slides.md` 每頁區塊內的每一段來源摘錄都是
@@ -158,8 +170,9 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
    - 移除來源中的日期與報告人重跑,確認保留 `cover` 且缺欄填「待補充」而非捏造
      實值;交付摘要含待補清單
    - 來源標「待補充」的 KPI 與只有名稱沒有數據的圖表(如甘特圖、KPI 儀表板),
-     確認以最接近的已註冊頁型建頁、缺料欄位填「待補充」,不生成示意圖、不捏造
-     數據、不改用未註冊頁型
+     確認只有使用者明確點名時才以 `requested_by_user:true` 保留最接近的已註冊
+     頁型、缺料欄位填「待補充」；系統自行選型不得靠佔位湊結構下限,也不生成
+     示意圖、不捏造數據、不改用未註冊頁型
    - 在頂層 `slides[].title` 或 `deck.deck_name` 注入來源沒有的文字,確認工作流稽核在
      validator 前停止
    - 在來源未出現的槽位加入 `88%`,確認稽核與 validator 都拒絕且不交付 PPTX

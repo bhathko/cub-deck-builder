@@ -1,0 +1,20 @@
+{
+ "deck": {
+  "deck_name": "golden_section_transition_max",
+  "language": "Traditional Chinese",
+  "slide_count": 1
+ },
+ "slides": [
+  {
+   "number": 1,
+   "page_type": "section_transition",
+   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "render_page_number": false,
+   "assets": {},
+   "slots": {
+    "main_title": "main_title測測測測測測測測測測",
+    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+   }
+  }
+ ]
+}

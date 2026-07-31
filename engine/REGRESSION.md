@@ -200,8 +200,8 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-bd82f72a4c13c5e961702c53e48bb54eff9662826ffb21197ca46dec8b548e51  tools.zip
-b1efa8006730552c8368371332a16a52d43f4151eb673c46e656f2f4e5f61573  template_light.zip
+b5ed63eb302f1d6c5f80aaf5cfeb27c2e131a7180027ba9e29b5d140196d5bca  tools.zip
+c8b1114902790b4138691e17570d774d88c809668fce467c8f56610c1c4e4a8b  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
@@ -353,7 +353,7 @@ PR="$(mktemp -d)"
 python3 engine/release/template_admin.py new --pptx engine/templates/light/template.pptx --id lightcopy --name 淺色複本測試 --packs-root "$PR"
 python3 -c "
 import json, shutil
-src = json.load(open('engine/templates/light/manifest.json'))
+src = json.load(open('engine/templates/light/manifest.json', encoding='utf-8'))
 p = '$PR/lightcopy/manifest.json'; m = json.load(open(p))
 m['style'], m['asset_defaults'], m['page_number'] = src['style'], src['asset_defaults'], src['page_number']
 m['page_types'] = {pt: e for pt, e in src['page_types'].items() if e['mode'] == 'fill'}
@@ -462,8 +462,8 @@ python - <<'EOF'
 import sys, json; sys.path.insert(0,'engine/tools'); sys.path.insert(0,'engine/rules')
 from pptx import Presentation
 import text_tools as tt
-m = json.load(open('engine/templates/light/manifest.json'))
-fills = list(json.load(open('engine/templates/light/bindings.json'))["fills"])
+m = json.load(open('engine/templates/light/manifest.json', encoding='utf-8'))
+fills = list(json.load(open('engine/templates/light/bindings.json', encoding='utf-8'))["fills"])
 order = [pt for pt in m["page_types"] if pt in fills]      # = golden 的派生順序
 seq = [pt for pt in order for _ in ("min", "max")]
 page_of = {pt: e["template_page"] for pt, e in m["page_types"].items()
@@ -561,3 +561,30 @@ cp /tmp/INDEX.bak engine/templates/INDEX.md && rm /tmp/INDEX.bak
 也不做「掃描文件裡的 N 種」regex 檢查(實測 1 真命中 : 2 假警報 : 1 漏報)。
 那兩塊的正解是**讓數字消失**——文件不寫「共 N 種」,改指
 `make_skeleton.py --list`,已於 2026-07-26 全面套用。理由詳見 `sync_docs.py` 檔頭。
+
+## R14|大綱契約先行選版正反向測試
+
+本案例驗四個新不變式：候選來源逐字、選定模板 merged 容量先驗、語意同等候選
+全局降低重複、選定 counts 直接形成骨架清單數量。fixture:
+`engine/examples/06_page_type_candidates.json` 搭配未切頁原文 05。
+
+```bash
+python3 "$RT/tools/make_skeleton.py" \
+  --plan engine/examples/06_page_type_candidates.json \
+  --source engine/examples/05_outline_to_ppt_source.md \
+  --selected-plan-out "$RT/page_type_plan.json" \
+  --slides-out "$RT/slides_plan.md" \
+  --out "$RT/spec_plan.json"
+```
+
+預期 exit=0,序列為
+`cover → info_three_column_category → info_horizontal_explanation_rows → closing`,
+輸出 `相鄰重複:0`;spec 的三欄 points 數為 2/2/2、橫列數為 4,`slides.md`
+逐字來自 source_excerpt 且 closing 固定 `Thank you`。
+
+runner 另驗「語意優先」：前一頁只有三欄 exact、下一頁三欄 exact/橫列 acceptable
+時,即使會相鄰重複也必須選三欄,證明多樣性不能越權蓋過 fit。
+
+反向測試再把第二頁兩個候選分別改成 columns=2、rows=3(都低於契約下限);
+預期 exit=1 且輸出 `沒有任何契約可行的全自動候選`。這證明不能用
+「待補充」虛增系統自行選型的結構數量,也不會先產一份資料與版型不合的骨架。

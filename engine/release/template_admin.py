@@ -467,7 +467,8 @@ def run_golden(pack_dir: Path, only=None, out_dir: Path | None = None) -> int:
         if _run("inspect", [sys.executable, TOOLS / "inspect_template.py",
                             "--pptx", deck, "--all", "--out", sj]):
             return 1
-    if json.loads(s1.read_text()) != json.loads(s2.read_text()):
+    if (json.loads(s1.read_text(encoding="utf-8"))
+            != json.loads(s2.read_text(encoding="utf-8"))):
         print("✗ 冪等實證失敗:連跑兩次 shape 樹不一致(渲染層有隨機性?)")
         return 1
     # 驗收檔在 qa 之前就複製出來:它是**診斷用**的,qa 紅時反而最需要開檔看。

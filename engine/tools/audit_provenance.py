@@ -6,7 +6,8 @@ validator 只追溯已註冊頁型契約內開 provenance 的 slots,且數字用
   1. slides.md 完整性(帶 --source 時):每個 Slide 區塊的每一行都必須是
      本次原文檔的逐字片段(容忍空白差異)→ 防改寫/補寫/混入舊回合。
   2. 頂層 slides[].title 逐字出現在該頁區塊;deck.deck_name 等於第一頁
-     真正內容頁(非 cover/agenda/closing)的 title。closing 固定 Thank you 豁免。
+     真正內容頁(非 cover/agenda/section_transition/closing)的 title。
+     closing 固定 Thank you 豁免。
   3. 精確數字 token:deck_name、每頁 title 與 slots 所有字串,先剔除草稿
      佔位符,再以 token 精確比對(來源 50 不得支援輸出 5)。
 豁免:agenda 順序編號(slots.items[*].number)、數據比較頁固定標題
@@ -43,7 +44,7 @@ except ImportError:
     print("[E] 找不到 validate_slide_spec_gpts.py(需與本工具同在 /mnt/data 或父目錄)")
     sys.exit(2)
 
-STRUCTURAL_PAGES = {"cover", "agenda", "closing"}
+STRUCTURAL_PAGES = {"cover", "agenda", "section_transition", "closing"}
 # path 規則 → 該欄位為結構值,免稽核(與 validator 契約的 provenance=False 對齊)
 EXEMPT_PATHS = [
     ("agenda", re.compile(r"^slots\.items\[\d+\]\.number$")),
@@ -143,7 +144,10 @@ def main(argv):
             problems.append(f"slide[{n}] 頂層 title「{title}」未逐字出現在該頁來源區塊")
 
     if first_content is None:
-        problems.append("整份 spec 沒有任何真正內容頁(非 cover/agenda/closing)")
+        problems.append(
+            "整份 spec 沒有任何真正內容頁"
+            "(非 cover/agenda/section_transition/closing)"
+        )
     elif deck_name != first_content.get("title", ""):
         problems.append(
             f"deck.deck_name「{deck_name}」≠ 第一頁內容頁 slide[{first_content.get('number')}] "

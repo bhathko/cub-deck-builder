@@ -1,11 +1,11 @@
 {
   "template_id": "light",
   "display_name": "Cathay 淺色企業風",
-  "version": "2026-07-27.4",
+  "version": "2026-07-30.3",
   "status": "registered",
   "template_file": "template.pptx",
-  "template_sha256": "080ba71991f34f2d0d0670c5d5f605a0b15e4bce46a207e2fad62b6d1c4a48d2",
-  "page_count": 59,
+  "template_sha256": "9d20f5e5dfcacebe88553e52db5aad97120ce775c5053763f27dab4d3ff2402a",
+  "page_count": 60,
   "aspect": "16:9",
   "language": "zh-TW",
   "style": {
@@ -64,6 +64,10 @@
       "mode": "fill",
       "template_page": 9
     },
+    "section_transition": {
+      "mode": "fill",
+      "template_page": 60
+    },
     "closing": {
       "mode": "fill",
       "template_page": 59
@@ -109,7 +113,7 @@
       "template_page": 16
     },
     "info_sidebar_grid": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 18
     },
     "info_icon_bubble_cluster": {
@@ -161,7 +165,7 @@
       "template_page": 31
     },
     "evaluation_vs_criteria_matrix": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 32
     },
     "cycle_three_node_process": {
@@ -289,9 +293,27 @@
     "evaluation_option_score_pros_cons.slots.recommendation.item.max_chars": 11,
     "evaluation_option_score_pros_cons.slots.recommended.max_chars": 11,
     "evaluation_option_score_pros_cons.slots.subtitle.max_chars": 50,
+    "evaluation_vs_criteria_matrix.slots.criteria.item.left.max_chars": 41,
+    "evaluation_vs_criteria_matrix.slots.criteria.item.right.max_chars": 41,
+    "evaluation_vs_criteria_matrix.slots.left_name.max_chars": 9,
+    "evaluation_vs_criteria_matrix.slots.right_name.max_chars": 7,
+    "evaluation_vs_criteria_matrix.slots.subtitle.max_chars": 50,
+    "info_before_after_item_compare.slots.after.items.item.name.max_chars": 4,
     "info_card_grid.slots.subtitle.max_chars": 50,
     "info_horizontal_explanation_rows.slots.rows.item.points.max": 2,
+    "info_horizontal_explanation_rows.slots.rows.max": 4,
     "info_horizontal_explanation_rows.slots.subtitle.max_chars": 49,
+    "info_sidebar_grid.slots.flex_category.cards.item.detail.max_chars": 24,
+    "info_sidebar_grid.slots.flex_category.cards.item.heading.max_chars": 8,
+    "info_sidebar_grid.slots.flex_category.label.max_chars": 14,
+    "info_sidebar_grid.slots.full_width_category.card.detail.max_chars": 60,
+    "info_sidebar_grid.slots.full_width_category.card.heading.max_chars": 20,
+    "info_sidebar_grid.slots.full_width_category.label.max_chars": 14,
+    "info_sidebar_grid.slots.hashtags.item.label.max_chars": 7,
+    "info_sidebar_grid.slots.paired_categories.item.cards.item.detail.max_chars": 40,
+    "info_sidebar_grid.slots.paired_categories.item.cards.item.heading.max_chars": 13,
+    "info_sidebar_grid.slots.paired_categories.item.label.max_chars": 14,
+    "info_sidebar_grid.slots.subtitle.max_chars": 50,
     "info_three_column_category.slots.columns.item.heading.max_chars": 13,
     "info_three_column_category.slots.columns.item.points.item.max_chars": 17,
     "info_three_column_category.slots.columns.item.points.max": 4,
@@ -304,7 +326,10 @@
     "pyramid_layered_maturity_detail.slots.side_cards.item.points.item.max_chars": 18,
     "pyramid_layered_maturity_detail.slots.side_cards.item.points.max": 2,
     "pyramid_layered_maturity_detail.slots.subtitle.max_chars": 56,
+    "section_transition.slots.main_title.max_chars": 4,
+    "section_transition.slots.subtitle.max_chars": 13,
     "stage_timeline_progress.slots.axis_labels.item.max_chars": 2,
+    "stage_timeline_progress.slots.current_status.heading.max_chars": 10,
     "stage_timeline_progress.slots.subtitle.max_chars": 50,
     "stage_year_cards.slots.stages.item.details.item.max_chars": 15,
     "stage_year_cards.slots.stages.item.heading.max_chars": 7,

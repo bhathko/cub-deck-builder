@@ -83,6 +83,13 @@
   - `title` 文字 ≤20 字
   - `subtitle` 文字 ≤60 字(選填)
 
+## section_transition — 章節過渡頁
+適用:章節開場、主題切換或中場轉場，只呈現主標題與一句副標題。
+頁碼:無(`render_page_number: false`)。素材:無(背景與視覺樣式由模板頁自帶)。
+- 頂層 `title` 是頁面語意標題；`main_title` 是版面中央顯示的短章節名。
+- `main_title` ≤20 字
+- `subtitle` ≤40 字
+
 ## vision_goal_center_balance — 願景目標(中心平衡)
 適用:一個核心目標 + 左右支撐重點 + KPI。頁碼:必須。素材:background、logo。
 - `subtitle` ≤60 字
@@ -97,6 +104,24 @@
 - `columns`:清單固定 3 欄,每欄:
   - `heading` ≤20 字
   - `points`:清單 2–6 項,每項 ≤40 字
+
+## info_sidebar_grid — 資訊說明(側欄分類網格)
+適用:一個大主題下,依 4 個分類整理 6–8 個子模組、功能項、規則或資訊點。
+頁碼:必須。素材:background、logo。
+- `subtitle` ≤60 字(頁面上方淡綠色主題帶)
+- `hashtags`:清單 3–4 項,每項 `{label ≤12 字}`;只填標籤文字,
+  渲染時會自動加上 `# ` 前綴
+- `topic` ≤40 字(左側大型主題區)
+- `paired_categories`:清單固定 2 項(前兩列),每項:
+  - `label` ≤20 字
+  - `cards`:固定 2 張,每張 `{heading ≤20 字, detail ≤60 字}`
+- `flex_category`:第三列,
+  `{label ≤20 字, cards 1–3 張 × {heading ≤20 字, detail ≤60 字}}`
+- `full_width_category`:第四列,
+  `{label ≤20 字, card {heading ≤20 字, detail ≤60 字}}`
+
+四列合計 6–8 張卡片。缺少的第三列卡片會連同底框刪除;本版先沿用模板
+固定寬度,不依卡片數動態拉寬。
 
 ## data_line_trend_comparison — 數據比較(折線趨勢)
 適用:1–2 組指標在多個時間點上的趨勢比較。頁碼:必須。素材:background、logo。
@@ -114,6 +139,16 @@
 - `before`:`{heading ≤12 字(如 "改善前"), points 2–6 項 × ≤40 字}`
 - `after`:同 before
 - `kpis`:清單 2–3 項,每項 `{label ≤30 字, value ≤12 字}`
+
+## evaluation_vs_criteria_matrix — 方案評估(雙方案準則矩陣)
+適用:兩個方案、工具、合作模式或設計選擇的逐項比較。頁碼:必須。素材:background、logo。
+light 全自動版為避免暗示來源未提供的勝出結果,會移除模板內所有皇冠/獎盃圖示。
+- `subtitle` ≤60 字
+- `left_name`、`right_name`:左右方案名稱,各 ≤24 字
+- `criteria`:清單 4–6 列,每列:
+  - `label` ≤16 字(中央評估準則或中性結論標籤)
+  - `left` ≤60 字(左側方案說明)
+  - `right` ≤60 字(右側方案說明)
 
 ## evaluation_option_score_pros_cons — 方案評估(優缺點)
 適用:2–3 個方案的優缺點評比。頁碼:必須。素材:background、logo。
@@ -278,9 +313,25 @@
 | evaluation_option_score_pros_cons | `recommendation[]` | ≤40 字 | **≤11 字** |
 | evaluation_option_score_pros_cons | `recommended` | ≤20 字 | **≤11 字** |
 | evaluation_option_score_pros_cons | `subtitle` | ≤60 字 | **≤50 字** |
+| evaluation_vs_criteria_matrix | `criteria[].left` | ≤60 字 | **≤41 字** |
+| evaluation_vs_criteria_matrix | `criteria[].right` | ≤60 字 | **≤41 字** |
+| evaluation_vs_criteria_matrix | `left_name` | ≤24 字 | **≤9 字** |
+| evaluation_vs_criteria_matrix | `right_name` | ≤24 字 | **≤7 字** |
+| evaluation_vs_criteria_matrix | `subtitle` | ≤60 字 | **≤50 字** |
+| info_before_after_item_compare | `after.items[].name` | ≤12 字 | **≤4 字** |
 | info_card_grid | `subtitle` | ≤60 字 | **≤50 字** |
+| info_horizontal_explanation_rows | `rows` | 4–5 項 | **4–4 項** |
 | info_horizontal_explanation_rows | `rows[].points` | 1–3 項 | **1–2 項** |
 | info_horizontal_explanation_rows | `subtitle` | ≤60 字 | **≤49 字** |
+| info_sidebar_grid | `flex_category.cards[].detail` | ≤60 字 | **≤24 字** |
+| info_sidebar_grid | `flex_category.cards[].heading` | ≤20 字 | **≤8 字** |
+| info_sidebar_grid | `flex_category.label` | ≤20 字 | **≤14 字** |
+| info_sidebar_grid | `full_width_category.label` | ≤20 字 | **≤14 字** |
+| info_sidebar_grid | `hashtags[].label` | ≤12 字 | **≤7 字** |
+| info_sidebar_grid | `paired_categories[].cards[].detail` | ≤60 字 | **≤40 字** |
+| info_sidebar_grid | `paired_categories[].cards[].heading` | ≤20 字 | **≤13 字** |
+| info_sidebar_grid | `paired_categories[].label` | ≤20 字 | **≤14 字** |
+| info_sidebar_grid | `subtitle` | ≤60 字 | **≤50 字** |
 | info_three_column_category | `columns[].heading` | ≤20 字 | **≤13 字** |
 | info_three_column_category | `columns[].points` | 2–6 項 | **2–4 項** |
 | info_three_column_category | `columns[].points[]` | ≤40 字 | **≤17 字** |
@@ -293,7 +344,10 @@
 | pyramid_layered_maturity_detail | `side_cards[].points` | 2–4 項 | **2–2 項** |
 | pyramid_layered_maturity_detail | `side_cards[].points[]` | ≤30 字 | **≤18 字** |
 | pyramid_layered_maturity_detail | `subtitle` | ≤60 字 | **≤56 字** |
+| section_transition | `main_title` | ≤20 字 | **≤4 字** |
+| section_transition | `subtitle` | ≤40 字 | **≤13 字** |
 | stage_timeline_progress | `axis_labels[]` | ≤8 字 | **≤2 字** |
+| stage_timeline_progress | `current_status.heading` | ≤12 字 | **≤10 字** |
 | stage_timeline_progress | `subtitle` | ≤60 字 | **≤50 字** |
 | stage_year_cards | `stages[].details[]` | ≤30 字 | **≤15 字** |
 | stage_year_cards | `stages[].heading` | ≤16 字 | **≤7 字** |
@@ -306,7 +360,7 @@
 | vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
 | vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
 
-(共 54 個槽位。**本表由 `template_admin.py fit` 自動重生,
+(共 73 個槽位。**本表由 `template_admin.py fit` 自動重生,
 不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、
 文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)
 
@@ -316,6 +370,10 @@
 - 不確定用哪個頁型時(或 GPTs 替使用者代擬 JSON 時),依內容結構選最貼近的頁型:
   先看本檔的已註冊頁型,沒有合適的再翻 `page_types.md` 的「版型選擇原則」節挑選。
   **不可發明兩份文件都沒有的頁型**,也不可發明模板外的視覺風格。
+- 大綱模式先把語意同等候選與來源實際清單數量交給 `make_skeleton.py --plan`;
+  工具用選定模板包的實際容量排除不合候選,再確定性降低相鄰重複。**多樣性只能
+  當同等語意候選的決勝條件**,不得把並列資訊改寫成時序/因果/循環來換版型,
+  也不得用「待補充」虛增系統自行選型的清單數量。
 - 內容裝不進任何頁型(例如 4 欄對照、7 層金字塔)→ 優先「刪減或拆頁」讓內容符合
   頁型容量,而不是撐爆槽位;真的不行就回報使用者這頁需要人工處理。
 - 槽位數量比內容多時,填實際數量即可(在 min–max 區間內),渲染時要重新置中/等距,

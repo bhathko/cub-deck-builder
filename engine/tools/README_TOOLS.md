@@ -12,7 +12,47 @@ manifest.json、bindings.json、page_map.md、assets/)。
 
 全自動 = 自動填入模板頁:clone 模板實頁再依模板包 `bindings.json` 填字
 (由 fills_engine 解譯),不需要 plan。
-**整份 spec 都是註冊頁型時,流程只有三條指令,你不產任何中間檔。**
+直供 JSON 且整份 spec 都是註冊頁型時不需要任何中間檔。大綱模式則先用
+`make_skeleton.py --plan` 做契約先行選版；那是頁型決策檔,不是 render_plan。
+
+## 大綱模式:先驗容量再鎖版型
+
+先把原文存成 `outline_source_current.txt`;跑 `make_skeleton.py --list` 取全自動
+候選,縮小候選後以
+`make_skeleton.py --describe info_card_grid,stage_timeline_progress`
+讀選定模板包的 merged 字數/數量契約,再建立 `page_type_candidates.json`：
+
+```json
+{
+  "version": 1,
+  "deck": {"template": "light"},
+  "slides": [{
+    "source_excerpt": ["原文逐字片段"],
+    "candidates": [{
+      "page_type": "info_three_column_category",
+      "fit": "exact",
+      "counts": {"columns": 3, "columns[].points": [2, 3, 2]}
+    }]
+  }]
+}
+```
+
+- `source_excerpt` 必須逐字出自本次原文。
+- `counts` 是來源實際清單數量,不把「待補充」算進去；鍵直接照契約槽位路徑。
+- 使用者明確點名該頁但缺結構資料時,候選標 `requested_by_user:true`,counts
+  才可計入之後要放的「待補充」。
+- `fit=exact` 永遠優先於 `acceptable`;工具只在同等 fit 候選間減少重複,
+  不會為多樣性犧牲語意。
+
+一條命令先驗模板包全自動支援與 merged 容量,再確定性全局選版,並同時產出
+最終選型、`slides.md` 與 spec 骨架：
+
+```bash
+python /mnt/data/tools/make_skeleton.py --plan /mnt/data/page_type_candidates.json --source /mnt/data/outline_source_current.txt --selected-plan-out /mnt/data/page_type_plan.json --slides-out /mnt/data/slides.md --out /mnt/data/slide_spec.json
+```
+
+所有候選都被排除時,先修候選規劃；來源確實沒有任何合約可行頁型才回報
+「全自動頁型缺口」。禁止改寫內容硬套、禁止手寫最終頁型序列或 slides.md。
 
 ## 標準流程 = 一條指令(run_pipeline 依序跑 稽核→驗證→渲染→QA,任一 FAIL 即停)
 
@@ -32,7 +72,8 @@ python /mnt/data/tools/run_pipeline.py --spec /mnt/data/slide_spec.json \
 - 個別工具(validator / render_deck / qa_check)仍可單獨執行除錯,指令同管線輸出的
   `$` 行;但正式產檔一律走 run_pipeline,不要手動串步驟。
 
-使用者要骨架:`python /mnt/data/tools/make_skeleton.py --types cover,agenda,...,closing --out ...`
+純 JSON 使用者只要骨架時仍可用:
+`python /mnt/data/tools/make_skeleton.py --types cover,agenda,...,closing --out ...`
 
 ## 只有「未涵蓋頁型」(page_types.md 裡未註冊的那些)才需要 plan
 
@@ -69,6 +110,7 @@ render_plan.json 只放未涵蓋的頁,其餘頁不用列:
 | audit:數字 token 無精確對應 | 同捏造數字處理;禁止改 slides.md 來遷就 spec |
 | render:UNMATCHED / AMBIGUOUS | inspect --page N 重查,只改該條 plan 的 match(id 優先,撞多筆加 nth) |
 | `頁型 'X' 不受模板 'Y' 支援` / 非全自動 | 換該包全自動頁型(`make_skeleton.py --list --template-pack Y` 查),或整份換 deck.template,或請管理者回註冊流程補;禁止硬用 clone 繞過 |
+| `契約先行選型失敗` / `候選 ... 排除` | 依輸出修正 `source_excerpt`、fit 或來源實際 `counts`;不得用待補充虛增數量。所有語意合適候選都不合才是頁型庫缺口 |
 | qa FAIL:`文字壓到別的元素` | 該槽位內容太長,文字跑出自己的框壓到隔欄(訊息會給頁碼與 shape id)。**縮短那個槽位**再整條重跑。這是 FAIL 不是 WARN,不可交付;也**不要**改成別的頁型繞過 |
 | qa WARN:`溢出疑慮共 N 條` | 沙箱估算,先看它列的最嚴重幾條;真的過長就縮短。這是 WARN,PASS 仍可交付但要提醒使用者開檔確認 |
 | render:FillError(註冊頁型) | 唯一不修的錯:停止並回報維護者(模板改版問題) |

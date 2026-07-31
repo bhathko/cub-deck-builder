@@ -23,7 +23,7 @@
 | vision_goal_hub_spoke | clone(半自動,需 render_plan) | 13 | 寫 plan 前先 `inspect_template.py --page 13` |
 | vision_goal_pyramid | clone(半自動,需 render_plan) | 15 | 寫 plan 前先 `inspect_template.py --page 15` |
 | vision_goal_keyword_orbit | fill(全自動) | 16 | 綁定見 bindings.json;契約見 page_types_registry.md |
-| info_sidebar_grid | clone(半自動,需 render_plan) | 18 | 寫 plan 前先 `inspect_template.py --page 18` |
+| info_sidebar_grid | fill(全自動) | 18 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | info_icon_bubble_cluster | clone(半自動,需 render_plan) | 19 | 寫 plan 前先 `inspect_template.py --page 19` |
 | info_card_grid | fill(全自動) | 20 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | info_center_hub_support | clone(半自動,需 render_plan) | 21 | 寫 plan 前先 `inspect_template.py --page 21` |
@@ -36,7 +36,7 @@
 | data_dual_percentage_balance | clone(半自動,需 render_plan) | 28 | 寫 plan 前先 `inspect_template.py --page 28` |
 | data_three_number_kpis | fill(全自動) | 30 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | data_three_radar_score_comparison | clone(半自動,需 render_plan) | 31 | 寫 plan 前先 `inspect_template.py --page 31` |
-| evaluation_vs_criteria_matrix | clone(半自動,需 render_plan) | 32 | 寫 plan 前先 `inspect_template.py --page 32` |
+| evaluation_vs_criteria_matrix | fill(全自動) | 32 | 綁定見 bindings.json;契約見 page_types_registry.md;皇冠/獎盃於填充時移除 |
 | cycle_three_node_process | clone(半自動,需 render_plan) | 34 | 寫 plan 前先 `inspect_template.py --page 34` |
 | cycle_four_point_loop | fill(全自動) | 35 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | cycle_dual_core_feedback | clone(半自動,需 render_plan) | 36 | 寫 plan 前先 `inspect_template.py --page 36` |
@@ -62,8 +62,9 @@
 | structure_org_chart_roles | clone(半自動,需 render_plan) | 57 | 寫 plan 前先 `inspect_template.py --page 57` |
 | structure_relation_map | clone(半自動,需 render_plan) | 58 | 寫 plan 前先 `inspect_template.py --page 58` |
 | closing | fill(全自動,clone+填充) | 59 | 滿版背景與遮罩是 p59 頁面自帶 shape,不吃 spec 的 assets |
+| section_transition | fill(全自動,clone+填充) | 60 | 章節過渡頁；layout 自帶背景與置中樣式，不顯示頁碼、不吃 spec 的 assets |
 
-共 51 筆:fill 19、clone 32。
+共 52 筆:fill 22、clone 30。
 
 ## 附:幾個吃過虧的版位限制(容量真相仍在 manifest `capacity_overrides`)
 

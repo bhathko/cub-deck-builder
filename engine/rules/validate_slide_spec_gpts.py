@@ -180,6 +180,16 @@ PAGE_TYPES = {
             },
         },
     },
+    "section_transition": {
+        "page_number": "none",
+        "assets": [],
+        "slots": {
+            # 結構頁例外(同 cover):版面主標框窄,需由 fit 量測槽位容量。
+            # 頂層 title 仍是頁面語意標題；可保留較完整章節名稱。
+            "main_title": T(20),
+            "subtitle": T(40),
+        },
+    },
     "vision_goal_center_balance": {
         "page_number": "required",
         "assets": ["background", "logo"],
@@ -206,6 +216,48 @@ PAGE_TYPES = {
                     "points": {"kind": "list", "min": 2, "max": 6, "required": True, "item": T(40)},
                 }},
             },
+        },
+    },
+    "info_sidebar_grid": {
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "hashtags": {
+                "kind": "list", "min": 3, "max": 4, "required": True,
+                "item": {"kind": "object", "fields": {"label": T(12)}},
+            },
+            "topic": T(40),
+            "paired_categories": {
+                "kind": "list", "min": 2, "max": 2, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(20),
+                    "cards": {
+                        "kind": "list", "min": 2, "max": 2, "required": True,
+                        "item": {"kind": "object", "fields": {
+                            "heading": T(20),
+                            "detail": T(60),
+                        }},
+                    },
+                }},
+            },
+            "flex_category": {"kind": "object", "fields": {
+                "label": T(20),
+                "cards": {
+                    "kind": "list", "min": 1, "max": 3, "required": True,
+                    "item": {"kind": "object", "fields": {
+                        "heading": T(20),
+                        "detail": T(60),
+                    }},
+                },
+            }},
+            "full_width_category": {"kind": "object", "fields": {
+                "label": T(20),
+                "card": {"kind": "object", "fields": {
+                    "heading": T(20),
+                    "detail": T(60),
+                }},
+            }},
         },
     },
     "data_line_trend_comparison": {
@@ -249,6 +301,23 @@ PAGE_TYPES = {
             "kpis": {
                 "kind": "list", "min": 2, "max": 3, "required": True,
                 "item": {"kind": "object", "fields": {"label": T(30), "value": T(12)}},
+            },
+        },
+    },
+    "evaluation_vs_criteria_matrix": {
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "left_name": T(24),
+            "right_name": T(24),
+            "criteria": {
+                "kind": "list", "min": 4, "max": 6, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(16),
+                    "left": T(60),
+                    "right": T(60),
+                }},
             },
         },
     },

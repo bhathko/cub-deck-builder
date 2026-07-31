@@ -2,7 +2,7 @@
 """regress — 引擎級回歸 runner:REGRESSION.md 全部案例一鍵跑完。
 
 用法(repo 根目錄執行;三種 shell 通用):
-  python3 engine/release/regress.py               # 全部案例(R0–R13 + light R-L0/R-L1)
+  python3 engine/release/regress.py               # 全部案例(R0–R14 + light R-L0/R-L1)
   python3 engine/release/regress.py --list        # 列案例
   python3 engine/release/regress.py --only R2,R12 # 只跑指定(相依案例自動帶入)
   python3 engine/release/regress.py --skip R9     # 跳過指定(會列為 SKIP 並使結果非綠)
@@ -376,8 +376,8 @@ def r12(env: Env):
 import sys, json; sys.path.insert(0,'engine/tools'); sys.path.insert(0,'engine/rules')
 from pptx import Presentation
 import text_tools as tt
-m = json.load(open('engine/templates/light/manifest.json'))
-fills = list(json.load(open('engine/templates/light/bindings.json'))["fills"])
+m = json.load(open('engine/templates/light/manifest.json', encoding='utf-8'))
+fills = list(json.load(open('engine/templates/light/bindings.json', encoding='utf-8'))["fills"])
 order = [pt for pt in m["page_types"] if pt in fills]
 seq = [pt for pt in order for _ in ("min", "max")]
 page_of = {pt: e["template_page"] for pt, e in m["page_types"].items()
@@ -454,6 +454,82 @@ def r13(env: Env):
     return True, "sync-docs 綠;INDEX 漂移時 pack 拒打包且 zip 未被改寫"
 
 
+def r14(env: Env):
+    """契約先行選版:容量排除、全局多樣性、骨架清單數量與來源映射。"""
+    selected = env.rt / "page_type_plan.json"
+    slides = env.rt / "slides_plan.md"
+    spec = env.rt / "spec_plan.json"
+    rc, o = run([
+        sys.executable, env.rt / "tools" / "make_skeleton.py",
+        "--plan", EXAMPLES / "06_page_type_candidates.json",
+        "--source", EXAMPLES / "05_outline_to_ppt_source.md",
+        "--selected-plan-out", selected,
+        "--slides-out", slides,
+        "--out", spec,
+    ])
+    if rc != 0 or "相鄰重複:0" not in o:
+        return False, f"(a) 正向選版預期 exit=0 + 零相鄰重複,實得 {rc}\n{o}"
+    picked = json.loads(selected.read_text(encoding="utf-8"))
+    sequence = [s["page_type"] for s in picked["slides"]]
+    want = ["cover", "info_three_column_category",
+            "info_horizontal_explanation_rows", "closing"]
+    if sequence != want:
+        return False, f"(a) 確定性序列不符:{sequence}(預期 {want})"
+    skeleton = json.loads(spec.read_text(encoding="utf-8"))
+    cols = skeleton["slides"][1]["slots"]["columns"]
+    rows = skeleton["slides"][2]["slots"]["rows"]
+    if len(cols) != 3 or [len(c["points"]) for c in cols] != [2, 2, 2]:
+        return False, "(a) 骨架未依候選 counts 建三欄/巢狀 points"
+    if len(rows) != 4 or [len(r["points"]) for r in rows] != [1, 1, 1, 1]:
+        return False, "(a) 骨架未依候選 counts 建四列"
+    slides_text = slides.read_text(encoding="utf-8")
+    if "## Slide 4\nThank you" not in slides_text or "專案一是營運數據治理" not in slides_text:
+        return False, "(a) slides.md 未依 source_excerpt/closing 固定值產生"
+
+    # 語意優先:第二內容頁只有 A=exact、B=acceptable 時,即使 A 會相鄰重複
+    # 也不得為多樣性降級到 B。
+    semantic = json.loads(
+        (EXAMPLES / "06_page_type_candidates.json").read_text(encoding="utf-8"))
+    semantic["slides"][1]["candidates"] = semantic["slides"][1]["candidates"][:1]
+    semantic["slides"][2]["candidates"][1]["fit"] = "acceptable"
+    semantic_plan = env.rt / "page_type_candidates_semantic.json"
+    semantic_plan.write_text(
+        json.dumps(semantic, ensure_ascii=False, indent=2), encoding="utf-8")
+    semantic_selected = env.rt / "page_type_plan_semantic.json"
+    rc, o = run([
+        sys.executable, env.rt / "tools" / "make_skeleton.py",
+        "--plan", semantic_plan,
+        "--source", EXAMPLES / "05_outline_to_ppt_source.md",
+        "--selected-plan-out", semantic_selected,
+        "--out", env.rt / "spec_plan_semantic.json",
+    ])
+    if rc != 0:
+        return False, f"(b) 語意優先案例執行失敗 exit={rc}\n{o}"
+    semantic_types = [
+        s["page_type"] for s in
+        json.loads(semantic_selected.read_text(encoding="utf-8"))["slides"]
+    ]
+    if semantic_types[1:3] != [
+            "info_three_column_category", "info_three_column_category"]:
+        return False, f"(b) 多樣性越權蓋過 fit:{semantic_types}"
+
+    # 反向:把第二頁全部候選改成低於契約下限,必須在產骨架前擋下。
+    bad = json.loads((EXAMPLES / "06_page_type_candidates.json").read_text(encoding="utf-8"))
+    bad["slides"][1]["candidates"][0]["counts"]["columns"] = 2
+    bad["slides"][1]["candidates"][1]["counts"]["rows"] = 3
+    bad_plan = env.rt / "page_type_candidates_bad.json"
+    bad_plan.write_text(json.dumps(bad, ensure_ascii=False, indent=2), encoding="utf-8")
+    rc, o = run([
+        sys.executable, env.rt / "tools" / "make_skeleton.py",
+        "--plan", bad_plan,
+        "--source", EXAMPLES / "05_outline_to_ppt_source.md",
+        "--out", env.rt / "spec_plan_bad.json",
+    ])
+    if rc != 1 or "沒有任何契約可行的全自動候選" not in o:
+        return False, f"(c) 容量反向測試預期 exit=1,實得 {rc}\n{o}"
+    return True, "來源逐字、fit 優先、容量排除、確定性多樣性、counts 骨架皆正確"
+
+
 def rl0(env: Env):
     """light 包完整性(sha 對 manifest、page_types 自洽)。"""
     m = json.loads((LIGHT / "manifest.json").read_text(encoding="utf-8-sig"))
@@ -494,6 +570,7 @@ CASES = [
     ("R11", "golden 契約快照同步", r11, []),
     ("R12", "誠實容量 + 碰撞反向測試", r12, []),
     ("R13", "sync-docs + pack 閘門反向測試", r13, []),
+    ("R14", "契約先行選版正反向測試", r14, ["R0"]),
     ("R-L0", "light 包完整性", rl0, []),
     ("R-L1", "light smoke spec 全流程", rl1, ["R0"]),
     # R-L2(clone 抽測)是人工案例,見 light REGRESSION.md——不自動化

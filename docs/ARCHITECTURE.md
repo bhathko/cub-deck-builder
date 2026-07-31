@@ -32,8 +32,12 @@ docs/       文件
 ## 2. 產檔管線(單一入口)
 
 ```
-slide_spec.json ──► audit_provenance ──► validator ──► render_deck ──► qa_check ──► deck.pptx
-   (或大綱)          內容忠實稽核       產檔前閘門     確定性渲染      產檔後自檢
+大綱 ─► 候選頁型+來源實際 counts ─► make_skeleton --plan ─┬─► slide_spec.json
+                                    契約容量+全局選版      └─► slides.md
+直供 JSON ─────────────────────────────────────────────────► slide_spec.json
+                                                              │
+              audit_provenance ─► validator ─► render_deck ─► qa_check ─► deck.pptx
+                 內容忠實稽核       產檔前閘門     確定性渲染      產檔後自檢
 ```
 
 由 `engine/tools/run_pipeline.py` 一條指令跑完,**任一階段非 0 即停**,
@@ -46,7 +50,9 @@ slide_spec.json ──► audit_provenance ──► validator ──► render_
 - **兩道程式閘門**:產檔前驗規格(槽位、字數、頁碼、素材),產檔後驗結果
   (內容覆蓋、頁數、Section、字體、溢出)。任一沒過不得交付。
 - **內容忠實**:大綱模式下,標題必須逐字取自來源、數字必須在原文出現過;
-  缺料填「待補充」,絕不捏造。
+  版型候選的 `source_excerpt` 也先逐字硬驗。模型提供語意同等候選與來源實際
+  清單數量,工具依模板 merged 契約先排除不合容量,再全局降低版型重複；版型鎖定
+  後才填內容。缺個別資料可填「待補充」,但不得用它湊系統自行選型的結構下限。
 
 ## 3. 頁型的兩級與模板的三級
 
@@ -246,8 +252,9 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
   頁型。** 新增語意頁型走契約同步、由工程師把關——這讓「同一份 spec 換
   `deck.template` 就換皮」在結構層永遠成立。
 - **outline 一鍵模式按包收斂**:該模式硬帶 `--registered-only --strict`
-  且禁 render_plan,所以切頁時**頁型候選 = 該包的全自動集合**
-  (先跑 `make_skeleton --list --template-pack <id>` 取支援矩陣);
+  且禁 render_plan,所以契約先行規劃時**頁型候選 = 該包的全自動集合**
+  (先跑 `make_skeleton --list --template-pack <id>` 取支援矩陣,再以
+  `--plan` 驗 source_excerpt、counts 與 merged 容量並全局選版);
   該包 cover/agenda/closing 非全自動時,對應規則是「略過該頁」。
 
 各工具的模板感知行為:
@@ -257,7 +264,7 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
 | `render_deck` | 綁定(fills)、模板檔、頁碼框與清除窗 | 退回 light |
 | `validator` | 合併容量覆寫、per-頁型素材鍵、三級閘門(unsupported 擋、非全自動 WARN) | 退回單模板行為 |
 | `qa_check` | 字體白名單、頁碼偵測窗 | 內建 light 常數 |
-| `make_skeleton` | 素材預設、合併容量、`--list` 三級支援;骨架寫入 `deck.template` | 退回 light |
+| `make_skeleton` | 素材預設、合併容量、`--list` 三級支援;`--plan` 先驗候選/全局選版並按 counts 建骨架+slides.md;寫入 `deck.template` | 退回 light |
 | `run_pipeline` | 解析一次、四階段共用;前置檢查含 manifest/綁定/模板檔 | 預設鏈 CLI→spec→light |
 | `inspect_template` | `--verify` 比對 inventory 與現模板,漂移 exit 1 | `--pptx` 原用法不受影響 |
 | `prepare_env`(前端) | 把 `engine/templates/` 同步進 `ppt_out/templates/` | — |
