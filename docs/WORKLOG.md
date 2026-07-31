@@ -966,6 +966,7 @@ instructions v2.5 → v2.6-20260727,`regress.py` 16 案例全綠。
 | 2026-07-30 | v2.8 | 大綱契約先行選版:來源逐字候選+實際 counts → merged 容量先驗 → 確定性全局多樣性 → 骨架/slides.md 後填槽;R14 |
 | 2026-07-31 | v2.11 | 候選廣度工具稽核化(plan v2):not_nominated 整庫覆蓋審視、候選池過窄 WARN、同分決勝改來源 hash;R14 擴充 |
 | 2026-07-31 | v2.12 | 第一梯隊六頁型 clone→fill 升格(p12/p39/p42/p45/p49/p52);容量不對稱頁型立「具名槽位」慣例(step_one…/level_one…/row_one…);修 `estimate_overflow` 直排框缺 `fits_w` 鍵(首個含直排文字的 fill 頁踩到);fill 22→28、clone 30→24;light@2026-07-31.1 |
+| 2026-07-31 | v2.14 | 目檢回饋:swimlane 角色卡三欄同構——欄 2 模板第 2 格與列點圓飾一律刪除,roles 改三欄一致單框換行;light@2026-07-31.2 |
 | 2026-07-31 | v2.13 | 大綱豐富訪談 /enrich-outline:版型導向增補提案、[補] 標記、audit --original 豐富鏈稽核;Knowledge 10→11 檔;R15 |
 
 ## 附錄:怎麼查原始時序紀錄

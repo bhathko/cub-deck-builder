@@ -202,7 +202,7 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 
 ```
 6d9cb26ceb5375dd21be273145ac3e56f5f6255257832c5c0bfb8d7b9d19d95a  tools.zip
-a66cd14a29e4293fe117a1e493f42017c46abc476c63ca5c43207e3bb13e9beb  template_light.zip
+e29b169273629472ce7f2c3f186137850b0634a95434e4d6607870d8e9e589c8  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行

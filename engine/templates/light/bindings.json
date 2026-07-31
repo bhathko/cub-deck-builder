@@ -3161,7 +3161,7 @@
     },
     "stage_phase_swimlane": {
       "template_page": 39,
-      "_note": "三欄泳道:工作卡列點併入單框;角色卡欄 2 有 2 框,roles 由 rows 逐框填,第 2 框不用時連列點圓飾(sep_ids)一起刪。",
+      "_note": "三欄泳道:工作卡列點併入單框;角色卡三欄一致 = 單框內換行(roles join),欄 2 模板的第 2 格與其列點圓飾(id 75/76)一律刪除,維持三欄同構。",
       "ops": [
         {
           "op": "set",
@@ -3230,34 +3230,29 @@
           ]
         },
         {
-          "op": "rows",
+          "op": "set",
           "slot": "$.slots.phases[0].roles",
-          "row_ids": [
-            30
-          ],
-          "sep_ids": [],
-          "merge_height_in": 0.69
+          "join": "\n",
+          "id": 30
         },
         {
-          "op": "rows",
+          "op": "set",
           "slot": "$.slots.phases[1].roles",
-          "row_ids": [
-            57,
-            75
-          ],
-          "sep_ids": [
-            76
-          ],
-          "merge_height_in": 0.69
+          "join": "\n",
+          "id": 57
         },
         {
-          "op": "rows",
+          "op": "set",
           "slot": "$.slots.phases[2].roles",
-          "row_ids": [
-            73
-          ],
-          "sep_ids": [],
-          "merge_height_in": 0.69
+          "join": "\n",
+          "id": 73
+        },
+        {
+          "op": "delete",
+          "ids": [
+            75,
+            76
+          ]
         }
       ]
     },
