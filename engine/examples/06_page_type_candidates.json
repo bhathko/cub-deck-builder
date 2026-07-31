@@ -1,94 +1,128 @@
 {
-  "version": 1,
-  "deck": {
-    "template": "light"
+ "version": 2,
+ "deck": {
+  "template": "light"
+ },
+ "not_nominated": [
+  {
+   "page_type": "data_*",
+   "reason": "來源未提供任何數值資料"
   },
-  "slides": [
+  {
+   "page_type": "evaluation_*",
+   "reason": "來源無方案比較或評分"
+  },
+  {
+   "page_type": "cycle_*",
+   "reason": "來源無循環或回饋關係"
+  },
+  {
+   "page_type": "stage_*",
+   "reason": "來源無時序或年度階段"
+  },
+  {
+   "page_type": "vision_*",
+   "reason": "來源非願景/目標結構"
+  },
+  {
+   "page_type": "pyramid_*",
+   "reason": "來源無層級遞進關係"
+  },
+  {
+   "page_type": "phase_*",
+   "reason": "來源段落為並列說明,無階段行動結構"
+  },
+  {
+   "page_type": "info_*",
+   "reason": "sidebar_grid 需 2+2 配對分組、card_grid 卡數不合、before_after 無前後對比"
+  }
+ ],
+ "slides": [
+  {
+   "source_excerpt": [
+    "年度工作簡報，品牌設計，日期為 2026/07/03，報告人為 Rita、Zoey、Nia，目標聽眾是內部主管與專案協作同仁。"
+   ],
+   "candidates": [
     {
-      "source_excerpt": [
-        "年度工作簡報，品牌設計，日期為 2026/07/03，報告人為 Rita、Zoey、Nia，目標聽眾是內部主管與專案協作同仁。"
-      ],
-      "candidates": [
-        {
-          "page_type": "cover",
-          "fit": "exact",
-          "counts": {}
-        }
-      ]
-    },
-    {
-      "source_excerpt": [
-        "年度工作從穩定交付轉向可衡量改善。核心任務是把流程、資料、服務與人才能力串成可持續運作的管理系統。"
-      ],
-      "candidates": [
-        {
-          "page_type": "info_three_column_category",
-          "fit": "exact",
-          "counts": {
-            "columns": 3,
-            "columns[].points": [
-              2,
-              2,
-              2
-            ]
-          }
-        },
-        {
-          "page_type": "info_horizontal_explanation_rows",
-          "fit": "exact",
-          "counts": {
-            "rows": 4,
-            "rows[].points": [
-              1,
-              1,
-              1,
-              1
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "source_excerpt": [
-        "專案一是營運數據治理與決策儀表板，要把分散資料整理成可追蹤、可比較、可決策的管理資訊。"
-      ],
-      "candidates": [
-        {
-          "page_type": "info_three_column_category",
-          "fit": "exact",
-          "counts": {
-            "columns": 3,
-            "columns[].points": [
-              2,
-              2,
-              2
-            ]
-          }
-        },
-        {
-          "page_type": "info_horizontal_explanation_rows",
-          "fit": "exact",
-          "counts": {
-            "rows": 4,
-            "rows[].points": [
-              1,
-              1,
-              1,
-              1
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "source_excerpt": [],
-      "candidates": [
-        {
-          "page_type": "closing",
-          "fit": "exact",
-          "counts": {}
-        }
-      ]
+     "page_type": "cover",
+     "fit": "exact",
+     "counts": {}
     }
-  ]
+   ]
+  },
+  {
+   "source_excerpt": [
+    "年度工作從穩定交付轉向可衡量改善。核心任務是把流程、資料、服務與人才能力串成可持續運作的管理系統。"
+   ],
+   "candidates": [
+    {
+     "page_type": "info_three_column_category",
+     "fit": "exact",
+     "counts": {
+      "columns": 3,
+      "columns[].points": [
+       2,
+       2,
+       2
+      ]
+     }
+    },
+    {
+     "page_type": "info_horizontal_explanation_rows",
+     "fit": "exact",
+     "counts": {
+      "rows": 4,
+      "rows[].points": [
+       1,
+       1,
+       1,
+       1
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "source_excerpt": [
+    "專案一是營運數據治理與決策儀表板，要把分散資料整理成可追蹤、可比較、可決策的管理資訊。"
+   ],
+   "candidates": [
+    {
+     "page_type": "info_three_column_category",
+     "fit": "exact",
+     "counts": {
+      "columns": 3,
+      "columns[].points": [
+       2,
+       2,
+       2
+      ]
+     }
+    },
+    {
+     "page_type": "info_horizontal_explanation_rows",
+     "fit": "exact",
+     "counts": {
+      "rows": 4,
+      "rows[].points": [
+       1,
+       1,
+       1,
+       1
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "source_excerpt": [],
+   "candidates": [
+    {
+     "page_type": "closing",
+     "fit": "exact",
+     "counts": {}
+    }
+   ]
+  }
+ ]
 }

@@ -18,6 +18,10 @@
 - --plan(大綱模式):模型只列「來源逐字片段 + 語意同樣合適的候選頁型 +
   來源實際清單數量」;本工具先用模板包合併契約排除容量不合候選,再以確定性
   全局選型減少相鄰重複與單一版型集中。選定後才產骨架與 slides.md。
+  plan 頂層另需 not_nominated 整庫覆蓋審視:每個非結構全自動頁型,不提名
+  就要給語意不合理由(同族可用「字首_*」一筆涵蓋),缺漏即 exit 1——候選
+  廣度是工具稽核的不變式。同分決勝用來源片段 hash(零隨機、同輸入必同輸出,
+  不同 deck 不會永遠收斂到同一版型)。
 - 已註冊頁型:依 validate_slide_spec_gpts.py 的 PAGE_TYPES 契約生成——必填槽位
   全建、清單取下限數量、占位文字「【欄位名】待填」且必在字數上限內。
 - 未註冊頁型(page_types.md 頁型庫):slots 只放一個提示欄位,容量請自行
@@ -28,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+import hashlib
 import json
 import re
 import sys
@@ -63,7 +68,7 @@ FIXED = {  # 固定值槽位,直接填不留占位
 }
 FIT_RANK = {"exact": 0, "acceptable": 1}
 STRUCTURAL_PAGES = {"cover", "agenda", "section_transition", "closing"}
-PLAN_VERSION = 1
+PLAN_VERSION = 2
 BEAM_WIDTH = 4096
 
 
@@ -248,6 +253,8 @@ def _source_excerpts(slide):
 
 
 def _composition_cost(sequence):
+    """多樣性成本;末位決勝用來源片段 hash(跨 deck 打散、同輸入必同輸出),
+    不再用候選列出順序——否則每份 deck 都收斂到模型慣性排第一的頁型。"""
     content = [c for c in sequence if c["page_type"] not in STRUCTURAL_PAGES]
     adjacent = 0
     for left, right in zip(sequence, sequence[1:]):
@@ -258,21 +265,101 @@ def _composition_cost(sequence):
     counts = Counter(c["_layout"] for c in content)
     max_use = max(counts.values(), default=0)
     repeat_pairs = sum(n * (n - 1) // 2 for n in counts.values())
-    order_sum = sum(c["_order"] for c in sequence)
+    tie_key = tuple(c["_tie"] for c in sequence)
     order_key = tuple(c["_order"] for c in sequence)
-    return adjacent, max_use, repeat_pairs, order_sum, order_key
+    return adjacent, max_use, repeat_pairs, tie_key, order_key
+
+
+def _tie_break(excerpts, page_type):
+    """該頁來源片段 + 頁型的確定性決勝值;只依內容,不依候選順序。"""
+    key = squash(" ".join(excerpts)) + "|" + page_type
+    return int.from_bytes(hashlib.sha256(key.encode("utf-8")).digest()[:8], "big")
+
+
+def _list_envelope(contract):
+    """頂層必填清單的數量包絡,給漏提名錯誤訊息用(例:criteria 4–6)。"""
+    tops = [s for s in contract_list_specs(contract)
+            if s["parent"] is None and s["required"]]
+    if not tops:
+        return "無清單結構"
+    return "、".join(f"{s['path']} {s['min']}–{s['max']}" for s in tops)
+
+
+def check_library_review(plan, contracts, pack):
+    """整庫覆蓋審視:每個非結構全自動頁型,必須被提名過或列入 not_nominated
+    附語意理由。候選廣度從此是工具稽核的不變式,不靠模型自律。"""
+    universe = {pt for pt, e in pack.page_types.items()
+                if e.get("mode") == "fill" and pt not in STRUCTURAL_PAGES
+                and pt in contracts}
+    nominated = set()
+    for slide in plan.get("slides") or []:
+        if isinstance(slide, dict):
+            for cand in slide.get("candidates") or []:
+                if isinstance(cand, dict) and isinstance(cand.get("page_type"), str):
+                    nominated.add(cand["page_type"])
+    raw = plan.get("not_nominated")
+    if raw is None:
+        raw = []
+    if not isinstance(raw, list):
+        raise ValueError("not_nominated 必須是清單")
+    covered = {}
+    for i, ent in enumerate(raw, 1):
+        if (not isinstance(ent, dict) or not isinstance(ent.get("page_type"), str)
+                or not isinstance(ent.get("reason"), str) or not ent["reason"].strip()):
+            raise ValueError(
+                f"not_nominated[{i}] 必須是 {{page_type, reason}},reason 不可空白")
+        pat = ent["page_type"]
+        if pat.endswith("_*"):
+            hits = {pt for pt in universe if pt.startswith(pat[:-1])}
+            if not hits:
+                raise ValueError(f"not_nominated[{i}] 字首 {pat} 沒有對應任何全自動頁型")
+            # 萬用字元只涵蓋未提名者:提名了 info_x 仍可用 info_* 說明其餘同族
+            hits -= nominated
+        else:
+            if pat not in universe:
+                raise ValueError(
+                    f"not_nominated[{i}] {pat} 不是本包非結構全自動頁型(全集見 --list)")
+            if pat in nominated:
+                raise ValueError(
+                    f"not_nominated[{i}] {pat} 已被提名,不可同時列為未提名")
+            hits = {pat}
+        for pt in hits:
+            covered.setdefault(pt, ent["reason"].strip())
+    missing = sorted(universe - nominated - set(covered))
+    if missing:
+        lines = [f"  {pt}({_list_envelope(contracts[pt])})" for pt in missing]
+        raise ValueError(
+            "整庫覆蓋審視不完整,以下全自動頁型未提名也未給理由:\n"
+            + "\n".join(lines)
+            + "\n  → 語意合適就加入該頁 candidates;不合適就在頂層 not_nominated"
+              " 補 {page_type, reason}(同族可用「字首_*」一筆涵蓋)")
+    review = {
+        "nominated": sorted(nominated & universe),
+        "not_nominated": [{"page_type": pt, "reason": covered[pt]}
+                          for pt in sorted(covered)],
+    }
+    return review
 
 
 def select_page_type_plan(plan, contracts, pack, source_text):
     """驗契約後在同等語意候選中做確定性全局選型。"""
-    if not isinstance(plan, dict) or plan.get("version") != PLAN_VERSION:
+    if not isinstance(plan, dict):
+        raise ValueError(f"page type plan.version 必須是 {PLAN_VERSION}")
+    if plan.get("version") == 1:
+        raise ValueError(
+            "plan version 2 起需要頂層 not_nominated 整庫覆蓋審視:"
+            "未提名的全自動頁型逐一給語意不合理由(同族可用「字首_*」),"
+            "補齊後把 version 改為 2")
+    if plan.get("version") != PLAN_VERSION:
         raise ValueError(f"page type plan.version 必須是 {PLAN_VERSION}")
     slides = plan.get("slides")
     if not isinstance(slides, list) or not slides:
         raise ValueError("page type plan.slides 必須是非空清單")
+    library_review = check_library_review(plan, contracts, pack)
     source_squashed = squash(source_text)
     choices_by_slide = []
     excerpts_by_slide = []
+    breadth_by_slide = []
     warnings = []
 
     for number, slide in enumerate(slides, 1):
@@ -333,6 +420,7 @@ def select_page_type_plan(plan, contracts, pack, source_text):
             ent["_order"] = order
             ent["_fit_rank"] = FIT_RANK[fit]
             ent["_layout"] = pack_entry.get("template_page", pt)
+            ent["_tie"] = _tie_break(excerpts, pt)
             feasible.append(ent)
 
         if not feasible:
@@ -343,6 +431,7 @@ def select_page_type_plan(plan, contracts, pack, source_text):
         best_fit = min(c["_fit_rank"] for c in feasible)
         feasible = [c for c in feasible if c["_fit_rank"] == best_fit]
         choices_by_slide.append(feasible)
+        breadth_by_slide.append((len(candidates), len(feasible)))
 
     # 同等語意候選才進多樣性最佳化。beam 固定排序、無隨機。
     states = [[]]
@@ -365,16 +454,27 @@ def select_page_type_plan(plan, contracts, pack, source_text):
             selected_slides[-1]["requested_by_user"] = True
     content_types = [s["page_type"] for s in selected_slides
                      if s["page_type"] not in STRUCTURAL_PAGES]
+    content_breadth = [b for s, b in zip(selected_slides, breadth_by_slide)
+                       if s["page_type"] not in STRUCTURAL_PAGES]
+    single_nominated = sum(1 for nom, _ in content_breadth if nom == 1)
+    single_equal_fit = sum(1 for _, eq in content_breadth if eq == 1)
+    if len(content_breadth) >= 2 and single_nominated * 2 > len(content_breadth):
+        warnings.append(
+            f"候選池過窄:{single_nominated}/{len(content_breadth)} 個內容頁只提名"
+            "一個候選,多樣性無從決勝——請回頭為語意同等的頁補提候選")
     composition = {
         "content_slide_count": len(content_types),
         "unique_page_types": len(set(content_types)),
         "page_type_usage": dict(Counter(content_types)),
         "adjacent_repeats": _composition_cost(selected)[0],
+        "content_slides_single_candidate": single_nominated,
+        "content_slides_single_equal_fit": single_equal_fit,
     }
     output = {
         "version": PLAN_VERSION,
         "deck": {"template": pack.id},
         "slides": selected_slides,
+        "library_review": library_review,
         "composition": composition,
     }
     return output, warnings
@@ -515,7 +615,8 @@ def main(argv):
         print("選型結果:" + " → ".join(types))
         print(f"內容頁:{comp['content_slide_count']}；"
               f"使用頁型:{comp['unique_page_types']}；"
-              f"相鄰重複:{comp['adjacent_repeats']}")
+              f"相鄰重複:{comp['adjacent_repeats']}；"
+              f"單一候選內容頁:{comp['content_slides_single_candidate']}")
         if args.selected_plan_out:
             Path(args.selected_plan_out).write_text(
                 json.dumps(selected_plan, ensure_ascii=False, indent=2), encoding="utf-8")

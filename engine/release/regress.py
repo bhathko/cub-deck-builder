@@ -471,13 +471,23 @@ def r14(env: Env):
         return False, f"(a) 正向選版預期 exit=0 + 零相鄰重複,實得 {rc}\n{o}"
     picked = json.loads(selected.read_text(encoding="utf-8"))
     sequence = [s["page_type"] for s in picked["slides"]]
-    want = ["cover", "info_three_column_category",
-            "info_horizontal_explanation_rows", "closing"]
+    # 同分決勝=來源片段 hash(不是候選順序),序列確定可重現
+    want = ["cover", "info_horizontal_explanation_rows",
+            "info_three_column_category", "closing"]
     if sequence != want:
         return False, f"(a) 確定性序列不符:{sequence}(預期 {want})"
+    review = picked.get("library_review", {})
+    if review.get("nominated") != ["info_horizontal_explanation_rows",
+                                   "info_three_column_category"]:
+        return False, f"(a) library_review.nominated 不符:{review}"
+    if not review.get("not_nominated"):
+        return False, "(a) library_review 缺 not_nominated 展開清單"
+    comp = picked["composition"]
+    if comp.get("content_slides_single_candidate") != 0:
+        return False, f"(a) 廣度統計不符:{comp}"
     skeleton = json.loads(spec.read_text(encoding="utf-8"))
-    cols = skeleton["slides"][1]["slots"]["columns"]
-    rows = skeleton["slides"][2]["slots"]["rows"]
+    rows = skeleton["slides"][1]["slots"]["rows"]
+    cols = skeleton["slides"][2]["slots"]["columns"]
     if len(cols) != 3 or [len(c["points"]) for c in cols] != [2, 2, 2]:
         return False, "(a) 骨架未依候選 counts 建三欄/巢狀 points"
     if len(rows) != 4 or [len(r["points"]) for r in rows] != [1, 1, 1, 1]:
@@ -527,7 +537,23 @@ def r14(env: Env):
     ])
     if rc != 1 or "沒有任何契約可行的全自動候選" not in o:
         return False, f"(c) 容量反向測試預期 exit=1,實得 {rc}\n{o}"
-    return True, "來源逐字、fit 優先、容量排除、確定性多樣性、counts 骨架皆正確"
+
+    # 反向:整庫覆蓋審視——未提名又沒給理由的頁型必須擋在選版前。
+    gap = json.loads((EXAMPLES / "06_page_type_candidates.json").read_text(encoding="utf-8"))
+    gap["not_nominated"] = [e for e in gap["not_nominated"]
+                            if e["page_type"] != "info_*"]
+    gap_plan = env.rt / "page_type_candidates_gap.json"
+    gap_plan.write_text(json.dumps(gap, ensure_ascii=False, indent=2), encoding="utf-8")
+    rc, o = run([
+        sys.executable, env.rt / "tools" / "make_skeleton.py",
+        "--plan", gap_plan,
+        "--source", EXAMPLES / "05_outline_to_ppt_source.md",
+        "--out", env.rt / "spec_plan_gap.json",
+    ])
+    if rc != 1 or "整庫覆蓋審視不完整" not in o or "info_card_grid" not in o:
+        return False, f"(d) 覆蓋審視反向測試預期 exit=1 並列出缺漏頁型,實得 {rc}\n{o}"
+    return True, ("來源逐字、fit 優先、容量排除、確定性多樣性、counts 骨架、"
+                  "整庫覆蓋審視皆正確")
 
 
 def rl0(env: Env):

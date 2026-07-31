@@ -102,8 +102,12 @@ merged 字數/數量真實容量。建立
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "deck": {"template": "light"},
+  "not_nominated": [
+    {"page_type": "data_*", "reason": "來源未提供任何數值資料"},
+    {"page_type": "info_sidebar_grid", "reason": "來源分組非 2+2 配對結構"}
+  ],
   "slides": [{
     "source_excerpt": ["本次原文逐字片段"],
     "candidates": [{
@@ -119,7 +123,15 @@ merged 字數/數量真實容量。建立
   `outline_source_current.txt` 硬驗。這些片段是該頁之後唯一可用內容來源。
 - `candidates`:只列該模板包全自動頁型。`fit` 只能是 `exact` 或 `acceptable`;
   exact 永遠優先,工具只在同一 fit 等級候選間以多樣性決勝。不得把語意較差的
-  候選標成 exact 來換版面。
+  候選標成 exact 來換版面。同分決勝是來源片段 hash(零隨機),不是候選順序,
+  所以不必為了「想先被選」調整列序。
+- `not_nominated`(頂層,必填):**整庫覆蓋審視**——`--list` 全集裡每個
+  非結構全自動頁型,沒被任何頁提名就要在此給「語意不合」的理由,同字首一族
+  可用 `字首_*` 一筆涵蓋(已提名者自動略過)。缺漏工具會 exit 1 列出清單。
+  審視要老實:發現其實語意合適,正確動作是加進該頁 candidates,不是寫個
+  理由搪塞——理由會原样寫進 `page_type_plan.json` 供設計師稽核。
+- 內容頁過半只提名單一候選時工具會 WARN「候選池過窄」:回頭為語意同等的頁
+  補提候選;確實只有一型合適則保留,交付時如實轉述。
 - `counts`:來源**實際**可形成的清單數量,路徑直接照契約槽位。頂層清單填整數;
   巢狀清單依父項順序填整數清單。不得把「待補充」算進數量來湊下限。
 - 只有使用者明確點名某頁但缺資料時,候選才可保留該頁並在後續以「待補充」
@@ -149,9 +161,10 @@ merged 字數/數量真實容量。建立
 全局選版、骨架與 `slides.md` 由 `make_skeleton.py --plan` 機械執行。不得以
 「缺少 outline 轉 spec 腳本」為由停住,也不得要求使用者提供 spec。
 
-一條命令完成四件事：①驗 `source_excerpt` 逐字；②以選定模板包 merged 契約
-排除 counts 不合或非全自動候選；③在語意同等候選間確定性降低相鄰重複與單一
-template page 集中；④寫出最終選型、骨架與 `slides.md`：
+一條命令完成五件事：①驗整庫覆蓋審視完整(`not_nominated`)與 `source_excerpt`
+逐字；②以選定模板包 merged 契約排除 counts 不合或非全自動候選；③在語意同等
+候選間確定性降低相鄰重複與單一 template page 集中(同分以來源片段 hash 決勝)；
+④統計候選廣度,過窄出 WARN；⑤寫出最終選型、骨架與 `slides.md`：
 
 ```bash
 python /mnt/data/tools/make_skeleton.py --plan /mnt/data/page_type_candidates.json --source /mnt/data/outline_source_current.txt --selected-plan-out /mnt/data/page_type_plan.json --slides-out /mnt/data/slides.md --out /mnt/data/slide_spec.json
@@ -193,6 +206,7 @@ python /mnt/data/tools/audit_provenance.py \
 token**——來源的 `50` 不得支援輸出的 `5`（佔位符先剔除再比對）。
 
 腳本管不到、仍由你負責的判斷：候選的 fit 是否誠實反映原文語意、
+`not_nominated` 的理由是否如實(工具只驗覆蓋完整,不驗理由真偽)、
 source_excerpt 是否涵蓋該頁需要的內容、佔位符是否只用在第 2 節允許情境、
 為符合字數的縮短是否改變原意。
 

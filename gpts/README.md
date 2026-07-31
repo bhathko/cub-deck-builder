@@ -148,10 +148,13 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
    `examples/05_outline_to_ppt_source.md` 全文(另用 `/outline-to-ppt` 前綴重測一次,
    行為必須相同)。確認 GPTs 不要求中途確認,且:
    - 環境先出現 `/mnt/data/tools/` 與 `/mnt/data/templates/light/`
-   - 先建立 `page_type_candidates.json`,每頁候選含原文逐字 `source_excerpt`、
-     `fit` 與來源實際 `counts`;沒有先手寫最終頁型序列或 `slides.md`
+   - 先建立 `page_type_candidates.json`(version 2),每頁候選含原文逐字
+     `source_excerpt`、`fit` 與來源實際 `counts`;頂層 `not_nominated` 對未提名
+     的全自動頁型逐一給語意不合理由(同族可 `字首_*`),理由不是敷衍的套話;
+     沒有先手寫最終頁型序列或 `slides.md`
    - `make_skeleton.py --plan` 同時帶 `--source`、`--selected-plan-out`、
-     `--slides-out` 與 `--out`;產生 `page_type_plan.json` 後才填 spec
+     `--slides-out` 與 `--out`;產生 `page_type_plan.json` 後才填 spec;
+     出現 `[W] 候選池過窄` 時 GPT 有回頭補提候選而不是無視 WARN
    - 同等語意候選存在時,選型報告沒有不必要的相鄰 template page 重複；容量
      不合候選在產骨架前被排除
    - 驗證命令同時含 `--slides --registered-only --strict`

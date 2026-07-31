@@ -200,7 +200,7 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-b5ed63eb302f1d6c5f80aaf5cfeb27c2e131a7180027ba9e29b5d140196d5bca  tools.zip
+620bea2439b5548d012e32c7ef2a32e15f95d881c071806dc5455a9748232030  tools.zip
 c8b1114902790b4138691e17570d774d88c809668fce467c8f56610c1c4e4a8b  template_light.zip
 ```
 
@@ -564,8 +564,10 @@ cp /tmp/INDEX.bak engine/templates/INDEX.md && rm /tmp/INDEX.bak
 
 ## R14|大綱契約先行選版正反向測試
 
-本案例驗四個新不變式：候選來源逐字、選定模板 merged 容量先驗、語意同等候選
-全局降低重複、選定 counts 直接形成骨架清單數量。fixture:
+本案例驗五個不變式：候選來源逐字、選定模板 merged 容量先驗、語意同等候選
+全局降低重複、選定 counts 直接形成骨架清單數量、**整庫覆蓋審視**(2026-07-31
+起:plan v2 頂層 `not_nominated` 必須讓「提名 ∪ 有理由的未提名」涵蓋全部
+非結構全自動頁型,擋「只提名最熟兩型」的候選池窄化)。fixture:
 `engine/examples/06_page_type_candidates.json` 搭配未切頁原文 05。
 
 ```bash
@@ -578,13 +580,20 @@ python3 "$RT/tools/make_skeleton.py" \
 ```
 
 預期 exit=0,序列為
-`cover → info_three_column_category → info_horizontal_explanation_rows → closing`,
-輸出 `相鄰重複:0`;spec 的三欄 points 數為 2/2/2、橫列數為 4,`slides.md`
-逐字來自 source_excerpt 且 closing 固定 `Thank you`。
+`cover → info_horizontal_explanation_rows → info_three_column_category → closing`
+(同分決勝是**來源片段 hash**,不是候選列出順序——否則每份 deck 都收斂到
+模型慣性排第一的頁型;零隨機,同輸入必同輸出),輸出 `相鄰重複:0` 與
+`單一候選內容頁:0`;selected plan 含 `library_review`(nominated 兩個 info 型
++ not_nominated 展開理由);spec 的橫列數為 4、三欄 points 數為 2/2/2,
+`slides.md` 逐字來自 source_excerpt 且 closing 固定 `Thank you`。
 
 runner 另驗「語意優先」：前一頁只有三欄 exact、下一頁三欄 exact/橫列 acceptable
 時,即使會相鄰重複也必須選三欄,證明多樣性不能越權蓋過 fit。
 
-反向測試再把第二頁兩個候選分別改成 columns=2、rows=3(都低於契約下限);
+反向測試兩條:①把第二頁兩個候選分別改成 columns=2、rows=3(都低於契約下限);
 預期 exit=1 且輸出 `沒有任何契約可行的全自動候選`。這證明不能用
 「待補充」虛增系統自行選型的結構數量,也不會先產一份資料與版型不合的骨架。
+②刪掉 fixture 的 `info_*` 未提名理由;預期 exit=1 且 `整庫覆蓋審視不完整`
+逐一列出缺漏頁型(含結構包絡)——候選廣度是工具稽核的不變式,不靠模型自律。
+另:內容頁過半只提名單一候選時工具印 `[W] 候選池過窄`(WARN 不擋;理由與
+廣度統計寫進 selected plan 供設計師稽核)。

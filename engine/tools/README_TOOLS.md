@@ -24,8 +24,12 @@ manifest.json、bindings.json、page_map.md、assets/)。
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "deck": {"template": "light"},
+  "not_nominated": [
+    {"page_type": "data_*", "reason": "來源未提供任何數值資料"},
+    {"page_type": "info_sidebar_grid", "reason": "來源分組非 2+2 配對結構"}
+  ],
   "slides": [{
     "source_excerpt": ["原文逐字片段"],
     "candidates": [{
@@ -39,10 +43,18 @@ manifest.json、bindings.json、page_map.md、assets/)。
 
 - `source_excerpt` 必須逐字出自本次原文。
 - `counts` 是來源實際清單數量,不把「待補充」算進去；鍵直接照契約槽位路徑。
+- **`not_nominated` 整庫覆蓋審視(必填)**:每個非結構全自動頁型(全集見
+  `--list`),不提名就要在此逐一給「語意不合」的理由;同字首一族可用
+  `字首_*` 一筆涵蓋(已提名者自動略過)。缺漏 exit 1 並列出缺哪些——這是擋
+  「只提名最熟兩型」的閘門;理由會寫進 page_type_plan.json 供人工稽核,
+  不得敷衍,更不得為了省事把語意合適的頁型寫進 not_nominated。
 - 使用者明確點名該頁但缺結構資料時,候選標 `requested_by_user:true`,counts
   才可計入之後要放的「待補充」。
 - `fit=exact` 永遠優先於 `acceptable`;工具只在同等 fit 候選間減少重複,
-  不會為多樣性犧牲語意。
+  不會為多樣性犧牲語意。同分決勝用來源片段 hash——零隨機、同輸入必同輸出,
+  但不同內容的 deck 不會永遠收斂到同一版型。
+- 輸出 composition 含 `content_slides_single_candidate`;過半內容頁只提名
+  單一候選會出 WARN(候選池過窄),請回頭補提語意同等候選再重跑。
 
 一條命令先驗模板包全自動支援與 merged 容量,再確定性全局選版,並同時產出
 最終選型、`slides.md` 與 spec 骨架：
@@ -111,6 +123,8 @@ render_plan.json 只放未涵蓋的頁,其餘頁不用列:
 | render:UNMATCHED / AMBIGUOUS | inspect --page N 重查,只改該條 plan 的 match(id 優先,撞多筆加 nth) |
 | `頁型 'X' 不受模板 'Y' 支援` / 非全自動 | 換該包全自動頁型(`make_skeleton.py --list --template-pack Y` 查),或整份換 deck.template,或請管理者回註冊流程補;禁止硬用 clone 繞過 |
 | `契約先行選型失敗` / `候選 ... 排除` | 依輸出修正 `source_excerpt`、fit 或來源實際 `counts`;不得用待補充虛增數量。所有語意合適候選都不合才是頁型庫缺口 |
+| `整庫覆蓋審視不完整`(列出缺漏頁型) | 逐一判斷:語意合適→加入該頁 candidates;不合→在頂層 `not_nominated` 補 `{page_type, reason}`(同族可用 `字首_*`)。不得為省事把合適頁型寫成不合 |
+| `[W] 候選池過窄` | 過半內容頁只提名單一候選。回候選規劃為語意同等的頁補提候選再重跑;確實只有一型合適則保留並如實交付 |
 | qa FAIL:`文字壓到別的元素` | 該槽位內容太長,文字跑出自己的框壓到隔欄(訊息會給頁碼與 shape id)。**縮短那個槽位**再整條重跑。這是 FAIL 不是 WARN,不可交付;也**不要**改成別的頁型繞過 |
 | qa WARN:`溢出疑慮共 N 條` | 沙箱估算,先看它列的最嚴重幾條;真的過長就縮短。這是 WARN,PASS 仍可交付但要提醒使用者開檔確認 |
 | render:FillError(註冊頁型) | 唯一不修的錯:停止並回報維護者(模板改版問題) |
