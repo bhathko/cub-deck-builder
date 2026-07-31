@@ -186,12 +186,13 @@ grep -cE '## Slide|page_type' engine/examples/05_outline_to_ppt_source.md
 ## R7|Knowledge 清單與 archive hash
 
 ```bash
-ls engine/rules | grep -v __pycache__ | wc -l     # 預期 8(散檔)
+ls engine/rules | grep -v __pycache__ | wc -l     # 預期 9(散檔)
 ls gpts/dist | wc -l                              # 預期 2(zip)
 shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 ```
 
-上傳 GPTs 的 Knowledge = 這 8 + 2 = **10 個檔**(上限 20,守 ≤19 紀律)。
+上傳 GPTs 的 Knowledge = 這 9 + 2 = **11 個檔**(上限 20,守 ≤19 紀律;
+2026-07-31 增 `enrich_outline_skill.md`)。
 
 2026-07-26 基準值(**打包已可重現**:內容沒變重打包 sha 就不變,
 所以本節 sha 變動 = zip 內容真的變了;Phase 2:tools.zip 十一支
@@ -200,7 +201,7 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-1392f4bbe99cd8872ce1e4293a27514be6223b5691434cd9f83e6b63dcabd436  tools.zip
+6d9cb26ceb5375dd21be273145ac3e56f5f6255257832c5c0bfb8d7b9d19d95a  tools.zip
 a66cd14a29e4293fe117a1e493f42017c46abc476c63ca5c43207e3bb13e9beb  template_light.zip
 ```
 
@@ -602,3 +603,25 @@ runner 另驗「語意優先」：前一頁只有三欄 exact、下一頁三欄 
 逐一列出缺漏頁型(含結構包絡)——候選廣度是工具稽核的不變式,不靠模型自律。
 另:內容頁過半只提名單一候選時工具印 `[W] 候選池過窄`(WARN 不擋;理由與
 廣度統計寫進 selected plan 供設計師稽核)。
+
+## R15|enrich-outline 豐富鏈稽核正反向測試
+
+`/enrich-outline` 把「使用者核准的增補」變成新的內容來源;本案例驗豐富鏈的
+三個工具強制不變式(增補品質本身是人審,不在此測):
+
+1. **未標記行 ⊆ 原稿**:核准版大綱(`--source`)裡凡不是行首 `[補]` 標記的行,
+   必須逐字出現在 `--original` 原稿——沒標記的改寫/新增在稽核階段被擋,
+   豐富流程洗不掉「原文逐字」防線。
+2. **標記存在必有鏈**:來源含 `[補]` 卻沒帶 `--original` 一律 FAIL,
+   不得移除標記繞過。
+3. **管線透傳**:`run_pipeline.py --original` 傳進稽核階段;鏈不完整停在
+   階段 1,鏈完整 `--validate-only` 走到 PASS。
+
+runner 以 02 fixture 為原稿,附加三行 `[補]` 增補(一行含數字、一行含
+「待補充」)作核准版;正向預期 exit=0 且報告印
+`豐富鏈:開(增補 3 行,其中含數字 1 行)`(增補統計是給設計師稽核 `[補]`
+行的入口——標記行內容是否真來自使用者回覆,工具驗不了,所以要讓它顯眼)。
+反向:①附加一行未標記的非原文行 → exit=1
+`未標記 [補] 也不是原稿逐字行`;②同輸入不帶 `--original` → exit=1
+`未帶 --original`;③管線同組輸入缺 `--original` 停在稽核、補上後
+`--validate-only` PASS(2/2 階段)。

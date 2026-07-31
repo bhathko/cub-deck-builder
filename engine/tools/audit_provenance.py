@@ -3,6 +3,12 @@
 
 validator 只追溯已註冊頁型契約內開 provenance 的 slots,且數字用子字串比對;
 本工具把 outline 模式原本靠模型自律的稽核變成硬閘門:
+  0. 豐富鏈(enrich-outline 用過時):來源檔(核准版大綱)裡凡**不是**行首
+     `[補]` 標記的行,都必須逐字出現在 --original 原稿——沒標記的改寫/新增
+     一律擋下,防止豐富階段洗掉「原文逐字」防線。來源含 `[補]` 卻沒帶
+     --original 也是 FAIL(稽核鏈必須完整)。增補統計(幾行、幾行含數字)
+     印在報告裡供設計師稽核——標記行內容是否真來自使用者回覆,工具驗不了,
+     所以要讓它顯眼。
   1. slides.md 完整性(帶 --source 時):每個 Slide 區塊的每一行都必須是
      本次原文檔的逐字片段(容忍空白差異)→ 防改寫/補寫/混入舊回合。
   2. 頂層 slides[].title 逐字出現在該頁區塊;deck.deck_name 等於第一頁
@@ -17,7 +23,8 @@ validator 只追溯已註冊頁型契約內開 provenance 的 slots,且數字用
   python /mnt/data/tools/audit_provenance.py \
       --spec /mnt/data/slide_spec.json \
       --slides /mnt/data/slides.md \
-      [--source /mnt/data/outline_source_current.txt]
+      [--source /mnt/data/outline_source_current.txt] \
+      [--original /mnt/data/outline_original.txt]
 
 exit 0 = PASS;exit 1 = FAIL(逐條列出問題);exit 2 = 環境/輸入錯誤。
 只用標準庫;佔位符與數字規則 import 自 validate_slide_spec_gpts.py(單一來源,
@@ -45,6 +52,7 @@ except ImportError:
     sys.exit(2)
 
 STRUCTURAL_PAGES = {"cover", "agenda", "section_transition", "closing"}
+ENRICH_MARK = "[補]"  # enrich-outline 增補行標記(行首,縮排後、項目符號前)
 # path 規則 → 該欄位為結構值,免稽核(與 validator 契約的 provenance=False 對齊)
 EXEMPT_PATHS = [
     ("agenda", re.compile(r"^slots\.items\[\d+\]\.number$")),
@@ -86,11 +94,12 @@ def main(argv):
     args = {}
     it = iter(argv)
     for a in it:
-        if a in ("--spec", "--slides", "--source"):
+        if a in ("--spec", "--slides", "--source", "--original"):
             args[a] = next(it, None)
     spec_path = Path(args.get("--spec") or "/mnt/data/slide_spec.json")
     slides_path = Path(args.get("--slides") or "/mnt/data/slides.md")
     source_path = Path(args["--source"]) if args.get("--source") else None
+    original_path = Path(args["--original"]) if args.get("--original") else None
 
     for p, label in ((spec_path, "spec"), (slides_path, "slides.md")):
         if not p.exists():
@@ -99,6 +108,32 @@ def main(argv):
     spec = json.loads(spec_path.read_text(encoding="utf-8-sig"))
     blocks = parse_slides(slides_path.read_text(encoding="utf-8-sig"))
     problems = []
+
+    # 0) 豐富鏈:未標記行 ⊆ 原稿;有標記就必須有 --original
+    enrich_stats = None
+    if source_path is not None and source_path.exists():
+        src_lines = source_path.read_text(encoding="utf-8-sig").splitlines()
+        marked = [ln for ln in src_lines if ln.lstrip().startswith(ENRICH_MARK)]
+        if original_path is not None:
+            if not original_path.exists():
+                print(f"[E] 找不到 --original:{original_path}")
+                return 2
+            orig = squash(original_path.read_text(encoding="utf-8-sig"))
+            for ln in src_lines:
+                frag = squash(ln)
+                if not frag or ln.lstrip().startswith(ENRICH_MARK):
+                    continue
+                if frag not in orig:
+                    short = frag[:30] + "…" if len(frag) > 30 else frag
+                    problems.append(
+                        f"豐富鏈:「{short}」未標記 {ENRICH_MARK} 也不是原稿逐字行"
+                        f"——非原文逐字的行必須行首標記 {ENRICH_MARK}")
+            with_nums = sum(1 for ln in marked if tokens(strip_placeholders(ln)))
+            enrich_stats = (len(marked), with_nums)
+        elif marked:
+            problems.append(
+                f"來源含 {len(marked)} 行 {ENRICH_MARK} 增補標記但未帶 --original"
+                "(豐富鏈稽核):請補 --original <原稿檔> 重跑,不得移除標記繞過")
 
     # 1) slides.md 完整性:區塊每一行都是本次原文的逐字片段
     if source_path is not None:
@@ -177,8 +212,11 @@ def main(argv):
             check_tokens(val, block, f"slide[{n}].{path}")
 
     print(f"稽核:{spec_path}")
+    enrich_note = "關"
+    if enrich_stats is not None:
+        enrich_note = f"開(增補 {enrich_stats[0]} 行,其中含數字 {enrich_stats[1]} 行)"
     print(f"來源完整性:{'開' if source_path else '關(未帶 --source)'}    "
-          f"頁數:{len(slides)}")
+          f"豐富鏈:{enrich_note}    頁數:{len(slides)}")
     print("-" * 72)
     for msg in problems:
         print(f"  [E] {msg}")

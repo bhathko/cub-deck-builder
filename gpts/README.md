@@ -64,6 +64,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `engine/rules/validate_slide_spec_gpts.py` | 驗證器(兩級閘門;PAGE_TYPES 單一真相來源)                                 | 上傳到 Knowledge                 |
 | `engine/rules/page_types_registry.md`   | slide_spec.json 撰寫指南 + 註冊頁型契約                                  | 上傳到 Knowledge                 |
 | `engine/rules/outline_to_ppt_skill.md`  | 段落大綱一鍵產生合規 JSON、渲染 PPT 與 QA 的繁中工作流                   | 上傳到 Knowledge                 |
+| `engine/rules/enrich_outline_skill.md`  | 產檔前大綱豐富訪談:版型導向增補提案、[補] 標記與豐富鏈稽核             | 上傳到 Knowledge                 |
 | `engine/rules/page_types.md`            | 完整頁型庫(跨模板語意庫;頁碼對照在各模板包 page_map.md)           | 上傳到 Knowledge                 |
 | `engine/rules/style_guide.md`           | 視覺規範(排版紀律共用;視覺常數以 light 包 manifest 為機器真相)           | 上傳到 Knowledge                 |
 | `engine/rules/slide_spec.schema.json`   | spec 結構定義                                                            | 上傳到 Knowledge                 |
@@ -93,9 +94,9 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 2. **Name / Description**:自訂,例如「簡報產生器(內部)」/「給我一份合規的
    slide_spec.json,產出公司規範的 16:9 繁中簡報;模板素材全內建」。
 3. **Instructions**:貼上 `instructions.md` 分隔線以下的全文。
-4. **Knowledge**:上傳上表 10 個檔案(engine/rules 的 8 個散檔 + dist/ 的
+4. **Knowledge**:上傳上表 11 個檔案(engine/rules 的 9 個散檔 + dist/ 的
    2 個 zip;GPTs 上限 20 個檔,
-   維持 ≤19 紀律,約可再容 9 個模板包)。
+   維持 ≤19 紀律,約可再容 8 個模板包)。
 5. **Capabilities 與 Model**:
    - ✅ **Code Interpreter & Data Analysis**(必開,整個流程靠它)
    - ❌ Web Browsing(關,避免內容混入外部資料)
@@ -120,7 +121,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 > ⚠ 實測回報「卡在一半說無法用工具產生/沒有穩定的工具鏈/請上傳工具」的第一
 > 檢查點:問 GPT「你現在是哪一版?」——答案跟 `gpts/instructions.md` 第一行的
 > 版本代號對不上,就代表 Builder 端
-> 還在跑舊版,先同步 instructions 與 10 個知識檔(特別是 outline_to_ppt_skill.md、
+> 還在跑舊版,先同步 instructions 與 11 個知識檔(特別是 outline_to_ppt_skill.md、
 > tools.zip 與 template_light.zip;**並刪除舊的 assets.zip 與
 > light_template.pptx**)再測。兩次實測失敗紀錄見 FEEDBACK #1、#2。
 

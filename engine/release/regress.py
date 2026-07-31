@@ -556,6 +556,54 @@ def r14(env: Env):
                   "整庫覆蓋審視皆正確")
 
 
+def r15(env: Env):
+    """enrich-outline 豐富鏈:未標記行 ⊆ 原稿、標記存在必有 --original、管線透傳。"""
+    spec = env.rt / "spec_enrich.json"
+    fixed = json.loads((EXAMPLES / "02_full_8p.json").read_text(encoding="utf-8-sig"))
+    fixed["deck"]["deck_name"] = "年度工作總覽"
+    spec.write_text(json.dumps(fixed, ensure_ascii=False), encoding="utf-8")
+    slides_md = EXAMPLES / "02_full_8p.source_slides.md"
+    src_text = slides_md.read_text(encoding="utf-8-sig")
+    original = env.rt / "outline_original.txt"
+    original.write_text(src_text, encoding="utf-8")
+    enriched = env.rt / "outline_enriched.txt"
+    enriched.write_text(
+        src_text + "\n[補] 分三類呈現:流程、資料、人才\n"
+        "  [補] - 改善前後對比:改善前 12 天、改善後 5 天\n"
+        "[補] 下季重點:待補充\n", encoding="utf-8")
+    audit = env.rt / "tools" / "audit_provenance.py"
+
+    rc, o = run([sys.executable, audit, "--spec", spec, "--slides", slides_md,
+                 "--source", enriched, "--original", original])
+    if rc != 0 or "豐富鏈:開(增補 3 行,其中含數字 1 行)" not in o:
+        return False, f"(a) 正向豐富鏈預期 exit=0 + 增補統計,實得 {rc}\n{o}"
+
+    bad = env.rt / "outline_enriched_bad.txt"
+    bad.write_text(enriched.read_text(encoding="utf-8")
+                   + "偷偷改寫且沒標記的一行\n", encoding="utf-8")
+    rc, o = run([sys.executable, audit, "--spec", spec, "--slides", slides_md,
+                 "--source", bad, "--original", original])
+    if rc != 1 or "未標記 [補] 也不是原稿逐字行" not in o:
+        return False, f"(b) 未標記改寫預期 exit=1,實得 {rc}\n{o}"
+
+    rc, o = run([sys.executable, audit, "--spec", spec, "--slides", slides_md,
+                 "--source", enriched])
+    if rc != 1 or "未帶 --original" not in o:
+        return False, f"(c) 缺 --original 預期 exit=1,實得 {rc}\n{o}"
+
+    # 管線透傳:同一組輸入走 run_pipeline --validate-only,鏈完整才過閘門
+    base = [sys.executable, env.rt / "tools" / "run_pipeline.py",
+            "--spec", spec, "--slides", slides_md, "--source", enriched,
+            "--asset-dir", env.rt, "--validate-only"]
+    rc, o = run(base)
+    if rc != 1 or "未帶 --original" not in o:
+        return False, f"(d) 管線缺 --original 預期停在稽核,實得 {rc}\n{o}"
+    rc, o = run(base + ["--original", original])
+    if rc != 0 or "PASS(2/2 階段" not in o:
+        return False, f"(e) 管線帶 --original 預期 validate-only PASS,實得 {rc}\n{o}"
+    return True, "未標記行⊆原稿、標記無鏈必擋、管線透傳與增補統計皆正確"
+
+
 def rl0(env: Env):
     """light 包完整性(sha 對 manifest、page_types 自洽)。"""
     m = json.loads((LIGHT / "manifest.json").read_text(encoding="utf-8-sig"))
@@ -597,6 +645,7 @@ CASES = [
     ("R12", "誠實容量 + 碰撞反向測試", r12, []),
     ("R13", "sync-docs + pack 閘門反向測試", r13, []),
     ("R14", "契約先行選版正反向測試", r14, ["R0"]),
+    ("R15", "enrich 豐富鏈稽核正反向測試", r15, ["R0"]),
     ("R-L0", "light 包完整性", rl0, []),
     ("R-L1", "light smoke spec 全流程", rl1, ["R0"]),
     # R-L2(clone 抽測)是人工案例,見 light REGRESSION.md——不自動化

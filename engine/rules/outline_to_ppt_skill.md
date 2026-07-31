@@ -236,6 +236,11 @@ python /mnt/data/tools/run_pipeline.py \
   --out /mnt/data/deck.pptx
 ```
 
+來源經 `/enrich-outline` 豐富過(含 `[補]` 標記行)時,必須另加
+`--original /mnt/data/outline_original.txt`——稽核會驗未標記行逐字出自原稿並
+回報增補統計;含標記卻缺 `--original` 稽核必 FAIL,補上參數重跑即可,
+不得移除標記繞過(詳見 `enrich_outline_skill.md`)。
+
 管線依序執行 audit_provenance → validator（自動帶 `--slides --registered-only
 --strict`）→ render_deck → qa_check；任一階段結束碼非 0 就地停止，不產出半成品。
 只有完整輸出最後印出 `管線結果:PASS` 才算成功。
@@ -267,7 +272,10 @@ FAIL 時讀「管線停止於階段 N」該段輸出，**逐條對照
 - `/mnt/data/deck.pptx`
 
 摘要只列頁數、規格驗證通過、品質檢查通過與「待補清單」（仍為佔位符的頁與欄位；
-沒有就寫無），並如實列出品質警告。除非使用者要求
+沒有就寫無），並如實列出品質警告。來源經 `/enrich-outline` 豐富過時,摘要另附
+增補統計(稽核輸出的「增補 N 行,其中含數字 M 行」)。選型結果使用頁型明顯
+偏少(如內容頁多而 `unique_page_types` ≤ 2)時,附一句建議:下次可先
+`/enrich-outline` 豐富大綱再產檔——不重跑、不追問,只提示。除非使用者要求
 檢視，否則不要把完整原始 JSON 貼進對話。`slides.md` 保留為本次來源稽核檔，不必
 主動交付。
 

@@ -6,7 +6,9 @@
 
 模式(由參數自動判定):
   outline 模式(帶 --slides):先跑 audit_provenance.py(帶 --source 時含來源
-    完整性檢查),validator 自動帶 --slides --registered-only --strict。
+    完整性檢查;經 /enrich-outline 豐富過的來源另帶 --original <原稿檔>,
+    稽核會驗未標記行逐字出自原稿——來源含 [補] 標記卻缺 --original 會 FAIL),
+    validator 自動帶 --slides --registered-only --strict。
   直供 JSON 模式(不帶 --slides):不稽核;validator 以本次獨一且不存在的
     路徑關閉來源追溯,不帶 --strict/--registered-only(缺來源 WARN 是預期)。
 
@@ -69,6 +71,7 @@ def main(argv):
     spec = Path(a.get("--spec") or asset_dir / "slide_spec.json")
     slides = Path(a["--slides"]) if a.get("--slides") else None
     source = Path(a["--source"]) if a.get("--source") else None
+    original = Path(a["--original"]) if a.get("--original") else None
     out = Path(a.get("--out") or asset_dir / "deck.pptx")
     plan = Path(a["--plan"]) if a.get("--plan") else None
     validator = Path(a.get("--validator") or asset_dir / "validate_slide_spec_gpts.py")
@@ -108,6 +111,8 @@ def main(argv):
         required["audit_provenance"] = HERE / "audit_provenance.py"
     if source is not None:
         required["source 原文檔"] = source
+    if original is not None:
+        required["original 原稿檔"] = original
     if plan is not None:
         required["render_plan"] = plan
     missing = [f"{k}:{v}" for k, v in required.items() if not v.exists()]
@@ -134,6 +139,8 @@ def main(argv):
                "--spec", spec, "--slides", slides]
         if source is not None:
             cmd += ["--source", source]
+        if original is not None:
+            cmd += ["--original", original]
         run_stage(idx, total, "工作流稽核(audit_provenance)", cmd)
 
     idx += 1

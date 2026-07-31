@@ -38,7 +38,7 @@ R7 的基準值一致(打包是可重現的,內容沒變 sha 就不會變)。不
 - `assets.zip`
 - `light_template.pptx`
 
-**上傳/覆蓋這 10 個檔**(同名檔一律「刪舊再傳新」,Builder 不會自動覆蓋):
+**上傳/覆蓋這 11 個檔**(同名檔一律「刪舊再傳新」,Builder 不會自動覆蓋):
 
 | 來源路徑 | 檔名 |
 | --- | --- |
@@ -48,12 +48,13 @@ R7 的基準值一致(打包是可重現的,內容沒變 sha 就不會變)。不
 | `engine/rules/` | `page_types.md` |
 | `engine/rules/` | `style_guide.md` |
 | `engine/rules/` | `outline_to_ppt_skill.md` |
+| `engine/rules/` | `enrich_outline_skill.md` |
 | `engine/rules/` | `slide_spec.example.json` |
 | `engine/rules/` | `slide_spec.bad.example.json` |
 | `gpts/dist/` | `tools.zip` |
 | `gpts/dist/` | `template_light.zip` |
 
-傳完數一次:**Knowledge 應該剛好 10 個檔**(上限 20;每加一個新模板 +1)。
+傳完數一次:**Knowledge 應該剛好 11 個檔**(上限 20;每加一個新模板 +1)。
 
 ## Step 3|Capabilities 與 Model(確認,不要動錯)
 
