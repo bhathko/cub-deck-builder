@@ -1,4 +1,4 @@
-# DEPLOY — v2.0 換裝操作稿(一頁照著做)
+# DEPLOY — 發版操作稿(一頁照著做)
 
 > **用途**:把 repo 目前狀態推上 GPT Builder 的**逐步操作稿**,含可直接貼給
 > GPT 的驗收指令原文。
@@ -6,8 +6,8 @@
 > **何時讀**:要發版時。日常維護規則見 [`../docs/MAINTENANCE.md`](../docs/MAINTENANCE.md);
 > 建置背景與能力說明見 [`README.md`](README.md)。
 
-**本次是「換裝」而非新建**:Knowledge 的佈局變了(模板改成「模板包」zip),
-所以有**刪除**動作,別只上傳不刪。
+**含刪除動作,別只上傳不刪**:v2.0 起 Knowledge 佈局改為「模板包」zip,
+舊檔留著會讓 GPT 走錯路徑;佈局已換過的部署,刪除步驟略過即可。
 
 ---
 
@@ -67,7 +67,7 @@ R7 的基準值一致(打包是可重現的,內容沒變 sha 就不會變)。不
 
 ---
 
-## Step 4|驗收:9 條可直接貼給 GPT 的指令
+## Step 4|驗收:10 條可直接貼給 GPT 的指令
 
 > 每條都要看到「預期」才算過。任何一條沒過就先別通知團隊。
 
@@ -99,7 +99,9 @@ template_light.zip,並印出 manifest 的 template_id 與 version;bad example
 然後用 make_skeleton.py 產一份 cover,agenda,closing 骨架並跑驗證器。
 ```
 
-預期:列出模板頁摘要(59 頁)與第 35 頁形狀樹;骨架驗證直接 PASS。
+預期:列出模板頁摘要(頁數與 `engine/templates/light/manifest.json` 的
+`page_count` 一致——本檔刻意不抄數字,抄了就會過期)與第 35 頁形狀樹;
+骨架驗證直接 PASS。
 
 **④ 直供 JSON 產檔**
 
@@ -140,7 +142,9 @@ light 那個版位在設計字級下只裝得下 12 字。**它不該幫你縮�
 (直接貼上 engine/examples/05_outline_to_ppt_source.md 全文,前面什麼都不加)
 ```
 
-預期:GPT 自動走一鍵產檔,中途不問你確認、不拋 A/B 選單,最後同時給
+預期:GPT 自動走一鍵產檔,中途不問你確認、不拋 A/B 選單;過程先出現
+`page_type_candidates.json`(含 `not_nominated` 整庫覆蓋審視)與
+`make_skeleton --plan` 的選型結果,之後才填內容;最後同時給
 slide_spec.json 與 .pptx。再用 `/outline-to-ppt` 前綴重測一次,行為必須相同。
 
 **⑦ 內容忠實邊界**
@@ -160,11 +164,23 @@ slide_spec.json 與 .pptx。再用 `/outline-to-ppt` 前綴重測一次,行為�
 預期:被閘門擋下後**自動縮短/拆頁並整條重跑**,三輪內修好照常交付,
 並回報修了什麼——**不可以**宣稱「無法繼續」或把問題丟回給你。
 
+**⑨ 豐富訪談(/enrich-outline)**
+
+```
+/enrich-outline(接著貼一份只有三四句、平鋪直敘的單薄大綱)
+```
+
+預期:先存 `/mnt/data/outline_original.txt`,在聊天中逐項提案並標明「解鎖哪個
+頁型」;數據類只提問、**不代填數字**。核准後產出的核准版裡,新增/改寫行都有
+行首 `[補] ` 標記,管線帶 `--original`,稽核報告印「豐富鏈:開(增補 N 行,
+其中含數字 M 行)」。接著要求它「不帶 --original 重跑」——稽核必須 FAIL 並
+指出來源含 `[補]` 標記卻缺原稿鏈。
+
 ---
 
 ## Step 5|收尾
 
-- [ ] 9 條全過 → 通知團隊可以用了,附上 `instructions.md` 第一行的版本代號
+- [ ] 10 條全過 → 通知團隊可以用了,附上 `instructions.md` 第一行的版本代號
 - [ ] 任何一條沒過 → 記進 [`../docs/FEEDBACK.md`](../docs/FEEDBACK.md)
       (附版本、你貼的指令、GPT 的實際輸出),回報給維護者
 - [ ] 之後每次發版,重跑 ①②④ 當快速回歸;改過模板就加 ⑤
