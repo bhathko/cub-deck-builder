@@ -22,7 +22,8 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 來源,列出來源逐字片段、語意同等的全自動候選與實際 counts,由
 `make_skeleton --plan` 先驗模板容量並全局降低重複；版型鎖定後才填內容,
 再嚴格驗證、渲染與 QA。缺個別資料可用「待補充」,但不得拿它湊系統自行選型的
-結構下限。
+結構下限。大綱太單薄時可先打 `/enrich-outline` 走豐富訪談(增補由使用者核准、
+行首標 `[補]`,稽核驗豐富鏈),核准後才產檔——選配前置,不影響一鍵流程。
 
 ## 工具層(`engine/tools/` → `dist/tools.zip`)
 
@@ -79,7 +80,7 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
 | `engine/examples/demo_output_*.pptx`    | 本機實測產出,眼見為憑                                                    | 不上傳                           |
 | `engine/templates/light/assets_src/`    | 素材可編輯源檔(隨包;打包 template_light.zip 時以 arcname `assets/` 映射) | 不上傳,留在 repo                 |
 | `engine/templates/`(其餘檔案)           | 模板包源碼與治理文件(INDEX、TEMPLATE_LIFECYCLE、各包 REGRESSION/FEEDBACK) | 不上傳,留在 repo                 |
-| `../docs/給設計師/`                     | 非技術版說明(4 份:入口 + 專案說明 + 路線 A/B),整包發給設計師           | 不上傳,直接發給人看              |
+| `../docs/給設計師/`                     | 非技術版說明(5 份:入口 + 專案說明 + 路線 A/B + 怎麼寫大綱),整包發給設計師 | 不上傳,直接發給人看              |
 | `../docs/FEEDBACK.md`                   | 回饋台帳(症狀→規則化→發版的追蹤表)                                       | 不上傳,留在 repo                 |
 | `feedback_evidence/`                    | GPT Builder 實測對話逐字稿(FEEDBACK 台帳引用的證據)                       | 不上傳,留在 repo                 |
 | `../engine/REGRESSION.md`               | 發版前本機回歸:R 系列可執行案例與預期結果                                | 不上傳,留在 repo                 |
@@ -191,13 +192,26 @@ GPT Builder 的建置手冊與發佈物(instructions + `dist/` zips)。
    顯示「來源追溯:關」與缺來源 WARN；不得誤用舊 `slides.md`。若加 `--strict`,該 WARN
    會升級為 ERROR；若加 `--registered-only`,未註冊頁型會被硬擋,兩者都不屬於純 JSON
    模式的合法指令。
+9. 測試豐富訪談(`/enrich-outline`):貼一份平鋪直敘的單薄大綱後打 `/enrich-outline`,
+   確認:
+   - 原文先落檔 `/mnt/data/outline_original.txt`;提案在聊天中逐項標明「解鎖哪個
+     頁型」,數據類只提問不代填(不得出現使用者沒給的數字)
+   - 使用者核准前不覆寫 `outline_source_current.txt`;拒絕全部增補時直接用原稿
+     產檔、不糾纏
+   - 核准版裡新增/改寫行都有行首 `[補] ` 標記;`run_pipeline` 帶
+     `--original /mnt/data/outline_original.txt`,稽核報告印「豐富鏈:開(增補
+     N 行,其中含數字 M 行)」,交付摘要附增補統計
+   - 反向:要求 GPT 不帶 `--original` 重跑,稽核必須 FAIL 並指出含 `[補]` 標記
+     卻缺原稿鏈;把一行增補的標記拿掉重跑,稽核必須列出該行「未標記也不是
+     原稿逐字行」
 
 ### 發版前本機回歸
 
 本機以全新暫存目錄跑 [`engine/REGRESSION.md`](../engine/REGRESSION.md) 的
 全部 R 案例(archive 完整性、examples 預期 exit、稽核/title 注入/數字 token
 閘門、QA WARN 仍 PASS、strict 與直供全流程、fixture 純淨度、Knowledge 清單與
-hash、多模板雙包、全包 lint),全綠才發版;重打包 zip 後同步更新該檔的 hash 基準。
+hash、多模板雙包、全包 lint、契約先行選版正反向、enrich 豐富鏈正反向),
+全綠才發版;重打包 zip 後同步更新該檔的 hash 基準。
 
 ## 誠實的限制(建議原文轉達給主管)
 
