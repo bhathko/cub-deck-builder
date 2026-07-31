@@ -46,7 +46,9 @@
 7. **生圖政策照舊**:本管線不生圖(全部 PowerPoint 可編輯物件);
    不得引入任何生圖工具。
 8. **雙前端、單引擎**:`.codex/skills/outline-to-ppt/` 是同一條管線的本機
-   Codex CLI 前端,只內聯環境差異(鐵律摘要 + 跨平台沙箱腳本
+   Codex CLI 前端(`.codex/skills/enrich-outline/` 是其產檔前的豐富訪談入口,
+   規則同指 `engine/rules/enrich_outline_skill.md`),只內聯環境差異(鐵律摘要
+   + 跨平台沙箱腳本
    `prepare_env.py`,把工具鏈複製成 `ppt_out/` 模擬 /mnt/data;命令全為單行
    python,PowerShell/cmd/bash 通用——團隊有 Windows 使用者且公司禁 WSL),
    規則本體仍指回 `engine/rules/` 與 `engine/tools/`,不得在 skill 裡另寫一份
