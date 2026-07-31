@@ -588,6 +588,175 @@ PAGE_TYPES = {
             }},
         },
     },
+    "vision_goal_rings": {
+        # 三層同心圓(light p12):右側三層同心圓,每層 = 圓上短標(28pt)+
+        # 圓上補充(14pt);左側每層 = 小標(20pt)+ 說明(14pt),導引線相連。
+        # 三層的左側說明框高度不同(0.57/0.81/0.34 吋 = 2/3/1 行 @14pt),
+        # 容量不對稱 → 比照 phase_concept 用具名槽位(level_one=最外圈/最上,
+        # 依序向內)。副標 placeholder = 引言一句;同心圓與導引線為模板裝飾。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "level_one": {"kind": "object", "fields": {
+                "label": T(6), "caption": T(24), "heading": T(12), "detail": T(26),
+            }},
+            "level_two": {"kind": "object", "fields": {
+                "label": T(6), "caption": T(24), "heading": T(12), "detail": T(40),
+            }},
+            "level_three": {"kind": "object", "fields": {
+                "label": T(6), "caption": T(16), "heading": T(12), "detail": T(20),
+            }},
+        },
+    },
+    "stage_phase_swimlane": {
+        # 三欄泳道(light p39):3 個階段欄,每欄上方工作項目卡(單一多行文字框
+        # 2.54 吋 @14pt ≈ 9 行,列點換行併入)+ 下方角色卡(欄 1/3 各 1 框、
+        # 欄 2 有 2 框 → roles 由 rows op 逐框填,不足刪框連列點圓飾)。
+        # 左側直排「執行項目/角色」row 標籤為結構字樣(provenance=False)。
+        # 階段標籤是單一文字框「階段名␣␣時間範圍」→ 契約用單一 label 承載
+        # (拆成物件欄位會落入 fit 的物件清單量測盲點,見 REGRESSION R10 註)。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "items_label": T(6, provenance=False),
+            "roles_label": T(4, provenance=False),
+            "phases": {
+                "kind": "list", "min": 3, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(18),
+                    "points": {"kind": "list", "min": 3, "max": 6, "required": True, "item": T(17)},
+                    "roles": {"kind": "list", "min": 1, "max": 2, "required": True, "item": T(17)},
+                }},
+            },
+        },
+    },
+    "stage_horizon_matrix": {
+        # 短中長期矩陣(light p42):3 時程欄 × 4 分類列 = 12 格卡片,每格
+        # 1-3 個短列點(換行併入同格,3.94 吋 @14pt × 3 行);左側直排分類
+        # 標籤、上方 3 個欄標。標題下方橫帶 = 補充指標 1-2 個(自由短句如
+        # 「現況  Concurrent User  10,000」,數字照常追溯);缺第 2 個刪右框,
+        # 全缺連分隔線一起刪。版面無副標位置 → 本頁型無 subtitle 槽位。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "indicators": {"kind": "list", "min": 1, "max": 2, "required": False, "item": T(24)},
+            "column_headings": {"kind": "list", "min": 3, "max": 3, "required": True, "item": T(8)},
+            "rows": {
+                "kind": "list", "min": 4, "max": 4, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(6),
+                    "cells": {
+                        "kind": "list", "min": 3, "max": 3, "required": True,
+                        "item": {"kind": "object", "fields": {
+                            "points": {"kind": "list", "min": 1, "max": 3, "required": True, "item": T(17)},
+                        }},
+                    },
+                }},
+            },
+        },
+    },
+    "stage_vertical_timeline_detail": {
+        # 垂直時間軸重點說明(light p45):左側 5-6 個階段(名稱+日期區間,
+        # 第 6 階段缺項從尾端整組刪);右側大框 2 組重點段落(上組 1.85 吋
+        # ≈ 6 行、下組 1.09 吋 ≈ 3 行,容量不對稱 → 具名 section_one/two),
+        # 底部一條補充結論帶。模板在第 2 階段旁的進度圓點是「目前進度」語意,
+        # 契約無此槽位 → 綁定一律刪除(留著=捏造進度)。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "stages": {
+                "kind": "list", "min": 5, "max": 6, "required": True,
+                "item": {"kind": "object", "fields": {"label": T(8), "period": T(17)}},
+            },
+            "section_one": {"kind": "object", "fields": {
+                "heading": T(8),
+                "points": {"kind": "list", "min": 3, "max": 6, "required": True, "item": T(30)},
+            }},
+            "section_two": {"kind": "object", "fields": {
+                "heading": T(8),
+                "points": {"kind": "list", "min": 2, "max": 4, "required": True, "item": T(30)},
+            }},
+            "footnote": T(30),
+        },
+    },
+    "phase_four_step_workflow_matrix": {
+        # 四階段工作流矩陣(light p49):上方 4 段箭頭階段列 + 左側 3 個直排
+        # row 標籤 + 每列內容格。第 1 列欄 4 區域是模板的 Y/N 決策分支:
+        # 2 條分支各「條件小框 → 結果框」,Y/N 徽章為固定結構字樣(keep),
+        # 故 row_one 只有 3 格 + branches;第 2/3 列各 4 格。每格 1-3 個短列點
+        # 換行併入同格。底部補充說明一句;左下「輔助說明」示範標籤框契約無
+        # 槽位 → 刪除。版面無副標位置 → 本頁型無 subtitle 槽位。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "stages": {"kind": "list", "min": 4, "max": 4, "required": True, "item": T(8)},
+            "row_labels": {"kind": "list", "min": 3, "max": 3, "required": True, "item": T(6)},
+            "row_one": {"kind": "object", "fields": {
+                "cells": {
+                    "kind": "list", "min": 3, "max": 3, "required": True,
+                    "item": {"kind": "object", "fields": {
+                        "points": {"kind": "list", "min": 1, "max": 2, "required": True, "item": T(20)},
+                    }},
+                },
+                "branches": {
+                    "kind": "list", "min": 2, "max": 2, "required": True,
+                    "item": {"kind": "object", "fields": {"condition": T(8), "outcome": T(16)}},
+                },
+            }},
+            "row_two": {"kind": "object", "fields": {
+                "cells": {
+                    "kind": "list", "min": 4, "max": 4, "required": True,
+                    "item": {"kind": "object", "fields": {
+                        "points": {"kind": "list", "min": 1, "max": 3, "required": True, "item": T(20)},
+                    }},
+                },
+            }},
+            "row_three": {"kind": "object", "fields": {
+                "cells": {
+                    "kind": "list", "min": 4, "max": 4, "required": True,
+                    "item": {"kind": "object", "fields": {
+                        "points": {"kind": "list", "min": 1, "max": 3, "required": True, "item": T(20)},
+                    }},
+                },
+            }},
+            "footnote": T(24),
+        },
+    },
+    "phase_step_ladder_cards": {
+        # 階梯行動卡(light p52):左下→右上 4 張階梯卡,卡高遞增、內文框數
+        # 遞增(卡 1 僅 1 框 2 行,卡 2 有 2 框,卡 3/4 各 3 框)——容量不對稱
+        # → 比照 phase_concept 用具名 step_one..step_four。每卡:箭頭下標題
+        # (20pt)+ 內文列點(rows op 逐框填,溢出併入末框)+ 底部一句重點
+        # (14pt 短框,選填缺值刪框)。編號徽章 1-4 烙在模板上(keep,結構
+        # 序號不佔槽位)。左上 20pt 示範標題框契約無槽位 → 刪除;16pt 框 = subtitle。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(40),
+            "step_one": {"kind": "object", "fields": {
+                "heading": T(12),
+                "points": {"kind": "list", "min": 1, "max": 2, "required": True, "item": T(26)},
+                "highlight": T(8, required=False),
+            }},
+            "step_two": {"kind": "object", "fields": {
+                "heading": T(12),
+                "points": {"kind": "list", "min": 2, "max": 3, "required": True, "item": T(26)},
+                "highlight": T(8, required=False),
+            }},
+            "step_three": {"kind": "object", "fields": {
+                "heading": T(12),
+                "points": {"kind": "list", "min": 2, "max": 4, "required": True, "item": T(26)},
+                "highlight": T(8, required=False),
+            }},
+            "step_four": {"kind": "object", "fields": {
+                "heading": T(12),
+                "points": {"kind": "list", "min": 2, "max": 4, "required": True, "item": T(26)},
+                "highlight": T(8, required=False),
+            }},
+        },
+    },
 }
 
 

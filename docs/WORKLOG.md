@@ -945,6 +945,7 @@ instructions v2.5 → v2.6-20260727,`regress.py` 16 案例全綠。
 | 2026-07-27 | v2.3–v2.6 | builtin 死碼清除與字樣清零(現況文字/歷史紀錄分家);回歸 runner(`regress.py`)一鍵化;容量壓縮豁免(§2.4.1 翻轉三);fit 三盲點修復+手寫容量歸零;regen-specs 補刪除;R2b/R9/R-L1 全數轉綠;DEPLOY 寫死版本代號改為指向 instructions |
 | 2026-07-30 | v2.8 | 大綱契約先行選版:來源逐字候選+實際 counts → merged 容量先驗 → 確定性全局多樣性 → 骨架/slides.md 後填槽;R14 |
 | 2026-07-31 | v2.11 | 候選廣度工具稽核化(plan v2):not_nominated 整庫覆蓋審視、候選池過窄 WARN、同分決勝改來源 hash;R14 擴充 |
+| 2026-07-31 | v2.12 | 第一梯隊六頁型 clone→fill 升格(p12/p39/p42/p45/p49/p52);容量不對稱頁型立「具名槽位」慣例(step_one…/level_one…/row_one…);修 `estimate_overflow` 直排框缺 `fits_w` 鍵(首個含直排文字的 fill 頁踩到);fill 22→28、clone 30→24;light@2026-07-31.1 |
 
 ## 附錄:怎麼查原始時序紀錄
 

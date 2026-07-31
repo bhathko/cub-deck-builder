@@ -3082,6 +3082,823 @@
           "merge_height_in": 1.45
         }
       ]
+    },
+    "vision_goal_rings": {
+      "template_page": 12,
+      "_note": "三層同心圓:每層 = 圓上短標+圓上補充(右)與小標+說明(左);同心圓、導引線為模板裝飾。副標 placeholder = 引言。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 2
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 42
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_one.label",
+          "id": 11
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_one.caption",
+          "id": 14
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_one.heading",
+          "id": 32
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_one.detail",
+          "id": 35
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_two.label",
+          "id": 12
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_two.caption",
+          "id": 15
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_two.heading",
+          "id": 33
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_two.detail",
+          "id": 36
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_three.label",
+          "id": 13
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_three.caption",
+          "id": 16
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_three.heading",
+          "id": 34
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.level_three.detail",
+          "id": 37
+        }
+      ]
+    },
+    "stage_phase_swimlane": {
+      "template_page": 39,
+      "_note": "三欄泳道:工作卡列點併入單框;角色卡欄 2 有 2 框,roles 由 rows 逐框填,第 2 框不用時連列點圓飾(sep_ids)一起刪。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 11
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.items_label",
+          "id": 12
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.roles_label",
+          "id": 14
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.phases",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 6
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 22
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 7
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 56
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 9
+                },
+                {
+                  "slot": "@.points",
+                  "join": "\n",
+                  "id": 72
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.phases[0].roles",
+          "row_ids": [
+            30
+          ],
+          "sep_ids": [],
+          "merge_height_in": 0.69
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.phases[1].roles",
+          "row_ids": [
+            57,
+            75
+          ],
+          "sep_ids": [
+            76
+          ],
+          "merge_height_in": 0.69
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.phases[2].roles",
+          "row_ids": [
+            73
+          ],
+          "sep_ids": [],
+          "merge_height_in": 0.69
+        }
+      ]
+    },
+    "stage_horizon_matrix": {
+      "template_page": 42,
+      "_note": "3 欄 × 4 列矩陣:12 格各自單框,points 換行併入;指標帶 1-2 框,全缺連分隔線(id 28)刪。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 3
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.indicators",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 26
+                }
+              ],
+              "delete_on_missing": [
+                26
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 27
+                }
+              ],
+              "delete_on_missing": [
+                27
+              ]
+            }
+          ],
+          "delete_when_empty": [
+            26,
+            27,
+            28
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.column_headings",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 52
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 53
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 54
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.rows",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 48
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 15
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 16
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 17
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[0].cells[0].points",
+          "join": "\n",
+          "id": 55
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[0].cells[1].points",
+          "join": "\n",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[0].cells[2].points",
+          "join": "\n",
+          "id": 11
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[1].cells[0].points",
+          "join": "\n",
+          "id": 2
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[1].cells[1].points",
+          "join": "\n",
+          "id": 9
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[1].cells[2].points",
+          "join": "\n",
+          "id": 12
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[2].cells[0].points",
+          "join": "\n",
+          "id": 5
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[2].cells[1].points",
+          "join": "\n",
+          "id": 8
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[2].cells[2].points",
+          "join": "\n",
+          "id": 13
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[3].cells[0].points",
+          "join": "\n",
+          "id": 6
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[3].cells[1].points",
+          "join": "\n",
+          "id": 7
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.rows[3].cells[2].points",
+          "join": "\n",
+          "id": 14
+        }
+      ]
+    },
+    "stage_vertical_timeline_detail": {
+      "template_page": 45,
+      "_note": "垂直時間軸:6 組階段(名稱+日期)尾刪;右側兩段落各單框列點併入;進度圓點(id 93)無槽位=捏造進度,一律刪。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "delete",
+          "ids": [
+            93
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.stages",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 94
+                },
+                {
+                  "slot": "@.period",
+                  "id": 95
+                }
+              ],
+              "delete_on_missing": [
+                94,
+                95
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 96
+                },
+                {
+                  "slot": "@.period",
+                  "id": 97
+                }
+              ],
+              "delete_on_missing": [
+                96,
+                97
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 98
+                },
+                {
+                  "slot": "@.period",
+                  "id": 99
+                }
+              ],
+              "delete_on_missing": [
+                98,
+                99
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 100
+                },
+                {
+                  "slot": "@.period",
+                  "id": 101
+                }
+              ],
+              "delete_on_missing": [
+                100,
+                101
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 102
+                },
+                {
+                  "slot": "@.period",
+                  "id": 103
+                }
+              ],
+              "delete_on_missing": [
+                102,
+                103
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 104
+                },
+                {
+                  "slot": "@.period",
+                  "id": 111
+                }
+              ],
+              "delete_on_missing": [
+                104,
+                111
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.section_one.heading",
+          "id": 114
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.section_one.points",
+          "join": "\n",
+          "id": 115
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.section_two.heading",
+          "id": 117
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.section_two.points",
+          "join": "\n",
+          "id": 118
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.footnote",
+          "id": 130
+        }
+      ]
+    },
+    "phase_four_step_workflow_matrix": {
+      "template_page": 49,
+      "_note": "4 階段 × 3 row 矩陣:row 1 欄 4 = Y/N 決策分支(上分支 100→114、下分支 85→112),徽章 keep;左下「輔助說明」示範標籤刪。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "delete",
+          "ids": [
+            132
+          ]
+        },
+        {
+          "op": "keep",
+          "ids": [
+            117,
+            118,
+            119,
+            120
+          ],
+          "reason": "決策分支 Y/N 徽章為模板固定結構字樣"
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.stages",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 64
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 65
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 66
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 67
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.row_labels",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 68
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 69
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 127
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_one.cells[0].points",
+          "join": "\n",
+          "id": 70
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_one.cells[1].points",
+          "join": "\n",
+          "id": 74
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_one.cells[2].points",
+          "join": "\n",
+          "id": 80
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_one.branches[0].condition",
+          "id": 100
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_one.branches[0].outcome",
+          "id": 114
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_one.branches[1].condition",
+          "id": 85
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_one.branches[1].outcome",
+          "id": 112
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_two.cells[0].points",
+          "join": "\n",
+          "id": 122
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_two.cells[1].points",
+          "join": "\n",
+          "id": 124
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_two.cells[2].points",
+          "join": "\n",
+          "id": 125
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_two.cells[3].points",
+          "join": "\n",
+          "id": 126
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_three.cells[0].points",
+          "join": "\n",
+          "id": 128
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_three.cells[1].points",
+          "join": "\n",
+          "id": 129
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_three.cells[2].points",
+          "join": "\n",
+          "id": 130
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.row_three.cells[3].points",
+          "join": "\n",
+          "id": 131
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.footnote",
+          "id": 136
+        }
+      ]
+    },
+    "phase_step_ladder_cards": {
+      "template_page": 52,
+      "_note": "階梯 4 卡:卡片內文框數遞增(1/2/3/3 框),points 由 rows 逐框填,溢出併末框但不加高(避免壓到重點框);編號徽章 1-4 keep;左上示範標題框刪。",
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 91
+        },
+        {
+          "op": "delete",
+          "ids": [
+            88
+          ]
+        },
+        {
+          "op": "keep",
+          "ids": [
+            6,
+            19,
+            21,
+            23
+          ],
+          "reason": "階梯編號 1-4 為模板固定結構序號"
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_one.heading",
+          "id": 8
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.step_one.points",
+          "row_ids": [
+            9
+          ],
+          "sep_ids": [],
+          "merge_height_in": 0.58
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_one.highlight",
+          "id": 25,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_two.heading",
+          "id": 26
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.step_two.points",
+          "row_ids": [
+            27,
+            30
+          ],
+          "sep_ids": [],
+          "merge_height_in": 1.09
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_two.highlight",
+          "id": 28,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_three.heading",
+          "id": 31
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.step_three.points",
+          "row_ids": [
+            32,
+            34,
+            35
+          ],
+          "sep_ids": [],
+          "merge_height_in": 0.58
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_three.highlight",
+          "id": 33,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_four.heading",
+          "id": 36
+        },
+        {
+          "op": "rows",
+          "slot": "$.slots.step_four.points",
+          "row_ids": [
+            37,
+            49,
+            57
+          ],
+          "sep_ids": [],
+          "merge_height_in": 0.58
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.step_four.highlight",
+          "id": 38,
+          "delete_if_missing": true
+        }
+      ]
     }
   }
 }

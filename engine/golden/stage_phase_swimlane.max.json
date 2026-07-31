@@ -1,0 +1,71 @@
+{
+ "deck": {
+  "deck_name": "golden_stage_phase_swimlane_max",
+  "language": "Traditional Chinese",
+  "slide_count": 1
+ },
+ "slides": [
+  {
+   "number": 1,
+   "page_type": "stage_phase_swimlane",
+   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "render_page_number": true,
+   "assets": {
+    "background": "assets/backgrounds/content_bg.png",
+    "logo": "assets/logos/cathay_logo.png"
+   },
+   "slots": {
+    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "items_label": "items_",
+    "roles_label": "role",
+    "phases": [
+     {
+      "label": "1.label測測測測測測測測測測測",
+      "points": [
+       "1-1.points測測測測測測測",
+       "1-2.points測測測測測測測",
+       "1-3.points測測測測測測測",
+       "1-4.points測測測測測測測",
+       "1-5.points測測測測測測測",
+       "1-6.points測測測測測測測"
+      ],
+      "roles": [
+       "1-1.roles測測測測測測測測",
+       "1-2.roles測測測測測測測測"
+      ]
+     },
+     {
+      "label": "2.label測測測測測測測測測測測",
+      "points": [
+       "2-1.points測測測測測測測",
+       "2-2.points測測測測測測測",
+       "2-3.points測測測測測測測",
+       "2-4.points測測測測測測測",
+       "2-5.points測測測測測測測",
+       "2-6.points測測測測測測測"
+      ],
+      "roles": [
+       "2-1.roles測測測測測測測測",
+       "2-2.roles測測測測測測測測"
+      ]
+     },
+     {
+      "label": "3.label測測測測測測測測測測測",
+      "points": [
+       "3-1.points測測測測測測測",
+       "3-2.points測測測測測測測",
+       "3-3.points測測測測測測測",
+       "3-4.points測測測測測測測",
+       "3-5.points測測測測測測測",
+       "3-6.points測測測測測測測"
+      ],
+      "roles": [
+       "3-1.roles測測測測測測測測",
+       "3-2.roles測測測測測測測測"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

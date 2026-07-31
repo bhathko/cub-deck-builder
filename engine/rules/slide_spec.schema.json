@@ -89,7 +89,13 @@
             "stage_timeline_progress",
             "info_before_after_item_compare",
             "vision_goal_keyword_orbit",
-            "phase_concept_three_column_explanation"
+            "phase_concept_three_column_explanation",
+            "vision_goal_rings",
+            "stage_phase_swimlane",
+            "stage_horizon_matrix",
+            "stage_vertical_timeline_detail",
+            "phase_four_step_workflow_matrix",
+            "phase_step_ladder_cards"
           ]
         },
         "title": {

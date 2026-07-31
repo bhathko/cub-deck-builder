@@ -200,13 +200,18 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-620bea2439b5548d012e32c7ef2a32e15f95d881c071806dc5455a9748232030  tools.zip
-c8b1114902790b4138691e17570d774d88c809668fce467c8f56610c1c4e4a8b  template_light.zip
+1392f4bbe99cd8872ce1e4293a27514be6223b5691434cd9f83e6b63dcabd436  tools.zip
+a66cd14a29e4293fe117a1e493f42017c46abc476c63ca5c43207e3bb13e9beb  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
 (`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
 不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-07-31 第一梯隊六頁型升格,**兩個 zip 都改 sha**:template_light.zip 收
+bindings/manifest/inventory/page_map 六頁型 clone→fill(light@2026-07-31.1);
+tools.zip 收 `text_tools.estimate_overflow` 直排框補齊 `fits_w` 鍵——p42/p39
+的直排標籤是**第一批**進 fill 量測的直排文字,踩到既有缺鍵 KeyError。)
 
 (2026-07-27 出貨包文字清理——**把 `builtin` 這個已不存在的模式名,從所有描述
 「現況」的文字裡拿掉**。§10.6 那批只修了「宣稱 builtin 仍在運作」的那一句;

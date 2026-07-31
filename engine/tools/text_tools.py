@@ -189,9 +189,11 @@ def estimate_overflow(shape, text=None, size_pt=None):
     size_pt = size_pt or _first_run_size_pt(shape)
 
     # 直排文字(vert 屬性)無法用橫排邏輯估算,一律視為放得下
+    # (鍵集必須與正常路徑一致——fit 的橫向溢出偵測讀 fits_w,少鍵會 KeyError)
     if tf._bodyPr.get("vert") not in (None, "horz"):
-        return {"fits": True, "lines": 1, "needed_pt": 0.0, "avail_pt": 0.0,
-                "size_pt": size_pt}
+        return {"fits": True, "fits_h": True, "fits_w": True, "lines": 1,
+                "needed_pt": 0.0, "avail_pt": 0.0,
+                "needed_w_pt": 0.0, "avail_w_pt": 0.0, "size_pt": size_pt}
 
     ml = tf.margin_left if tf.margin_left is not None else 91440
     mr = tf.margin_right if tf.margin_right is not None else 91440

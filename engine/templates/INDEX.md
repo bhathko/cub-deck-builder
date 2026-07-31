@@ -6,7 +6,7 @@
 
 | template_id | 名稱 | manifest version | status | 支援(全自動/半自動/不支援) | Knowledge zip | 備註 |
 | --- | --- | --- | --- | --- | --- | --- |
-| light | Cathay 淺色企業風 | 2026-07-30.3 | registered | 22 / 30 / 0 | template_light.zip | 第一個包;純宣告式 bindings.json,無任何專屬例外 |
+| light | Cathay 淺色企業風 | 2026-07-31.1 | registered | 28 / 24 / 0 | template_light.zip | 第一個包;純宣告式 bindings.json,無任何專屬例外 |
 
 維護提醒:
 

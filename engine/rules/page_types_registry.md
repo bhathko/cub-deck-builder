@@ -275,6 +275,65 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 - `column_three`:`{heading ≤10 字, points 4–6 項 × ≤24 字}`,只有 4 個格位,
   **第 5–6 項自動併入第 4 格**(該格加高至 1.45 吋)
 - 三欄內容量應接近;欄標建議 4–10 字。若要精準流程或日期,改用時程說明頁型。
+
+## vision_goal_rings — 願景目標(三層同心圓)
+適用:3 個層級的願景、目標或策略主軸,右側同心圓、左側逐層說明。頁碼:必須。素材:background、logo。
+三層容量**不對稱**(左側說明框高度不同),由外圈/最上而內 = `level_one` → `level_three`:
+- `subtitle` ≤60 字(標題下方引言一句)
+- `level_one` / `level_two` / `level_three`:每層
+  - `label` ≤6 字(圓上短標,28pt)
+  - `caption` ≤24 字(圓上補充;level_three 框較窄 ≤16 字)
+  - `heading` ≤12 字(左側小標)
+  - `detail` 左側說明:level_one ≤26 字、level_two ≤40 字、level_three ≤20 字
+- 同心圓與導引線為模板裝飾,不佔槽位;三層都必填。
+
+## stage_phase_swimlane — 時程(三欄泳道)
+適用:3 個階段的執行安排,同時比較每階段的工作項目與角色分工。頁碼:必須。素材:background、logo。
+- `subtitle` ≤60 字
+- `items_label` ≤6 字(左側直排 row 標籤,如「執行項目」;結構字樣不追溯)
+- `roles_label` ≤4 字(左側直排 row 標籤,如「角色」;結構字樣不追溯)
+- `phases`:清單固定 3 欄,每欄:
+  - `label` ≤18 字(底部箭頭標籤,「階段名␣␣時間範圍」一句承載)
+  - `points`:工作項目 3–6 項 × ≤17 字(換行併入同一卡片框)
+  - `roles`:角色/支援 1–2 項 × ≤17 字(欄 2 有兩格逐格填,欄 1/3 單格內換行)
+
+## stage_horizon_matrix — 時程(短中長期矩陣)
+適用:短期/中期/長期 × 4 個分類的矩陣式工作整理。頁碼:必須。素材:background、logo。
+**本頁型無 subtitle**(標題下方即指標帶與矩陣)。
+- `indicators`:1–2 個(**選填**)補充指標短句 × ≤24 字(如「現況  Concurrent User  10,000」;
+  數字照常追溯);只給 1 個刪右框,全缺連分隔線一起刪
+- `column_headings`:固定 3 個 × ≤8 字(如「短期/中期/長期」)
+- `rows`:固定 4 列,每列:
+  - `label` ≤6 字(左側直排分類標籤)
+  - `cells`:固定 3 格(對應 3 欄),每格 `points` 1–3 項 × ≤17 字(換行併入同格)
+
+## stage_vertical_timeline_detail — 時程(垂直時間軸重點說明)
+適用:5–6 個連續階段,右側放大說明其中的重點與成果。頁碼:必須。素材:background、logo。
+**本頁型無 subtitle**(標題下方即時間軸與說明大框)。
+- `stages`:5–6 組(由上而下),每組 `{label ≤8 字, period ≤17 字(日期區間)}`;只有 5 組時從尾端刪
+- `section_one`:`{heading ≤8 字, points 3–6 項 × ≤30 字}`(上段大框 ≈ 6 行)
+- `section_two`:`{heading ≤8 字, points 2–4 項 × ≤30 字}`(下段框 ≈ 3 行,容量不對稱)
+- `footnote` ≤30 字(底部結論帶一句)
+- 模板第 2 階段旁的進度圓點是「目前進度」語意,契約無此槽位,渲染時移除。
+
+## phase_four_step_workflow_matrix — 階段推進(四步驟工作流矩陣)
+適用:4 個連續階段 × 3 個 row 類別的說明矩陣,含固定的 Y/N 決策分支。頁碼:必須。素材:background、logo。
+**本頁型無 subtitle**(標題下方即箭頭階段列)。
+- `stages`:固定 4 個 × ≤8 字(上方箭頭階段列)
+- `row_labels`:固定 3 個 × ≤6 字(左側直排 row 類別)
+- `row_one`:第 1 列,`{cells 固定 3 格(每格 points 1–2 項 × ≤20 字), branches 固定 2 條}`;
+  每條分支 `{condition ≤8 字, outcome ≤16 字}`(上/下分支各一,Y/N 徽章為模板固定結構字樣)
+- `row_two` / `row_three`:各 `{cells 固定 4 格(每格 points 1–3 項 × ≤20 字)}`
+- `footnote` ≤24 字(底部補充一句;左下示範標籤框渲染時移除)
+
+## phase_step_ladder_cards — 階段推進(階梯行動卡)
+適用:4 個遞進步驟、導入階段、成熟度階梯或逐步展開的行動安排。頁碼:必須。素材:background、logo。
+卡片容量**隨階梯遞增**(卡 1 最少、卡 3/4 最多)= `step_one` → `step_four`:
+- `subtitle` ≤40 字
+- `step_one`:`{heading ≤12 字, points 1–2 項 × ≤26 字, highlight ≤8 字(選填,缺值整框刪除)}`
+- `step_two`:`{heading, points 2–3 項, highlight}`(同上字數)
+- `step_three` / `step_four`:`{heading, points 2–4 項, highlight}`(同上字數)
+- 編號徽章 1–4 烙在模板上,不佔槽位;文字量應隨階梯遞增,避免高卡空蕩。
 ---
 
 ## light 模板的實際容量(**以本表為準**)
@@ -338,6 +397,18 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 | info_three_column_category | `subtitle` | ≤60 字 | **≤50 字** |
 | phase_concept_three_column_explanation | `concept` | ≤8 字 | **≤4 字** |
 | phase_concept_three_column_explanation | `concept_labels[].name` | ≤8 字 | **≤4 字** |
+| phase_four_step_workflow_matrix | `footnote` | ≤24 字 | **≤15 字** |
+| phase_four_step_workflow_matrix | `row_one.cells[].points[]` | ≤20 字 | **≤13 字** |
+| phase_four_step_workflow_matrix | `row_three.cells[].points[]` | ≤20 字 | **≤15 字** |
+| phase_four_step_workflow_matrix | `row_two.cells[].points[]` | ≤20 字 | **≤15 字** |
+| phase_step_ladder_cards | `step_four.heading` | ≤12 字 | **≤4 字** |
+| phase_step_ladder_cards | `step_four.points[]` | ≤26 字 | **≤15 字** |
+| phase_step_ladder_cards | `step_one.heading` | ≤12 字 | **≤4 字** |
+| phase_step_ladder_cards | `step_one.points[]` | ≤26 字 | **≤15 字** |
+| phase_step_ladder_cards | `step_three.heading` | ≤12 字 | **≤4 字** |
+| phase_step_ladder_cards | `step_three.points[]` | ≤26 字 | **≤15 字** |
+| phase_step_ladder_cards | `step_two.heading` | ≤12 字 | **≤4 字** |
+| phase_step_ladder_cards | `subtitle` | ≤40 字 | **≤21 字** |
 | phase_three_column_action_cards | `phases[].detail` | ≤60 字 | **≤54 字** |
 | pyramid_layered_maturity_detail | `levels[].detail` | ≤40 字 | **≤21 字** |
 | pyramid_layered_maturity_detail | `side_cards[].heading` | ≤16 字 | **≤9 字** |
@@ -346,9 +417,15 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 | pyramid_layered_maturity_detail | `subtitle` | ≤60 字 | **≤56 字** |
 | section_transition | `main_title` | ≤20 字 | **≤4 字** |
 | section_transition | `subtitle` | ≤40 字 | **≤13 字** |
+| stage_phase_swimlane | `phases[].label` | ≤18 字 | **≤13 字** |
+| stage_phase_swimlane | `subtitle` | ≤60 字 | **≤50 字** |
 | stage_timeline_progress | `axis_labels[]` | ≤8 字 | **≤2 字** |
 | stage_timeline_progress | `current_status.heading` | ≤12 字 | **≤10 字** |
 | stage_timeline_progress | `subtitle` | ≤60 字 | **≤50 字** |
+| stage_vertical_timeline_detail | `section_one.heading` | ≤8 字 | **≤4 字** |
+| stage_vertical_timeline_detail | `section_two.heading` | ≤8 字 | **≤4 字** |
+| stage_vertical_timeline_detail | `stages[].label` | ≤8 字 | **≤4 字** |
+| stage_vertical_timeline_detail | `stages[].period` | ≤17 字 | **≤10 字** |
 | stage_year_cards | `stages[].details[]` | ≤30 字 | **≤15 字** |
 | stage_year_cards | `stages[].heading` | ≤16 字 | **≤7 字** |
 | vision_goal_center_balance | `annual_goal` | ≤60 字 | **≤15 字** |
@@ -359,8 +436,9 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 | vision_goal_center_balance | `subtitle` | ≤60 字 | **≤50 字** |
 | vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
 | vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
+| vision_goal_rings | `subtitle` | ≤60 字 | **≤50 字** |
 
-(共 73 個槽位。**本表由 `template_admin.py fit` 自動重生,
+(共 92 個槽位。**本表由 `template_admin.py fit` 自動重生,
 不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、
 文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)
 

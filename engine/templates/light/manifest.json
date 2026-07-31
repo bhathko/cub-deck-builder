@@ -1,7 +1,7 @@
 {
   "template_id": "light",
   "display_name": "Cathay 淺色企業風",
-  "version": "2026-07-30.3",
+  "version": "2026-07-31.1",
   "status": "registered",
   "template_file": "template.pptx",
   "template_sha256": "9d20f5e5dfcacebe88553e52db5aad97120ce775c5053763f27dab4d3ff2402a",
@@ -97,7 +97,7 @@
       "template_page": 11
     },
     "vision_goal_rings": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 12
     },
     "vision_goal_hub_spoke": {
@@ -193,7 +193,7 @@
       "template_page": 38
     },
     "stage_phase_swimlane": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 39
     },
     "stage_year_cards": {
@@ -205,7 +205,7 @@
       "template_page": 41
     },
     "stage_horizon_matrix": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 42
     },
     "stage_year_transition_architecture": {
@@ -217,7 +217,7 @@
       "template_page": 44
     },
     "stage_vertical_timeline_detail": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 45
     },
     "stage_monthly_gantt": {
@@ -233,7 +233,7 @@
       "template_page": 48
     },
     "phase_four_step_workflow_matrix": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 49
     },
     "phase_three_column_action_cards": {
@@ -245,7 +245,7 @@
       "template_page": 51
     },
     "phase_step_ladder_cards": {
-      "mode": "clone",
+      "mode": "fill",
       "template_page": 52
     },
     "structure_system_overview_table": {
@@ -320,6 +320,18 @@
     "info_three_column_category.slots.subtitle.max_chars": 50,
     "phase_concept_three_column_explanation.slots.concept.max_chars": 4,
     "phase_concept_three_column_explanation.slots.concept_labels.item.name.max_chars": 4,
+    "phase_four_step_workflow_matrix.slots.footnote.max_chars": 15,
+    "phase_four_step_workflow_matrix.slots.row_one.cells.item.points.item.max_chars": 13,
+    "phase_four_step_workflow_matrix.slots.row_three.cells.item.points.item.max_chars": 15,
+    "phase_four_step_workflow_matrix.slots.row_two.cells.item.points.item.max_chars": 15,
+    "phase_step_ladder_cards.slots.step_four.heading.max_chars": 4,
+    "phase_step_ladder_cards.slots.step_four.points.item.max_chars": 15,
+    "phase_step_ladder_cards.slots.step_one.heading.max_chars": 4,
+    "phase_step_ladder_cards.slots.step_one.points.item.max_chars": 15,
+    "phase_step_ladder_cards.slots.step_three.heading.max_chars": 4,
+    "phase_step_ladder_cards.slots.step_three.points.item.max_chars": 15,
+    "phase_step_ladder_cards.slots.step_two.heading.max_chars": 4,
+    "phase_step_ladder_cards.slots.subtitle.max_chars": 21,
     "phase_three_column_action_cards.slots.phases.item.detail.max_chars": 54,
     "pyramid_layered_maturity_detail.slots.levels.item.detail.max_chars": 21,
     "pyramid_layered_maturity_detail.slots.side_cards.item.heading.max_chars": 9,
@@ -328,9 +340,15 @@
     "pyramid_layered_maturity_detail.slots.subtitle.max_chars": 56,
     "section_transition.slots.main_title.max_chars": 4,
     "section_transition.slots.subtitle.max_chars": 13,
+    "stage_phase_swimlane.slots.phases.item.label.max_chars": 13,
+    "stage_phase_swimlane.slots.subtitle.max_chars": 50,
     "stage_timeline_progress.slots.axis_labels.item.max_chars": 2,
     "stage_timeline_progress.slots.current_status.heading.max_chars": 10,
     "stage_timeline_progress.slots.subtitle.max_chars": 50,
+    "stage_vertical_timeline_detail.slots.section_one.heading.max_chars": 4,
+    "stage_vertical_timeline_detail.slots.section_two.heading.max_chars": 4,
+    "stage_vertical_timeline_detail.slots.stages.item.label.max_chars": 4,
+    "stage_vertical_timeline_detail.slots.stages.item.period.max_chars": 10,
     "stage_year_cards.slots.stages.item.details.item.max_chars": 15,
     "stage_year_cards.slots.stages.item.heading.max_chars": 7,
     "vision_goal_center_balance.slots.annual_goal.max_chars": 15,
@@ -340,7 +358,8 @@
     "vision_goal_center_balance.slots.projects.item.max_chars": 9,
     "vision_goal_center_balance.slots.subtitle.max_chars": 50,
     "vision_goal_keyword_orbit.slots.center_theme.max_chars": 8,
-    "vision_goal_keyword_orbit.slots.subtitle.max_chars": 50
+    "vision_goal_keyword_orbit.slots.subtitle.max_chars": 50,
+    "vision_goal_rings.slots.subtitle.max_chars": 50
   },
   "registered_by": "hunter",
   "registered_at": "2026-07-25",
