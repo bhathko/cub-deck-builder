@@ -1,7 +1,13 @@
 ## 參考頁型
 本檔是**跨模板共用的頁型語意庫**:定義每種頁型的適用情境、視覺結構與內容容量。
 版面唯一準則是**選定模板包**的 `template.pptx`(預設 light;沙箱路徑
-`/mnt/data/templates/<模板id>/template.pptx`)。已註冊頁型(契約見
+`/mnt/data/templates/<模板id>/template.pptx`)。
+**本檔講語意:什麼時候用、版面長什麼樣、有什麼使用限制。**各節的「內容容量」
+是跨模板的粗略指引,用來初步選型;**實際能寫多少字、清單能放幾項,一律以選定
+模板包的容量表為準**(`page_types_registry.md` 文末,由量測自動重生),
+或跑 `make_skeleton.py --describe <頁型>` 看該包合併後的契約。
+選型時想知道「換個版型要多補什麼內容」,用 `make_skeleton --plan --gap-report`。
+已註冊頁型(契約見
 `page_types_registry.md`,當下全集跑 `make_skeleton.py --list`)由該包全自動產出;
 本檔其他頁型走 render_plan 複製改字——**「頁型 → 該模板第幾頁」的對照查該包的
 `page_map.md`**(各模板不同,不再列於本檔),寫 plan 前先用
@@ -454,7 +460,7 @@
   - 副標 1 句
   - 金字塔層級 3 層
   - 每層 1 個短標題
-  - 左右補充說明共 4-6 組，每組包含小標 + 1 句說明
+  - 左右補充說明:每層左右各一組(共 6 組),每組包含小標 + 1 句說明
 - 使用限制：適合 3 層關係；若層級超過 3 層，改用 `pyramid_layered_maturity_detail`。左右說明需與層級對齊，不能形成隨意散落的文字。
 - **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
 

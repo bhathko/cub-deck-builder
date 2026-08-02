@@ -385,35 +385,34 @@ def sync_registry_table(manifest: dict, verbose=True) -> None:
 
     def walk(node, base, pt, path=""):
         if node.get("kind") == "text":
-            if node["max_chars"] != base["max_chars"]:
-                rows.append((pt, path, f"≤{base['max_chars']} 字", f"≤{node['max_chars']} 字"))
+            rows.append((pt, path, f"≤{node['max_chars']} 字",
+                         node["max_chars"] != base["max_chars"]))
         elif node.get("kind") == "list":
-            if node["max"] != base["max"]:
-                rows.append((pt, path, f"{base['min']}–{base['max']} 項",
-                             f"{node['min']}–{node['max']} 項"))
+            rows.append((pt, path, f"{node['min']}–{node['max']} 項",
+                         (node["min"], node["max"]) != (base["min"], base["max"])))
             walk(node["item"], base["item"], pt, path + "[]")
         elif node.get("kind") == "object":
             for k, v in node["fields"].items():
                 walk(v, base["fields"][k], pt, f"{path}.{k}" if path else k)
 
     for pt in merged:
-        if "title" in merged[pt] and \
-                merged[pt]["title"]["max_chars"] != PAGE_TYPES[pt]["title"]["max_chars"]:
-            rows.append((pt, "(頁面標題)",
-                         f"≤{PAGE_TYPES[pt]['title']['max_chars']} 字",
-                         f"≤{merged[pt]['title']['max_chars']} 字"))
+        if "title" in merged[pt]:
+            rows.append((pt, "(頁面標題)", f"≤{merged[pt]['title']['max_chars']} 字",
+                         merged[pt]["title"]["max_chars"]
+                         != PAGE_TYPES[pt]["title"]["max_chars"]))
         for k, v in merged[pt]["slots"].items():
             walk(v, PAGE_TYPES[pt]["slots"][k], pt, k)
     body = [
         "", "---", "", "## light 模板的實際容量(**以本表為準**)", "",
-        "上方各節的字數是「語意契約的預設值」。**實際可寫多少,由選定的模板包決定**——",
-        "版位大小是設計師定的,字級也是設計過的,塞不下時請**改寫更短或換頁型**,",
-        "系統不會偷偷縮小字級來遷就,也不會讓文字疊到隔欄。下表列出 light 包與預設值",
-        "不同的槽位;沒列出的沿用上方數字。閘門依本表擋,寫超過會被退回。", "",
-        "| 頁型 | 槽位 | 預設 | light 實際 |", "| --- | --- | --- | --- |",
+        "**本表是 light 包每個槽位的唯一數字真相**——上方各節只講語意與結構,",
+        "刻意不重複數字。版位大小是設計師定的,字級也是設計過的,塞不下時請",
+        "**改寫更短或換頁型**,系統不會偷偷縮小字級來遷就,也不會讓文字疊到鄰欄。",
+        "閘門依本表擋,寫超過會被退回。粗體 = 比跨模板預設更緊(該版位量測後收緊)。", "",
+        "| 頁型 | 槽位 | light 上限 |", "| --- | --- | --- |",
     ]
     for r in sorted(rows):
-        body.append(f"| {r[0]} | `{r[1]}` | {r[2]} | **{r[3]}** |")
+        cell = f"**{r[2]}**" if r[3] else r[2]
+        body.append(f"| {r[0]} | `{r[1]}` | {cell} |")
     body += ["", f"(共 {len(rows)} 個槽位。**本表由 `template_admin.py fit` 自動重生,",
              "不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、",
              "文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)", ""]

@@ -52,6 +52,10 @@
    版面依選定模板包的 `template.pptx` 對應頁重建(「頁型→模板第幾頁」查該包
    `page_map.md`;模板不支援的頁型該檔標 unsupported)。
 
+**各節只講語意與結構,不寫數字。**字數上限與清單數量一律以文末「light 模板的
+實際容量」表為準(該表由 `template_admin.py fit` 量測後自動重生,是唯一數字
+真相);散文裡若出現與該表衝突的數字,以表為準並回報維護者。
+
 > 內容正確性由撰寫 JSON 的人負責:此模式沒有內容來源檔可回溯比對,驗證器擋的是
 > 結構、數量、字數、頁碼與素材;GPTs 被禁止改寫你 JSON 裡的任何文字與數字。
 
@@ -78,47 +82,47 @@
 
 ## agenda — 目錄
 頁碼:必須(`render_page_number: true`)。素材:background、logo。
-- `items`:清單 3–6 項,每項物件:
-  - `number` 文字 ≤4 字(如 "01")
-  - `title` 文字 ≤20 字
-  - `subtitle` 文字 ≤60 字(選填)
+- `items`:清單,每項物件:
+  - `number` 文字(如 "01")
+  - `title` 文字
+  - `subtitle` 文字(選填)
 
 ## section_transition — 章節過渡頁
 適用:章節開場、主題切換或中場轉場，只呈現主標題與一句副標題。
 頁碼:無(`render_page_number: false`)。素材:無(背景與視覺樣式由模板頁自帶)。
 - 頂層 `title` 是頁面語意標題；`main_title` 是版面中央顯示的短章節名。
-- `main_title` ≤20 字
-- `subtitle` ≤40 字
+- `main_title`
+- `subtitle`
 
 ## vision_goal_center_balance — 願景目標(中心平衡)
 適用:一個核心目標 + 左右支撐重點 + KPI。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `core_mission` ≤60 字
-- `annual_goal` ≤60 字
-- `projects`:清單 2–3 項,每項文字 ≤40 字
-- `kpis`:清單 2–4 項,每項 `{label ≤30 字, value ≤12 字}`
+- `subtitle`
+- `core_mission`
+- `annual_goal`
+- `projects`:清單,每項文字
+- `kpis`:清單,每項 `{label, value}`
 
 ## info_three_column_category — 資訊說明(三欄分類)
 適用:3 個並列面向/模組的對照說明。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
+- `subtitle`
 - `columns`:清單固定 3 欄,每欄:
-  - `heading` ≤20 字
-  - `points`:清單 2–6 項,每項 ≤40 字
+  - `heading`
+  - `points`:清單,每項
 
 ## info_sidebar_grid — 資訊說明(側欄分類網格)
 適用:一個大主題下,依 4 個分類整理 6–8 個子模組、功能項、規則或資訊點。
 頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字(頁面上方淡綠色主題帶)
-- `hashtags`:清單 3–4 項,每項 `{label ≤12 字}`;只填標籤文字,
+- `subtitle`(頁面上方淡綠色主題帶)
+- `hashtags`:清單,每項 `{label}`;只填標籤文字,
   渲染時會自動加上 `# ` 前綴
-- `topic` ≤40 字(左側大型主題區)
+- `topic`(左側大型主題區)
 - `paired_categories`:清單固定 2 項(前兩列),每項:
-  - `label` ≤20 字
-  - `cards`:固定 2 張,每張 `{heading ≤20 字, detail ≤60 字}`
+  - `label`
+  - `cards`:固定 2 張,每張 `{heading, detail}`
 - `flex_category`:第三列,
-  `{label ≤20 字, cards 1–3 張 × {heading ≤20 字, detail ≤60 字}}`
+  `{label, cards 若干張 × {heading, detail}}`
 - `full_width_category`:第四列,
-  `{label ≤20 字, card {heading ≤20 字, detail ≤60 字}}`
+  `{label, card {heading, detail}}`
 
 四列合計 6–8 張卡片。缺少的第三列卡片會連同底框刪除;本版先沿用模板
 固定寬度,不依卡片數動態拉寬。
@@ -126,103 +130,103 @@
 ## data_line_trend_comparison — 數據比較(折線趨勢)
 適用:1–2 組指標在多個時間點上的趨勢比較。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(版面上方為圖表,無副標位置)。
-- `categories`:清單 6–10 項(時間點標籤),每項 ≤8 字
-- `series`:清單 1–2 組,每組:
-  - `name` ≤8 字(圖例名)
-  - `values`:清單 6–10 項,每項為**純數字字串**(如 `"42.5"`;禁單位與 %,
+- `categories`:清單 (時間點標籤),每項
+- `series`:清單,每組:
+  - `name`(圖例名)
+  - `values`:清單,每項為**純數字字串**(如 `"42.5"`;禁單位與 %,
     百分比語意寫進 label/標題)。**每組 values 數必須等於 categories 數**。
-- `rows`:下方說明列 2–3 列,每列 `{heading ≤8 字, cells 3–5 項 × ≤20 字}`
+- `rows`:下方說明列 若干列,每列 `{heading, cells 若干項}`
 
 ## data_two_group_metric_comparison — 數據比較(兩組前後對照)
 適用:改善前後、兩方案的數字比較。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `before`:`{heading ≤12 字(如 "改善前"), points 2–6 項 × ≤40 字}`
+- `subtitle`
+- `before`:`{heading(如 "改善前"), points 若干項}`
 - `after`:同 before
-- `kpis`:清單 2–3 項,每項 `{label ≤30 字, value ≤12 字}`
+- `kpis`:清單,每項 `{label, value}`
 
 ## evaluation_vs_criteria_matrix — 方案評估(雙方案準則矩陣)
 適用:兩個方案、工具、合作模式或設計選擇的逐項比較。頁碼:必須。素材:background、logo。
 light 全自動版為避免暗示來源未提供的勝出結果,會移除模板內所有皇冠/獎盃圖示。
-- `subtitle` ≤60 字
-- `left_name`、`right_name`:左右方案名稱,各 ≤24 字
-- `criteria`:清單 4–6 列,每列:
-  - `label` ≤16 字(中央評估準則或中性結論標籤)
-  - `left` ≤60 字(左側方案說明)
-  - `right` ≤60 字(右側方案說明)
+- `subtitle`
+- `left_name`、`right_name`:左右方案名稱
+- `criteria`:清單,每列:
+  - `label`(中央評估準則或中性結論標籤)
+  - `left`(左側方案說明)
+  - `right`(右側方案說明)
 
 ## evaluation_option_score_pros_cons — 方案評估(優缺點)
 適用:2–3 個方案的優缺點評比。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `recommended` ≤20 字(選填,如 "方案 B")
-- `options`:清單 2–3 項,每項:
-  - `name` ≤24 字
-  - `pros`:1–4 項 × ≤60 字
-  - `cons`:1–3 項 × ≤60 字
-- `recommendation`:0–5 項 × ≤40 字(選填)
+- `subtitle`
+- `recommended`(選填,如 "方案 B")
+- `options`:清單,每項:
+  - `name`
+  - `pros`:1–4 項
+  - `cons`:1–3 項
+- `recommendation`:0–5 項 ×(選填)
 
 ## pyramid_layered_maturity_detail — 金字塔(成熟度分層)
 適用:4–5 層由下而上的能力/成熟度堆疊。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `levels`:4–5 層,每層 `{label ≤20 字, detail ≤40 字}`
-- `side_cards`:0–2 張(選填),每張 `{heading ≤16 字, points 2–4 項 × ≤30 字}`
+- `subtitle`
+- `levels`:4–5 層,每層 `{label, detail}`
+- `side_cards`:0–2 張(選填),每張 `{heading, points 若干項}`
 
 ## data_three_number_kpis — 數據摘要(三大數字 KPI)
 適用:2–3 個最重要的 KPI、成果數字、規模指標或管理摘要。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字(**選填**;不給整框刪除,版面上方只留主標題)
-- `kpis`:清單 2–3 項,每項:
-  - `value` ≤6 字 — 大數字本體,可含單位或百分號(如 `"99.9%"`、`"1,200"`、`"3.5x"`);
-    以 66pt 顯示,超過 4 個字元會自動縮字級,建議控制在 5 字內
-  - `label` ≤12 字 — 數字下方的短標題(單行)
-  - `detail` ≤30 字 — 補充說明 1–2 行
+- `subtitle`(**選填**;不給整框刪除,版面上方只留主標題)
+- `kpis`:清單,每項:
+  - `value` — 大數字本體,可含單位或百分號(如 `"99.9%"`、`"1,200"`);以 66pt 顯示,
+    上限見容量表——**寫超過會被閘門退回,不會自動縮字**(字級是設計過的)
+  - `label` — 數字下方的短標題(單行)
+  - `detail` — 補充說明 1–2 行
 - 只有 2 個 KPI 時第 3 組(數字 + 標題 + 說明)整組刪除,不留空位;超過 3 個請拆頁,
   或改用 `data_table_kpi_chart_insights` / `data_kpi_bar_callout_dashboard`。
 
 ## info_horizontal_explanation_rows — 資訊說明(橫向說明列)
 適用:同一主題下 4–5 條並列條目的逐條說明(規範、條件、欄位定義、常見問題)。
 頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字(頁面上方淡綠色主題帶,一句話點出本頁主題)
-- `rows`:橫向說明列 4–5 條,每條:
-  - `label` ≤12 字(左側短標籤,寫不下會自動縮字)
-  - `points`:清單 1–3 項,每項 ≤40 字;1 項 = 一段說明,2–3 項 = 列點
+- `subtitle`(頁面上方淡綠色主題帶,一句話點出本頁主題)
+- `rows`:橫向說明列 若干條,每條:
+  - `label`(左側短標籤,寫不下會自動縮字)
+  - `points`:清單;1 項 = 一段說明,2–3 項 = 列點
     (同一列的多項會以換行併入同一個說明框,建議控制在 1–2 行)
 - 模板左側直排類別標示與右上子導覽標籤會在渲染時移除(契約無此槽位,留著=捏造)。
 
 ## cycle_four_point_loop — 循環(四點閉環)
 適用:PDCA、管理閉環、迭代改善、服務循環等**固定 4 步驟**的週期性流程。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `center_theme` ≤10 字(中央循環箭頭內的循環主題,建議 4-8 字)
+- `subtitle`
+- `center_theme`(中央循環箭頭內的循環主題,建議 4-8 字)
 - `steps`:**固定 4 組**(左上 → 左下 → 右下 → 右上,依模板編號徽章順序),每組
-  `{number ≤1 字(結構性序號,模板編號徽章僅 0.34 吋寬,只放單一數字 1-4,**不要寫 "01"** 會折行破版), label ≤12 字(步驟名稱,建議 4-8 字), detail ≤40 字(1-2 句說明)}`
+  `{number(結構性序號,模板編號徽章僅 0.34 吋寬,只放單一數字 1-4,**不要寫 "01"** 會折行破版), label(步驟名稱,建議 4-8 字), detail(1-2 句說明)}`
 - 中央圓內的示範「副標文字 / 重點文字」兩框由綁定刪除(契約無此槽位);`center_theme` 文字框會下移置中於循環箭頭。
 - 若只有 3 步驟改用 `cycle_three_node_process`;6-10 步驟改用 `cycle_multi_step_loop`。四步文字量要接近,避免單側過重。
 
 ## phase_three_column_action_cards — 階段推進(三欄行動卡)
 適用:3 個階段/3 種作法/3 個推進策略,每欄都要「列點 + 重點句 + 段落說明」。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(標題列下方直接接三欄箭頭標題,版面無副標位置)。
-- `points_label` ≤6 字(左側上方層級標籤,如 "重點";結構字樣不追溯)
-- `detail_label` ≤6 字(左側下方層級標籤,如 "說明";結構字樣不追溯)
+- `points_label`(左側上方層級標籤,如 "重點";結構字樣不追溯)
+- `detail_label`(左側下方層級標籤,如 "說明";結構字樣不追溯)
 - `phases`:清單固定 3 欄,每欄:
-  - `heading` ≤12 字(箭頭式階段標題)
-  - `points`:清單 3–5 項 × ≤16 字(卡片上半列點)
-  - `highlight` ≤16 字(選填,卡片中段的一句重點強調;不填則整框刪除)
-  - `detail` ≤60 字(卡片下半段落說明)
+  - `heading`(箭頭式階段標題)
+  - `points`:清單  ×(卡片上半列點)
+  - `highlight`(選填,卡片中段的一句重點強調;不填則整框刪除)
+  - `detail`(卡片下半段落說明)
 
 ## stage_year_cards — 時程(年度策略卡)
 適用:3 個年度 / 3 個策略階段 / 3 個版本演進的並列比較,中欄為當前年度或主推階段。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(主標題下方即年度線,版面無副標位置)。
 - `stages`:清單固定 3 欄(左→中→右,中欄為模板上綠框強調欄),每欄:
-  - `label` ≤8 字(年度或階段名,如 "2026";中欄字級較大,建議 ≤6 字)
-  - `heading` ≤16 字(該年度短標題)
-  - `highlights`:深色重點區塊 2–4 項 × ≤20 字
-  - `details`:白色細項區塊 3–5 項 × ≤30 字
+  - `label`(年度或階段名,如 "2026";中欄字級較大,建議)
+  - `heading`(該年度短標題)
+  - `highlights`:深色重點區塊 若干項
+  - `details`:白色細項區塊 若干項
 
 ## info_card_grid — 資訊說明(卡片網格)
 適用:6–8 個資訊點、規則、功能、風險或檢核項的平鋪說明。頁碼:必須。素材:background、logo。
 版面為 2 列 × 4 欄共 8 格卡片(列優先填);卡片不足 8 張時從尾端刪格(連同卡片底框一併移除)。
-- `subtitle` ≤60 字
-- `cards`:清單 6–8 張,每張:
-  - `heading` ≤10 字(卡片小標;模板框不換行,超過會擠到隔壁卡片)
-  - `points`:清單 1–3 項,每項 ≤12 字(對應「1–2 句短說明」或「2–3 個短列點」;
+- `subtitle`
+- `cards`:清單,每張:
+  - `heading`(卡片小標;模板框不換行,超過會擠到隔壁卡片)
+  - `points`:清單,每項(對應「1–2 句短說明」或「2–3 個短列點」;
     渲染時以換行併入同一個內文框,每項各佔一行)
 
 **卡片文字必須短**:內文框一行約 13 字、至多 4 行,3 × 12 字已用滿 3 行;
@@ -232,29 +236,29 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 ## stage_timeline_progress — 時程(單線時間軸進度)
 適用:單一路線的時間軸、重要里程碑、目前進度與後續規劃(線性時程;多工作流併行請改用 `stage_phase_swimlane`)。頁碼:必須。素材:background、logo。
 頁面標題用 slide 的頂層 `title`;右側「進行中 / 後續規劃」欄目標籤由模板固定提供,不佔槽位。
-- `subtitle` ≤60 字
-- `axis_labels`:時間軸刻度**固定 4 項** × ≤8 字(如 "2026 年"、"3 月"、"6 - 8 月");由左至右排列
-- `milestones`:**固定 3 個**,每個 `{label ≤8 字, detail ≤40 字}`;
+- `subtitle`
+- `axis_labels`:時間軸刻度**固定 4 項** ×(如 "2026 年"、"3 月"、"6 - 8 月");由左至右排列
+- `milestones`:**固定 3 個**,每個 `{label, detail}`;
   順序 = 版面由左至右(第 1、2 個在時間軸上方,第 3 個在時間軸下方),
   `label` 要短(節點文字過長會讓時間軸擁擠)
-- `current_status`:右側說明區 1 組,`{heading ≤12 字, points 1–2 段 × ≤60 字}`
+- `current_status`:右側說明區 1 組,`{heading, points 1–2 段}`
   (points 兩段會以換行併入同一個說明框)
 
 ## info_before_after_item_compare — 資訊說明(前後項目對照)
 適用:轉換前後、兩方案、兩群受眾、兩個系統的左右項目對照。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(標題下方即左右兩區塊,版面無副標位置)。
 - `before`(左區塊,主色綠)與 `after`(右區塊,輔色藍)結構相同,各為:
-  - `heading` ≤6 字(區塊標籤,如 "導入前"/"導入後";標籤框僅 1.32 吋寬 @20pt,7 字起爆框)
+  - `heading`(區塊標籤,如 "導入前"/"導入後";標籤框僅 1.32 吋寬 @20pt,7 字起爆框)
   - `items`:清單**固定 3 項**(左右數量必須一致 = 版面規定),每項:
-    - `name` ≤12 字(項目名稱徽章)
-    - `points`:清單 2–4 項,每項 ≤16 字(短列點;右欄說明框 3.37 吋 @14pt,一行 16 字、最多 4 行)
+    - `name`(項目名稱徽章)
+    - `points`:清單,每項(短列點;右欄說明框 3.37 吋 @14pt,一行 16 字、最多 4 行)
 - 中央箭頭、左右底板、列間分隔線由模板提供,不佔槽位;右上子項目導覽標籤一律移除。
 
 ## vision_goal_keyword_orbit — 願景目標(關鍵詞環繞)
 適用:一個願景中心 + 8–12 個環繞關鍵詞、價值主張或設計原則。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `center_theme` ≤14 字(圓心願景短句;版面圓內只放這一句,**沒有中心補充說明欄位**)
-- `keywords`:清單 8–12 項,每項 ≤8 字
+- `subtitle`
+- `center_theme`(圓心願景短句;版面圓內只放這一句,**沒有中心補充說明欄位**)
+- `keywords`:清單,每項
   - **只放關鍵詞,不放句子**:版位字級 20–28pt、框寬約 2.2 吋,一行約 6 字,
     超過會自動縮字(最低 12pt),與鄰框字級不一致。
   - 填充順序為左右交錯(先左右兩個主要關鍵詞,再由上而下配對次要、最後輔助),
@@ -265,304 +269,449 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 適用:一個核心概念展開成 3 個階段/面向/推進主軸,左側概念圖引導、右側三欄說明。
 頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(標題下方直接是三欄欄標,版面無副標位置)。
-- `concept` ≤8 字(左側大圓內的核心概念)
-- `concept_labels`:0–3 個(**選填**,左側品牌/關鍵標籤),每個 `{name ≤8 字, caption ≤4 字}`;
+- `concept`(左側大圓內的核心概念)
+- `concept_labels`:0–3 個(**選填**,左側品牌/關鍵標籤),每個 `{name, caption}`;
   給幾個就留幾個,沒給的標籤整組(圓形+文字)刪除
-- `column_one`:`{heading ≤10 字, items 3–4 組}`,每組 `{label ≤12 字, detail ≤20 字}`
+- `column_one`:`{heading, items 3–4 組}`,每組 `{label, detail}`
   (label 與 detail 同框兩行,故兩者字數上限偏緊)
-- `column_two`:`{heading ≤10 字, points 3–5 項 × ≤36 字}`,只有 4 個格位,
+- `column_two`:`{heading, points 若干項}`,只有 4 個格位,
   **第 5 項自動併入第 4 格**(該格加高至 1.10 吋)
-- `column_three`:`{heading ≤10 字, points 4–6 項 × ≤24 字}`,只有 4 個格位,
+- `column_three`:`{heading, points 若干項}`,只有 4 個格位,
   **第 5–6 項自動併入第 4 格**(該格加高至 1.45 吋)
 - 三欄內容量應接近;欄標建議 4–10 字。若要精準流程或日期,改用時程說明頁型。
 
 ## vision_goal_rings — 願景目標(三層同心圓)
 適用:3 個層級的願景、目標或策略主軸,右側同心圓、左側逐層說明。頁碼:必須。素材:background、logo。
 三層容量**不對稱**(左側說明框高度不同),由外圈/最上而內 = `level_one` → `level_three`:
-- `subtitle` ≤60 字(標題下方引言一句)
+- `subtitle`(標題下方引言一句)
 - `level_one` / `level_two` / `level_three`:每層
-  - `label` ≤6 字(圓上短標,28pt)
-  - `caption` ≤24 字(圓上補充;level_three 框較窄 ≤16 字)
-  - `heading` ≤12 字(左側小標)
-  - `detail` 左側說明:level_one ≤26 字、level_two ≤40 字、level_three ≤20 字
+  - `label`(圓上短標,28pt)
+  - `caption`(圓上補充;level_three 框較窄)
+  - `heading`(左側小標)
+  - `detail` 左側說明:level_one、level_two、level_three
 - 同心圓與導引線為模板裝飾,不佔槽位;三層都必填。
 
 ## stage_phase_swimlane — 時程(三欄泳道)
 適用:3 個階段的執行安排,同時比較每階段的工作項目與角色分工。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `items_label` ≤6 字(左側直排 row 標籤,如「執行項目」;結構字樣不追溯)
-- `roles_label` ≤4 字(左側直排 row 標籤,如「角色」;結構字樣不追溯)
+- `subtitle`
+- `items_label`(左側直排 row 標籤,如「執行項目」;結構字樣不追溯)
+- `roles_label`(左側直排 row 標籤,如「角色」;結構字樣不追溯)
 - `phases`:清單固定 3 欄,每欄:
-  - `label` ≤18 字(底部箭頭標籤,「階段名␣␣時間範圍」一句承載)
-  - `points`:工作項目 3–6 項 × ≤17 字(換行併入同一卡片框)
-  - `roles`:角色/支援 1–2 項 × ≤17 字(三欄一律單格內換行;欄 2 模板多出的
+  - `label`(底部箭頭標籤,「階段名␣␣時間範圍」一句承載)
+  - `points`:工作項目 若干項 ×(換行併入同一卡片框)
+  - `roles`:角色/支援 若干項 ×(三欄一律單格內換行;欄 2 模板多出的
     第 2 格連列點圓飾渲染時移除,三欄結構一致)
 
 ## stage_horizon_matrix — 時程(短中長期矩陣)
 適用:短期/中期/長期 × 4 個分類的矩陣式工作整理。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(標題下方即指標帶與矩陣)。
-- `indicators`:1–2 個(**選填**)補充指標短句 × ≤24 字(如「現況  Concurrent User  10,000」;
+- `indicators`:1–2 個(**選填**)補充指標短句 ×(如「現況  Concurrent User  10,000」;
   數字照常追溯);只給 1 個刪右框,全缺連分隔線一起刪
-- `column_headings`:固定 3 個 × ≤8 字(如「短期/中期/長期」)
+- `column_headings`:固定 3 個 ×(如「短期/中期/長期」)
 - `rows`:固定 4 列,每列:
-  - `label` ≤6 字(左側直排分類標籤)
-  - `cells`:固定 3 格(對應 3 欄),每格 `points` 1–3 項 × ≤17 字(換行併入同格)
+  - `label`(左側直排分類標籤)
+  - `cells`:固定 3 格(對應 3 欄),每格 `points` 若干項 ×(換行併入同格)
 
 ## stage_vertical_timeline_detail — 時程(垂直時間軸重點說明)
 適用:5–6 個連續階段,右側放大說明其中的重點與成果。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(標題下方即時間軸與說明大框)。
-- `stages`:5–6 組(由上而下),每組 `{label ≤8 字, period ≤17 字(日期區間)}`;只有 5 組時從尾端刪
-- `section_one`:`{heading ≤8 字, points 3–6 項 × ≤30 字}`(上段大框 ≈ 6 行)
-- `section_two`:`{heading ≤8 字, points 2–4 項 × ≤30 字}`(下段框 ≈ 3 行,容量不對稱)
-- `footnote` ≤30 字(底部結論帶一句)
+- `stages`:5–6 組(由上而下),每組 `{label, period(日期區間)}`;只有 5 組時從尾端刪
+- `section_one`:`{heading, points 若干項}`(上段大框 ≈ 6 行)
+- `section_two`:`{heading, points 若干項}`(下段框 ≈ 3 行,容量不對稱)
+- `footnote`(底部結論帶一句)
 - 模板第 2 階段旁的進度圓點是「目前進度」語意,契約無此槽位,渲染時移除。
 
 ## phase_four_step_workflow_matrix — 階段推進(四步驟工作流矩陣)
 適用:4 個連續階段 × 3 個 row 類別的說明矩陣,含固定的 Y/N 決策分支。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(標題下方即箭頭階段列)。
-- `stages`:固定 4 個 × ≤8 字(上方箭頭階段列)
-- `row_labels`:固定 3 個 × ≤6 字(左側直排 row 類別)
-- `row_one`:第 1 列,`{cells 固定 3 格(每格 points 1–2 項 × ≤20 字), branches 固定 2 條}`;
-  每條分支 `{condition ≤8 字, outcome ≤16 字}`(上/下分支各一,Y/N 徽章為模板固定結構字樣)
-- `row_two` / `row_three`:各 `{cells 固定 4 格(每格 points 1–3 項 × ≤20 字)}`
-- `footnote` ≤24 字(底部補充一句;左下示範標籤框渲染時移除)
+- `stages`:固定 4 個 ×(上方箭頭階段列)
+- `row_labels`:固定 3 個 ×(左側直排 row 類別)
+- `row_one`:第 1 列,`{cells 固定 3 格(每格 points 若干項), branches 固定 2 條}`;
+  每條分支 `{condition, outcome}`(上/下分支各一,Y/N 徽章為模板固定結構字樣)
+- `row_two` / `row_three`:各 `{cells 固定 4 格(每格 points 若干項)}`
+- `footnote`(底部補充一句;左下示範標籤框渲染時移除)
 
 ## phase_step_ladder_cards — 階段推進(階梯行動卡)
 適用:4 個遞進步驟、導入階段、成熟度階梯或逐步展開的行動安排。頁碼:必須。素材:background、logo。
 卡片容量**隨階梯遞增**(卡 1 最少、卡 3/4 最多)= `step_one` → `step_four`:
-- `subtitle` ≤40 字
-- `step_one`:`{heading ≤12 字, points 1–2 項 × ≤26 字, highlight ≤8 字(選填,缺值整框刪除)}`
-- `step_two`:`{heading, points 2–3 項, highlight}`(同上字數)
-- `step_three` / `step_four`:`{heading, points 2–4 項, highlight}`(同上字數)
+- `subtitle`
+- `step_one`:`{heading, points 若干項, highlight(選填,缺值整框刪除)}`
+- `step_two`:`{heading, points 若干項, highlight}`(同上字數)
+- `step_three` / `step_four`:`{heading, points 若干項, highlight}`(同上字數)
 - 編號徽章 1–4 烙在模板上,不佔槽位;文字量應隨階梯遞增,避免高卡空蕩。
 
 ## vision_goal_pyramid — 願景目標(目標金字塔)
 適用:階層式目標、策略金字塔、成熟度路徑或優先級。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `levels`:3–4 層(**由上而下**),每層 `{label ≤6 字(層標籤), left_number ≤1 字,
-  left_heading ≤12 字, left_detail ≤30 字, right_number ≤1 字, right_heading ≤12 字,
-  right_detail ≤30 字}`;左右說明**與層綁定、每層必有左右各一組**,3 層時整列
+- `subtitle`
+- `levels`:3–4 層(**由上而下**),每層 `{label(層標籤), left_number,
+  left_heading, left_detail, right_number, right_heading,
+  right_detail}`;左右說明**與層綁定、每層必有左右各一組**,3 層時整列
   (含分隔線)從頂端刪
 - 編號慣例:左欄由上而下 1..N,右欄接續 N+1..2N(單字寬徽章,不要補零)
 - 不適合平行清單;左右說明數固定等於層數,湊不滿請改用其他資訊頁型
 
 ## cycle_three_node_process — 循環(三節點循環)
 適用:3 個節點的循環關係(蒐集/分析/行動、規劃/執行/回饋)。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `center_theme` ≤6 字(中央核心主題)
-- `nodes`:固定 3 個(**上 → 右下 → 左下順時針**),每個 `{label ≤8 字, detail ≤12 字,
-  keyword ≤6 字(圈外重點字)}`
+- `subtitle`
+- `center_theme`(中央核心主題)
+- `nodes`:固定 3 個(**上 → 右下 → 左下順時針**),每個 `{label, detail,
+  keyword(圈外重點字)}`
 - `side_labels`:**全有或全無**——要嘛左右 2 組都給、要嘛整個省略(省略時兩側刪空,
-  循環圖略偏左,屬已知取捨),每組 `{heading ≤8 字, points 2–3 項 × ≤12 字}`
+  循環圖略偏左,屬已知取捨),每組 `{heading, points 若干項}`
 - 模板右上第三組示範標籤、❶❷❸ 示範籤與中央圓內副標,契約無槽位,渲染時移除。
 
 ## cycle_multi_step_loop — 循環(多步閉環)
 適用:6–10 個步驟的完整循環、迭代流程、治理閉環或週期性機制。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `center_theme` ≤12 字(路徑中央的循環主題)
-- `steps`:6–10 步(沿路徑順時針,從左上格位起填),每步 `{number ≤2 字, label ≤12 字,
-  detail ≤30 字}`;未用格位整組移除,6 步時下半圈會留空——內容夠時盡量給滿 8–10 步
+- `subtitle`
+- `center_theme`(路徑中央的循環主題)
+- `steps`:6–10 步(沿路徑順時針,從左上格位起填),每步 `{number, label,
+  detail}`;未用格位整組移除,6 步時下半圈會留空——內容夠時盡量給滿 8–10 步
 - 步驟少於 6 個改用 `cycle_four_point_loop` 或 `cycle_three_node_process`
 
 ## stage_period_cards — 時程(期間卡)
 適用:4 個期間、季度、波段或專案步驟,上摘要下細節。頁碼:必須。素材:background、logo。
 **本頁型無 subtitle**(標題下方即箭頭期間線)。
-- `periods`:固定 4 個,每個 `{label ≤8 字(時間範圍,如「2 - 4 月」), heading ≤8 字,
-  detail ≤30 字}`
-- `badge` ≤4 字(**選填**,如「NEW」;徽章位置烙死在**第 3 期間**上方,要標其他期
+- `periods`:固定 4 個,每個 `{label(時間範圍,如「2 - 4 月」), heading,
+  detail}`
+- `badge`(**選填**,如「NEW」;徽章位置烙死在**第 3 期間**上方,要標其他期
   請調整期間順序或省略本槽位,缺值即移除)
-- `cards`:固定 4 張,每張 `{heading ≤8 字, one_label ≤8 字, one_detail ≤24 字,
-  two_label ≤8 字, two_detail ≤16 字, highlight ≤8 字(選填,缺值整框刪除)}`
+- `cards`:固定 4 張,每張 `{heading, one_label, one_detail,
+  two_label, two_detail, highlight(選填,缺值整框刪除)}`
   (兩組小項目各為「標題 + 說明」,渲染成同框兩行)
 
 ## pyramid_three_level_center_explanation — 金字塔(三層中央說明)
 適用:3 層核心架構、策略優先級、能力堆疊或價值主張。頁碼:必須。素材:background、logo。
-- `subtitle` ≤60 字
-- `layers`:固定 3 層(**由上而下**),每層 `{label ≤6 字(層內短標題),
-  left_heading ≤8 字, left_detail ≤20 字, left_highlight ≤6 字(選填,缺值整框刪除),
-  right_heading ≤8 字, right_detail ≤20 字, right_highlight ≤6 字(選填)}`
+- `subtitle`
+- `layers`:固定 3 層(**由上而下**),每層 `{label(層內短標題),
+  left_heading, left_detail, left_highlight(選填,缺值整框刪除),
+  right_heading, right_detail, right_highlight(選填)}`
 - 左右說明位置與層對齊、每層左右各一組必填(page_types.md 的「共 4–6 組」在本模板
   收緊為固定 6 組,引擎表達不了跨清單合計)
 ---
 
 ## light 模板的實際容量(**以本表為準**)
 
-上方各節的字數是「語意契約的預設值」。**實際可寫多少,由選定的模板包決定**——
-版位大小是設計師定的,字級也是設計過的,塞不下時請**改寫更短或換頁型**,
-系統不會偷偷縮小字級來遷就,也不會讓文字疊到隔欄。下表列出 light 包與預設值
-不同的槽位;沒列出的沿用上方數字。閘門依本表擋,寫超過會被退回。
+**本表是 light 包每個槽位的唯一數字真相**——上方各節只講語意與結構,
+刻意不重複數字。版位大小是設計師定的,字級也是設計過的,塞不下時請
+**改寫更短或換頁型**,系統不會偷偷縮小字級來遷就,也不會讓文字疊到鄰欄。
+閘門依本表擋,寫超過會被退回。粗體 = 比跨模板預設更緊(該版位量測後收緊)。
 
-| 頁型 | 槽位 | 預設 | light 實際 |
-| --- | --- | --- | --- |
-| agenda | `items[].subtitle` | ≤60 字 | **≤27 字** |
-| closing | `main_title` | ≤20 字 | **≤16 字** |
-| cover | `date` | ≤20 字 | **≤12 字** |
-| cover | `main_title` | ≤20 字 | **≤7 字** |
-| cover | `presenters` | ≤40 字 | **≤14 字** |
-| cover | `subtitle` | ≤20 字 | **≤5 字** |
-| cycle_four_point_loop | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| cycle_four_point_loop | `center_theme` | ≤10 字 | **≤7 字** |
-| cycle_four_point_loop | `steps[].detail` | ≤40 字 | **≤34 字** |
-| cycle_four_point_loop | `subtitle` | ≤60 字 | **≤50 字** |
-| cycle_multi_step_loop | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| cycle_multi_step_loop | `steps[].detail` | ≤30 字 | **≤18 字** |
-| cycle_multi_step_loop | `steps[].label` | ≤12 字 | **≤7 字** |
-| cycle_multi_step_loop | `subtitle` | ≤60 字 | **≤50 字** |
-| cycle_three_node_process | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| cycle_three_node_process | `center_theme` | ≤6 字 | **≤4 字** |
-| cycle_three_node_process | `nodes[].detail` | ≤12 字 | **≤8 字** |
-| cycle_three_node_process | `nodes[].label` | ≤8 字 | **≤7 字** |
-| cycle_three_node_process | `side_labels[].heading` | ≤8 字 | **≤5 字** |
-| cycle_three_node_process | `side_labels[].points[]` | ≤12 字 | **≤8 字** |
-| cycle_three_node_process | `subtitle` | ≤60 字 | **≤50 字** |
-| data_line_trend_comparison | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| data_line_trend_comparison | `rows[].cells[]` | ≤20 字 | **≤4 字** |
-| data_line_trend_comparison | `rows[].heading` | ≤8 字 | **≤4 字** |
-| data_line_trend_comparison | `series[].name` | ≤8 字 | **≤3 字** |
-| data_three_number_kpis | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| data_three_number_kpis | `kpis[].detail` | ≤30 字 | **≤13 字** |
-| data_three_number_kpis | `kpis[].label` | ≤12 字 | **≤6 字** |
-| data_three_number_kpis | `kpis[].value` | ≤6 字 | **≤2 字** |
-| data_three_number_kpis | `subtitle` | ≤60 字 | **≤50 字** |
-| data_two_group_metric_comparison | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| data_two_group_metric_comparison | `after.points` | 2–6 項 | **2–3 項** |
-| data_two_group_metric_comparison | `after.points[]` | ≤40 字 | **≤16 字** |
-| data_two_group_metric_comparison | `before.points` | 2–6 項 | **2–3 項** |
-| data_two_group_metric_comparison | `before.points[]` | ≤40 字 | **≤16 字** |
-| data_two_group_metric_comparison | `kpis[].label` | ≤30 字 | **≤8 字** |
-| data_two_group_metric_comparison | `kpis[].value` | ≤12 字 | **≤5 字** |
-| data_two_group_metric_comparison | `subtitle` | ≤60 字 | **≤50 字** |
-| evaluation_option_score_pros_cons | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| evaluation_option_score_pros_cons | `options[].cons` | 1–3 項 | **1–1 項** |
-| evaluation_option_score_pros_cons | `options[].cons[]` | ≤60 字 | **≤20 字** |
-| evaluation_option_score_pros_cons | `options[].name` | ≤24 字 | **≤9 字** |
-| evaluation_option_score_pros_cons | `options[].pros` | 1–4 項 | **1–2 項** |
-| evaluation_option_score_pros_cons | `options[].pros[]` | ≤60 字 | **≤17 字** |
-| evaluation_option_score_pros_cons | `recommendation[]` | ≤40 字 | **≤11 字** |
-| evaluation_option_score_pros_cons | `recommended` | ≤20 字 | **≤11 字** |
-| evaluation_option_score_pros_cons | `subtitle` | ≤60 字 | **≤50 字** |
-| evaluation_vs_criteria_matrix | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| evaluation_vs_criteria_matrix | `criteria[].label` | ≤16 字 | **≤13 字** |
-| evaluation_vs_criteria_matrix | `criteria[].left` | ≤60 字 | **≤41 字** |
-| evaluation_vs_criteria_matrix | `criteria[].right` | ≤60 字 | **≤41 字** |
-| evaluation_vs_criteria_matrix | `left_name` | ≤24 字 | **≤9 字** |
-| evaluation_vs_criteria_matrix | `right_name` | ≤24 字 | **≤7 字** |
-| evaluation_vs_criteria_matrix | `subtitle` | ≤60 字 | **≤50 字** |
-| info_before_after_item_compare | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| info_before_after_item_compare | `after.heading` | ≤6 字 | **≤4 字** |
-| info_before_after_item_compare | `before.heading` | ≤6 字 | **≤4 字** |
-| info_card_grid | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| info_card_grid | `subtitle` | ≤60 字 | **≤50 字** |
-| info_horizontal_explanation_rows | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| info_horizontal_explanation_rows | `rows[].points` | 1–3 項 | **1–2 項** |
-| info_horizontal_explanation_rows | `subtitle` | ≤60 字 | **≤49 字** |
-| info_sidebar_grid | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| info_sidebar_grid | `flex_category.cards[].detail` | ≤60 字 | **≤21 字** |
-| info_sidebar_grid | `flex_category.cards[].heading` | ≤20 字 | **≤9 字** |
-| info_sidebar_grid | `hashtags[].label` | ≤12 字 | **≤8 字** |
-| info_sidebar_grid | `paired_categories[].cards[].detail` | ≤60 字 | **≤35 字** |
-| info_sidebar_grid | `paired_categories[].cards[].heading` | ≤20 字 | **≤15 字** |
-| info_sidebar_grid | `subtitle` | ≤60 字 | **≤49 字** |
-| info_three_column_category | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| info_three_column_category | `columns[].heading` | ≤20 字 | **≤13 字** |
-| info_three_column_category | `columns[].points` | 2–6 項 | **2–4 項** |
-| info_three_column_category | `columns[].points[]` | ≤40 字 | **≤17 字** |
-| info_three_column_category | `subtitle` | ≤60 字 | **≤50 字** |
-| phase_concept_three_column_explanation | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| phase_concept_three_column_explanation | `column_one.items[].detail` | ≤20 字 | **≤14 字** |
-| phase_concept_three_column_explanation | `concept` | ≤8 字 | **≤4 字** |
-| phase_concept_three_column_explanation | `concept_labels[].caption` | ≤4 字 | **≤2 字** |
-| phase_concept_three_column_explanation | `concept_labels[].name` | ≤8 字 | **≤4 字** |
-| phase_four_step_workflow_matrix | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| phase_four_step_workflow_matrix | `footnote` | ≤24 字 | **≤15 字** |
-| phase_four_step_workflow_matrix | `row_labels[]` | ≤6 字 | **≤5 字** |
-| phase_four_step_workflow_matrix | `row_one.branches[].condition` | ≤8 字 | **≤6 字** |
-| phase_four_step_workflow_matrix | `row_one.branches[].outcome` | ≤16 字 | **≤13 字** |
-| phase_four_step_workflow_matrix | `row_one.cells[].points[]` | ≤20 字 | **≤13 字** |
-| phase_four_step_workflow_matrix | `row_three.cells[].points[]` | ≤20 字 | **≤15 字** |
-| phase_four_step_workflow_matrix | `row_two.cells[].points[]` | ≤20 字 | **≤15 字** |
-| phase_four_step_workflow_matrix | `stages[]` | ≤8 字 | **≤7 字** |
-| phase_step_ladder_cards | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| phase_step_ladder_cards | `step_four.heading` | ≤12 字 | **≤4 字** |
-| phase_step_ladder_cards | `step_four.highlight` | ≤8 字 | **≤4 字** |
-| phase_step_ladder_cards | `step_four.points[]` | ≤26 字 | **≤15 字** |
-| phase_step_ladder_cards | `step_one.heading` | ≤12 字 | **≤4 字** |
-| phase_step_ladder_cards | `step_one.highlight` | ≤8 字 | **≤4 字** |
-| phase_step_ladder_cards | `step_one.points[]` | ≤26 字 | **≤15 字** |
-| phase_step_ladder_cards | `step_three.heading` | ≤12 字 | **≤4 字** |
-| phase_step_ladder_cards | `step_three.highlight` | ≤8 字 | **≤4 字** |
-| phase_step_ladder_cards | `step_three.points[]` | ≤26 字 | **≤15 字** |
-| phase_step_ladder_cards | `step_two.heading` | ≤12 字 | **≤4 字** |
-| phase_step_ladder_cards | `step_two.highlight` | ≤8 字 | **≤4 字** |
-| phase_step_ladder_cards | `subtitle` | ≤40 字 | **≤21 字** |
-| phase_three_column_action_cards | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| phase_three_column_action_cards | `detail_label` | ≤6 字 | **≤5 字** |
-| phase_three_column_action_cards | `phases[].detail` | ≤60 字 | **≤54 字** |
-| phase_three_column_action_cards | `phases[].highlight` | ≤16 字 | **≤14 字** |
-| phase_three_column_action_cards | `phases[].points[]` | ≤16 字 | **≤13 字** |
-| phase_three_column_action_cards | `points_label` | ≤6 字 | **≤5 字** |
-| pyramid_layered_maturity_detail | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| pyramid_layered_maturity_detail | `levels[].detail` | ≤40 字 | **≤21 字** |
-| pyramid_layered_maturity_detail | `side_cards[].heading` | ≤16 字 | **≤9 字** |
-| pyramid_layered_maturity_detail | `side_cards[].points` | 2–4 項 | **2–2 項** |
-| pyramid_layered_maturity_detail | `side_cards[].points[]` | ≤30 字 | **≤18 字** |
-| pyramid_layered_maturity_detail | `subtitle` | ≤60 字 | **≤56 字** |
-| pyramid_three_level_center_explanation | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| pyramid_three_level_center_explanation | `layers[].label` | ≤6 字 | **≤2 字** |
-| pyramid_three_level_center_explanation | `layers[].left_heading` | ≤8 字 | **≤4 字** |
-| pyramid_three_level_center_explanation | `layers[].right_detail` | ≤20 字 | **≤18 字** |
-| pyramid_three_level_center_explanation | `layers[].right_highlight` | ≤6 字 | **≤5 字** |
-| pyramid_three_level_center_explanation | `subtitle` | ≤60 字 | **≤50 字** |
-| section_transition | `main_title` | ≤20 字 | **≤4 字** |
-| section_transition | `subtitle` | ≤40 字 | **≤13 字** |
-| stage_horizon_matrix | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| stage_period_cards | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| stage_period_cards | `badge` | ≤4 字 | **≤2 字** |
-| stage_period_cards | `cards[].one_detail` | ≤24 字 | **≤12 字** |
-| stage_period_cards | `cards[].two_detail` | ≤16 字 | **≤12 字** |
-| stage_period_cards | `periods[].heading` | ≤8 字 | **≤7 字** |
-| stage_period_cards | `periods[].label` | ≤8 字 | **≤6 字** |
-| stage_phase_swimlane | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| stage_phase_swimlane | `phases[].label` | ≤18 字 | **≤13 字** |
-| stage_phase_swimlane | `phases[].roles[]` | ≤17 字 | **≤15 字** |
-| stage_phase_swimlane | `subtitle` | ≤60 字 | **≤50 字** |
-| stage_timeline_progress | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| stage_timeline_progress | `axis_labels[]` | ≤8 字 | **≤2 字** |
-| stage_timeline_progress | `current_status.heading` | ≤12 字 | **≤10 字** |
-| stage_timeline_progress | `milestones[].label` | ≤8 字 | **≤5 字** |
-| stage_timeline_progress | `subtitle` | ≤60 字 | **≤50 字** |
-| stage_vertical_timeline_detail | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| stage_vertical_timeline_detail | `section_one.heading` | ≤8 字 | **≤4 字** |
-| stage_vertical_timeline_detail | `section_two.heading` | ≤8 字 | **≤4 字** |
-| stage_vertical_timeline_detail | `stages[].label` | ≤8 字 | **≤4 字** |
-| stage_vertical_timeline_detail | `stages[].period` | ≤17 字 | **≤10 字** |
-| stage_year_cards | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| stage_year_cards | `stages[].details[]` | ≤30 字 | **≤15 字** |
-| stage_year_cards | `stages[].heading` | ≤16 字 | **≤7 字** |
-| stage_year_cards | `stages[].highlights[]` | ≤20 字 | **≤16 字** |
-| stage_year_cards | `stages[].label` | ≤8 字 | **≤5 字** |
-| vision_goal_center_balance | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| vision_goal_center_balance | `annual_goal` | ≤60 字 | **≤15 字** |
-| vision_goal_center_balance | `core_mission` | ≤60 字 | **≤11 字** |
-| vision_goal_center_balance | `kpis[].label` | ≤30 字 | **≤8 字** |
-| vision_goal_center_balance | `projects[]` | ≤40 字 | **≤9 字** |
-| vision_goal_center_balance | `subtitle` | ≤60 字 | **≤50 字** |
-| vision_goal_keyword_orbit | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
-| vision_goal_keyword_orbit | `keywords[]` | ≤8 字 | **≤6 字** |
-| vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
-| vision_goal_pyramid | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| vision_goal_pyramid | `subtitle` | ≤60 字 | **≤50 字** |
-| vision_goal_rings | `(頁面標題)` | ≤30 字 | **≤28 字** |
-| vision_goal_rings | `level_one.heading` | ≤12 字 | **≤10 字** |
-| vision_goal_rings | `level_one.label` | ≤6 字 | **≤4 字** |
-| vision_goal_rings | `level_three.heading` | ≤12 字 | **≤10 字** |
-| vision_goal_rings | `level_three.label` | ≤6 字 | **≤4 字** |
-| vision_goal_rings | `level_two.heading` | ≤12 字 | **≤10 字** |
-| vision_goal_rings | `level_two.label` | ≤6 字 | **≤4 字** |
-| vision_goal_rings | `subtitle` | ≤60 字 | **≤50 字** |
+| 頁型 | 槽位 | light 上限 |
+| --- | --- | --- |
+| agenda | `(頁面標題)` | ≤30 字 |
+| agenda | `items` | 3–6 項 |
+| agenda | `items[].number` | ≤4 字 |
+| agenda | `items[].subtitle` | **≤27 字** |
+| agenda | `items[].title` | ≤20 字 |
+| closing | `(頁面標題)` | ≤30 字 |
+| closing | `main_title` | **≤16 字** |
+| cover | `(頁面標題)` | ≤30 字 |
+| cover | `date` | **≤12 字** |
+| cover | `main_title` | **≤7 字** |
+| cover | `presenters` | **≤14 字** |
+| cover | `subtitle` | **≤5 字** |
+| cycle_four_point_loop | `(頁面標題)` | **≤28 字** |
+| cycle_four_point_loop | `center_theme` | **≤7 字** |
+| cycle_four_point_loop | `steps` | 4–4 項 |
+| cycle_four_point_loop | `steps[].detail` | **≤34 字** |
+| cycle_four_point_loop | `steps[].label` | ≤12 字 |
+| cycle_four_point_loop | `steps[].number` | ≤1 字 |
+| cycle_four_point_loop | `subtitle` | **≤50 字** |
+| cycle_multi_step_loop | `(頁面標題)` | **≤28 字** |
+| cycle_multi_step_loop | `center_theme` | ≤12 字 |
+| cycle_multi_step_loop | `steps` | 6–10 項 |
+| cycle_multi_step_loop | `steps[].detail` | **≤18 字** |
+| cycle_multi_step_loop | `steps[].label` | **≤7 字** |
+| cycle_multi_step_loop | `steps[].number` | ≤2 字 |
+| cycle_multi_step_loop | `subtitle` | **≤50 字** |
+| cycle_three_node_process | `(頁面標題)` | **≤28 字** |
+| cycle_three_node_process | `center_theme` | **≤4 字** |
+| cycle_three_node_process | `nodes` | 3–3 項 |
+| cycle_three_node_process | `nodes[].detail` | **≤8 字** |
+| cycle_three_node_process | `nodes[].keyword` | ≤6 字 |
+| cycle_three_node_process | `nodes[].label` | **≤7 字** |
+| cycle_three_node_process | `side_labels` | 2–2 項 |
+| cycle_three_node_process | `side_labels[].heading` | **≤5 字** |
+| cycle_three_node_process | `side_labels[].points` | 2–3 項 |
+| cycle_three_node_process | `side_labels[].points[]` | **≤8 字** |
+| cycle_three_node_process | `subtitle` | **≤50 字** |
+| data_line_trend_comparison | `(頁面標題)` | **≤28 字** |
+| data_line_trend_comparison | `categories` | 6–10 項 |
+| data_line_trend_comparison | `categories[]` | ≤8 字 |
+| data_line_trend_comparison | `rows` | 2–3 項 |
+| data_line_trend_comparison | `rows[].cells` | 3–5 項 |
+| data_line_trend_comparison | `rows[].cells[]` | **≤4 字** |
+| data_line_trend_comparison | `rows[].heading` | **≤4 字** |
+| data_line_trend_comparison | `series` | 1–2 項 |
+| data_line_trend_comparison | `series[].name` | **≤3 字** |
+| data_line_trend_comparison | `series[].values` | 6–10 項 |
+| data_line_trend_comparison | `series[].values[]` | ≤8 字 |
+| data_three_number_kpis | `(頁面標題)` | **≤28 字** |
+| data_three_number_kpis | `kpis` | 2–3 項 |
+| data_three_number_kpis | `kpis[].detail` | **≤13 字** |
+| data_three_number_kpis | `kpis[].label` | **≤6 字** |
+| data_three_number_kpis | `kpis[].value` | **≤5 字** |
+| data_three_number_kpis | `subtitle` | **≤50 字** |
+| data_two_group_metric_comparison | `(頁面標題)` | **≤28 字** |
+| data_two_group_metric_comparison | `after.heading` | ≤12 字 |
+| data_two_group_metric_comparison | `after.points` | **2–3 項** |
+| data_two_group_metric_comparison | `after.points[]` | **≤16 字** |
+| data_two_group_metric_comparison | `before.heading` | ≤12 字 |
+| data_two_group_metric_comparison | `before.points` | **2–3 項** |
+| data_two_group_metric_comparison | `before.points[]` | **≤16 字** |
+| data_two_group_metric_comparison | `kpis` | 2–3 項 |
+| data_two_group_metric_comparison | `kpis[].label` | **≤8 字** |
+| data_two_group_metric_comparison | `kpis[].value` | **≤5 字** |
+| data_two_group_metric_comparison | `subtitle` | **≤50 字** |
+| evaluation_option_score_pros_cons | `(頁面標題)` | **≤28 字** |
+| evaluation_option_score_pros_cons | `options` | 2–3 項 |
+| evaluation_option_score_pros_cons | `options[].cons` | **1–1 項** |
+| evaluation_option_score_pros_cons | `options[].cons[]` | **≤20 字** |
+| evaluation_option_score_pros_cons | `options[].name` | **≤9 字** |
+| evaluation_option_score_pros_cons | `options[].pros` | **1–2 項** |
+| evaluation_option_score_pros_cons | `options[].pros[]` | **≤17 字** |
+| evaluation_option_score_pros_cons | `recommendation` | 0–3 項 |
+| evaluation_option_score_pros_cons | `recommendation[]` | **≤11 字** |
+| evaluation_option_score_pros_cons | `recommended` | **≤11 字** |
+| evaluation_option_score_pros_cons | `subtitle` | **≤50 字** |
+| evaluation_vs_criteria_matrix | `(頁面標題)` | **≤28 字** |
+| evaluation_vs_criteria_matrix | `criteria` | 4–6 項 |
+| evaluation_vs_criteria_matrix | `criteria[].label` | **≤13 字** |
+| evaluation_vs_criteria_matrix | `criteria[].left` | **≤41 字** |
+| evaluation_vs_criteria_matrix | `criteria[].right` | **≤41 字** |
+| evaluation_vs_criteria_matrix | `left_name` | **≤9 字** |
+| evaluation_vs_criteria_matrix | `right_name` | **≤7 字** |
+| evaluation_vs_criteria_matrix | `subtitle` | **≤50 字** |
+| info_before_after_item_compare | `(頁面標題)` | **≤28 字** |
+| info_before_after_item_compare | `after.heading` | **≤4 字** |
+| info_before_after_item_compare | `after.items` | 3–3 項 |
+| info_before_after_item_compare | `after.items[].name` | ≤12 字 |
+| info_before_after_item_compare | `after.items[].points` | 2–4 項 |
+| info_before_after_item_compare | `after.items[].points[]` | ≤16 字 |
+| info_before_after_item_compare | `before.heading` | **≤4 字** |
+| info_before_after_item_compare | `before.items` | 3–3 項 |
+| info_before_after_item_compare | `before.items[].name` | ≤12 字 |
+| info_before_after_item_compare | `before.items[].points` | 2–4 項 |
+| info_before_after_item_compare | `before.items[].points[]` | ≤16 字 |
+| info_card_grid | `(頁面標題)` | **≤28 字** |
+| info_card_grid | `cards` | 6–8 項 |
+| info_card_grid | `cards[].heading` | ≤10 字 |
+| info_card_grid | `cards[].points` | 1–3 項 |
+| info_card_grid | `cards[].points[]` | ≤12 字 |
+| info_card_grid | `subtitle` | **≤50 字** |
+| info_horizontal_explanation_rows | `(頁面標題)` | **≤28 字** |
+| info_horizontal_explanation_rows | `rows` | 4–5 項 |
+| info_horizontal_explanation_rows | `rows[].label` | ≤12 字 |
+| info_horizontal_explanation_rows | `rows[].points` | **1–2 項** |
+| info_horizontal_explanation_rows | `rows[].points[]` | ≤40 字 |
+| info_horizontal_explanation_rows | `subtitle` | **≤49 字** |
+| info_sidebar_grid | `(頁面標題)` | **≤28 字** |
+| info_sidebar_grid | `flex_category.cards` | 1–3 項 |
+| info_sidebar_grid | `flex_category.cards[].detail` | **≤21 字** |
+| info_sidebar_grid | `flex_category.cards[].heading` | **≤9 字** |
+| info_sidebar_grid | `flex_category.label` | ≤20 字 |
+| info_sidebar_grid | `full_width_category.card.detail` | ≤60 字 |
+| info_sidebar_grid | `full_width_category.card.heading` | ≤20 字 |
+| info_sidebar_grid | `full_width_category.label` | ≤20 字 |
+| info_sidebar_grid | `hashtags` | 3–4 項 |
+| info_sidebar_grid | `hashtags[].label` | **≤8 字** |
+| info_sidebar_grid | `paired_categories` | 2–2 項 |
+| info_sidebar_grid | `paired_categories[].cards` | 2–2 項 |
+| info_sidebar_grid | `paired_categories[].cards[].detail` | **≤35 字** |
+| info_sidebar_grid | `paired_categories[].cards[].heading` | **≤15 字** |
+| info_sidebar_grid | `paired_categories[].label` | ≤20 字 |
+| info_sidebar_grid | `subtitle` | **≤49 字** |
+| info_sidebar_grid | `topic` | ≤40 字 |
+| info_three_column_category | `(頁面標題)` | **≤28 字** |
+| info_three_column_category | `columns` | 3–3 項 |
+| info_three_column_category | `columns[].heading` | **≤13 字** |
+| info_three_column_category | `columns[].points` | **2–4 項** |
+| info_three_column_category | `columns[].points[]` | **≤17 字** |
+| info_three_column_category | `subtitle` | **≤50 字** |
+| phase_concept_three_column_explanation | `(頁面標題)` | **≤28 字** |
+| phase_concept_three_column_explanation | `column_one.heading` | ≤10 字 |
+| phase_concept_three_column_explanation | `column_one.items` | 3–4 項 |
+| phase_concept_three_column_explanation | `column_one.items[].detail` | **≤14 字** |
+| phase_concept_three_column_explanation | `column_one.items[].label` | ≤12 字 |
+| phase_concept_three_column_explanation | `column_three.heading` | ≤10 字 |
+| phase_concept_three_column_explanation | `column_three.points` | 4–6 項 |
+| phase_concept_three_column_explanation | `column_three.points[]` | ≤24 字 |
+| phase_concept_three_column_explanation | `column_two.heading` | ≤10 字 |
+| phase_concept_three_column_explanation | `column_two.points` | 3–5 項 |
+| phase_concept_three_column_explanation | `column_two.points[]` | ≤36 字 |
+| phase_concept_three_column_explanation | `concept` | **≤4 字** |
+| phase_concept_three_column_explanation | `concept_labels` | 0–3 項 |
+| phase_concept_three_column_explanation | `concept_labels[].caption` | **≤2 字** |
+| phase_concept_three_column_explanation | `concept_labels[].name` | **≤4 字** |
+| phase_four_step_workflow_matrix | `(頁面標題)` | **≤28 字** |
+| phase_four_step_workflow_matrix | `footnote` | **≤15 字** |
+| phase_four_step_workflow_matrix | `row_labels` | 3–3 項 |
+| phase_four_step_workflow_matrix | `row_labels[]` | **≤5 字** |
+| phase_four_step_workflow_matrix | `row_one.branches` | 2–2 項 |
+| phase_four_step_workflow_matrix | `row_one.branches[].condition` | **≤6 字** |
+| phase_four_step_workflow_matrix | `row_one.branches[].outcome` | **≤13 字** |
+| phase_four_step_workflow_matrix | `row_one.cells` | 3–3 項 |
+| phase_four_step_workflow_matrix | `row_one.cells[].points` | 1–2 項 |
+| phase_four_step_workflow_matrix | `row_one.cells[].points[]` | **≤13 字** |
+| phase_four_step_workflow_matrix | `row_three.cells` | 4–4 項 |
+| phase_four_step_workflow_matrix | `row_three.cells[].points` | 1–3 項 |
+| phase_four_step_workflow_matrix | `row_three.cells[].points[]` | **≤15 字** |
+| phase_four_step_workflow_matrix | `row_two.cells` | 4–4 項 |
+| phase_four_step_workflow_matrix | `row_two.cells[].points` | 1–3 項 |
+| phase_four_step_workflow_matrix | `row_two.cells[].points[]` | **≤15 字** |
+| phase_four_step_workflow_matrix | `stages` | 4–4 項 |
+| phase_four_step_workflow_matrix | `stages[]` | **≤7 字** |
+| phase_step_ladder_cards | `(頁面標題)` | **≤28 字** |
+| phase_step_ladder_cards | `step_four.heading` | **≤4 字** |
+| phase_step_ladder_cards | `step_four.highlight` | **≤4 字** |
+| phase_step_ladder_cards | `step_four.points` | 2–4 項 |
+| phase_step_ladder_cards | `step_four.points[]` | **≤15 字** |
+| phase_step_ladder_cards | `step_one.heading` | **≤4 字** |
+| phase_step_ladder_cards | `step_one.highlight` | **≤4 字** |
+| phase_step_ladder_cards | `step_one.points` | 1–2 項 |
+| phase_step_ladder_cards | `step_one.points[]` | **≤15 字** |
+| phase_step_ladder_cards | `step_three.heading` | **≤4 字** |
+| phase_step_ladder_cards | `step_three.highlight` | **≤4 字** |
+| phase_step_ladder_cards | `step_three.points` | 2–4 項 |
+| phase_step_ladder_cards | `step_three.points[]` | **≤15 字** |
+| phase_step_ladder_cards | `step_two.heading` | **≤4 字** |
+| phase_step_ladder_cards | `step_two.highlight` | **≤4 字** |
+| phase_step_ladder_cards | `step_two.points` | 2–3 項 |
+| phase_step_ladder_cards | `step_two.points[]` | ≤26 字 |
+| phase_step_ladder_cards | `subtitle` | **≤21 字** |
+| phase_three_column_action_cards | `(頁面標題)` | **≤28 字** |
+| phase_three_column_action_cards | `detail_label` | **≤5 字** |
+| phase_three_column_action_cards | `phases` | 3–3 項 |
+| phase_three_column_action_cards | `phases[].detail` | **≤54 字** |
+| phase_three_column_action_cards | `phases[].heading` | ≤12 字 |
+| phase_three_column_action_cards | `phases[].highlight` | **≤14 字** |
+| phase_three_column_action_cards | `phases[].points` | 3–5 項 |
+| phase_three_column_action_cards | `phases[].points[]` | **≤13 字** |
+| phase_three_column_action_cards | `points_label` | **≤5 字** |
+| pyramid_layered_maturity_detail | `(頁面標題)` | **≤28 字** |
+| pyramid_layered_maturity_detail | `levels` | 4–5 項 |
+| pyramid_layered_maturity_detail | `levels[].detail` | **≤21 字** |
+| pyramid_layered_maturity_detail | `levels[].label` | ≤20 字 |
+| pyramid_layered_maturity_detail | `side_cards` | 1–2 項 |
+| pyramid_layered_maturity_detail | `side_cards[].heading` | **≤9 字** |
+| pyramid_layered_maturity_detail | `side_cards[].points` | **2–2 項** |
+| pyramid_layered_maturity_detail | `side_cards[].points[]` | **≤18 字** |
+| pyramid_layered_maturity_detail | `subtitle` | **≤56 字** |
+| pyramid_three_level_center_explanation | `(頁面標題)` | **≤28 字** |
+| pyramid_three_level_center_explanation | `layers` | 3–3 項 |
+| pyramid_three_level_center_explanation | `layers[].label` | **≤2 字** |
+| pyramid_three_level_center_explanation | `layers[].left_detail` | ≤20 字 |
+| pyramid_three_level_center_explanation | `layers[].left_heading` | **≤4 字** |
+| pyramid_three_level_center_explanation | `layers[].left_highlight` | ≤6 字 |
+| pyramid_three_level_center_explanation | `layers[].right_detail` | **≤18 字** |
+| pyramid_three_level_center_explanation | `layers[].right_heading` | ≤8 字 |
+| pyramid_three_level_center_explanation | `layers[].right_highlight` | **≤5 字** |
+| pyramid_three_level_center_explanation | `subtitle` | **≤50 字** |
+| section_transition | `(頁面標題)` | ≤30 字 |
+| section_transition | `main_title` | **≤4 字** |
+| section_transition | `subtitle` | **≤13 字** |
+| stage_horizon_matrix | `(頁面標題)` | **≤28 字** |
+| stage_horizon_matrix | `column_headings` | 3–3 項 |
+| stage_horizon_matrix | `column_headings[]` | ≤8 字 |
+| stage_horizon_matrix | `indicators` | 1–2 項 |
+| stage_horizon_matrix | `indicators[]` | ≤24 字 |
+| stage_horizon_matrix | `rows` | 4–4 項 |
+| stage_horizon_matrix | `rows[].cells` | 3–3 項 |
+| stage_horizon_matrix | `rows[].cells[].points` | 1–3 項 |
+| stage_horizon_matrix | `rows[].cells[].points[]` | ≤17 字 |
+| stage_horizon_matrix | `rows[].label` | ≤6 字 |
+| stage_period_cards | `(頁面標題)` | **≤28 字** |
+| stage_period_cards | `badge` | **≤2 字** |
+| stage_period_cards | `cards` | 4–4 項 |
+| stage_period_cards | `cards[].heading` | ≤8 字 |
+| stage_period_cards | `cards[].highlight` | ≤8 字 |
+| stage_period_cards | `cards[].one_detail` | **≤12 字** |
+| stage_period_cards | `cards[].one_label` | ≤8 字 |
+| stage_period_cards | `cards[].two_detail` | **≤12 字** |
+| stage_period_cards | `cards[].two_label` | ≤8 字 |
+| stage_period_cards | `periods` | 4–4 項 |
+| stage_period_cards | `periods[].detail` | ≤30 字 |
+| stage_period_cards | `periods[].heading` | **≤7 字** |
+| stage_period_cards | `periods[].label` | **≤6 字** |
+| stage_phase_swimlane | `(頁面標題)` | **≤28 字** |
+| stage_phase_swimlane | `items_label` | ≤6 字 |
+| stage_phase_swimlane | `phases` | 3–3 項 |
+| stage_phase_swimlane | `phases[].label` | **≤13 字** |
+| stage_phase_swimlane | `phases[].points` | 3–6 項 |
+| stage_phase_swimlane | `phases[].points[]` | ≤17 字 |
+| stage_phase_swimlane | `phases[].roles` | 1–2 項 |
+| stage_phase_swimlane | `phases[].roles[]` | **≤15 字** |
+| stage_phase_swimlane | `roles_label` | ≤4 字 |
+| stage_phase_swimlane | `subtitle` | **≤50 字** |
+| stage_timeline_progress | `(頁面標題)` | **≤28 字** |
+| stage_timeline_progress | `axis_labels` | 4–4 項 |
+| stage_timeline_progress | `axis_labels[]` | **≤2 字** |
+| stage_timeline_progress | `current_status.heading` | **≤10 字** |
+| stage_timeline_progress | `current_status.points` | 1–2 項 |
+| stage_timeline_progress | `current_status.points[]` | ≤60 字 |
+| stage_timeline_progress | `milestones` | 3–3 項 |
+| stage_timeline_progress | `milestones[].detail` | ≤40 字 |
+| stage_timeline_progress | `milestones[].label` | **≤5 字** |
+| stage_timeline_progress | `subtitle` | **≤50 字** |
+| stage_vertical_timeline_detail | `(頁面標題)` | **≤28 字** |
+| stage_vertical_timeline_detail | `footnote` | ≤30 字 |
+| stage_vertical_timeline_detail | `section_one.heading` | **≤4 字** |
+| stage_vertical_timeline_detail | `section_one.points` | 3–6 項 |
+| stage_vertical_timeline_detail | `section_one.points[]` | ≤30 字 |
+| stage_vertical_timeline_detail | `section_two.heading` | **≤4 字** |
+| stage_vertical_timeline_detail | `section_two.points` | 2–4 項 |
+| stage_vertical_timeline_detail | `section_two.points[]` | ≤30 字 |
+| stage_vertical_timeline_detail | `stages` | 5–6 項 |
+| stage_vertical_timeline_detail | `stages[].label` | **≤4 字** |
+| stage_vertical_timeline_detail | `stages[].period` | **≤10 字** |
+| stage_year_cards | `(頁面標題)` | **≤28 字** |
+| stage_year_cards | `stages` | 3–3 項 |
+| stage_year_cards | `stages[].details` | 3–5 項 |
+| stage_year_cards | `stages[].details[]` | **≤15 字** |
+| stage_year_cards | `stages[].heading` | **≤7 字** |
+| stage_year_cards | `stages[].highlights` | 2–4 項 |
+| stage_year_cards | `stages[].highlights[]` | **≤16 字** |
+| stage_year_cards | `stages[].label` | **≤5 字** |
+| vision_goal_center_balance | `(頁面標題)` | **≤28 字** |
+| vision_goal_center_balance | `annual_goal` | **≤15 字** |
+| vision_goal_center_balance | `core_mission` | **≤11 字** |
+| vision_goal_center_balance | `kpis` | 2–4 項 |
+| vision_goal_center_balance | `kpis[].label` | **≤8 字** |
+| vision_goal_center_balance | `kpis[].value` | ≤12 字 |
+| vision_goal_center_balance | `projects` | 2–3 項 |
+| vision_goal_center_balance | `projects[]` | **≤9 字** |
+| vision_goal_center_balance | `subtitle` | **≤50 字** |
+| vision_goal_keyword_orbit | `(頁面標題)` | **≤28 字** |
+| vision_goal_keyword_orbit | `center_theme` | **≤8 字** |
+| vision_goal_keyword_orbit | `keywords` | 8–12 項 |
+| vision_goal_keyword_orbit | `keywords[]` | **≤6 字** |
+| vision_goal_keyword_orbit | `subtitle` | **≤50 字** |
+| vision_goal_pyramid | `(頁面標題)` | **≤28 字** |
+| vision_goal_pyramid | `levels` | 3–4 項 |
+| vision_goal_pyramid | `levels[].label` | ≤6 字 |
+| vision_goal_pyramid | `levels[].left_detail` | ≤30 字 |
+| vision_goal_pyramid | `levels[].left_heading` | ≤12 字 |
+| vision_goal_pyramid | `levels[].left_number` | ≤1 字 |
+| vision_goal_pyramid | `levels[].right_detail` | ≤30 字 |
+| vision_goal_pyramid | `levels[].right_heading` | ≤12 字 |
+| vision_goal_pyramid | `levels[].right_number` | ≤1 字 |
+| vision_goal_pyramid | `subtitle` | **≤50 字** |
+| vision_goal_rings | `(頁面標題)` | **≤28 字** |
+| vision_goal_rings | `level_one.caption` | ≤24 字 |
+| vision_goal_rings | `level_one.detail` | ≤26 字 |
+| vision_goal_rings | `level_one.heading` | **≤10 字** |
+| vision_goal_rings | `level_one.label` | **≤4 字** |
+| vision_goal_rings | `level_three.caption` | ≤16 字 |
+| vision_goal_rings | `level_three.detail` | ≤20 字 |
+| vision_goal_rings | `level_three.heading` | **≤10 字** |
+| vision_goal_rings | `level_three.label` | **≤4 字** |
+| vision_goal_rings | `level_two.caption` | ≤24 字 |
+| vision_goal_rings | `level_two.detail` | ≤40 字 |
+| vision_goal_rings | `level_two.heading` | **≤10 字** |
+| vision_goal_rings | `level_two.label` | **≤4 字** |
+| vision_goal_rings | `subtitle` | **≤50 字** |
 
-(共 167 個槽位。**本表由 `template_admin.py fit` 自動重生,
+(共 312 個槽位。**本表由 `template_admin.py fit` 自動重生,
 不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、
 文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)
 

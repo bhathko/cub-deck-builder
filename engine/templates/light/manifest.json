@@ -1,7 +1,7 @@
 {
   "template_id": "light",
   "display_name": "Cathay 淺色企業風",
-  "version": "2026-08-02.1",
+  "version": "2026-08-03.1",
   "status": "registered",
   "template_file": "template.pptx",
   "template_sha256": "9d20f5e5dfcacebe88553e52db5aad97120ce775c5053763f27dab4d3ff2402a",
@@ -293,7 +293,7 @@
     "data_line_trend_comparison.title.max_chars": 28,
     "data_three_number_kpis.slots.kpis.item.detail.max_chars": 13,
     "data_three_number_kpis.slots.kpis.item.label.max_chars": 6,
-    "data_three_number_kpis.slots.kpis.item.value.max_chars": 2,
+    "data_three_number_kpis.slots.kpis.item.value.max_chars": 5,
     "data_three_number_kpis.slots.subtitle.max_chars": 50,
     "data_three_number_kpis.title.max_chars": 28,
     "data_two_group_metric_comparison.slots.after.points.item.max_chars": 16,

@@ -1367,6 +1367,24 @@
           "id": 10
         },
         {
+          "op": "resize",
+          "id": 2,
+          "left": 1.47,
+          "width": 2.9
+        },
+        {
+          "op": "resize",
+          "id": 12,
+          "left": 5.22,
+          "width": 2.9
+        },
+        {
+          "op": "resize",
+          "id": 18,
+          "left": 8.97,
+          "width": 2.9
+        },
+        {
           "op": "set",
           "slot": "$.slots.subtitle",
           "id": 11,
