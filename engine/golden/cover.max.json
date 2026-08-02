@@ -8,17 +8,17 @@
   {
    "number": 1,
    "page_type": "cover",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": false,
    "assets": {
     "background": "assets/backgrounds/cover_bg.png",
     "logo": "assets/logos/cathay_logo.png"
    },
    "slots": {
-    "main_title": "main_title測測測測測測測測測測",
-    "subtitle": "subtitle測測測測測測測測測測測測",
-    "date": "date測測測測測測測測測測測測測測測測",
-    "presenters": "presenters測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+    "main_title": "測測測測測測測測測測測測測測測測測測測測",
+    "subtitle": "測測測測測測測測測測測測測測測測測測測測",
+    "date": "2026-08-02 09:30:000",
+    "presenters": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
    }
   }
  ]

@@ -66,6 +66,10 @@ PLACEHOLDER_RE = re.compile(r"待補充|待確認|待定|TBD", re.IGNORECASE)
 #   {"kind": "list",   "min": N, "max": M, "required": bool, "item": <slot>}
 #   {"kind": "object", "required": bool, "fields": {name: <slot>, ...}}
 # provenance 預設 True（內容槽位都追溯來源）；結構性標籤明確設 False。
+# title: 頁面標題(spec 頂層欄位,不在 slots)的字數上限。標題框是每頁都有的
+#   版位,2026-08-02 前**完全沒有容量閘門**——渲染器靜默把它從設計的 32pt
+#   縮到 28pt,而 fit 因為契約沒有對應節點而無處可寫。上限同樣由 fit 量測後
+#   寫進各包 capacity_overrides(路徑 `<頁型>.title.max_chars`)。
 # page_number: "required" | "none"
 # assets: 必要的素材鍵清單
 # ---------------------------------------------------------------------------
@@ -150,6 +154,7 @@ def asset_exists(rel: str, asset_base: Path, pack) -> bool:
 
 PAGE_TYPES = {
     "cover": {
+        "title": T(30),
         "page_number": "none",
         "assets": ["background", "logo"],
         "slots": {
@@ -160,6 +165,7 @@ PAGE_TYPES = {
         },
     },
     "closing": {
+        "title": T(30),
         "page_number": "none",
         "assets": ["background"],
         "slots": {
@@ -167,6 +173,7 @@ PAGE_TYPES = {
         },
     },
     "agenda": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -181,6 +188,7 @@ PAGE_TYPES = {
         },
     },
     "section_transition": {
+        "title": T(30),
         "page_number": "none",
         "assets": [],
         "slots": {
@@ -191,6 +199,7 @@ PAGE_TYPES = {
         },
     },
     "vision_goal_center_balance": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -205,6 +214,7 @@ PAGE_TYPES = {
         },
     },
     "info_three_column_category": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -219,6 +229,7 @@ PAGE_TYPES = {
         },
     },
     "info_sidebar_grid": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -265,6 +276,7 @@ PAGE_TYPES = {
         # values 是「數字字串」(純數,禁單位/%——% 屬 label),故數字追溯照常;
         # 每系列 values 數必須等於 categories 數(渲染前 chart op 硬擋)。
         # 版面無副標位置 → 本頁型無 subtitle 槽位。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -286,6 +298,7 @@ PAGE_TYPES = {
         },
     },
     "data_two_group_metric_comparison": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -305,6 +318,7 @@ PAGE_TYPES = {
         },
     },
     "evaluation_vs_criteria_matrix": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -322,6 +336,7 @@ PAGE_TYPES = {
         },
     },
     "evaluation_option_score_pros_cons": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -344,6 +359,7 @@ PAGE_TYPES = {
         },
     },
     "pyramid_layered_maturity_detail": {
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -366,6 +382,7 @@ PAGE_TYPES = {
         # 內容容量 2-3 個(page_types.md);只有 2 個時第 3 組整組刪除,不留空位。
         # subtitle 為選填:內容容量未列副標,但版面上方有副標框——缺值時由 bindings
         # 的 set.delete_if_missing 整框刪掉,不留佔位字。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -384,6 +401,7 @@ PAGE_TYPES = {
         # 橫向說明列(模板 p22):上方淡綠主題帶 = subtitle;內容區 5 組
         # 「短標籤框 + 長說明框」橫列(label 框 w=2.78in、說明框 w=9.11in/14pt)。
         # 版面左側直排類別標示與右上子導覽為模板佔位字樣,契約無對應槽位 → 綁定端一律 delete。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -404,6 +422,7 @@ PAGE_TYPES = {
         # cycle_three_node_process(本頁型不接受 3 步,min=max=4)。
         # 中央圓內模板另有「副標文字 / 重點文字」兩個示範框,契約無對應槽位,
         # 綁定一律 delete(留著=捏造)。步驟名稱建議 4-8 字(循環頁型共通規則)。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -426,6 +445,7 @@ PAGE_TYPES = {
         # + 中間重點句(選填)+ 下半段落說明;左側兩個小方塊是「內容層級標籤」
         # (上=列點區、下=段落區),屬結構字樣故 provenance=False。
         # 版面標題下方到箭頭列僅 0.32 吋,page_types.md 容量亦無副標 → 本頁型無 subtitle 槽位。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -449,6 +469,7 @@ PAGE_TYPES = {
         # **無副標位置 → 本頁型無 subtitle 槽位**(同 data_line_trend_comparison)。
         # 左側兩個列標籤框(id 42/43)在模板上是「標題」佔位字,page_types.md
         # 的內容容量未列此欄 → 綁定一律 delete(留著=捏造)。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -470,6 +491,7 @@ PAGE_TYPES = {
         #   heading 框 wrap="none" 單行不換行,加寬到 2.75 吋 / 18pt → 一行約 10 字;
         #   內文框 2.75 吋 / 14pt → 一行約 13 字、框高 4 行,points 以換行併入同一框,
         #   故每條 ≤12 字 × 至多 3 條(= 3 行)才保證不溢出卡片。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -488,6 +510,7 @@ PAGE_TYPES = {
         # 單線時間軸(模板 p38):底部 4 個刻度膠囊 + 3 個里程碑(2 個在軸上、
         # 1 個在軸下)+ 右側「進行中 / 後續規劃」說明區。右側區塊的欄目標籤
         # 「進行中 / 後續規劃」由模板固定提供(keep),不佔槽位。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -513,6 +536,7 @@ PAGE_TYPES = {
         #   heading  框 1.32in @20pt → 6 字(7 字起溢出)
         #   name     框 1.66×1.22in @18pt → 12 字(3 行)
         #   points   右側說明框 3.37in @14pt → 一行 16 字;4 點 = 4 行剛好填滿
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -547,6 +571,7 @@ PAGE_TYPES = {
         # keywords 依「左右交錯、由主到輔」順序填,不足時從尾端刪格位,維持左右平衡。
         # 中心圓只承載一句 center_theme(模板圓內範例說明與圓上方範例標題一律刪除,
         # 契約沒有的內容性元素留著=捏造)。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -563,6 +588,7 @@ PAGE_TYPES = {
         # 版面無副標位置(標題下方即三欄欄標)→ 本頁型無 subtitle 槽位。
         # 字數上限為實測值(text_tools.estimate_overflow,shrink 下限 12pt):
         # detail 24 / caption 6 / column_two 40 即爆框,故壓在 20 / 4 / 36。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -594,6 +620,7 @@ PAGE_TYPES = {
         # 三層的左側說明框高度不同(0.57/0.81/0.34 吋 = 2/3/1 行 @14pt),
         # 容量不對稱 → 比照 phase_concept 用具名槽位(level_one=最外圈/最上,
         # 依序向內)。副標 placeholder = 引言一句;同心圓與導引線為模板裝飾。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -616,6 +643,7 @@ PAGE_TYPES = {
         # 左側直排「執行項目/角色」row 標籤為結構字樣(provenance=False)。
         # 階段標籤是單一文字框「階段名␣␣時間範圍」→ 契約用單一 label 承載
         # (拆成物件欄位會落入 fit 的物件清單量測盲點,見 REGRESSION R10 註)。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -638,6 +666,7 @@ PAGE_TYPES = {
         # 標籤、上方 3 個欄標。標題下方橫帶 = 補充指標 1-2 個(自由短句如
         # 「現況  Concurrent User  10,000」,數字照常追溯);缺第 2 個刪右框,
         # 全缺連分隔線一起刪。版面無副標位置 → 本頁型無 subtitle 槽位。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -663,6 +692,7 @@ PAGE_TYPES = {
         # ≈ 6 行、下組 1.09 吋 ≈ 3 行,容量不對稱 → 具名 section_one/two),
         # 底部一條補充結論帶。模板在第 2 階段旁的進度圓點是「目前進度」語意,
         # 契約無此槽位 → 綁定一律刪除(留著=捏造進度)。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -688,6 +718,7 @@ PAGE_TYPES = {
         # 故 row_one 只有 3 格 + branches;第 2/3 列各 4 格。每格 1-3 個短列點
         # 換行併入同格。底部補充說明一句;左下「輔助說明」示範標籤框契約無
         # 槽位 → 刪除。版面無副標位置 → 本頁型無 subtitle 槽位。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -731,6 +762,7 @@ PAGE_TYPES = {
         # (20pt)+ 內文列點(rows op 逐框填,溢出併入末框)+ 底部一句重點
         # (14pt 短框,選填缺值刪框)。編號徽章 1-4 烙在模板上(keep,結構
         # 序號不佔槽位)。左上 20pt 示範標題框契約無槽位 → 刪除;16pt 框 = subtitle。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -765,6 +797,7 @@ PAGE_TYPES = {
         # 從頂端刪整列(label+左右組+分隔線),同 pyramid_layered 的 tail 慣例,
         # spec levels 由上而下。編號徽章(𝟭-𝟴)單字寬 → number 上限 1 字、
         # 結構序號不追溯;左欄由上而下 1..N,右欄接續 N+1..2N。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -791,6 +824,7 @@ PAGE_TYPES = {
         # 2026-08-01 與 Hunter 確認)。節點順序:上 → 右下 → 左下(順時針)。
         # 模板另有右上第三組示範標籤(id 84-88)、❶❷❸ 圓角示範籤(89/90/91)
         # 與中央圓內副標(54),契約無對應槽位 → 綁定一律 delete(留著=捏造)。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -819,6 +853,7 @@ PAGE_TYPES = {
         # align=head 從格位 01 起填,未用格位整組刪(6 步時下半圈會空 4 格
         # ——模板固有幾何,golden min 變體交目檢)。徽章 0.52 吋寬、原文即
         # 兩位數「01」→ number 上限 2 字,結構序號不追溯。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -841,6 +876,7 @@ PAGE_TYPES = {
         # 第 3 期(要標其他期請調整期間順序或不用徽章;2026-08-01 與 Hunter
         # 確認)。卡片小項目 = 單一文字框「標題\n說明」套版填入。
         # 版面標題下方直接是箭頭線,無副標位置 → 本頁型無 subtitle 槽位。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -872,6 +908,7 @@ PAGE_TYPES = {
         # 固定 6 組 → 契約收緊為每層左右各 1 組必填(page_types.md 的
         # 「共 4-6 組」無法表達跨清單合計;2026-08-01 與 Hunter 確認收緊)。
         # spec layers 由上而下(上/中/下層)。
+        "title": T(30),
         "page_number": "required",
         "assets": ["background", "logo"],
         "slots": {
@@ -1134,6 +1171,12 @@ def validate_slide(slide, block, asset_base: Path, rep: Report, registered_only:
         generic_provenance(slots, f"{p}.slots", block, rep)
         return
     spec = contracts[pt]
+
+    # 頁面標題(頂層 title):標題框是設計過字級的版位,寫太長渲染器會靜默縮字
+    title = slide.get("title")
+    tspec = spec.get("title")
+    if tspec and isinstance(title, str) and len(title) > tspec["max_chars"]:
+        rep.error(f"{p}.title", f"字數 {len(title)} 超過上限 {tspec['max_chars']}：{title[:30]}…")
 
     # 頁碼規則
     rule = spec["page_number"]

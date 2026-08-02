@@ -201,13 +201,34 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-88ff02a415e35a918b37ba2e554bd54270e7762d7049f58a5a7bcdb819dcbe01  tools.zip
-ef42ac39940e366e2ed30efe35af8705355a7de8b67cc1435d25093cfc7a46bb  template_light.zip
+9eb8449f87f9b798e02ee827a17c2d4d1cdc0432ca611f8acd2df7175fe8179b  tools.zip
+1ed266d593293231e2cda7c5b733705c2b713e3b02828137037a48e7c5ca33b4  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
 (`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
 不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-08-02 結構級修法:封掉「機器全綠但版面壞掉」整鏈,**兩個 zip 都改 sha**。
+①golden max 變體改**足額全形壓力文字**(舊變體 `tag+name+測…` 是半形前綴,
+199 個槽位有 116 個實寬不到上限的 75%,壓不到寬度 → 估算器不起疑 → 該槽位
+從未被量過);序號前綴改全形數字以保住「看得出填入順序」。②fit 從「估算器
+起疑才量」改**全量式**(max 變體頁每個對得到槽位的框都量一次)。③qa 新增
+**字級被縮小即 FAIL**——渲染器仍保留 shrink_to_fit 當最後手段,但它一縮就是
+靜默的(2026-07-26 事故同型)。
+壓測暴露並修掉的量測鏈缺陷:**頁面標題(spec 頂層 title)完全沒有容量契約**
+(每頁都被 32pt→28pt 靜默縮字,fit 因契約無節點而無處可寫)→ PAGE_TYPES 加
+頁型級 `title`,覆寫路徑 `<頁型>.title.max_chars`;`_clean_cap` 判準對齊渲染器
+(零寬容,不再留 10% 帶);**互相溢出死鎖**(鄰居也脹出框 → 雙方 cap=0 → 舊版
+靜默 continue → 印收斂而版面是壞的)改用「鄰居的框」量測退路並記錄;`list` op
+的 `template` 字面前綴(`# {label}`)計入開銷;add_textbox 反查改用綁定宣告的
+幾何(不再靠文字裡的 ASCII 槽位名);`date` 與 `value` 變體與半形量測假設對齊、
+value 塞滿上限。
+結果:light 全包 `fit --reset` 重量,capacity_overrides 91 → 167 條,80 個槽位
+收緊(50 個 ≤20%、29 個 21-50%)、2 個放寬;golden 66 頁 PASS。
+**已知未解**:`data_three_number_kpis` 的 value 版位三框寬 1.76/1.43/1.33 吋
+@66pt → 上限取最小值 2 字,連模板自己的示範「150」都放不下——版位問題,
+待設計師決定改版位或降級。)
 
 (2026-08-02 全系統診斷速修,**僅 tools.zip 改 sha**:①qa_check 預設包後備
 路徑 UnboundLocalError 修復 ②模板 sha 不符由警告升 FAIL(--template 明示

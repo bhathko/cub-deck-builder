@@ -8,31 +8,31 @@
   {
    "number": 1,
    "page_type": "vision_goal_rings",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": true,
    "assets": {
     "background": "assets/backgrounds/content_bg.png",
     "logo": "assets/logos/cathay_logo.png"
    },
    "slots": {
-    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "subtitle": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
     "level_one": {
-     "label": "label測",
-     "caption": "caption測測測測測測測測測測測測測測測測測",
-     "heading": "heading測測測測測",
-     "detail": "detail測測測測測測測測測測測測測測測測測測測測"
+     "label": "測測測測測測",
+     "caption": "測測測測測測測測測測測測測測測測測測測測測測測測",
+     "heading": "測測測測測測測測測測測測",
+     "detail": "測測測測測測測測測測測測測測測測測測測測測測測測測測"
     },
     "level_two": {
-     "label": "label測",
-     "caption": "caption測測測測測測測測測測測測測測測測測",
-     "heading": "heading測測測測測",
-     "detail": "detail測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+     "label": "測測測測測測",
+     "caption": "測測測測測測測測測測測測測測測測測測測測測測測測",
+     "heading": "測測測測測測測測測測測測",
+     "detail": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
     },
     "level_three": {
-     "label": "label測",
-     "caption": "caption測測測測測測測測測",
-     "heading": "heading測測測測測",
-     "detail": "detail測測測測測測測測測測測測測測"
+     "label": "測測測測測測",
+     "caption": "測測測測測測測測測測測測測測測測",
+     "heading": "測測測測測測測測測測測測",
+     "detail": "測測測測測測測測測測測測測測測測測測測測"
     }
    }
   }

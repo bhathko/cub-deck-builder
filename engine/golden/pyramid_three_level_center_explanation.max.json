@@ -8,41 +8,41 @@
   {
    "number": 1,
    "page_type": "pyramid_three_level_center_explanation",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": true,
    "assets": {
     "background": "assets/backgrounds/content_bg.png",
     "logo": "assets/logos/cathay_logo.png"
    },
    "slots": {
-    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "subtitle": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
     "layers": [
      {
-      "label": "1.labe",
-      "left_heading": "1.left_h",
-      "left_detail": "1.left_detail測測測測測測測",
-      "left_highlight": "1.left",
-      "right_heading": "1.right_",
-      "right_detail": "1.right_detail測測測測測測",
-      "right_highlight": "1.righ"
+      "label": "１．測測測測",
+      "left_heading": "１．測測測測測測",
+      "left_detail": "１．測測測測測測測測測測測測測測測測測測",
+      "left_highlight": "１．測測測測",
+      "right_heading": "１．測測測測測測",
+      "right_detail": "１．測測測測測測測測測測測測測測測測測測",
+      "right_highlight": "１．測測測測"
      },
      {
-      "label": "2.labe",
-      "left_heading": "2.left_h",
-      "left_detail": "2.left_detail測測測測測測測",
-      "left_highlight": "2.left",
-      "right_heading": "2.right_",
-      "right_detail": "2.right_detail測測測測測測",
-      "right_highlight": "2.righ"
+      "label": "２．測測測測",
+      "left_heading": "２．測測測測測測",
+      "left_detail": "２．測測測測測測測測測測測測測測測測測測",
+      "left_highlight": "２．測測測測",
+      "right_heading": "２．測測測測測測",
+      "right_detail": "２．測測測測測測測測測測測測測測測測測測",
+      "right_highlight": "２．測測測測"
      },
      {
-      "label": "3.labe",
-      "left_heading": "3.left_h",
-      "left_detail": "3.left_detail測測測測測測測",
-      "left_highlight": "3.left",
-      "right_heading": "3.right_",
-      "right_detail": "3.right_detail測測測測測測",
-      "right_highlight": "3.righ"
+      "label": "３．測測測測",
+      "left_heading": "３．測測測測測測",
+      "left_detail": "３．測測測測測測測測測測測測測測測測測測",
+      "left_highlight": "３．測測測測",
+      "right_heading": "３．測測測測測測",
+      "right_detail": "３．測測測測測測測測測測測測測測測測測測",
+      "right_highlight": "３．測測測測"
      }
     ]
    }

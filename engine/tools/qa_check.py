@@ -146,7 +146,7 @@ def main(argv):
     # autofit 框的容許高度:模板同一個框裝設計師原文時需要多高。
     # light 有多處版位存檔框高小於原文所需(靠 PowerPoint 自動長高排版),
     # 不放寬的話這些框每次都會誤報溢出——狼來了會蓋掉真的問題。
-    tpl_need, tpl_collide = {}, {}
+    tpl_need, tpl_collide, tpl_size = {}, {}, {}
     if pack is not None:
         try:
             tpl = Presentation(str(pack.resolve_template()))
@@ -162,8 +162,12 @@ def main(argv):
                 # (p47 徽章與副字、p29 的 44pt 數字),絕對零重疊會誤殺。
                 tpl_collide[pt] = {frozenset((a.shape_id, b.shape_id)): area
                                    for area, a, b in tt.text_collisions(tpl.slides[pg - 1])}
+                # 設計字級基準:字級是設計過的,產出不得比模板小(見下方檢查)。
+                tpl_size[pt] = {s.shape_id: tt._first_run_size_pt(s)
+                                for s in tt.iter_text_shapes(tpl.slides[pg - 1].shapes)
+                                if tt.shape_text(s).strip()}
         except Exception:
-            tpl_need, tpl_collide = {}, {}   # 取不到模板就退回原本判準(偏嚴,不漏報)
+            tpl_need, tpl_collide, tpl_size = {}, {}, {}  # 取不到模板就退回原本判準(偏嚴,不漏報)
 
     # 逐頁:槽位文字覆蓋 / 頁碼 / 字體 / 溢出
     overflow_all = []
@@ -197,6 +201,22 @@ def main(argv):
                     if run.font.name and not _font_ok(run.font.name, allowed_fonts):
                         warns.append(f"p{num}: 字體 {run.font.name!r}(shape id={shp.shape_id})")
                         break
+
+        # 字級:設計師定調「字級是被設計過的,塞不下要改稿或換頁型,不准縮字」。
+        # 渲染器仍保留 shrink_to_fit 當最後手段,但它**一縮就是靜默的**——
+        # 2026-07-26 事故正是「99 個框被縮、所有自動檢查全綠、目檢才發現」。
+        # 這裡把它變成 FAIL:縮字代表該槽位的容量上限量錯了,要回頭跑 fit,
+        # 不是讓一份字級不一致的檔案出門。
+        for shp in tt.iter_text_shapes(slide.shapes):
+            if not tt.shape_text(shp).strip():
+                continue
+            design = tpl_size.get(spec_slide.get("page_type"), {}).get(shp.shape_id)
+            got = tt._first_run_size_pt(shp)
+            if design and got and got < design - 0.5:
+                fails.append(
+                    f"p{num}: 字級被縮小 {design:.0f}pt → {got:.0f}pt"
+                    f"(shape id={shp.shape_id}「{tt.shape_text(shp)[:12]}」)"
+                    "——該槽位容量上限量錯了,跑 template_admin.py fit 重量")
 
         for shp in tt.iter_text_shapes(slide.shapes):
             if not tt.shape_text(shp).strip():

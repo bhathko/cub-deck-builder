@@ -341,6 +341,14 @@ def cmd_lint(args) -> int:
 # ---------------------------------------------------------------------------
 # golden
 # ---------------------------------------------------------------------------
+_FW_MAP = {**{str(d): chr(0xFF10 + d) for d in range(10)}, "-": "－", ".": "．"}
+
+
+def _fullwidth(s: str) -> str:
+    """序號前綴全形化:golden max 變體要讓每個字都是全形寬,前綴才不會偷減壓力。"""
+    return "".join(_FW_MAP.get(c, c) for c in s)
+
+
 def _variant_text(name, max_chars, variant, path=""):
     """派生變體文字。**清單項目一律帶序號前綴**——golden 的用途是讓人目檢綁定
     對不對,若每格文字都一樣(舊版全填 "01"、全填 "detail測測…"),就看不出
@@ -348,9 +356,19 @@ def _variant_text(name, max_chars, variant, path=""):
     序號放最前面,即使文字被縮字或截斷也還看得見。巢狀清單用 "2-4" 形式。
     """
     if name == "value":
-        # 數字型槽位:帶項次好辨識(第 1 格 "19.9%"、第 2 格 "29.9%"),
-        # 但一律受 max_chars 限制——KPI 大數字框往往只有 4 字寬。
-        return f"{(path or '9').split('-')[-1]}9.9%"[:max_chars]
+        # 數字型槽位:帶項次好辨識(第 1 格 "19.9%"、第 2 格 "29.9%"),並且
+        # **塞滿 max_chars**——舊版固定只產 5 字,上限 12 字的 value 槽位因此
+        # 從未被壓測過(2026-08-02:同 C1 的漏洞,而 44-66pt 的 KPI 大數字是
+        # 版面最顯眼的位置,一爆就最難看)。半形數字與 fit 的半形量測一致。
+        head = (path or "9").split("-")[-1]
+        body = (head + "9" * max_chars)[:max(max_chars - 4, 1)]
+        return (body + "9.9%")[:max_chars]
+    if name == "date":
+        # fit 把 date 當**半形**槽位量測(`fit_capacity._HALF_WIDTH_ISH`),
+        # 變體就必須也是半形,否則 golden 在測一個工具刻意不編預算的情境
+        # (2026-08-02:全形日期讓 cover 日期列 20pt→18pt 被縮字)。
+        return "2026-08-02 09:30:00"[:max_chars] if max_chars <= 19 \
+            else ("2026-08-02 09:30:00" + "0" * max_chars)[:max_chars]
     if name == "values":
         return "9.9"  # 圖表數值:純數字字串(chart op 會 float 轉換)
     if name == "number":
@@ -362,7 +380,15 @@ def _variant_text(name, max_chars, variant, path=""):
     if variant == "min":
         t = f"【{tag}{name}】待填"
         return t if len(t) <= max_chars else (tag + "待填")[:max_chars]
-    return (tag + name + "測" * max_chars)[:max_chars]
+    # max 變體 = **契約上限的最壞情況**:全形字塞滿。舊版是 `tag + name + 測…`,
+    # 而 tag/name 是半形(0.55em)——2026-08-02 量測:199 個文字槽位有 116 個
+    # 變體實寬不到全形上限的 75%(中位數 0.70)。壓不到寬度 → fit 的估算器
+    # 不起疑 → 該槽位從未被量過 → 上限停在手寫預設,使用者照 registry 寫滿
+    # 就破版(實測 9/33 頁型硬破版、6/33 靜默縮字)。序號前綴改用**全形數字**
+    # 才能同時保住「看得出填入順序」與「寬度是真的最壞情況」。
+    fw = _fullwidth(path) + "．" if path else ""
+    return (fw + "測" * max_chars)[:max_chars] if len(fw) + 2 <= max_chars \
+        else "測" * max_chars
 
 
 def _variant_slot(name, slot, variant, page_type, path=""):
@@ -407,7 +433,7 @@ def derive_golden_spec(pack_id, contracts, page_types_entries, asset_defaults,
             slides.append({
                 "number": num,
                 "page_type": pt,
-                "title": _variant_text("title", 30, variant),
+                "title": _variant_text("title", contract.get("title", {}).get("max_chars", 30), variant),
                 "render_page_number": contract["page_number"] == "required",
                 "assets": assets,
                 "slots": {sn: _variant_slot(sn, ss, variant, pt)

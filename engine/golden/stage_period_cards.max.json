@@ -8,7 +8,7 @@
   {
    "number": 1,
    "page_type": "stage_period_cards",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": true,
    "assets": {
     "background": "assets/backgrounds/content_bg.png",
@@ -17,59 +17,59 @@
    "slots": {
     "periods": [
      {
-      "label": "1.label測",
-      "heading": "1.headin",
-      "detail": "1.detail測測測測測測測測測測測測測測測測測測測測測測"
+      "label": "１．測測測測測測",
+      "heading": "１．測測測測測測",
+      "detail": "１．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "label": "2.label測",
-      "heading": "2.headin",
-      "detail": "2.detail測測測測測測測測測測測測測測測測測測測測測測"
+      "label": "２．測測測測測測",
+      "heading": "２．測測測測測測",
+      "detail": "２．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "label": "3.label測",
-      "heading": "3.headin",
-      "detail": "3.detail測測測測測測測測測測測測測測測測測測測測測測"
+      "label": "３．測測測測測測",
+      "heading": "３．測測測測測測",
+      "detail": "３．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "label": "4.label測",
-      "heading": "4.headin",
-      "detail": "4.detail測測測測測測測測測測測測測測測測測測測測測測"
+      "label": "４．測測測測測測",
+      "heading": "４．測測測測測測",
+      "detail": "４．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      }
     ],
-    "badge": "badg",
+    "badge": "測測測測",
     "cards": [
      {
-      "heading": "1.headin",
-      "one_label": "1.one_la",
-      "one_detail": "1.one_detail測測測測測測測測測測測測",
-      "two_label": "1.two_la",
-      "two_detail": "1.two_detail測測測測",
-      "highlight": "1.highli"
+      "heading": "１．測測測測測測",
+      "one_label": "１．測測測測測測",
+      "one_detail": "１．測測測測測測測測測測測測測測測測測測測測測測",
+      "two_label": "１．測測測測測測",
+      "two_detail": "１．測測測測測測測測測測測測測測",
+      "highlight": "１．測測測測測測"
      },
      {
-      "heading": "2.headin",
-      "one_label": "2.one_la",
-      "one_detail": "2.one_detail測測測測測測測測測測測測",
-      "two_label": "2.two_la",
-      "two_detail": "2.two_detail測測測測",
-      "highlight": "2.highli"
+      "heading": "２．測測測測測測",
+      "one_label": "２．測測測測測測",
+      "one_detail": "２．測測測測測測測測測測測測測測測測測測測測測測",
+      "two_label": "２．測測測測測測",
+      "two_detail": "２．測測測測測測測測測測測測測測",
+      "highlight": "２．測測測測測測"
      },
      {
-      "heading": "3.headin",
-      "one_label": "3.one_la",
-      "one_detail": "3.one_detail測測測測測測測測測測測測",
-      "two_label": "3.two_la",
-      "two_detail": "3.two_detail測測測測",
-      "highlight": "3.highli"
+      "heading": "３．測測測測測測",
+      "one_label": "３．測測測測測測",
+      "one_detail": "３．測測測測測測測測測測測測測測測測測測測測測測",
+      "two_label": "３．測測測測測測",
+      "two_detail": "３．測測測測測測測測測測測測測測",
+      "highlight": "３．測測測測測測"
      },
      {
-      "heading": "4.headin",
-      "one_label": "4.one_la",
-      "one_detail": "4.one_detail測測測測測測測測測測測測",
-      "two_label": "4.two_la",
-      "two_detail": "4.two_detail測測測測",
-      "highlight": "4.highli"
+      "heading": "４．測測測測測測",
+      "one_label": "４．測測測測測測",
+      "one_detail": "４．測測測測測測測測測測測測測測測測測測測測測測",
+      "two_label": "４．測測測測測測",
+      "two_detail": "４．測測測測測測測測測測測測測測",
+      "highlight": "４．測測測測測測"
      }
     ]
    }

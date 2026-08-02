@@ -7,3 +7,4 @@
 | # | 日期 | 症狀/需求 | 處置 | 版本 |
 | --- | --- | --- | --- | --- |
 | 1 | 2026-08-01 | Hunter 目檢 golden p14(data_two_group_metric_comparison max 變體):KPI 大數字「%」折行疊到下一顆。值框 1.39 吋 @44pt 置中、wrap=square+spAutoFit,「19.9%」實寬 1.53 吋 → PowerPoint 開檔重排時折行、框長高壓到下顆。qa/fit 當時全綠(估算器未扣內文邊距,引擎級死角記 `docs/FEEDBACK.md`) | 綁定加 3 個 resize:值框 15/18/52 加寬 1.39→2.0 吋(置中軸不動),fit --reset 重量後 golden 全綠 | light@2026-08-01.2 |
+| 2 | 2026-08-02 | 全形極限壓測(33 頁型照 registry 上限塞滿全形字):9/33 頁型硬破版、6/33 靜默縮字、13/33 溢出警告——**全部都是合法 spec**。根因是 golden 變體壓不到上限寬度,fit 因此從沒量過那些槽位 | golden 變體改全形壓力文字 + fit 全量式 + qa 字級 FAIL;全包 fit --reset 重量(overrides 91→167,80 個收緊) | light@2026-08-02.1 |

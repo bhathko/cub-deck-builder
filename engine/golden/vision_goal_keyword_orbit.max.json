@@ -8,28 +8,28 @@
   {
    "number": 1,
    "page_type": "vision_goal_keyword_orbit",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": true,
    "assets": {
     "background": "assets/backgrounds/content_bg.png",
     "logo": "assets/logos/cathay_logo.png"
    },
    "slots": {
-    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
-    "center_theme": "center_theme測測",
+    "subtitle": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "center_theme": "測測測測測測測測測測測測測測",
     "keywords": [
-     "1.keywor",
-     "2.keywor",
-     "3.keywor",
-     "4.keywor",
-     "5.keywor",
-     "6.keywor",
-     "7.keywor",
-     "8.keywor",
-     "9.keywor",
-     "10.keywo",
-     "11.keywo",
-     "12.keywo"
+     "１．測測測測測測",
+     "２．測測測測測測",
+     "３．測測測測測測",
+     "４．測測測測測測",
+     "５．測測測測測測",
+     "６．測測測測測測",
+     "７．測測測測測測",
+     "８．測測測測測測",
+     "９．測測測測測測",
+     "１０．測測測測測",
+     "１１．測測測測測",
+     "１２．測測測測測"
     ]
    }
   }

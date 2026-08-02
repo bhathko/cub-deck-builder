@@ -213,7 +213,10 @@ def slot_shape_map(ops: list, slots: dict) -> dict:
 
     for op in ops:
         kind = op["op"]
-        if kind == "set" and (op.get("slot") == "$.slots"
+        if kind == "set" and op.get("slot") == "$.title":
+            # 頁面標題:契約節點在頁型級(不在 slots),路徑固定為 "title"。
+            add("title", op["id"])
+        elif kind == "set" and (op.get("slot") == "$.slots"
                               or op.get("slot", "").startswith("$.slots.")):
             path = norm_slot(op["slot"])
             nd = node_at(slots, path)
@@ -239,8 +242,14 @@ def slot_shape_map(ops: list, slots: dict) -> dict:
                     if st.get("template"):
                         # 刻意不做同行比例分(維持既有量測值):這型框的欄位
                         # 各自被完整行寬量過並多輪收斂,現值已實證可行。
+                        # **但樣板的字面字元一定要算**:`"# {label}"` 的 "# "
+                        # 會被渲染進框裡,量測時漏掉它 = 上限虛胖 2 字。
+                        # 2026-08-02 實測:info_sidebar_grid 的 hashtag 標籤因此
+                        # 多折一行、掉進下方 subtitle 綠帶(qa FAIL、fit 印收斂)。
+                        lit = len(re.sub(r"\{\w+\}", "", st["template"]))
                         for f in re.findall(r"\{(\w+)\}", st["template"]):
-                            add(f"{base}.item.{f}", sid)
+                            fp_ = f"{base}.item.{f}"
+                            add(fp_, sid, [fp_], lit)
                     elif st.get("join"):
                         sub = base + ".item" if s == "@" else base + ".item." + s[2:]
                         add(sub + ".item", sid)
@@ -271,7 +280,7 @@ def _geo(slide, shape_id, tt):
     return None
 
 
-def _neighbour_footprints(slide, shape_id, base_pairs, tt):
+def _neighbour_footprints(slide, shape_id, base_pairs, tt, clip=False):
     """同頁其他文字的實際佔用範圍 + 各自的容許重疊量(取自模板基準)。
 
     必須與基準用同一種算法(範圍 vs 範圍)。拿「範圍 vs 框」比會比基準嚴,
@@ -286,6 +295,13 @@ def _neighbour_footprints(slide, shape_id, base_pairs, tt):
         fp = tt.text_footprint(s, L, T, W, H)
         if fp is None:
             continue
+        if clip:
+            # 死鎖退路:鄰居自己也脹出框時,拿它「當下脹出的文字範圍」當約束
+            # 會讓這一方連 1 個字都撞得到(cap=0)。鄰居同樣在被收緊,所以改用
+            # **鄰居的框**當約束 = 對著「大家都收好之後的狀態」量,才有不動點。
+            fp = (max(fp[0], L), max(fp[1], T), min(fp[2], L + W), min(fp[3], T + H))
+            if fp[2] <= fp[0] or fp[3] <= fp[1]:
+                continue
         ref = base_pairs.get(frozenset((shape_id, s.shape_id)), 0.0)
         out.append((fp, max(ref * COLLIDE_SLACK, COLLIDE_FLOOR)))
     return out
@@ -307,6 +323,13 @@ def _clean_cap(shape, geom, n, ch, size, neighbours, tt, tpl_shape=None):
             est = tt.estimate_overflow(shape, size_pt=size)
         finally:
             tt.set_text_keep_style(shape, original)
+        # 渲染器的縮字判準**零寬容**:非 autofit 框只要 estimate_overflow 說
+        # 裝不下就靜默縮字(text_tools.shrink_to_fit)。量上限的工具必須跟
+        # 執行的那支用同一把尺,否則量出來的值會落在「fit 覺得還行、渲染器
+        # 已經在縮」的 10% 帶裡——2026-08-02 實測:fit 印收斂、golden 仍有
+        # 框被 20pt→18pt。本檢查讓「上限」的定義等於「不會被縮字」。
+        if not tt.has_autofit(shape) and not est["fits"]:
+            return False
         # 縱向:行數超出容許高度
         if est["lines"] > 1:
             allow = est["avail_pt"]
@@ -374,6 +397,11 @@ def sync_registry_table(manifest: dict, verbose=True) -> None:
                 walk(v, base["fields"][k], pt, f"{path}.{k}" if path else k)
 
     for pt in merged:
+        if "title" in merged[pt] and \
+                merged[pt]["title"]["max_chars"] != PAGE_TYPES[pt]["title"]["max_chars"]:
+            rows.append((pt, "(頁面標題)",
+                         f"≤{PAGE_TYPES[pt]['title']['max_chars']} 字",
+                         f"≤{merged[pt]['title']['max_chars']} 字"))
         for k, v in merged[pt]["slots"].items():
             walk(v, PAGE_TYPES[pt]["slots"][k], pt, k)
     body = [
@@ -406,8 +434,13 @@ def _restore_overrides(mpath: Path, snapshot: dict) -> None:
     except (OSError, ValueError):
         print(f"✗ --reset 未完成且讀不回 manifest,上限備份無法寫回:{mpath}")
         return
-    if (m.get("capacity_overrides") or {}) == snapshot:
+    cur = m.get("capacity_overrides") or {}
+    if cur == snapshot:
         return  # 失敗在清空之前,manifest 沒被動過
+    if cur:
+        # 已經量到東西寫回去了:那些是實測值,留著比回捲舊值好。真正要救的
+        # 只有「清空後什麼都沒寫成」的閘門真空狀態(檔頭陷阱 15)。
+        return
     m["capacity_overrides"] = snapshot
     mpath.write_text(json.dumps(m, ensure_ascii=False, indent=2) + "\n",
                      encoding="utf-8")
@@ -436,7 +469,7 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
             _restore_overrides(mpath, snapshot)
         raise
     if rc != 0 and snapshot is not None:
-        _restore_overrides(mpath, snapshot)
+        _restore_overrides(mpath, snapshot)   # 只有閘門真空才會真的回捲
     return rc
 
 
@@ -502,17 +535,25 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
                 if sid is not None:
                     table.setdefault(sid, []).append((path, group, overhead))
         sid2paths[pt] = table
-    # add_textbox 的槽位:靠文字內容反推(變體文字帶槽位名)
-    addbox = {}
+    # add_textbox 的槽位:靠**綁定宣告的幾何**反查(x/y/w/h 是 op 自己寫的,
+    # fills_engine 原樣建框,所以位置就是身分)。2026-08-02 前是拿變體文字去
+    # regex 找 ASCII 槽位名——golden 變體改全形壓力文字後那個反查全數落空,
+    # 29 個框變成「對應不到槽位」。文字長相是會變的,綁定宣告不會。
+    addbox, addbox_geo = {}, {}
     for pt, ent in fills.items():
         for op in ent["ops"]:
             if op["op"] == "add_textbox":
+                paths = []
                 for sl in op.get("slots", []):
                     p = norm_slot(sl)
                     nd = node_at(PAGE_TYPES[pt]["slots"], p)
                     if nd and nd.get("kind") == "list":
                         p += ".item"
+                    paths.append(p)
                     addbox.setdefault(pt, []).append(p)
+                if paths and all(k in op for k in ("x", "y", "w", "h")):
+                    addbox_geo.setdefault(pt, []).append(
+                        ((op["x"], op["y"], op["w"], op["h"]), paths))
 
     # ---- 平行欄位的格位數對稱 ----
     # 同一個契約清單常被綁到多組平行版位(三欄、左右兩側),各組的實體格位數
@@ -638,7 +679,7 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
         out = Presentation(str(made))
         overrides = dict(manifest.get("capacity_overrides") or {})
         live = apply_capacity_overrides(PAGE_TYPES, overrides)
-        changes, unmapped, stuck, opaque = [], [], [], []
+        changes, unmapped, stuck, opaque, deadlock = [], [], [], [], []
 
         for idx, slide in enumerate(out.slides):
             if idx >= len(seq):
@@ -648,6 +689,15 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
             # 公式(原長 − n + k)會算出比現行還鬆的目標 → 永遠縮不下去 →
             # 直接掉進 stuck 並誤報「該版位放不了有意義的內容」。
             slots = live[pt]["slots"]
+
+            def _nd(path, _pt=pt):
+                """契約節點:title 在頁型級,其餘在 slots 下。"""
+                return live[_pt].get("title") if path == "title" else node_at(slots, path)
+
+            def _key(path, _pt=pt):
+                return (f"{_pt}.title.max_chars" if path == "title"
+                        else f"{_pt}.slots.{path}.max_chars")
+
             base = tpl_base.get(pt, {})
             suspects = set()
 
@@ -702,6 +752,17 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
                     if fp and (fp[2] - (cL + cW) > 0.05 or fp[3] - (cT + cH) > 0.05):
                         suspects.add(cand.shape_id)
 
+            # 全量式量測(2026-08-02):上面四個訊號決定「哪裡明顯壞了」,
+            # 但**量測範圍不能由訊號決定**——估算器的每個假陰性(變體壓不滿、
+            # 行距假設、直排、非文字元素、anchor/旋轉)都會讓該槽位一輩子
+            # 沒被量過,上限永遠停在手寫預設。max 變體頁的每個「對得到槽位」
+            # 的框一律量一次;本工具只收緊不放寬,量到比現行寬的不會有提案,
+            # 所以全量掃只會補上漏網的,不會放鬆既有上限。
+            if idx % 2 == 1:  # seq 是 (min, max) 交錯,奇數 idx = max 變體
+                suspects.update(s.shape_id for s in tt.iter_text_shapes(slide.shapes)
+                                if sid2paths.get(pt, {}).get(s.shape_id)
+                                and s.text_frame.text.strip())
+
             for sid in sorted(suspects):
                 paths = sid2paths.get(pt, {}).get(sid)
                 g = _geo(slide, sid, tt)
@@ -709,12 +770,16 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
                     continue
                 shape = g[0]
                 if not paths:
-                    # add_textbox 產生的框:從文字反推槽位名。一個框常同時承載
-                    # 多個槽位(prefix + 兩個 slots 用 join 串起來),所以要比對
-                    # 文字裡出現的**所有**識別字,不能只取第一個。
-                    found = set(re.findall(r"[a-z_]{3,}", shape.text_frame.text))
-                    paths = [(p, [p], 0) for p in addbox.get(pt, [])
-                             if [x for x in p.split(".") if x != "item"][-1] in found] or None
+                    # add_textbox 產生的框:比對綁定宣告的幾何(x/y/w/h)。一個框
+                    # 常同時承載多個槽位(prefix + 數個 slots 用 join 串起來),
+                    # 該 op 的槽位全數納入,不是只取第一個。
+                    got = (shape.left / 914400, shape.top / 914400,
+                           shape.width / 914400, shape.height / 914400)
+                    paths = None
+                    for decl, plist in addbox_geo.get(pt, []):
+                        if all(abs(a - b) < 0.02 for a, b in zip(got, decl)):
+                            paths = [(p, plist, 0) for p in plist]
+                            break
                     if not paths:
                         unmapped.append((idx + 1, sid, shape.text_frame.text[:20]))
                         continue
@@ -728,8 +793,27 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
                 n = len(shape.text_frame.text.split("\n"))
                 neighbours = _neighbour_footprints(slide, sid, base, tt)
                 cap = _clean_cap(shape, g, n, ch, design, neighbours, tt, o)
+                if cap < 2:
+                    # **互相溢出死鎖**:鄰居自己也脹出了框,於是這一方連 1 個字
+                    # 都「撞得到」,量出 cap=0。舊版在這裡靜默 continue——兩邊
+                    # 都跳過、本輪零提案 → 印「收斂」,而版面是壞的
+                    # (2026-08-02 實測:golden p26 側欄網格、p36 三大數字 KPI
+                    # 就是這樣全綠出門的)。退一步只看「自己的框」量一次:那仍
+                    # 是有效收緊,下一輪鄰居瘦了會再量準,迭代自然解開死鎖。
+                    solo = _clean_cap(shape, g, n, ch, design,
+                                      _neighbour_footprints(slide, sid, base, tt, clip=True),
+                                      tt, o)
+                    if solo >= 2:
+                        cap = solo
+                        deadlock.append((idx + 1, pt, sid))
                 if cap < 2 and n <= 1:
-                    continue        # 搜不到可行解 → 不是這一方能解決的
+                    # 連自己的框都放不下。但**編號徽章那種契約本來就只要 1-2 字**
+                    # 的槽位量到 1 是正常的,不是問題——只有契約想要更多字的才報。
+                    want = min(((_nd(pp) or {}).get("max_chars", 99)
+                                for pp, _, _ in paths), default=99)
+                    if want > 2:
+                        stuck.append((idx + 1, pt, paths[0][0], sid))
+                    continue
                 if cap < MIN_CHARS and n > 1:
                     # 這個框裝不下這麼多「項目」:減字數救不了,要減清單長度。
                     # **本輪只改清單長度、不寫字數上限**——本工具只會收緊不會放寬,
@@ -758,7 +842,7 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
                     stuck.append((idx + 1, pt, paths[0], sid))
                     continue
                 for path, group, overhead in paths:
-                    nd = node_at(slots, path)
+                    nd = _nd(path)
                     if not nd or nd.get("kind") != "text":
                         # 陷阱 16:對應到非文字節點 = 本工具不認識的 op 組合,
                         # 容量無處可寫。以前這裡靜默跳過,印「零縮字」而 golden
@@ -772,12 +856,14 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
                         # 換回字數(半形為主的欄位同樣寬度能寫更多字)。用基準
                         # 而非 merged 值,比例才不隨收斂輪次漂移(冪等);均分
                         # 會把 number(4)/title(20) 這種懸殊組合掐死。
-                        gcaps = {gp: (node_at(PAGE_TYPES[pt]["slots"], gp) or {}).get("max_chars", 1)
+                        gcaps = {gp: ((PAGE_TYPES[pt].get("title") if gp == "title"
+                                       else node_at(PAGE_TYPES[pt]["slots"], gp)) or {}
+                                      ).get("max_chars", 1)
                                  for gp in group}
                         total = sum(gcaps.values()) or 1
                         width_share = (cap - overhead) * gcaps.get(path, 1) / total
                         eff = max(int(width_share / _width_factor(path)), 1)
-                    key = f"{pt}.slots.{path}.max_chars"
+                    key = _key(path)
                     if overrides.get(key, nd["max_chars"]) > max(eff, 1):
                         overrides[key] = max(eff, 1)
                         changes.append((pt, path, "字數", max(eff, 1)))
@@ -792,6 +878,9 @@ def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=Tru
                   f"(容量無處可寫,綁定用了本工具不認識的組合):")
             for pg, sid, p in opaque[:6]:
                 print(f"      golden p{pg} shape id={sid} → {p}")
+        if deadlock and verbose:
+            print(f"  互相溢出死鎖 {len(deadlock)} 處:改用「只看自己的框」量測,"
+                  "下一輪重量(鄰居瘦了會再收緊)")
         if stuck and not changes and verbose:
             print("  ⚠ 以下版位在任何字數下都放不了有意義的內容"
                   f"(至少 {MIN_CHARS} 個中文字)——建議該頁型降級 clone,"

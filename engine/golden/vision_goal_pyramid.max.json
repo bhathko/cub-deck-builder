@@ -8,50 +8,50 @@
   {
    "number": 1,
    "page_type": "vision_goal_pyramid",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": true,
    "assets": {
     "background": "assets/backgrounds/content_bg.png",
     "logo": "assets/logos/cathay_logo.png"
    },
    "slots": {
-    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "subtitle": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
     "levels": [
      {
-      "label": "1.labe",
-      "left_number": "1",
-      "left_heading": "1.left_headi",
-      "left_detail": "1.left_detail測測測測測測測測測測測測測測測測測",
-      "right_number": "1",
-      "right_heading": "1.right_head",
-      "right_detail": "1.right_detail測測測測測測測測測測測測測測測測"
+      "label": "１．測測測測",
+      "left_number": "測",
+      "left_heading": "１．測測測測測測測測測測",
+      "left_detail": "１．測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+      "right_number": "測",
+      "right_heading": "１．測測測測測測測測測測",
+      "right_detail": "１．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "label": "2.labe",
-      "left_number": "2",
-      "left_heading": "2.left_headi",
-      "left_detail": "2.left_detail測測測測測測測測測測測測測測測測測",
-      "right_number": "2",
-      "right_heading": "2.right_head",
-      "right_detail": "2.right_detail測測測測測測測測測測測測測測測測"
+      "label": "２．測測測測",
+      "left_number": "測",
+      "left_heading": "２．測測測測測測測測測測",
+      "left_detail": "２．測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+      "right_number": "測",
+      "right_heading": "２．測測測測測測測測測測",
+      "right_detail": "２．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "label": "3.labe",
-      "left_number": "3",
-      "left_heading": "3.left_headi",
-      "left_detail": "3.left_detail測測測測測測測測測測測測測測測測測",
-      "right_number": "3",
-      "right_heading": "3.right_head",
-      "right_detail": "3.right_detail測測測測測測測測測測測測測測測測"
+      "label": "３．測測測測",
+      "left_number": "測",
+      "left_heading": "３．測測測測測測測測測測",
+      "left_detail": "３．測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+      "right_number": "測",
+      "right_heading": "３．測測測測測測測測測測",
+      "right_detail": "３．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      },
      {
-      "label": "4.labe",
-      "left_number": "4",
-      "left_heading": "4.left_headi",
-      "left_detail": "4.left_detail測測測測測測測測測測測測測測測測測",
-      "right_number": "4",
-      "right_heading": "4.right_head",
-      "right_detail": "4.right_detail測測測測測測測測測測測測測測測測"
+      "label": "４．測測測測",
+      "left_number": "測",
+      "left_heading": "４．測測測測測測測測測測",
+      "left_detail": "４．測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+      "right_number": "測",
+      "right_heading": "４．測測測測測測測測測測",
+      "right_detail": "４．測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
      }
     ]
    }

@@ -8,12 +8,12 @@
   {
    "number": 1,
    "page_type": "section_transition",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": false,
    "assets": {},
    "slots": {
-    "main_title": "main_title測測測測測測測測測測",
-    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
+    "main_title": "測測測測測測測測測測測測測測測測測測測測",
+    "subtitle": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測"
    }
   }
  ]

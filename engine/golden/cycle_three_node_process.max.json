@@ -8,47 +8,47 @@
   {
    "number": 1,
    "page_type": "cycle_three_node_process",
-   "title": "title測測測測測測測測測測測測測測測測測測測測測測測測測",
+   "title": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
    "render_page_number": true,
    "assets": {
     "background": "assets/backgrounds/content_bg.png",
     "logo": "assets/logos/cathay_logo.png"
    },
    "slots": {
-    "subtitle": "subtitle測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
-    "center_theme": "center",
+    "subtitle": "測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測測",
+    "center_theme": "測測測測測測",
     "nodes": [
      {
-      "label": "1.label測",
-      "detail": "1.detail測測測測",
-      "keyword": "1.keyw"
+      "label": "１．測測測測測測",
+      "detail": "１．測測測測測測測測測測",
+      "keyword": "１．測測測測"
      },
      {
-      "label": "2.label測",
-      "detail": "2.detail測測測測",
-      "keyword": "2.keyw"
+      "label": "２．測測測測測測",
+      "detail": "２．測測測測測測測測測測",
+      "keyword": "２．測測測測"
      },
      {
-      "label": "3.label測",
-      "detail": "3.detail測測測測",
-      "keyword": "3.keyw"
+      "label": "３．測測測測測測",
+      "detail": "３．測測測測測測測測測測",
+      "keyword": "３．測測測測"
      }
     ],
     "side_labels": [
      {
-      "heading": "1.headin",
+      "heading": "１．測測測測測測",
       "points": [
-       "1-1.points測測",
-       "1-2.points測測",
-       "1-3.points測測"
+       "１－１．測測測測測測測測",
+       "１－２．測測測測測測測測",
+       "１－３．測測測測測測測測"
       ]
      },
      {
-      "heading": "2.headin",
+      "heading": "２．測測測測測測",
       "points": [
-       "2-1.points測測",
-       "2-2.points測測",
-       "2-3.points測測"
+       "２－１．測測測測測測測測",
+       "２－２．測測測測測測測測",
+       "２－３．測測測測測測測測"
       ]
      }
     ]
