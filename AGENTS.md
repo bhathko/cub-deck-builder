@@ -47,7 +47,8 @@
    不得引入任何生圖工具。
 8. **雙前端、單引擎**:`.codex/skills/outline-to-ppt/` 是同一條管線的本機
    Codex CLI 前端(`.codex/skills/enrich-outline/` 是其產檔前的豐富訪談入口,
-   規則同指 `engine/rules/enrich_outline_skill.md`),只內聯環境差異(鐵律摘要
+   規則同指 `engine/rules/enrich_outline_skill.md`;`.codex/skills/check-outline/`
+   是產檔前的大綱健檢入口——只檢查與建議、不改稿不產檔),只內聯環境差異(鐵律摘要
    + 跨平台沙箱腳本
    `prepare_env.py`,把工具鏈複製成 `ppt_out/` 模擬 /mnt/data;命令全為單行
    python,PowerShell/cmd/bash 通用——團隊有 Windows 使用者且公司禁 WSL),
