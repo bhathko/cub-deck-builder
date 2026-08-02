@@ -129,6 +129,8 @@ def main(argv):
             return 2
     prs = Presentation(args.pptx)
     fails, warns = [], []
+    slide_w = (prs.slide_width or 0) / 914400
+    slide_h = (prs.slide_height or 0) / 914400
 
     spec_slides = sorted(spec["slides"], key=lambda s: s["number"])
     declared = spec.get("deck", {}).get("slide_count")
@@ -146,7 +148,7 @@ def main(argv):
     # autofit 框的容許高度:模板同一個框裝設計師原文時需要多高。
     # light 有多處版位存檔框高小於原文所需(靠 PowerPoint 自動長高排版),
     # 不放寬的話這些框每次都會誤報溢出——狼來了會蓋掉真的問題。
-    tpl_need, tpl_collide, tpl_size = {}, {}, {}
+    tpl_need, tpl_collide, tpl_size, tpl_bounds = {}, {}, {}, {}
     if pack is not None:
         try:
             tpl = Presentation(str(pack.resolve_template()))
@@ -166,8 +168,12 @@ def main(argv):
                 tpl_size[pt] = {s.shape_id: tt._first_run_size_pt(s)
                                 for s in tt.iter_text_shapes(tpl.slides[pg - 1].shapes)
                                 if tt.shape_text(s).strip()}
+                # 出界基準:模板自己也有框稍微掛在頁緣外(p47 欄三標題右緣 13.45 吋),
+                # 判準同碰撞——不得比設計師的版面更糟,不是絕對零出界。
+                tpl_bounds[pt] = {s.shape_id: (L, T, W, H)
+                                  for s, L, T, W, H in tt.walk_absolute(tpl.slides[pg - 1].shapes)}
         except Exception:
-            tpl_need, tpl_collide, tpl_size = {}, {}, {}  # 取不到模板就退回原本判準(偏嚴,不漏報)
+            tpl_need, tpl_collide, tpl_size, tpl_bounds = {}, {}, {}, {}  # 取不到模板就退回原本判準
 
     # 逐頁:槽位文字覆蓋 / 頁碼 / 字體 / 溢出
     overflow_all = []
@@ -201,6 +207,26 @@ def main(argv):
                     if run.font.name and not _font_ok(run.font.name, allowed_fonts):
                         warns.append(f"p{num}: 字體 {run.font.name!r}(shape id={shp.shape_id})")
                         break
+
+        # 出界:文字跑到投影片外。舊版三道檢查全看不見這件事——溢出是比對
+        # 「文字 vs 自己的框」、碰撞是比對「文字 vs 鄰居」,一個被推到頁面外的
+        # 框兩者都不成立(2026-08-03:綁定 resize 誤把絕對座標寫進群組子座標,
+        # 第三個 KPI 數字落在 x=12.60、頁寬只有 13.33,而 qa 印 PASS)。
+        for shp, L, T, W, H in tt.walk_absolute(slide.shapes):
+            if not getattr(shp, "has_text_frame", False) or not tt.shape_text(shp).strip():
+                continue
+            out = max(-L, -T, L + W - slide_w, T + H - slide_h)
+            if out <= 0.05:
+                continue
+            ref = tpl_bounds.get(spec_slide.get("page_type"), {}).get(shp.shape_id)
+            if ref:
+                rl, rt, rw, rh = ref
+                if out <= max(-rl, -rt, rl + rw - slide_w, rt + rh - slide_h) + 0.05:
+                    continue        # 模板本來就這樣掛在頁緣,不比它更糟
+            fails.append(
+                f"p{num}: 形狀跑出投影片 {out:.2f} 吋"
+                f"(x {L:.2f}–{L + W:.2f}、y {T:.2f}–{T + H:.2f};頁面 {slide_w:.2f}×{slide_h:.2f})"
+                f"(shape id={shp.shape_id}「{tt.shape_text(shp)[:12]}」)")
 
         # 字級:設計師定調「字級是被設計過的,塞不下要改稿或換頁型,不准縮字」。
         # 渲染器仍保留 shrink_to_fit 當最後手段,但它**一縮就是靜默的**——

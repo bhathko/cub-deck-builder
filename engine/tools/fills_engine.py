@@ -163,10 +163,28 @@ def _op_rows(ctx, spec_slide, op, style, where):
 
 
 def _op_resize(ctx, spec_slide, op, style, where):
+    """x/y/w/h 一律是**絕對吋**(同 add_textbox);形狀在群組內時換算成子座標。
+
+    群組子形狀的 left/top/width/height 是「群組子座標系」的值,由群組的
+    chOff/chExt→off/ext 縮放後才是畫面位置(text_tools.walk_absolute 的反運算)。
+    2026-08-03 踩到:三大數字 KPI 的值框在群組內,照絕對值寫進去,第三個數字
+    被推到 x=12.60(頁寬 13.33)整個跑出投影片,而 qa 全綠——文字沒撞到任何
+    東西、也裝得進自己的框,舊版檢查看不見「跑到頁面外」。"""
     shp = ctx.shape(op["id"])
-    for attr in ("left", "top", "width", "height"):
-        if attr in op:
-            setattr(shp, attr, Inches(op[attr]))
+    dx, dy, sx, sy = ctx.group_transform(op["id"])
+    for attr, val in (("left", op.get("left")), ("top", op.get("top")),
+                      ("width", op.get("width")), ("height", op.get("height"))):
+        if val is None:
+            continue
+        if attr == "left":
+            val = (val - dx) / sx
+        elif attr == "top":
+            val = (val - dy) / sy
+        elif attr == "width":
+            val = val / sx
+        else:
+            val = val / sy
+        setattr(shp, attr, Inches(val))
 
 
 def _op_list(ctx, spec_slide, op, style, where):

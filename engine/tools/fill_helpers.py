@@ -45,6 +45,23 @@ class Ctx:
             raise FillError(f"shape id {sid} 不存在(模板改版?請重新盤點並更新綁定)")
         return self.idx[sid]
 
+    def group_transform(self, sid):
+        """該形狀所在群組的座標轉換 (dx, dy, sx, sy):絕對吋 =(子座標值×s)+d。
+
+        群組子形狀的 left/top 是子座標系的值,resize 想用絕對座標就得反算。
+        不在群組內回傳恆等轉換。與 text_tools.walk_absolute 同一套數學。"""
+        for shp, L, T, W, H in tt.walk_absolute(self.slide.shapes):
+            if shp.shape_id != sid:
+                continue
+            raw_l = (shp.left or 0) / tt.EMU_PER_IN
+            raw_w = (shp.width or 0) / tt.EMU_PER_IN
+            raw_t = (shp.top or 0) / tt.EMU_PER_IN
+            raw_h = (shp.height or 0) / tt.EMU_PER_IN
+            sx = W / raw_w if raw_w else 1.0
+            sy = H / raw_h if raw_h else 1.0
+            return L - raw_l * sx, T - raw_t * sy, sx, sy
+        return 0.0, 0.0, 1.0, 1.0
+
     def set(self, sid, text):
         shp = self.shape(sid)
         tt.set_text_keep_style(shp, text)

@@ -201,13 +201,24 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-3791853beefb3b2cf489ce00c32661292cf6b7dbdbf35312545e2c83eab24206  tools.zip
+90d8078755b367661bd8eae67d836244c16ce53a7780da44017509e86b2ef008  tools.zip
 0198c44de19dcd7533889fb30dfdd2b79a89231a8ec602acb87266b285ab6a22  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
 (`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
 不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-08-03 resize 群組座標修正 + qa 出界檢查,**僅 tools.zip 改 sha**:
+目檢回報「第 9 頁數字跑票」——三大數字 KPI 的值框在**群組內**,而 `resize` op
+把 x/y/w/h 當子座標直接寫,被群組的 chOff/chExt 再轉換一次:第三個數字落到
+x=12.60(頁寬 13.33)整個跑出投影片,而三道閘門全綠。修法:resize 的座標一律
+視為**絕對吋**(同 add_textbox),由 `Ctx.group_transform` 反算子座標
+(與 text_tools.walk_absolute 同一套數學)。
+qa 補「形狀跑出投影片」FAIL——舊的三道檢查都看不見這件事:溢出比對「文字 vs
+自己的框」、碰撞比對「文字 vs 鄰居」,一個被推到頁外的框兩者都不成立。判準同
+碰撞:**不得比模板更糟**(模板 p47 欄三標題本來就掛在頁緣外 0.12 吋,絕對零
+出界會誤殺設計)。)
 
 (2026-08-03 文件數字單一化 + KPI 版位放寬,**僅 template_light.zip 改 sha**:
 ①`page_types_registry.md` 散文段有 33 條字數與同檔下方的自動重生表打架(散文是
