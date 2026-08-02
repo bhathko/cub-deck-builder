@@ -1220,13 +1220,19 @@ def main(argv):
     # = 退回單模板現行為;spec 指定了卻找不到 = 前置缺檔 exit 2)
     deck_obj = spec.get("deck") if isinstance(spec.get("deck"), dict) else {}
     spec_template = deck_obj.get("template")
+    if spec_template and ("/" in spec_template or "\\" in spec_template
+                          or ":" in spec_template or spec_template in (".", "..")):
+        print(f"✗ deck.template 只能是模板包 id(如 \"light\"),不得是路徑:"
+              f"{spec_template!r}(模板包由管理者透過 repo 註冊)")
+        return 2
     cli_id = Path(cli_pack).name if cli_pack else None  # 允許 --template-pack 給包目錄路徑
     if cli_id and spec_template and cli_id != spec_template:
         print(f"✗ --template-pack {cli_pack!r} 與 spec 的 deck.template="
               f"{spec_template!r} 不一致:改一致後重跑(不靜默擇一,保確定性)")
         return 2
     chosen = cli_pack or spec_template
-    if chosen and (Path(chosen) / "manifest.json").exists():
+    # 目錄形式只認 CLI 參數;spec 來的 id 一律在 packs root 下解析
+    if cli_pack and chosen and (Path(chosen) / "manifest.json").exists():
         packs_root, chosen = Path(chosen).parent, Path(chosen).name
     else:
         packs_root = packs_root_arg or (asset_base / "templates")

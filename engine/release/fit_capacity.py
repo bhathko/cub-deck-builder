@@ -101,7 +101,7 @@ manifest 的 `capacity_overrides`,讓閘門在產檔前就擋下來要求改稿�
 那張表是給 LLM 看的,手維護必然與 manifest 漂移(2026-07-26 漂了 18 處:
 模型照表寫卻被閘門退回,或反過來過度自我審查)。
 
-需要 python-pptx(本機沒裝:`uv run --with python-pptx python …`)。
+需要 python-pptx(本機沒裝:`uv run --with python-pptx==1.0.2 python …`)。
 """
 from __future__ import annotations
 
@@ -400,7 +400,47 @@ def sync_registry_table(manifest: dict, verbose=True) -> None:
         print(f"registry 容量表已重生:{len(rows)} 列")
 
 
+def _restore_overrides(mpath: Path, snapshot: dict) -> None:
+    try:
+        m = json.loads(mpath.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        print(f"✗ --reset 未完成且讀不回 manifest,上限備份無法寫回:{mpath}")
+        return
+    if (m.get("capacity_overrides") or {}) == snapshot:
+        return  # 失敗在清空之前,manifest 沒被動過
+    m["capacity_overrides"] = snapshot
+    mpath.write_text(json.dumps(m, ensure_ascii=False, indent=2) + "\n",
+                     encoding="utf-8")
+    print(f"↩ --reset 未完成,已把清空前的 capacity_overrides({len(snapshot)} 條)寫回")
+
+
 def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True) -> int:
+    """入口。--reset 帶復原保險:清空上限後量測沒走完(非 0 或例外),
+    把清空前的 capacity_overrides 寫回,不讓包停在「上限全失、status 仍
+    registered」的閘門真空狀態(檔頭陷阱 15)。"""
+    if not reset:
+        return _run(pack_id, packs_root, dry_run=dry_run, reset=False, verbose=verbose)
+    pack_dir = Path(pack_id) if Path(pack_id).is_dir() else packs_root / pack_id
+    mpath = pack_dir / "manifest.json"
+    snapshot = None
+    if mpath.exists():
+        try:
+            snapshot = dict(json.loads(mpath.read_text(encoding="utf-8-sig"))
+                            .get("capacity_overrides") or {})
+        except ValueError:
+            snapshot = None
+    try:
+        rc = _run(pack_id, packs_root, dry_run=dry_run, reset=True, verbose=verbose)
+    except BaseException:
+        if snapshot is not None:
+            _restore_overrides(mpath, snapshot)
+        raise
+    if rc != 0 and snapshot is not None:
+        _restore_overrides(mpath, snapshot)
+    return rc
+
+
+def _run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True) -> int:
     from pptx import Presentation
     import text_tools as tt
     from validate_slide_spec_gpts import PAGE_TYPES, apply_capacity_overrides
@@ -425,7 +465,8 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
              "golden", "--id", pack_id]
             + (["--packs-root", str(packs_root)]
                if packs_root and Path(packs_root) != REPO / "engine" / "templates" else []),
-            capture_output=True, text=True, cwd=str(REPO))
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            cwd=str(REPO))
         if "失敗於「validator」" in probe.stdout or "失敗於「render」" in probe.stdout:
             print("✗ 這個包目前連渲染都過不了,不清空上限(先修好綁定再來):")
             print(probe.stdout[-1200:])
@@ -580,7 +621,8 @@ def run(pack_id: str, packs_root: Path, dry_run=False, reset=False, verbose=True
                "golden", "--id", pack_id]
         if packs_root and Path(packs_root) != REPO / "engine" / "templates":
             cmd += ["--packs-root", str(packs_root)]   # 否則子行程會去量預設包
-        r = subprocess.run(cmd, capture_output=True, text=True, cwd=str(REPO))
+        r = subprocess.run(cmd, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", cwd=str(REPO))
         # 量測階段只需要「渲染出來的檔案」。qa 紅是**預期的**——溢出與碰撞
         # 正是本工具要消掉的東西,要求 qa 先綠就成了雞生蛋。
         # 但 validator 紅代表 spec 本身不合法(容量互相矛盾),那必須停。

@@ -52,7 +52,7 @@ description: 設計師要「讓某個模板多支援幾種版型/頁面」時使
 python .codex/skills/outline-to-ppt/prepare_env.py
 ```
 
-印出的渲染前綴(如 `uv run --with python-pptx python`)套用在所有帶 pptx
+印出的渲染前綴(如 `uv run --with python-pptx==1.0.2 python`)套用在所有帶 pptx
 操作的命令上;`lint` 與純 JSON 操作不需要。
 
 ## 步驟 1|挑頁與盤點
@@ -64,7 +64,7 @@ python engine/tools/make_skeleton.py --list --template-pack light
 設計師選定後,對每一頁:
 
 ```
-uv run --with python-pptx python engine/tools/inspect_template.py \
+uv run --with python-pptx==1.0.2 python engine/tools/inspect_template.py \
   --pptx engine/templates/light/template.pptx --page 30
 ```
 
@@ -140,7 +140,7 @@ uv run --with python-pptx python engine/tools/inspect_template.py \
 ## 步驟 4|重建盤點快照 + 靜態檢查
 
 ```
-uv run --with python-pptx python engine/release/template_admin.py freeze --id light
+uv run --with python-pptx==1.0.2 python engine/release/template_admin.py freeze --id light
 python engine/release/template_admin.py lint --all
 ```
 
@@ -149,7 +149,7 @@ python engine/release/template_admin.py lint --all
 ## 步驟 5|量容量(**不可跳過**)
 
 ```
-uv run --with python-pptx python engine/release/template_admin.py fit --id light
+uv run --with python-pptx==1.0.2 python engine/release/template_admin.py fit --id light
 ```
 
 它會反覆「跑 golden → 找出被縮字或壓到鄰欄的框 → 收緊上限」直到收斂,
@@ -178,7 +178,7 @@ uv run --with python-pptx python engine/release/template_admin.py fit --id light
 ## 步驟 6|黃金驗收 + 目檢
 
 ```
-uv run --with python-pptx python engine/release/template_admin.py golden --id light
+uv run --with python-pptx==1.0.2 python engine/release/template_admin.py golden --id light
 python engine/release/template_admin.py golden --regen-specs   # 契約改過就要跑
 ```
 

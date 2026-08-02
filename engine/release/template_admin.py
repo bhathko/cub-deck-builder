@@ -15,7 +15,7 @@
   list                                      列出所有包
 
 直譯器:new/freeze/golden/register 需 python-pptx(本機無則用
-`uv run --with python-pptx python`);lint/pack/sync-docs/isolation/list 純標準庫。
+`uv run --with python-pptx==1.0.2 python`);lint/pack/sync-docs/isolation/list 純標準庫。
 命令一律單行 python、相對路徑,三種 shell 原樣可跑。
 """
 from __future__ import annotations
@@ -639,7 +639,8 @@ def cmd_pack(args) -> int:
 
 def cmd_isolation(args, advisory_pack=None) -> int:
     r = subprocess.run(["git", "-C", str(REPO), "status", "--porcelain"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8",
+                       errors="replace")
     paths = [l[3:].split(" -> ")[-1].strip('"') for l in r.stdout.splitlines() if l.strip()]
     touched_ids = {p.split("/")[2] for p in paths
                    if p.startswith("engine/templates/") and len(p.split("/")) > 3}

@@ -50,7 +50,7 @@ description: 使用者在聊天窗貼上簡報大綱(段落文字)或 slide_spec
 1. **直譯器名稱**:Windows 通常是 `python`(或 `py -3`);macOS/Linux 沒有
    `python` 就用 `python3`。下文一律寫 `python`,自行代換。
 2. **渲染前綴**:步驟 0 的 prepare_env 會印出「渲染指令前綴」。若印的是
-   `uv run --with python-pptx python`,則**含渲染/QA 的命令**(run_pipeline、
+   `uv run --with python-pptx==1.0.2 python`,則**含渲染/QA 的命令**(run_pipeline、
    qa_check、inspect_template)開頭的 `python` 換成該前綴(此語法三種 shell
    相同);make_skeleton、audit_provenance 只用標準庫,一般直譯器即可。
 

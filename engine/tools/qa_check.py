@@ -112,6 +112,7 @@ def main(argv):
     # 模板包感知:字體白名單與頁碼偵測窗讀選定包 manifest;明確指定卻載不到
     # → exit 2;預設 light 載不到 → 內建常數後備(舊部署相容)
     allowed_fonts, detect_zone, pack_note = ALLOWED_FONTS, DETECT_ZONE, ""
+    pack = None  # 預設包載不到時走內建常數後備;先綁定,否則後備路徑 UnboundLocalError
     try:
         pack = pack_loader.load_pack(pack_arg=args.template_pack,
                                      spec_deck=spec.get("deck"),

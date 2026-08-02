@@ -22,7 +22,7 @@ engine/     主程序——產 pptx 的一切
   release/     維護者工具(template_admin.py 註冊工具鏈、fit_capacity.py 容量量測、wireframe_preview.py)
   examples/    試用範例與 fixture
 gpts/       前端 1:ChatGPT GPTs(instructions + dist/ 上傳 zips + 建置手冊)
-.codex/skills/  前端 2:本機 CLI(outline-to-ppt 產檔、register-template 註冊新模板、add-page-types 加開頁型)
+.codex/skills/  前端 2:本機 CLI(outline-to-ppt 產檔、enrich-outline 豐富訪談、check-outline 大綱健檢、register-template 註冊新模板、add-page-types 加開頁型)
 docs/       文件
 ```
 
@@ -375,7 +375,8 @@ xlsx),同參考頁多次 clone 不互相覆寫。v1.1 同時新增 set 的
 - **契約(PAGE_TYPES)改版會連動全部模板**:golden 重派生 → 全包重跑 →
   有包由綠轉紅代表該模板裝不下新容量,該頁型降級並記該包 FEEDBACK,
   **不得為單一模板改共用契約**。
-- **GPTs Knowledge 20 檔上限**:目前 10 檔,守 ≤19 紀律,約可再容 9 個模板包。
+- **GPTs Knowledge 20 檔上限**:守 ≤19 紀律;現值與逐檔基準見
+  `engine/REGRESSION.md` R7(不在此抄數字——每加一個模板包 +1 zip)。
 - **閘門是指示強制,非系統強制**(公司政策禁 GPTs Actions):模型仍可能跳過
   驗證,緩解是要求貼出 PASS 輸出 + run_pipeline 單一入口把步驟數壓到最低。
 - **Windows PowerShell 全流程尚未實機驗證**(團隊有 Windows 使用者且公司禁

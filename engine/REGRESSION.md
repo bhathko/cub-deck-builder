@@ -25,7 +25,7 @@ python3 engine/release/regress.py            # 全部案例;--list / --only / --
 PowerShell/cmd):多行 `python3 -c "..."` 區塊請存成 `.py` 檔執行以避開引號
 地獄,`for` 迴圈與 `$RT` 自行改寫;日常產檔不受此限——skill 的命令全平台通用。
 validator/audit/make_skeleton 只用標準庫;渲染與 QA 需 python-pptx,系統沒裝時
-把下方 `python3` 換成 `uv run --with python-pptx python`(zsh 注意:存成變數
+把下方 `python3` 換成 `uv run --with python-pptx==1.0.2 python`(zsh 注意:存成變數
 不會自動分詞,直接寫全命令)。
 
 ```bash
@@ -201,13 +201,20 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-6d9cb26ceb5375dd21be273145ac3e56f5f6255257832c5c0bfb8d7b9d19d95a  tools.zip
+88ff02a415e35a918b37ba2e554bd54270e7762d7049f58a5a7bcdb819dcbe01  tools.zip
 ef42ac39940e366e2ed30efe35af8705355a7de8b67cc1435d25093cfc7a46bb  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
 (`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
 不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-08-02 全系統診斷速修,**僅 tools.zip 改 sha**:①qa_check 預設包後備
+路徑 UnboundLocalError 修復 ②模板 sha 不符由警告升 FAIL(--template 明示
+指定者除外)③spec 的 deck.template 鎖包 id、路徑形式僅限 CLI(rogue 包
+三閘門全綠的洞)。同批 repo 側:fit subprocess 補 encoding、--reset 失敗
+復原備份、python-pptx 釘 1.0.2、新增 R16(instructions roster 機器檢查)。
+validator 散檔同步改,發版要重傳。)
 
 (2026-08-01.2 目檢回饋修正:golden p14 兩組對照頁 KPI 44pt 數字「%」折行
 疊到下一顆——值框僅 1.39 吋,PowerPoint 開檔時 spAutoFit 長高互疊;綁定加
@@ -636,3 +643,13 @@ runner 以 02 fixture 為原稿,附加三行 `[補]` 增補(一行含數字、�
 `未標記 [補] 也不是原稿逐字行`;②同輸入不帶 `--original` → exit=1
 `未帶 --original`;③管線同組輸入缺 `--original` 停在稽核、補上後
 `--validate-only` PASS(2/2 階段)。
+
+## R16|instructions 版本 roster 同步
+
+```bash
+python3 engine/release/regress.py --only R16
+```
+
+預期:`gpts/instructions.md` 含每個 registered 模板包的
+`<template_id>@<version>`(讀各包 manifest 現值)。這是發佈鏈唯一的
+手抄版本字串;pack 完成後忘了連動 instructions,這關就紅。

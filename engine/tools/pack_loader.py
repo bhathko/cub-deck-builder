@@ -102,9 +102,17 @@ def load_pack(pack_arg: str | None = None, spec_deck: dict | None = None,
             f"CLI 指定模板包 {pack_arg!r} 與 spec 的 deck.template={spec_id!r} 不一致:"
             "改一致後重跑(不靜默擇一,保確定性)")
     chosen = pack_arg or spec_id or "light"
+    if not pack_arg and spec_id and (
+            "/" in spec_id or "\\" in spec_id or ":" in spec_id
+            or spec_id in (".", "..")):
+        raise PackError(
+            f"spec 的 deck.template 只能是模板包 id(如 \"light\"),不得是路徑:"
+            f"{spec_id!r}。模板包由管理者透過 repo 註冊;要載入 packs root 以外"
+            "的包,請由操作者以 --template-pack 明示指定。")
 
     root = Path(packs_root) if packs_root else default_packs_root()
-    pack_dir = Path(chosen) if Path(chosen).is_dir() else root / chosen
+    # 路徑形式只認 CLI 參數(操作者自己給的);spec 來的 id 一律鎖在 packs root 下
+    pack_dir = Path(chosen) if (pack_arg and Path(chosen).is_dir()) else root / chosen
     manifest_path = pack_dir / "manifest.json"
     if not manifest_path.exists():
         raise PackError(

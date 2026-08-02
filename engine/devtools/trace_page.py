@@ -13,9 +13,9 @@
 完全同一條路**(不另寫模擬版,否則會與引擎行為漂移)。
 
 用法:
-  uv run --with python-pptx python engine/devtools/trace_page.py \
+  uv run --with python-pptx==1.0.2 python engine/devtools/trace_page.py \
       --spec engine/examples/01_minimal_4p.json --page 3
-  uv run --with python-pptx python engine/devtools/trace_page.py \
+  uv run --with python-pptx==1.0.2 python engine/devtools/trace_page.py \
       --spec engine/examples/02_full_8p.json --all
 """
 from __future__ import annotations

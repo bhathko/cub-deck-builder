@@ -2,7 +2,7 @@
 """regress — 引擎級回歸 runner:REGRESSION.md 全部案例一鍵跑完。
 
 用法(repo 根目錄執行;三種 shell 通用):
-  python3 engine/release/regress.py               # 全部案例(R0–R14 + light R-L0/R-L1)
+  python3 engine/release/regress.py               # 全部案例(R0–R16 + light R-L0/R-L1)
   python3 engine/release/regress.py --list        # 列案例
   python3 engine/release/regress.py --only R2,R12 # 只跑指定(相依案例自動帶入)
   python3 engine/release/regress.py --skip R9     # 跳過指定(會列為 SKIP 並使結果非綠)
@@ -17,7 +17,7 @@
 設計約束:
 - 純標準庫 + subprocess,無 shell 專屬語法 → Windows(禁 WSL)原樣可跑,
   解掉 REGRESSION.md「命令為 POSIX shell 語法」的限制。
-- 渲染類步驟自動偵測 python-pptx;沒有就用 `uv run --with python-pptx python`
+- 渲染類步驟自動偵測 python-pptx;沒有就用 `uv run --with python-pptx==1.0.2 python`
   前綴(同 skill 的 prepare_env 慣例),兩者皆無 → 該案例 FAIL 並說明環境缺件。
 - 會暫時污染工作區的案例(R10 種 bindings.py、R13 改 INDEX.md)一律
   try/finally 還原;R11 失敗時**刻意不還原**——留下的 diff 就是修法
@@ -78,7 +78,7 @@ class Env:
             if probe.returncode == 0:
                 self._pptx_py = [sys.executable]
             elif shutil.which("uv"):
-                self._pptx_py = ["uv", "run", "--with", "python-pptx", "python"]
+                self._pptx_py = ["uv", "run", "--with", "python-pptx==1.0.2", "python"]
             else:
                 raise RuntimeError("需要 python-pptx 或 uv(渲染類案例無法執行)")
         return self._pptx_py
@@ -628,6 +628,28 @@ def rl1(env: Env):
     return True, "smoke spec 3/3 PASS"
 
 
+def r16(env: Env):
+    """instructions 版本 roster 同步——發佈鏈唯一手抄版本字串的機器眼睛。"""
+    text = (REPO / "gpts" / "instructions.md").read_text(encoding="utf-8")
+    fails, seen = [], 0
+    for pdir in sorted((REPO / "engine" / "templates").iterdir()):
+        mp = pdir / "manifest.json"
+        if not mp.exists():
+            continue
+        m = json.loads(mp.read_text(encoding="utf-8-sig"))
+        if m.get("status") != "registered":
+            continue
+        seen += 1
+        tag = f"{m.get('template_id', pdir.name)}@{m.get('version', '?')}"
+        if tag not in text:
+            fails.append(f"instructions 缺 {tag}(manifest 現值)")
+    if not seen:
+        return False, "engine/templates 下找不到任何 registered 包"
+    if fails:
+        return False, "\n".join(fails) + "\ngpts/instructions.md 的模板包 roster 沒跟上 manifest 進版"
+    return True, f"roster 與 {seen} 個 registered 包一致"
+
+
 CASES = [
     # (id, 標題, fn, needs)
     ("R0", "archive 完整性與環境建置", r0, []),
@@ -646,6 +668,7 @@ CASES = [
     ("R13", "sync-docs + pack 閘門反向測試", r13, []),
     ("R14", "契約先行選版正反向測試", r14, ["R0"]),
     ("R15", "enrich 豐富鏈稽核正反向測試", r15, ["R0"]),
+    ("R16", "instructions 版本 roster 同步", r16, []),
     ("R-L0", "light 包完整性", rl0, []),
     ("R-L1", "light smoke spec 全流程", rl1, ["R0"]),
     # R-L2(clone 抽測)是人工案例,見 light REGRESSION.md——不自動化

@@ -227,8 +227,16 @@ def main(argv):
               f"(模板包 {pack.id};可用 --template 指定路徑)")
         return 2
     if not pack.template_hash_matches(template_path):
-        print(f"⚠ 模板檔與模板包 {pack.id}@{pack.version} 的 manifest sha 不符"
-              "(自訂模板測試?正式發版前必須照 templates/TEMPLATE_LIFECYCLE.md 重盤點)")
+        if args.template:
+            print(f"⚠ 模板檔與模板包 {pack.id}@{pack.version} 的 manifest sha 不符"
+                  "(--template 明示指定,視為自訂模板測試;正式發版前必須照"
+                  " templates/TEMPLATE_LIFECYCLE.md 重盤點)")
+        else:
+            print(f"✗ 模板檔與模板包 {pack.id}@{pack.version} 的 manifest sha 不符:"
+                  f"{template_path}\n"
+                  "  多半是沙箱殘留的舊版模板或包沒同步乾淨:重新解壓該包,"
+                  "或改過模板就先跑 freeze。要用自訂模板測試請以 --template 明示指定。")
+            return 2
     pn_cfg = _pn_cfg(pack)
 
     spec_by_num = {s["number"]: s for s in spec["slides"]}

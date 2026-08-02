@@ -31,7 +31,7 @@ docs/              文件(先看 docs/README.md 挑一份;架構/維護/決策�
 
 ## 常用工作
 
-**本機產一份簡報**(需 Python 3;渲染需 python-pptx,沒裝可用 `uv run --with python-pptx`):
+**本機產一份簡報**(需 Python 3;渲染需 python-pptx,沒裝可用 `uv run --with python-pptx==1.0.2`):
 
 ```
 python .codex/skills/outline-to-ppt/prepare_env.py                      # ① 建 ppt_out/ 沙箱(模擬 GPTs /mnt/data 佈局)
@@ -40,7 +40,7 @@ python ppt_out/tools/run_pipeline.py --spec ppt_out/slide_spec.json --asset-dir 
 ```
 
 (渲染階段需 python-pptx;沒裝就把 ③ 的 `python` 換成
-`uv run --with python-pptx python`——prepare_env 會印出該用哪個前綴。)
+`uv run --with python-pptx==1.0.2 python`——prepare_env 會印出該用哪個前綴。)
 
 流程細節見 [`.codex/skills/outline-to-ppt/SKILL.md`](.codex/skills/outline-to-ppt/SKILL.md);
 所有命令都是單行 python,**macOS / Linux / Windows PowerShell / cmd 通用**。

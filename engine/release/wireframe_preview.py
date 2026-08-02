@@ -5,7 +5,7 @@
 輔助 golden 目檢與設計師確認版面結構;**線框僅示意位置與文字,字級/配色/
 換行以 PowerPoint 開檔為準**(qa 的溢出 WARN 仍要人工開檔看)。
 
-用法(需 python-pptx + pillow;本機:uv run --with python-pptx --with pillow python):
+用法(需 python-pptx + pillow;本機:uv run --with python-pptx==1.0.2 --with pillow python):
   python engine/release/wireframe_preview.py --pptx ppt_out/golden_light.pptx --out ppt_out/wf
   # 產出 ppt_out/wf/page_01.png … 與 overview.png(全頁縮圖網格)
 

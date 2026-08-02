@@ -12,7 +12,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
 > 紀事,目前 v1.2)。light 最早的五種 fill 頁型的宣告式重寫已通過 shape 樹全等
 > 驗證(含 min 刪格與 max 溢出路徑);light 當下的 fill 全集跑 `make_skeleton.py --list`。
 > 帶 pptx 操作的子命令(new/freeze/golden/register)依 prepare_env
-> 提示加渲染前綴(如 `uv run --with python-pptx python`)。
+> 提示加渲染前綴(如 `uv run --with python-pptx==1.0.2 python`)。
 
 這是 `cub-deck-builder` repo 多模板架構的註冊前端:所有機械動作由 repo 腳本完成,
 你只負責五件事——**盤點轉述、提映射草案、依確認寫 bindings.json、
@@ -69,7 +69,7 @@ description: 設計師提供新的 .pptx 簡報模板、要求「註冊新模板
    alias,在腳本裡叫不到);Windows 用 `python`。
 2. **pptx 前綴**:碰 PowerPoint 檔的子命令(`new`/`freeze`/`golden`/`register`,
    以及 inspect_template / render_deck / qa_check / wireframe_preview)要加
-   `uv run --with python-pptx python`(wireframe_preview 另需 `--with pillow`);
+   `uv run --with python-pptx==1.0.2 python`(wireframe_preview 另需 `--with pillow`);
    `lint`/`list`/`pack`/`isolation` 純標準庫,直接 `python3` 即可。
    本機該用哪個,以 prepare_env 印出的「渲染指令前綴」那行為準。
 
@@ -97,7 +97,7 @@ exit 0 才算就緒,未跑前不得對可行性下任何結論。
 `assets/` 並記入 manifest `asset_defaults`)。
 
 ```
-uv run --with python-pptx python engine/release/template_admin.py new --pptx "<設計師給的路徑>" --id corp_dark --name 企業深色風
+uv run --with python-pptx==1.0.2 python engine/release/template_admin.py new --pptx "<設計師給的路徑>" --id corp_dark --name 企業深色風
 ```
 
 (路徑一律用雙引號包住——檔名含空格時不加引號會噴
@@ -106,8 +106,8 @@ uv run --with python-pptx python engine/release/template_admin.py new --pptx "<�
 ## 步驟 2:盤點與體檢報告
 
 ```
-uv run --with python-pptx python engine/release/template_admin.py freeze --id corp_dark
-uv run --with python-pptx python engine/tools/inspect_template.py --pptx engine/templates/corp_dark/template.pptx --summary
+uv run --with python-pptx==1.0.2 python engine/release/template_admin.py freeze --id corp_dark
+uv run --with python-pptx==1.0.2 python engine/tools/inspect_template.py --pptx engine/templates/corp_dark/template.pptx --summary
 ```
 
 把摘要翻成設計師語言的體檢報告(不貼原始輸出),例:
@@ -150,14 +150,14 @@ c. 全部確認後貼【最終映射總表】總確認一次,寫入 registration
 
 ```
 python engine/release/template_admin.py lint --id corp_dark
-uv run --with python-pptx python engine/release/template_admin.py golden --id corp_dark
+uv run --with python-pptx==1.0.2 python engine/release/template_admin.py golden --id corp_dark
 ```
 
 (lint 純標準庫、不需前綴;golden 會 subprocess 起 render/qa,**前綴要加在最外層**。)
 
 FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
 `--page-types a,b` 省時,收尾必跑一次全量。可選配產線框示意輔助自查
-(`uv run --with python-pptx --with pillow python engine/release/wireframe_preview.py --pptx ppt_out/golden_corp_dark.pptx --out ppt_out/wf`),
+(`uv run --with python-pptx==1.0.2 --with pillow python engine/release/wireframe_preview.py --pptx ppt_out/golden_corp_dark.pptx --out ppt_out/wf`),
 但交付目檢仍以 PowerPoint 開檔為準。全綠後交設計師目檢:
 「驗收檔在 `ppt_out/golden_corp_dark.pptx`,每種頁型兩頁:第一頁塞最少內容
 (看有沒有殘留空框),第二頁塞最滿內容(看有沒有爆框)。用 PowerPoint 開,
@@ -184,7 +184,7 @@ FAIL → 對照下方錯誤表修 bindings → 重跑;迭代單一頁型可加
 ## 步驟 6:正式註冊 + 發佈提醒
 
 ```
-uv run --with python-pptx python engine/release/template_admin.py register --id corp_dark
+uv run --with python-pptx==1.0.2 python engine/release/template_admin.py register --id corp_dark
 ```
 
 成功輸出 = status 翻 registered + 支援矩陣摘要。之後如實轉述腳本印出的

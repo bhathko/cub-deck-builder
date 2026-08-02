@@ -7,13 +7,13 @@
 > 判準:模型在產檔流程裡會用到的 → `engine/tools/`(出貨);維護者用來看懂或
 > 盤查引擎的 → 這裡。維護者的**模板註冊工具鏈**另有去處(`engine/release/`)。
 
-渲染相關指令一律加前綴 `uv run --with python-pptx python`(本機無 python-pptx;
+渲染相關指令一律加前綴 `uv run --with python-pptx==1.0.2 python`(本機無 python-pptx;
 以 `.codex/skills/outline-to-ppt/prepare_env.py` 印出的「渲染指令前綴」為準)。
 
 ## trace_page.py — 攤開一頁的填充資料流
 
 ```bash
-uv run --with python-pptx python engine/devtools/trace_page.py \
+uv run --with python-pptx==1.0.2 python engine/devtools/trace_page.py \
     --spec engine/examples/01_minimal_4p.json --page 3
 ```
 

@@ -77,7 +77,7 @@ def main() -> int:
     if importlib.util.find_spec("pptx") is not None:
         print(f"渲染指令前綴:{py}(本直譯器已有 python-pptx)")
     elif shutil.which("uv"):
-        print("渲染指令前綴:uv run --with python-pptx python(本直譯器缺 python-pptx,改用 uv)")
+        print("渲染指令前綴:uv run --with python-pptx==1.0.2 python(本直譯器缺 python-pptx,改用 uv)")
     else:
         print(f"[W] 本直譯器缺 python-pptx 且找不到 uv:先執行 {py} -m pip install python-pptx")
     print("沙箱就緒:ppt_out/")
