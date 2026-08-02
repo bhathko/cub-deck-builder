@@ -104,8 +104,17 @@ python .codex/skills/outline-to-ppt/prepare_env.py
    →寫出選型/骨架/slides.md;同分決勝是來源片段 hash,不是候選列序):
 
    ```
-   python ppt_out/tools/make_skeleton.py --plan ppt_out/page_type_candidates.json --source ppt_out/outline_source_current.txt --selected-plan-out ppt_out/page_type_plan.json --slides-out ppt_out/slides.md --out ppt_out/slide_spec.json
+   python ppt_out/tools/make_skeleton.py --plan ppt_out/page_type_candidates.json --source ppt_out/outline_source_current.txt --selected-plan-out ppt_out/page_type_plan.json --slides-out ppt_out/slides.md --out ppt_out/slide_spec.json --gap-report ppt_out/gap_report.json
    ```
+
+
+   **版型差距報告(`--gap-report`)**:選版後會針對「候選只有一個」或「與鄰頁
+   同版型」的內容頁,印出①同樣裝得下的其他頁型 ②再補幾段內容就能換哪個頁型。
+   候選池窄的真正原因是人工比對幾十份契約太貴,不是提名者偷懶——這份報告把
+   那件事機械化。用法:`[W] 候選池過窄` 或相鄰重複時**先讀它**,把「同樣裝得下」
+   且語意合適的補進候選規劃重跑;若只差一兩段內容才能換到更好的版型,那就是
+   `/enrich-outline` 該問使用者的具體問題(不得自己編內容補上)。判斷限於**結構
+   容量**,語意合不合與字數上限仍要自己看。
 
    `整庫覆蓋審視不完整` → 逐一判斷:合適就補提名、不合就補 `not_nominated`
    理由;`[W] 候選池過窄` → 回頭為語意同等的頁補提候選再重跑;某頁全候選被

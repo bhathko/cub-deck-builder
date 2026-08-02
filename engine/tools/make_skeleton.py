@@ -180,6 +180,147 @@ def contract_list_specs(contract):
     return out
 
 
+def _text_specs(node, path, required=True, out=None):
+    """契約內文字節點展平(與 _list_specs 對稱;差距報告用來數「需要幾個文字欄位」)。"""
+    out = out if out is not None else []
+    required = required and node.get("required", True)
+    kind = node.get("kind")
+    if kind == "text":
+        out.append({"path": path, "required": required, "max_chars": node["max_chars"],
+                    "provenance": node.get("provenance", True)})
+    elif kind == "list":
+        _text_specs(node["item"], f"{path}[]", required, out)
+    elif kind == "object":
+        for name, child in node.get("fields", {}).items():
+            _text_specs(child, f"{path}.{name}" if path else name, required, out)
+    return out
+
+
+def contract_text_specs(contract):
+    out = []
+    for name, node in contract.get("slots", {}).items():
+        _text_specs(node, name, True, out)
+    return out
+
+
+def _leaf(path):
+    return path.replace("[]", "").split(".")[-1]
+
+
+def _group_axis(contract):
+    """找出頁型的「並列組」主軸:唯一一個頂層必填清單。
+
+    回傳 (該清單 spec, 組內必填子清單[], 組內必填文字欄位[], 組外必填文字欄位[])；
+    頂層必填清單不只一個(矩陣型)或沒有(單張說明頁)回 None——那種結構無法用
+    「幾組×每組幾項」描述,不納入建議以免給出誤導的解鎖條件。
+    """
+    specs = contract_list_specs(contract)
+    tops = [s for s in specs if s["parent"] is None and s["required"]]
+    if len(tops) != 1:
+        return None
+    top = tops[0]
+    nested = [s for s in specs if s["parent"] == top["path"] and s["required"]]
+    # provenance=False 的是結構字樣(欄目標籤、序號),不需要使用者提供內容,
+    # 算進「要補幾段」會把一個填得出來的頁型誤判成需要補料。
+    texts = [x for x in contract_text_specs(contract)
+             if x["required"] and x.get("provenance", True)]
+    # 只數「組內的文字欄位」:巢狀清單的項目文字(columns[].points[])由清單
+    # 規格計數,重複計進來會讓每組段數虛胖一段,差距就全錯。
+    head = top["path"] + "[]"
+    inside = [x for x in texts if x["path"].startswith(head)
+              and "[]" not in x["path"][len(head):]]
+    outside = [x for x in texts if not x["path"].startswith(head)
+               and "[]" not in x["path"]]
+    return top, nested, inside, outside
+
+
+def content_shape(counts, contract):
+    """把「某頁型的 counts」翻成中性形狀,才能拿去比對別的頁型。
+
+    counts 的鍵是各頁型自己的槽位名(columns / rows / criteria…),不轉成中性
+    形狀就沒辦法問「別的頁型裝不裝得下同一批內容」。中性單位取**每組幾段內容**
+    (= 組內文字欄位數 + 該組列點數):跨頁型可比,且直接對應使用者要補幾句話。
+    """
+    axis = _group_axis(contract)
+    if axis is None:
+        return None
+    top, nested, inside, outside = axis
+    raw = counts.get(top["path"])
+    if not isinstance(raw, int):
+        return None
+    items = []
+    if nested:
+        sub = counts.get(nested[0]["path"])
+        if isinstance(sub, int):
+            items = [sub] * raw
+        elif isinstance(sub, list) and all(isinstance(v, int) for v in sub):
+            items = list(sub)
+    per_group = [len(inside) + n for n in items] if items else [len(inside)] * raw
+    return {"groups": raw, "items": items, "units_per_group": per_group,
+            "group_fields": len(inside), "top_fields": len(outside)}
+
+
+def shape_gaps(contract, shape):
+    """把 shape 放進這個頁型還差什麼。回傳 [] = 直接可用;None = 結構不可比。"""
+    axis = _group_axis(contract)
+    if axis is None or shape is None:
+        return None
+    top, nested, inside, outside = axis
+    gaps = []
+    if not (top["min"] <= shape["groups"] <= top["max"]):
+        gaps.append(f"組數需 {top['min']}–{top['max']} 組(來源 {shape['groups']} 組)")
+    lo = hi = len(inside)
+    for spec in nested:
+        lo += spec["min"]
+        hi += spec["max"]
+    units = shape["units_per_group"] or [0]
+    if max(units) > hi:
+        gaps.append(f"每組最多 {hi} 段內容(來源最多的那組有 {max(units)} 段,需精簡)")
+    if min(units) < lo:
+        need = lo - min(units)
+        detail = ("、".join(_leaf(s["path"]) for s in nested[:2]) or
+                  "、".join(_leaf(x["path"]) for x in inside[:2]))
+        gaps.append(f"每組至少 {lo} 段內容(來源最少的那組只有 {min(units)} 段,"
+                    f"需再補 {need} 段:{detail})")
+    if len(outside) > shape["top_fields"]:
+        names = "、".join(_leaf(x["path"]) for x in outside[shape["top_fields"]:][:3])
+        gaps.append(f"另需頁面層欄位:{names}")
+    return gaps
+
+
+def build_gap_report(selected_plan, contracts, auto_types, max_gaps=3):
+    """每個內容頁:除了選定頁型之外,還有哪些頁型裝得下、差什麼才裝得下。
+
+    存在的理由:候選池窄不是提名者偷懶,是人工比對幾十份契約太貴——結果是
+    只提名最有把握的一兩個,選版器沒得挑,版面就重複(2026-08-02 實測:一份
+    大綱的兩頁同時掉到唯一門檻夠低的三欄頁型)。差距不只回答「能不能用」,
+    更回答「補什麼就能用」,好接到 enrich-outline 的產檔前豐富訪談。
+    """
+    report = []
+    for slide in selected_plan["slides"]:
+        pt = slide["page_type"]
+        if pt in STRUCTURAL_PAGES or pt not in contracts:
+            continue
+        shape = content_shape(slide.get("counts") or {}, contracts[pt])
+        if shape is None:
+            continue
+        usable, nearby = [], []
+        for other in auto_types:
+            if other == pt or other in STRUCTURAL_PAGES or other not in contracts:
+                continue
+            gaps = shape_gaps(contracts[other], shape)
+            if gaps is None:
+                continue
+            if not gaps:
+                usable.append(other)
+            elif len(gaps) <= max_gaps:
+                nearby.append({"page_type": other, "gaps": gaps})
+        nearby.sort(key=lambda x: (len(x["gaps"]), x["page_type"]))
+        report.append({"number": slide["number"], "page_type": pt, "shape": shape,
+                       "usable_now": usable, "unlock_by_enriching": nearby})
+    return report
+
+
 def _count_values(raw, occurrences, path):
     if isinstance(raw, bool):
         return None, f"counts.{path} 必須是整數或整數清單"
@@ -497,6 +638,8 @@ def main(argv):
     ap.add_argument("--source", help="原始大綱檔(--plan 必填,逐字驗證 source_excerpt)")
     ap.add_argument("--selected-plan-out", help="寫出確定性選型結果 page_type_plan.json")
     ap.add_argument("--slides-out", help="依選型結果與 source_excerpt 寫出 slides.md")
+    ap.add_argument("--gap-report", help="寫出各內容頁的版型差距報告 JSON"
+                                        "(還有誰裝得下、差什麼才裝得下)")
     ap.add_argument("--out", help="輸出路徑(不給就印到 stdout)")
     ap.add_argument("--list", action="store_true", help="列出頁型(有模板包時按包列三級支援)")
     ap.add_argument("--describe", help="逗號分隔頁型,印選定模板包 merged 契約(JSON)")
@@ -624,6 +767,30 @@ def main(argv):
         if args.slides_out:
             write_slides_md(selected_plan, args.slides_out)
             print(f"來源映射已寫入 {args.slides_out}")
+        auto_types = [pt for pt, mode in modes.items() if mode == "fill"]
+        gaps = build_gap_report(selected_plan, contracts or PAGE_TYPES, auto_types)
+        if args.gap_report:
+            Path(args.gap_report).write_text(
+                json.dumps(gaps, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"版型差距報告已寫入 {args.gap_report}")
+        # 只印「有得改」的頁:候選只有一個,或與鄰頁撞版型——其餘不佔版面
+        nominated = {i + 1: len(s.get("candidates") or [])
+                     for i, s in enumerate(raw_plan.get("slides") or [])}
+        dup = {s["number"] for a, b in zip(selected_plan["slides"],
+                                           selected_plan["slides"][1:])
+               for s in (a, b) if a["page_type"] == b["page_type"]}
+        actionable = [g for g in gaps
+                      if nominated.get(g["number"], 9) < 2 or g["number"] in dup]
+        if actionable:
+            print("解鎖建議(候選只有一個或與鄰頁同版型的內容頁;"
+                  "以結構容量判斷,語意合不合與字數上限仍要自己看):")
+            for g in actionable:
+                extra = "、".join(g["usable_now"][:4])
+                print(f"  p{g['number']} {g['page_type']}"
+                      + (f":同樣裝得下 → {extra}" if extra else ":目前沒有同樣裝得下的頁型"))
+                for cand in g["unlock_by_enriching"][:3]:
+                    print(f"      補內容可換 {cand['page_type']}:"
+                          + ";".join(cand["gaps"]))
     elif args.types:
         types = [t.strip() for t in args.types.split(",") if t.strip()]
     else:

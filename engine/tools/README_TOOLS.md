@@ -60,7 +60,7 @@ manifest.json、bindings.json、page_map.md、assets/)。
 最終選型、`slides.md` 與 spec 骨架：
 
 ```bash
-python /mnt/data/tools/make_skeleton.py --plan /mnt/data/page_type_candidates.json --source /mnt/data/outline_source_current.txt --selected-plan-out /mnt/data/page_type_plan.json --slides-out /mnt/data/slides.md --out /mnt/data/slide_spec.json
+python /mnt/data/tools/make_skeleton.py --plan /mnt/data/page_type_candidates.json --source /mnt/data/outline_source_current.txt --selected-plan-out /mnt/data/page_type_plan.json --slides-out /mnt/data/slides.md --out /mnt/data/slide_spec.json --gap-report /mnt/data/gap_report.json
 ```
 
 所有候選都被排除時,先修候選規劃；來源確實沒有任何合約可行頁型才回報

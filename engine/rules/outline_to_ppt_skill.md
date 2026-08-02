@@ -167,7 +167,7 @@ merged 字數/數量真實容量。建立
 ④統計候選廣度,過窄出 WARN；⑤寫出最終選型、骨架與 `slides.md`：
 
 ```bash
-python /mnt/data/tools/make_skeleton.py --plan /mnt/data/page_type_candidates.json --source /mnt/data/outline_source_current.txt --selected-plan-out /mnt/data/page_type_plan.json --slides-out /mnt/data/slides.md --out /mnt/data/slide_spec.json
+python /mnt/data/tools/make_skeleton.py --plan /mnt/data/page_type_candidates.json --source /mnt/data/outline_source_current.txt --selected-plan-out /mnt/data/page_type_plan.json --slides-out /mnt/data/slides.md --out /mnt/data/slide_spec.json --gap-report /mnt/data/gap_report.json
 ```
 
 工具全程零隨機。`page_type_plan.json` 是已鎖定版型與來源映射；填槽只能使用該頁

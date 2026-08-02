@@ -201,13 +201,22 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-9eb8449f87f9b798e02ee827a17c2d4d1cdc0432ca611f8acd2df7175fe8179b  tools.zip
+3791853beefb3b2cf489ce00c32661292cf6b7dbdbf35312545e2c83eab24206  tools.zip
 1ed266d593293231e2cda7c5b733705c2b713e3b02828137037a48e7c5ca33b4  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
 (`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
 不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-08-02 版型差距報告(`make_skeleton --plan --gap-report`),**僅 tools.zip 改 sha**:
+選版後對「候選只有一個」或「與鄰頁同版型」的內容頁,印出①同樣裝得下的其他頁型
+②再補幾段內容就能換哪個頁型。動機是實測一份大綱時兩頁同時掉到唯一門檻夠低的
+三欄頁型——候選池窄的根因是人工比對幾十份契約太貴,不是提名者偷懶。
+實作把 counts 轉成中性形狀「幾組 × 每組幾段內容」才能跨頁型比較;結構字樣
+(provenance=False)與巢狀清單項目不計入待補段數(算進去會虛胖一段、差距全錯)。
+判斷限於結構容量,字數上限與語意仍要人看。outline-to-ppt 與 enrich-outline
+兩支 skill 都改為以它為提案依據。)
 
 (2026-08-02 結構級修法:封掉「機器全綠但版面壞掉」整鏈,**兩個 zip 都改 sha**。
 ①golden max 變體改**足額全形壓力文字**(舊變體 `tag+name+測…` 是半形前綴,
