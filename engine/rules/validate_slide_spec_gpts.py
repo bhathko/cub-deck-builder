@@ -757,6 +757,139 @@ PAGE_TYPES = {
             }},
         },
     },
+    "vision_goal_pyramid": {
+        # 目標金字塔(light p15):中央金字塔 3-4 層,左右各一欄編號說明。
+        # 模板每一橫列 = 左說明 + 層標籤 + 右說明,共用同一條全寬分隔線,
+        # 層與列對齊 → 契約**綁層**:每層必含左右說明各一組(2026-08-01 與
+        # Hunter 確認;page_types.md 的「左右各 2-4」以層數承載)。層數 3 時
+        # 從頂端刪整列(label+左右組+分隔線),同 pyramid_layered 的 tail 慣例,
+        # spec levels 由上而下。編號徽章(𝟭-𝟴)單字寬 → number 上限 1 字、
+        # 結構序號不追溯;左欄由上而下 1..N,右欄接續 N+1..2N。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "levels": {
+                "kind": "list", "min": 3, "max": 4, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(6),
+                    "left_number": T(1, provenance=False),
+                    "left_heading": T(12),
+                    "left_detail": T(30),
+                    "right_number": T(1, provenance=False),
+                    "right_heading": T(12),
+                    "right_detail": T(30),
+                }},
+            },
+        },
+    },
+    "cycle_three_node_process": {
+        # 三節點循環(light p34):中央核心主題 + 3 圓形節點(標題/短句/圈外
+        # 重點字),左右各 1 組標籤補充區(小標 + 2-3 個短項目)。side_labels
+        # 全有或全無(min=max=2,required=False;綁定做不到條件式置中,兩組
+        # 都缺時兩側刪空、循環圖偏左約 0.5 吋 → golden min 變體交目檢,
+        # 2026-08-01 與 Hunter 確認)。節點順序:上 → 右下 → 左下(順時針)。
+        # 模板另有右上第三組示範標籤(id 84-88)、❶❷❸ 圓角示範籤(89/90/91)
+        # 與中央圓內副標(54),契約無對應槽位 → 綁定一律 delete(留著=捏造)。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "center_theme": T(6),
+            "nodes": {
+                "kind": "list", "min": 3, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(8),
+                    "detail": T(12),
+                    "keyword": T(6),
+                }},
+            },
+            "side_labels": {
+                "kind": "list", "min": 2, "max": 2, "required": False,
+                "item": {"kind": "object", "fields": {
+                    "heading": T(8),
+                    "points": {"kind": "list", "min": 2, "max": 3, "required": True, "item": T(12)},
+                }},
+            },
+        },
+    },
+    "cycle_multi_step_loop": {
+        # 多步循環(light p37):中央圓角矩形循環路徑 + 沿路 10 個格位
+        # (深色數字徽章 + 短標 + 1 句說明),中央放循環主題。步驟 6-10,
+        # align=head 從格位 01 起填,未用格位整組刪(6 步時下半圈會空 4 格
+        # ——模板固有幾何,golden min 變體交目檢)。徽章 0.52 吋寬、原文即
+        # 兩位數「01」→ number 上限 2 字,結構序號不追溯。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "center_theme": T(12),
+            "steps": {
+                "kind": "list", "min": 6, "max": 10, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "number": T(2, provenance=False),
+                    "label": T(12),
+                    "detail": T(30),
+                }},
+            },
+        },
+    },
+    "stage_period_cards": {
+        # 期間卡(light p41):上方箭頭線 4 個期間節點(時間範圍 + 標題籤 +
+        # 說明),下方 4 張細節卡(卡標題 + 2 組小項目 + 選填重點句)。
+        # 「NEW」徽章位置烙死在第 3 期間上方 → badge 為選填槽位,固定標在
+        # 第 3 期(要標其他期請調整期間順序或不用徽章;2026-08-01 與 Hunter
+        # 確認)。卡片小項目 = 單一文字框「標題\n說明」套版填入。
+        # 版面標題下方直接是箭頭線,無副標位置 → 本頁型無 subtitle 槽位。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "periods": {
+                "kind": "list", "min": 4, "max": 4, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(8),
+                    "heading": T(8),
+                    "detail": T(30),
+                }},
+            },
+            "badge": T(4, required=False, provenance=False),
+            "cards": {
+                "kind": "list", "min": 4, "max": 4, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "heading": T(8),
+                    "one_label": T(8),
+                    "one_detail": T(24),
+                    "two_label": T(8),
+                    "two_detail": T(16),
+                    "highlight": T(8, required=False),
+                }},
+            },
+        },
+    },
+    "pyramid_three_level_center_explanation": {
+        # 三層透明金字塔(light p53):中央 3 層金字塔各放短標題,左右兩側
+        # 各 3 組說明(標題籤 + 內文 + 選填重點字),位置與層對齊。模板為
+        # 固定 6 組 → 契約收緊為每層左右各 1 組必填(page_types.md 的
+        # 「共 4-6 組」無法表達跨清單合計;2026-08-01 與 Hunter 確認收緊)。
+        # spec layers 由上而下(上/中/下層)。
+        "page_number": "required",
+        "assets": ["background", "logo"],
+        "slots": {
+            "subtitle": T(60),
+            "layers": {
+                "kind": "list", "min": 3, "max": 3, "required": True,
+                "item": {"kind": "object", "fields": {
+                    "label": T(6),
+                    "left_heading": T(8),
+                    "left_detail": T(20),
+                    "left_highlight": T(6, required=False),
+                    "right_heading": T(8),
+                    "right_detail": T(20),
+                    "right_highlight": T(6, required=False),
+                }},
+            },
+        },
+    },
 }
 
 

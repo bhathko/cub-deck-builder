@@ -335,6 +335,54 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 - `step_two`:`{heading, points 2–3 項, highlight}`(同上字數)
 - `step_three` / `step_four`:`{heading, points 2–4 項, highlight}`(同上字數)
 - 編號徽章 1–4 烙在模板上,不佔槽位;文字量應隨階梯遞增,避免高卡空蕩。
+
+## vision_goal_pyramid — 願景目標(目標金字塔)
+適用:階層式目標、策略金字塔、成熟度路徑或優先級。頁碼:必須。素材:background、logo。
+- `subtitle` ≤60 字
+- `levels`:3–4 層(**由上而下**),每層 `{label ≤6 字(層標籤), left_number ≤1 字,
+  left_heading ≤12 字, left_detail ≤30 字, right_number ≤1 字, right_heading ≤12 字,
+  right_detail ≤30 字}`;左右說明**與層綁定、每層必有左右各一組**,3 層時整列
+  (含分隔線)從頂端刪
+- 編號慣例:左欄由上而下 1..N,右欄接續 N+1..2N(單字寬徽章,不要補零)
+- 不適合平行清單;左右說明數固定等於層數,湊不滿請改用其他資訊頁型
+
+## cycle_three_node_process — 循環(三節點循環)
+適用:3 個節點的循環關係(蒐集/分析/行動、規劃/執行/回饋)。頁碼:必須。素材:background、logo。
+- `subtitle` ≤60 字
+- `center_theme` ≤6 字(中央核心主題)
+- `nodes`:固定 3 個(**上 → 右下 → 左下順時針**),每個 `{label ≤8 字, detail ≤12 字,
+  keyword ≤6 字(圈外重點字)}`
+- `side_labels`:**全有或全無**——要嘛左右 2 組都給、要嘛整個省略(省略時兩側刪空,
+  循環圖略偏左,屬已知取捨),每組 `{heading ≤8 字, points 2–3 項 × ≤12 字}`
+- 模板右上第三組示範標籤、❶❷❸ 示範籤與中央圓內副標,契約無槽位,渲染時移除。
+
+## cycle_multi_step_loop — 循環(多步閉環)
+適用:6–10 個步驟的完整循環、迭代流程、治理閉環或週期性機制。頁碼:必須。素材:background、logo。
+- `subtitle` ≤60 字
+- `center_theme` ≤12 字(路徑中央的循環主題)
+- `steps`:6–10 步(沿路徑順時針,從左上格位起填),每步 `{number ≤2 字, label ≤12 字,
+  detail ≤30 字}`;未用格位整組移除,6 步時下半圈會留空——內容夠時盡量給滿 8–10 步
+- 步驟少於 6 個改用 `cycle_four_point_loop` 或 `cycle_three_node_process`
+
+## stage_period_cards — 時程(期間卡)
+適用:4 個期間、季度、波段或專案步驟,上摘要下細節。頁碼:必須。素材:background、logo。
+**本頁型無 subtitle**(標題下方即箭頭期間線)。
+- `periods`:固定 4 個,每個 `{label ≤8 字(時間範圍,如「2 - 4 月」), heading ≤8 字,
+  detail ≤30 字}`
+- `badge` ≤4 字(**選填**,如「NEW」;徽章位置烙死在**第 3 期間**上方,要標其他期
+  請調整期間順序或省略本槽位,缺值即移除)
+- `cards`:固定 4 張,每張 `{heading ≤8 字, one_label ≤8 字, one_detail ≤24 字,
+  two_label ≤8 字, two_detail ≤16 字, highlight ≤8 字(選填,缺值整框刪除)}`
+  (兩組小項目各為「標題 + 說明」,渲染成同框兩行)
+
+## pyramid_three_level_center_explanation — 金字塔(三層中央說明)
+適用:3 層核心架構、策略優先級、能力堆疊或價值主張。頁碼:必須。素材:background、logo。
+- `subtitle` ≤60 字
+- `layers`:固定 3 層(**由上而下**),每層 `{label ≤6 字(層內短標題),
+  left_heading ≤8 字, left_detail ≤20 字, left_highlight ≤6 字(選填,缺值整框刪除),
+  right_heading ≤8 字, right_detail ≤20 字, right_highlight ≤6 字(選填)}`
+- 左右說明位置與層對齊、每層左右各一組必填(page_types.md 的「共 4–6 組」在本模板
+  收緊為固定 6 組,引擎表達不了跨清單合計)
 ---
 
 ## light 模板的實際容量(**以本表為準**)
@@ -346,13 +394,17 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 
 | 頁型 | 槽位 | 預設 | light 實際 |
 | --- | --- | --- | --- |
-| agenda | `items[].subtitle` | ≤60 字 | **≤30 字** |
-| cover | `date` | ≤20 字 | **≤13 字** |
+| agenda | `items[].subtitle` | ≤60 字 | **≤27 字** |
+| cover | `date` | ≤20 字 | **≤12 字** |
 | cover | `main_title` | ≤20 字 | **≤7 字** |
-| cover | `presenters` | ≤40 字 | **≤15 字** |
+| cover | `presenters` | ≤40 字 | **≤14 字** |
 | cover | `subtitle` | ≤20 字 | **≤5 字** |
 | cycle_four_point_loop | `steps[].detail` | ≤40 字 | **≤34 字** |
 | cycle_four_point_loop | `subtitle` | ≤60 字 | **≤50 字** |
+| cycle_multi_step_loop | `steps[].detail` | ≤30 字 | **≤18 字** |
+| cycle_multi_step_loop | `steps[].label` | ≤12 字 | **≤7 字** |
+| cycle_multi_step_loop | `subtitle` | ≤60 字 | **≤50 字** |
+| cycle_three_node_process | `subtitle` | ≤60 字 | **≤50 字** |
 | data_line_trend_comparison | `rows[].cells[]` | ≤20 字 | **≤4 字** |
 | data_line_trend_comparison | `series[].name` | ≤8 字 | **≤3 字** |
 | data_three_number_kpis | `kpis[].detail` | ≤30 字 | **≤12 字** |
@@ -378,20 +430,13 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 | evaluation_vs_criteria_matrix | `left_name` | ≤24 字 | **≤9 字** |
 | evaluation_vs_criteria_matrix | `right_name` | ≤24 字 | **≤7 字** |
 | evaluation_vs_criteria_matrix | `subtitle` | ≤60 字 | **≤50 字** |
-| info_before_after_item_compare | `after.items[].name` | ≤12 字 | **≤4 字** |
 | info_card_grid | `subtitle` | ≤60 字 | **≤50 字** |
-| info_horizontal_explanation_rows | `rows` | 4–5 項 | **4–4 項** |
 | info_horizontal_explanation_rows | `rows[].points` | 1–3 項 | **1–2 項** |
 | info_horizontal_explanation_rows | `subtitle` | ≤60 字 | **≤49 字** |
-| info_sidebar_grid | `flex_category.cards[].detail` | ≤60 字 | **≤24 字** |
-| info_sidebar_grid | `flex_category.cards[].heading` | ≤20 字 | **≤8 字** |
-| info_sidebar_grid | `flex_category.label` | ≤20 字 | **≤14 字** |
-| info_sidebar_grid | `full_width_category.label` | ≤20 字 | **≤14 字** |
-| info_sidebar_grid | `hashtags[].label` | ≤12 字 | **≤7 字** |
-| info_sidebar_grid | `paired_categories[].cards[].detail` | ≤60 字 | **≤40 字** |
-| info_sidebar_grid | `paired_categories[].cards[].heading` | ≤20 字 | **≤13 字** |
-| info_sidebar_grid | `paired_categories[].label` | ≤20 字 | **≤14 字** |
-| info_sidebar_grid | `subtitle` | ≤60 字 | **≤50 字** |
+| info_sidebar_grid | `flex_category.cards[].detail` | ≤60 字 | **≤21 字** |
+| info_sidebar_grid | `flex_category.cards[].heading` | ≤20 字 | **≤9 字** |
+| info_sidebar_grid | `paired_categories[].cards[].detail` | ≤60 字 | **≤35 字** |
+| info_sidebar_grid | `subtitle` | ≤60 字 | **≤49 字** |
 | info_three_column_category | `columns[].heading` | ≤20 字 | **≤13 字** |
 | info_three_column_category | `columns[].points` | 2–6 項 | **2–4 項** |
 | info_three_column_category | `columns[].points[]` | ≤40 字 | **≤17 字** |
@@ -416,12 +461,13 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 | pyramid_layered_maturity_detail | `side_cards[].points` | 2–4 項 | **2–2 項** |
 | pyramid_layered_maturity_detail | `side_cards[].points[]` | ≤30 字 | **≤18 字** |
 | pyramid_layered_maturity_detail | `subtitle` | ≤60 字 | **≤56 字** |
+| pyramid_three_level_center_explanation | `layers[].label` | ≤6 字 | **≤2 字** |
+| pyramid_three_level_center_explanation | `subtitle` | ≤60 字 | **≤50 字** |
 | section_transition | `main_title` | ≤20 字 | **≤4 字** |
 | section_transition | `subtitle` | ≤40 字 | **≤13 字** |
 | stage_phase_swimlane | `phases[].label` | ≤18 字 | **≤13 字** |
 | stage_phase_swimlane | `subtitle` | ≤60 字 | **≤50 字** |
 | stage_timeline_progress | `axis_labels[]` | ≤8 字 | **≤2 字** |
-| stage_timeline_progress | `current_status.heading` | ≤12 字 | **≤10 字** |
 | stage_timeline_progress | `subtitle` | ≤60 字 | **≤50 字** |
 | stage_vertical_timeline_detail | `section_one.heading` | ≤8 字 | **≤4 字** |
 | stage_vertical_timeline_detail | `section_two.heading` | ≤8 字 | **≤4 字** |
@@ -437,9 +483,10 @@ light 全自動版為避免暗示來源未提供的勝出結果,會移除模板�
 | vision_goal_center_balance | `subtitle` | ≤60 字 | **≤50 字** |
 | vision_goal_keyword_orbit | `center_theme` | ≤14 字 | **≤8 字** |
 | vision_goal_keyword_orbit | `subtitle` | ≤60 字 | **≤50 字** |
+| vision_goal_pyramid | `subtitle` | ≤60 字 | **≤50 字** |
 | vision_goal_rings | `subtitle` | ≤60 字 | **≤50 字** |
 
-(共 92 個槽位。**本表由 `template_admin.py fit` 自動重生,
+(共 91 個槽位。**本表由 `template_admin.py fit` 自動重生,
 不要手改**——手維護必然與 manifest 漂移。量測判準:設計字級下不縮字、
 文字不比模板原本更侵入鄰欄、平行欄位格位數一致。)
 

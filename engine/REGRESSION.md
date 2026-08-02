@@ -202,12 +202,23 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 
 ```
 6d9cb26ceb5375dd21be273145ac3e56f5f6255257832c5c0bfb8d7b9d19d95a  tools.zip
-e29b169273629472ce7f2c3f186137850b0634a95434e4d6607870d8e9e589c8  template_light.zip
+ef42ac39940e366e2ed30efe35af8705355a7de8b67cc1435d25093cfc7a46bb  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
 (`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
 不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-08-01.2 目檢回饋修正:golden p14 兩組對照頁 KPI 44pt 數字「%」折行
+疊到下一顆——值框僅 1.39 吋,PowerPoint 開檔時 spAutoFit 長高互疊;綁定加
+resize 把三個值框加寬到 2.0 吋。估算器沒抓到是因為未扣內文邊距(量測死角,
+記 docs/FEEDBACK.md)。僅 template_light.zip 改 sha。)
+
+(2026-08-01 第二梯隊五頁型升格,**僅 template_light.zip 改 sha**:
+p15 目標金字塔/p34 三節點循環/p37 多步閉環/p41 期間卡/p53 三層金字塔
+clone→fill(light@2026-08-01.1)。契約收在 validator 散檔(不入 zip),
+tools.zip 內容未動、sha 不變。fit 以 --reset 全量重測(resize 統一 p41
+四個時間框與 NEW 徽章、p34 中心主題框加寬),capacity_overrides 92 條。)
 
 (2026-07-31 第一梯隊六頁型升格,**兩個 zip 都改 sha**:template_light.zip 收
 bindings/manifest/inventory/page_map 六頁型 clone→fill(light@2026-07-31.1);

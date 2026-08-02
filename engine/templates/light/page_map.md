@@ -21,7 +21,7 @@
 | story_photo_icon_takeaways | clone(半自動,需 render_plan) | 11 | 寫 plan 前先 `inspect_template.py --page 11` |
 | vision_goal_rings | fill(全自動) | 12 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | vision_goal_hub_spoke | clone(半自動,需 render_plan) | 13 | 寫 plan 前先 `inspect_template.py --page 13` |
-| vision_goal_pyramid | clone(半自動,需 render_plan) | 15 | 寫 plan 前先 `inspect_template.py --page 15` |
+| vision_goal_pyramid | fill(全自動) | 15 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | vision_goal_keyword_orbit | fill(全自動) | 16 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | info_sidebar_grid | fill(全自動) | 18 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | info_icon_bubble_cluster | clone(半自動,需 render_plan) | 19 | 寫 plan 前先 `inspect_template.py --page 19` |
@@ -37,14 +37,14 @@
 | data_three_number_kpis | fill(全自動) | 30 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | data_three_radar_score_comparison | clone(半自動,需 render_plan) | 31 | 寫 plan 前先 `inspect_template.py --page 31` |
 | evaluation_vs_criteria_matrix | fill(全自動) | 32 | 綁定見 bindings.json;契約見 page_types_registry.md;皇冠/獎盃於填充時移除 |
-| cycle_three_node_process | clone(半自動,需 render_plan) | 34 | 寫 plan 前先 `inspect_template.py --page 34` |
+| cycle_three_node_process | fill(全自動) | 34 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | cycle_four_point_loop | fill(全自動) | 35 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | cycle_dual_core_feedback | clone(半自動,需 render_plan) | 36 | 寫 plan 前先 `inspect_template.py --page 36` |
-| cycle_multi_step_loop | clone(半自動,需 render_plan) | 37 | 寫 plan 前先 `inspect_template.py --page 37` |
+| cycle_multi_step_loop | fill(全自動) | 37 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | stage_timeline_progress | fill(全自動) | 38 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | stage_phase_swimlane | fill(全自動) | 39 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | stage_year_cards | fill(全自動) | 40 | 綁定見 bindings.json;契約見 page_types_registry.md |
-| stage_period_cards | clone(半自動,需 render_plan) | 41 | 寫 plan 前先 `inspect_template.py --page 41` |
+| stage_period_cards | fill(全自動) | 41 | 綁定見 bindings.json;契約見 page_types_registry.md;四個時間框與 NEW 徽章由綁定 resize 統一 |
 | stage_horizon_matrix | fill(全自動) | 42 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | stage_year_transition_architecture | clone(半自動,需 render_plan) | 43 | 寫 plan 前先 `inspect_template.py --page 43` |
 | stage_multi_year_gantt_summary | clone(半自動,需 render_plan) | 44 | 寫 plan 前先 `inspect_template.py --page 44` |
@@ -56,7 +56,7 @@
 | phase_three_column_action_cards | fill(全自動) | 50 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | phase_input_process_output_flow | clone(半自動,需 render_plan) | 51 | 寫 plan 前先 `inspect_template.py --page 51` |
 | phase_step_ladder_cards | fill(全自動) | 52 | 綁定見 bindings.json;契約見 page_types_registry.md |
-| pyramid_three_level_center_explanation | clone(半自動,需 render_plan) | 53 | 寫 plan 前先 `inspect_template.py --page 53` |
+| pyramid_three_level_center_explanation | fill(全自動) | 53 | 綁定見 bindings.json;契約見 page_types_registry.md |
 | structure_system_overview_table | clone(半自動,需 render_plan) | 55 | 寫 plan 前先 `inspect_template.py --page 55` |
 | structure_hierarchy_matrix | clone(半自動,需 render_plan) | 56 | 寫 plan 前先 `inspect_template.py --page 56` |
 | structure_org_chart_roles | clone(半自動,需 render_plan) | 57 | 寫 plan 前先 `inspect_template.py --page 57` |
@@ -64,7 +64,7 @@
 | closing | fill(全自動,clone+填充) | 59 | 滿版背景與遮罩是 p59 頁面自帶 shape,不吃 spec 的 assets |
 | section_transition | fill(全自動,clone+填充) | 60 | 章節過渡頁；layout 自帶背景與置中樣式，不顯示頁碼、不吃 spec 的 assets |
 
-共 52 筆:fill 28、clone 24。
+共 52 筆:fill 33、clone 19。
 
 ## 附:幾個吃過虧的版位限制(容量真相仍在 manifest `capacity_overrides`)
 

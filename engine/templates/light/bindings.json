@@ -448,6 +448,24 @@
           "id": 13
         },
         {
+          "op": "resize",
+          "id": 15,
+          "left": 2.85,
+          "width": 2.0
+        },
+        {
+          "op": "resize",
+          "id": 18,
+          "left": 2.85,
+          "width": 2.0
+        },
+        {
+          "op": "resize",
+          "id": 52,
+          "left": 10.61,
+          "width": 2.0
+        },
+        {
           "op": "set",
           "slot": "$.slots.subtitle",
           "id": 25
@@ -3891,6 +3909,967 @@
           "op": "set",
           "slot": "$.slots.step_four.highlight",
           "id": 38,
+          "delete_if_missing": true
+        }
+      ]
+    },
+    "vision_goal_pyramid": {
+      "template_page": 15,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 2
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 4
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.levels",
+          "align": "tail",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 87
+                },
+                {
+                  "slot": "@.left_number",
+                  "id": 89
+                },
+                {
+                  "slot": "@.left_heading",
+                  "id": 64
+                },
+                {
+                  "slot": "@.left_detail",
+                  "id": 63
+                },
+                {
+                  "slot": "@.right_number",
+                  "id": 120
+                },
+                {
+                  "slot": "@.right_heading",
+                  "id": 119
+                },
+                {
+                  "slot": "@.right_detail",
+                  "id": 118
+                }
+              ],
+              "delete_on_missing": [
+                87,
+                89,
+                64,
+                63,
+                120,
+                119,
+                118,
+                60
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 86
+                },
+                {
+                  "slot": "@.left_number",
+                  "id": 107
+                },
+                {
+                  "slot": "@.left_heading",
+                  "id": 106
+                },
+                {
+                  "slot": "@.left_detail",
+                  "id": 105
+                },
+                {
+                  "slot": "@.right_number",
+                  "id": 124
+                },
+                {
+                  "slot": "@.right_heading",
+                  "id": 123
+                },
+                {
+                  "slot": "@.right_detail",
+                  "id": 122
+                }
+              ],
+              "delete_on_missing": [
+                86,
+                107,
+                106,
+                105,
+                124,
+                123,
+                122,
+                100
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 57
+                },
+                {
+                  "slot": "@.left_number",
+                  "id": 111
+                },
+                {
+                  "slot": "@.left_heading",
+                  "id": 110
+                },
+                {
+                  "slot": "@.left_detail",
+                  "id": 109
+                },
+                {
+                  "slot": "@.right_number",
+                  "id": 128
+                },
+                {
+                  "slot": "@.right_heading",
+                  "id": 127
+                },
+                {
+                  "slot": "@.right_detail",
+                  "id": 126
+                }
+              ],
+              "delete_on_missing": [
+                57,
+                111,
+                110,
+                109,
+                128,
+                127,
+                126,
+                101
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 56
+                },
+                {
+                  "slot": "@.left_number",
+                  "id": 116
+                },
+                {
+                  "slot": "@.left_heading",
+                  "id": 115
+                },
+                {
+                  "slot": "@.left_detail",
+                  "id": 114
+                },
+                {
+                  "slot": "@.right_number",
+                  "id": 132
+                },
+                {
+                  "slot": "@.right_heading",
+                  "id": 131
+                },
+                {
+                  "slot": "@.right_detail",
+                  "id": 130
+                }
+              ],
+              "delete_on_missing": [
+                56,
+                116,
+                115,
+                114,
+                132,
+                131,
+                130,
+                102
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cycle_three_node_process": {
+      "template_page": 34,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 11
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.center_theme",
+          "id": 53
+        },
+        {
+          "op": "resize",
+          "id": 53,
+          "left": 4.94,
+          "width": 2.3
+        },
+        {
+          "op": "delete",
+          "ids": [
+            54,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91
+          ]
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.nodes",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 32
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 38
+                },
+                {
+                  "slot": "@.keyword",
+                  "id": 57
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 49
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 50
+                },
+                {
+                  "slot": "@.keyword",
+                  "id": 56
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 41
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 46
+                },
+                {
+                  "slot": "@.keyword",
+                  "id": 58
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.side_labels[0].heading",
+          "id": 80,
+          "delete_if_missing": true
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.side_labels[0].points",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 82
+                }
+              ],
+              "delete_on_missing": [
+                82
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 83
+                }
+              ],
+              "delete_on_missing": [
+                83
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 81
+                }
+              ],
+              "delete_on_missing": [
+                81
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.side_labels[1].heading",
+          "id": 61,
+          "delete_if_missing": true
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.side_labels[1].points",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 75
+                }
+              ],
+              "delete_on_missing": [
+                75
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 76
+                }
+              ],
+              "delete_on_missing": [
+                76
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@",
+                  "id": 63
+                }
+              ],
+              "delete_on_missing": [
+                63
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cycle_multi_step_loop": {
+      "template_page": 37,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 11
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.center_theme",
+          "id": 13
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.steps",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 23
+                },
+                {
+                  "slot": "@.label",
+                  "id": 33
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 31
+                }
+              ],
+              "delete_on_missing": [
+                23,
+                33,
+                31
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 15
+                },
+                {
+                  "slot": "@.label",
+                  "id": 35
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 34
+                }
+              ],
+              "delete_on_missing": [
+                15,
+                35,
+                34
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 18
+                },
+                {
+                  "slot": "@.label",
+                  "id": 37
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 36
+                }
+              ],
+              "delete_on_missing": [
+                18,
+                37,
+                36
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 21
+                },
+                {
+                  "slot": "@.label",
+                  "id": 43
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 42
+                }
+              ],
+              "delete_on_missing": [
+                21,
+                43,
+                42
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 28
+                },
+                {
+                  "slot": "@.label",
+                  "id": 60
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 47
+                }
+              ],
+              "delete_on_missing": [
+                28,
+                60,
+                47
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 29
+                },
+                {
+                  "slot": "@.label",
+                  "id": 62
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 61
+                }
+              ],
+              "delete_on_missing": [
+                29,
+                62,
+                61
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 27
+                },
+                {
+                  "slot": "@.label",
+                  "id": 70
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 69
+                }
+              ],
+              "delete_on_missing": [
+                27,
+                70,
+                69
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 26
+                },
+                {
+                  "slot": "@.label",
+                  "id": 68
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 67
+                }
+              ],
+              "delete_on_missing": [
+                26,
+                68,
+                67
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 25
+                },
+                {
+                  "slot": "@.label",
+                  "id": 66
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 65
+                }
+              ],
+              "delete_on_missing": [
+                25,
+                66,
+                65
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.number",
+                  "id": 24
+                },
+                {
+                  "slot": "@.label",
+                  "id": 64
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 63
+                }
+              ],
+              "delete_on_missing": [
+                24,
+                64,
+                63
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "stage_period_cards": {
+      "template_page": 41,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "resize",
+          "id": 7,
+          "left": 1.2,
+          "width": 1.6
+        },
+        {
+          "op": "resize",
+          "id": 11,
+          "left": 4.29,
+          "width": 1.6
+        },
+        {
+          "op": "resize",
+          "id": 19,
+          "left": 7.78,
+          "width": 1.56
+        },
+        {
+          "op": "resize",
+          "id": 30,
+          "left": 10.7,
+          "width": 1.6
+        },
+        {
+          "op": "resize",
+          "id": 104,
+          "left": 7.0
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.periods",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 7
+                },
+                {
+                  "slot": "@.heading",
+                  "id": 5
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 33
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 11
+                },
+                {
+                  "slot": "@.heading",
+                  "id": 9
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 41
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 19
+                },
+                {
+                  "slot": "@.heading",
+                  "id": 17
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 48
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 30
+                },
+                {
+                  "slot": "@.heading",
+                  "id": 22
+                },
+                {
+                  "slot": "@.detail",
+                  "id": 50
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.badge",
+          "id": 104,
+          "delete_if_missing": true
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.cards",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 70
+                },
+                {
+                  "slot": "@",
+                  "template": "{one_label}\n{one_detail}",
+                  "id": 69
+                },
+                {
+                  "slot": "@",
+                  "template": "{two_label}\n{two_detail}",
+                  "id": 72
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 86
+                },
+                {
+                  "slot": "@",
+                  "template": "{one_label}\n{one_detail}",
+                  "id": 85
+                },
+                {
+                  "slot": "@",
+                  "template": "{two_label}\n{two_detail}",
+                  "id": 88
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 93
+                },
+                {
+                  "slot": "@",
+                  "template": "{one_label}\n{one_detail}",
+                  "id": 92
+                },
+                {
+                  "slot": "@",
+                  "template": "{two_label}\n{two_detail}",
+                  "id": 95
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.heading",
+                  "id": 100
+                },
+                {
+                  "slot": "@",
+                  "template": "{one_label}\n{one_detail}",
+                  "id": 99
+                },
+                {
+                  "slot": "@",
+                  "template": "{two_label}\n{two_detail}",
+                  "id": 102
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.cards[0].highlight",
+          "id": 71,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.cards[1].highlight",
+          "id": 87,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.cards[2].highlight",
+          "id": 94,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.cards[3].highlight",
+          "id": 101,
+          "delete_if_missing": true
+        }
+      ]
+    },
+    "pyramid_three_level_center_explanation": {
+      "template_page": 53,
+      "ops": [
+        {
+          "op": "set",
+          "slot": "$.title",
+          "id": 10
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.subtitle",
+          "id": 7
+        },
+        {
+          "op": "list",
+          "slot": "$.slots.layers",
+          "align": "head",
+          "items": [
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 80
+                },
+                {
+                  "slot": "@.left_heading",
+                  "id": 53
+                },
+                {
+                  "slot": "@.left_detail",
+                  "id": 54
+                },
+                {
+                  "slot": "@.right_heading",
+                  "id": 89
+                },
+                {
+                  "slot": "@.right_detail",
+                  "id": 90
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 81
+                },
+                {
+                  "slot": "@.left_heading",
+                  "id": 96
+                },
+                {
+                  "slot": "@.left_detail",
+                  "id": 97
+                },
+                {
+                  "slot": "@.right_heading",
+                  "id": 84
+                },
+                {
+                  "slot": "@.right_detail",
+                  "id": 85
+                }
+              ]
+            },
+            {
+              "sets": [
+                {
+                  "slot": "@.label",
+                  "id": 82
+                },
+                {
+                  "slot": "@.left_heading",
+                  "id": 100
+                },
+                {
+                  "slot": "@.left_detail",
+                  "id": 101
+                },
+                {
+                  "slot": "@.right_heading",
+                  "id": 69
+                },
+                {
+                  "slot": "@.right_detail",
+                  "id": 70
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.layers[0].left_highlight",
+          "id": 55,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.layers[0].right_highlight",
+          "id": 92,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.layers[1].left_highlight",
+          "id": 98,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.layers[1].right_highlight",
+          "id": 86,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.layers[2].left_highlight",
+          "id": 102,
+          "delete_if_missing": true
+        },
+        {
+          "op": "set",
+          "slot": "$.slots.layers[2].right_highlight",
+          "id": 71,
           "delete_if_missing": true
         }
       ]

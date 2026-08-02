@@ -156,6 +156,7 @@
   - 金字塔 3-4 層
   - 左右各 2-4 個補充說明，重點項目的標題及項目數字底色可使用 主色(綠)
 - 使用限制：適合有上下層級的內容；不要拿來呈現平行清單。
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
 
 ### vision_goal_keyword_orbit
 - **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
@@ -401,6 +402,7 @@
   - 循環節點 3 個，每個包含節點標題、補充短句與重點字
   - 左右補充標籤 2 個，可各搭配 2-3 個短項目
 - 使用限制：固定適合 3 節點循環；若內容是 4 個步驟，改用 `cycle_four_point_loop`。左右補充標籤若沒有內容，必須移除並讓循環圖置中。
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
 
 ### cycle_four_point_loop
 - **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
@@ -434,6 +436,7 @@
   - 循環主題 1 個
   - 步驟 6-10 個，每個包含編號、短標題與 1 句說明
 - 使用限制：適合高階流程總覽，不適合放長段細節。若步驟少於 6 個，改用 `cycle_four_point_loop` 或 `cycle_three_node_process`；若超過 10 個，應拆成多頁或改用時程 / 流程表格。
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
 
 ## 金字塔頁型
 ### 金字塔頁型共通規則
@@ -453,6 +456,7 @@
   - 每層 1 個短標題
   - 左右補充說明共 4-6 組，每組包含小標 + 1 句說明
 - 使用限制：適合 3 層關係；若層級超過 3 層，改用 `pyramid_layered_maturity_detail`。左右說明需與層級對齊，不能形成隨意散落的文字。
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
 
 ### pyramid_layered_maturity_detail
 - **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
@@ -512,6 +516,7 @@
   - 細節卡片 4 張，每張包含卡片標題 + 2 組小項目
   - 可指定 1 個目前階段或新增階段
 - 使用限制：適合四段式安排；每張卡片文字不可過多，卡片內最多 2 組小項目較清楚。
+- **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
 
 ### stage_horizon_matrix
 - **已註冊頁型**:槽位契約與字數容量以 `page_types_registry.md`(validator `PAGE_TYPES`)為準,本節僅供選型參考;由 render_deck/fills 全自動填充,不需 render_plan。
