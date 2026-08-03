@@ -38,7 +38,7 @@ R7 的基準值一致(打包是可重現的,內容沒變 sha 就不會變)。不
 - `assets.zip`
 - `light_template.pptx`
 
-**上傳/覆蓋這 11 個檔**(同名檔一律「刪舊再傳新」,Builder 不會自動覆蓋):
+**上傳/覆蓋這 12 個檔**(同名檔一律「刪舊再傳新」,Builder 不會自動覆蓋):
 
 | 來源路徑 | 檔名 |
 | --- | --- |
@@ -49,12 +49,15 @@ R7 的基準值一致(打包是可重現的,內容沒變 sha 就不會變)。不
 | `engine/rules/` | `style_guide.md` |
 | `engine/rules/` | `outline_to_ppt_skill.md` |
 | `engine/rules/` | `enrich_outline_skill.md` |
+| `engine/rules/` | `check_outline_skill.md` |
 | `engine/rules/` | `slide_spec.example.json` |
 | `engine/rules/` | `slide_spec.bad.example.json` |
 | `gpts/dist/` | `tools.zip` |
 | `gpts/dist/` | `template_light.zip` |
 
-傳完數一次:**Knowledge 應該剛好 11 個檔**(上限 20;每加一個新模板 +1)。
+傳完數一次:**Knowledge 應該剛好 12 個檔**(上限 20;每加一個新模板 +1)。
+GPTs 只有三支流程需要規則本體(健檢/豐富/產檔);`register-template` 與
+`add-page-types` 是維護者本機專用,**不上傳**。
 
 ## Step 3|Capabilities 與 Model(確認,不要動錯)
 
@@ -177,6 +180,37 @@ slide_spec.json 與 .pptx。再用 `/outline-to-ppt` 前綴重測一次,行為�
 指出來源含 `[補]` 標記卻缺原稿鏈。
 
 ---
+
+**⑪ 容量問答(數字只有一個來源)**
+
+```
+data_three_number_kpis 的 value 上限是幾個字?你是從哪裡查到的?
+```
+
+預期:答 **5 字**,並說明查自 `page_types_registry.md` 檔尾容量表(或跑
+`tools/capacity_probe.py --list-caps`)。**若它從各節散文報一個數字就是錯的**
+——散文已不寫數字,報得出來代表它在編。
+
+**⑫ 產檔後自檢的兩條硬線**
+
+```
+產一份 3 頁的簡報(封面+一頁三大數字 KPI+封底),KPI 那頁的數字請故意寫超過上限,
+然後照常跑完整管線,把每一階段輸出貼出來。
+```
+
+預期:**停在 validator**(字數超限 ERROR),不會硬產。接著請它改回合法值重跑,
+應 4/4 PASS。重點看它**沒有**自己把字級改小遷就——qa 現在把「字級被縮小」與
+「形狀跑出投影片」都列為 FAIL。
+
+**⑬ 健檢入口**
+
+```
+幫我看看這份大綱能做出什麼(貼一段 5-6 行、其中一行明顯超長的內容)
+```
+
+預期:走健檢模式出六節報告、**不產檔**;字數判斷引用 `capacity_probe.py` 的
+實測輸出(看得到 PASS/FAIL 行),超長那行給出不動數字的縮寫示範;結尾集中問
+`【NEED HUMAN】`(≤5 題)並給三選一下一步。
 
 ## Step 5|收尾
 

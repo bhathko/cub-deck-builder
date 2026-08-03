@@ -53,7 +53,12 @@
    `prepare_env.py`,把工具鏈複製成 `ppt_out/` 模擬 /mnt/data;命令全為單行
    python,PowerShell/cmd/bash 通用——團隊有 Windows 使用者且公司禁 WSL),
    規則本體仍指回 `engine/rules/` 與 `engine/tools/`,不得在 skill 裡另寫一份
-   規則。`.codex/skills/` 下**所有** skill(含 `register-template`)改動後,
+   規則(**能力也一樣**:健檢的容量探針住在 `engine/tools/capacity_probe.py`,
+   不放 skill 目錄——放進去等於 GPTs 前端用不到,也繞過引擎的回歸網)。
+   **雙前端共用的只有三支**:check-outline / enrich-outline / outline-to-ppt,
+   三者都有 `engine/rules/*_skill.md` 規則本體並隨 Knowledge 出貨;
+   `register-template` 與 `add-page-types` 是**維護者本機專用**(GPTs 不註冊
+   任何東西),規則寫在 skill 內即可,不進 Knowledge。`.codex/skills/` 下**所有** skill(含 `register-template`)改動後,
    把 repo 版複製到 `~/.codex/skills/<名稱>/`(含重打同名 zip,POSIX 路徑)。
    本機產物一律進 gitignore 的 `ppt_out/`,嚴禁 commit。
 9. **綁定準入**:所有模板包的填充綁定一律是宣告式 `bindings.json`(固定 op

@@ -186,13 +186,15 @@ grep -cE '## Slide|page_type' engine/examples/05_outline_to_ppt_source.md
 ## R7|Knowledge 清單與 archive hash
 
 ```bash
-ls engine/rules | grep -v __pycache__ | wc -l     # 預期 9(散檔)
+ls engine/rules | grep -v __pycache__ | wc -l     # 預期 10(散檔)
 ls gpts/dist | wc -l                              # 預期 2(zip)
 shasum -a 256 gpts/dist/tools.zip gpts/dist/template_light.zip
 ```
 
-上傳 GPTs 的 Knowledge = 這 9 + 2 = **11 個檔**(上限 20,守 ≤19 紀律;
-2026-07-31 增 `enrich_outline_skill.md`)。
+上傳 GPTs 的 Knowledge = 這 10 + 2 = **12 個檔**(上限 20,守 ≤19 紀律;
+2026-07-31 增 `enrich_outline_skill.md`、2026-08-03 增 `check_outline_skill.md`)。
+GPTs 只需要三支流程的規則本體(健檢/豐富/產檔);`register-template` 與
+`add-page-types` 是維護者本機專用,不進 Knowledge。
 
 2026-07-26 基準值(**打包已可重現**:內容沒變重打包 sha 就不變,
 所以本節 sha 變動 = zip 內容真的變了;Phase 2:tools.zip 十一支
@@ -201,13 +203,25 @@ Builder 端刪 assets.zip 與 light_template.pptx、上傳 template_light.zip �
 新 tools.zip,同步 instructions v2.0):
 
 ```
-90d8078755b367661bd8eae67d836244c16ce53a7780da44017509e86b2ef008  tools.zip
+ea83a0715e34d0a66574d2e623efa5ca35c4c26981b3980284de08ea5de2ca87  tools.zip
 0198c44de19dcd7533889fb30dfdd2b79a89231a8ec602acb87266b285ab6a22  template_light.zip
 ```
 
 **這個區塊是「當下」基準,不是歷史快照**——`regress.py` 的 R7 直接解析這兩行
 (`^64 hex + 檔名$`),重打包後沒同步就紅燈。下方括號註記是變更軌跡,
 不要在註記裡再抄一份完整 sha,以免出現第二個真相。
+
+(2026-08-03 GPTs 補健檢入口、探針歸位 engine:**僅 tools.zip 改 sha**,
+Knowledge 由 11 → 12 檔(增 `check_outline_skill.md`)。
+①`capacity_probe.py` 從 `.codex/skills/check-outline/` 搬進 `engine/tools/`
+——它是**能力**不是環境差異,放 skill 目錄違反 AGENTS 鐵律 8,而且 GPTs 前端
+用不到、也繞過本回歸網;沙箱路徑改自動偵測(本檔所在 tools/ 的上一層)。
+②健檢流程的規則本體寫成 `engine/rules/check_outline_skill.md`,兩前端共用;
+`.codex` 版只留環境差異。③instructions 加健檢模式入口。
+**GPTs 只需要三支流程的規則本體**(健檢/豐富/產檔)——不在 GPTs 註冊任何東西,
+所以 `register-template`/`add-page-types` 維持維護者本機專用,不進 Knowledge。
+DEPLOY Step 4 補三條驗收:⑪容量問答(散文已不寫數字,報得出數字代表在編)、
+⑫產檔後自檢兩條硬線(字級被縮、形狀出界)、⑬健檢入口。)
 
 (2026-08-03 resize 群組座標修正 + qa 出界檢查,**僅 tools.zip 改 sha**:
 目檢回報「第 9 頁數字跑票」——三大數字 KPI 的值框在**群組內**,而 `resize` op

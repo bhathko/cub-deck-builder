@@ -12,8 +12,11 @@ description: 使用者貼上想做成簡報的大綱/內容,想先知道「這�
 
 規則依據(單一真相來源,皆相對 repo 根目錄,本檔不另寫一份規則):
 
+- **`engine/rules/check_outline_skill.md` — 本流程的規則本體**(鐵律、六節
+  報告、NEED HUMAN 問法都在那;本檔只內聯環境差異:沙箱是 `ppt_out/`,
+  指令前綴見 `prepare_env.py`)
 - `engine/rules/page_types_registry.md` — 槽位契約;**字數與清單長度以檔尾
-  「light 模板的實際容量」表為準**(那是量測值,上方各節只是跨模板預設)
+  「light 模板的實際容量」表為準**(那是量測值,各節散文不寫數字)
 - `engine/tools/README_TOOLS.md` — 候選規劃與整庫覆蓋審視的判準
 - `engine/rules/enrich_outline_skill.md` — 增補三類與防捏造邊界
   (建議「要補內容」時引用)
@@ -30,7 +33,7 @@ description: 使用者貼上想做成簡報的大綱/內容,想先知道「這�
 4. **字數與上限不目測、不翻文件抄數字**,用同資料夾的容量探針(直讀沙箱
    validator + 模板包 manifest 的合併容量,與 spec 閘門永遠同步;計字語意
    同閘門):
-   `python .codex/skills/check-outline/capacity_probe.py --check <頁型> <槽位> "候選字串"`
+   `python ppt_out/tools/capacity_probe.py --check <頁型> <槽位> "候選字串"`
    (清單槽位給整數驗項數);上限現值用 `--list-caps <頁型>` 查。使用者指名
    模板時加 `--template-pack <模板id>`。
 5. **不確定就標 `【NEED HUMAN】`,不擅自替使用者假設**:凡是判斷取決於
