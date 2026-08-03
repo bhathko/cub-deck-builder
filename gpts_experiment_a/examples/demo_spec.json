@@ -1,0 +1,174 @@
+{
+  "deck": {
+    "deck_name": "智能客服升級",
+    "language": "Traditional Chinese",
+    "slide_count": 6
+  },
+  "slides": [
+    {
+      "number": 1,
+      "page_type": "cover",
+      "title": "智能客服升級",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "main_title": "智能客服升級",
+        "subtitle": "數位金融部",
+        "date": "2026/08/03",
+        "presenters": "報告人:Hunter"
+      }
+    },
+    {
+      "number": 2,
+      "page_type": "agenda",
+      "title": "目錄",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "items": [
+          {
+            "number": "01",
+            "title": "三大升級重點",
+            "subtitle": "智能問答、全通路整合、人機協作"
+          },
+          {
+            "number": "02",
+            "title": "預期效益目標",
+            "subtitle": "以三個關鍵指標衡量成效"
+          },
+          {
+            "number": "03",
+            "title": "推動時程規劃",
+            "subtitle": "自需求盤點至上線試營運"
+          }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "page_type": "info_three_column_category",
+      "title": "三大升級重點",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "subtitle": "從單點客服工具走向智能服務平台",
+        "columns": [
+          {
+            "heading": "智能問答",
+            "points": [
+              "AI 意圖識別引擎",
+              "常見問題自動回覆",
+              "多輪對話理解上下文"
+            ]
+          },
+          {
+            "heading": "全通路整合",
+            "points": [
+              "LINE 與 App 訊息互通",
+              "對話紀錄跨通路同步",
+              "單一後台統一管理"
+            ]
+          },
+          {
+            "heading": "人機協作",
+            "points": [
+              "複雜案件即時轉真人",
+              "AI 摘要輔助客服接手",
+              "回覆建議即時生成"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "page_type": "data_three_number_kpis",
+      "title": "預期效益目標",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "subtitle": "上線半年內的三個關鍵指標",
+        "kpis": [
+          {
+            "value": "60%",
+            "label": "自動解決率",
+            "detail": "常見問題由 AI 直接結案"
+          },
+          {
+            "value": "30秒",
+            "label": "首次回應時間",
+            "detail": "首次回應縮至半分鐘"
+          },
+          {
+            "value": "+15",
+            "label": "滿意度提升",
+            "detail": "NPS 預期提升 15 分"
+          }
+        ]
+      }
+    },
+    {
+      "number": 5,
+      "page_type": "stage_timeline_progress",
+      "title": "推動時程規劃",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "subtitle": "四個月分階段推進,十一月上線試營運",
+        "axis_labels": [
+          "八月",
+          "九月",
+          "十月",
+          "上線"
+        ],
+        "milestones": [
+          {
+            "label": "需求盤點",
+            "detail": "彙整客服常見問題與知識庫"
+          },
+          {
+            "label": "系統建置",
+            "detail": "AI 模型訓練與通路串接"
+          },
+          {
+            "label": "上線試營運",
+            "detail": "先開放一成流量觀察成效"
+          }
+        ],
+        "current_status": {
+          "heading": "目前進度",
+          "points": [
+            "需求訪談完成八成,知識庫盤點進行中"
+          ]
+        }
+      }
+    },
+    {
+      "number": 6,
+      "page_type": "closing",
+      "title": "封底",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg.png"
+      },
+      "slots": {
+        "main_title": "Thank you"
+      }
+    }
+  ]
+}

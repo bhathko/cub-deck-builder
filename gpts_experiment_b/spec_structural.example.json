@@ -1,0 +1,66 @@
+{
+  "deck": {
+    "deck_name": "智能客服升級",
+    "language": "Traditional Chinese",
+    "slide_count": 3
+  },
+  "slides": [
+    {
+      "number": 1,
+      "page_type": "cover",
+      "title": "智能客服升級",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "main_title": "智能客服升級",
+        "subtitle": "數位金融部",
+        "date": "2026/08/03",
+        "presenters": "報告人:Hunter"
+      }
+    },
+    {
+      "number": 2,
+      "page_type": "agenda",
+      "title": "目錄",
+      "render_page_number": true,
+      "assets": {
+        "background": "assets/backgrounds/content_bg.png",
+        "logo": "assets/logos/cathay_logo.png"
+      },
+      "slots": {
+        "items": [
+          {
+            "number": "01",
+            "title": "三大升級重點",
+            "subtitle": "智能問答、全通路整合、人機協作"
+          },
+          {
+            "number": "02",
+            "title": "預期效益目標",
+            "subtitle": "以三個關鍵指標衡量成效"
+          },
+          {
+            "number": "03",
+            "title": "推動時程規劃",
+            "subtitle": "自需求盤點至上線試營運"
+          }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "page_type": "closing",
+      "title": "封底",
+      "render_page_number": false,
+      "assets": {
+        "background": "assets/backgrounds/cover_bg.png"
+      },
+      "slots": {
+        "main_title": "Thank you"
+      }
+    }
+  ]
+}
