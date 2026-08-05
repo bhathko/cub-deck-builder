@@ -7,8 +7,10 @@
 >
 > **2026-08-05 起改用設計師視覺規範**:字級表、頁碼 28pt、標題區 H2/H6 與
 > 樣式邊界為新增硬規範,頁碼幾何/字級/顏色一律對齊模板 `manifest.json` 的
-> `page_number`。**這批新座標尚未實際產檔目檢**,首次產出請人眼確認標題區與
-> 頁碼視覺;`examples/demo_deck_expB.pptx` 是舊規範樣張,已不符本檔。
+> `page_number`。本檔第三節的三欄座標與 §二 的 page_base 已用
+> `examples/demo_deck_expB.pptx`(2026-08-05 重產)實跑過,QA-lite 全綠;
+> **但沙箱無中文字型,人眼目檢尚未做**——首次產出仍請在 PowerPoint 開檔
+> 確認標題區與 28pt 頁碼的視覺比重。
 
 ## 一、硬規範(每頁必須全部成立)
 
@@ -130,8 +132,11 @@ prs.save("/mnt/data/deck_final.pptx")
 
 ## 三、版面建議(不是硬規範,但先從這三種挑)
 
-- **並列卡片**(2–3 欄重點):`card` 等寬排列,欄距 0.3";卡內彩色圓角
-  標題條(白字 **H4 24pt** 粗體,條高至少 0.55";標題較長時降一級用
+- **並列卡片**(2–3 欄重點):`card` 等寬排列。**三欄的實測安全值**:欄寬
+  3.84"、欄距 0.30"、x = 0.60 / 4.74 / 8.88、y 1.95" 高 4.30"(底 6.25",
+  收在頁碼淨空區之上);卡內標題條 x+0.35 寬 3.14",列點框 x+0.40 寬 3.04"。
+  **不要用 3.95" 這種湊整數的欄寬**——乘三就會撞出右邊界。卡內彩色圓角
+  標題條(白字 **H4 24pt** 粗體,條高 0.70";標題較長時降一級用
   **H5 20pt**)+ 「•  」列點 **P2 14pt**,段後距 14pt。
 - **大數字 KPI**(2–3 個指標):**KPI_PT 60pt** 粗體彩色數值置中(字級表唯一
   例外)+ **H6 18pt** 粗體標籤 + **P2 14pt** 次色說明;欄間放 1px 直線(LINE 色)。
@@ -143,7 +148,10 @@ prs.save("/mnt/data/deck_final.pptx")
 
 ## 四、QA-lite(自由頁畫完必跑,紅字就修版重畫)
 
-掃四類:**溢出 / 文字重疊 / 字級與字體 / 品牌色**。任何一類紅字都要修版重畫。
+掃五類:**溢出 / 文字重疊 / 字級與字體 / 品牌色 / 安全區與淨空區**。
+任何一類紅字都要修版重畫。**安全區那類最容易在三欄版復發**——欄寬用預設值
+乘三加欄距就會超出右邊界,或卡片底邊伸進右下頁碼區,肉眼在沒有中文字型的
+沙箱裡看不出來,只有這支掃得到。
 
 ```python
 import sys; sys.path.insert(0,"/mnt/data/tools")
@@ -189,6 +197,19 @@ for i,slide in enumerate(prs.slides,1):
                 if h not in OK_HEX:
                     bad+=1; print(f"p{i} 形狀底色 {h} 不在六色內")
         except Exception: pass
+    for sh in slide.shapes:                # 安全區:左右邊界 + 兩塊淨空區
+        L,T=sh.left/914400,sh.top/914400
+        R,B=L+sh.width/914400,T+sh.height/914400
+        txt=sh.text_frame.text.strip() if sh.has_text_frame else ""
+        if txt.isdigit() and L>11.2 and T>6.3: continue      # 頁碼本身豁免
+        if L<0.6-1e-6 or R>12.733+1e-6:
+            bad+=1; print(f"p{i} 超出左右邊界 {L:.2f}~{R:.2f}「{txt[:10]}」")
+        if B>6.6+1e-6:
+            bad+=1; print(f"p{i} 低於內容區下緣 6.6 → {B:.2f}「{txt[:10]}」")
+        if B>6.3 and R>11.2:
+            bad+=1; print(f"p{i} 侵入右下頁碼淨空區「{txt[:10]}」")
+        if B>6.9 and L<2.3:
+            bad+=1; print(f"p{i} 侵入左下 logo 淨空區「{txt[:10]}」")
     pn=[s for s in tt.iter_text_shapes(slide.shapes)                 # 右下角頁碼
         if tt.shape_text(s).strip().isdigit()
         and s.left and s.left>Inches(11.2) and s.top and s.top>Inches(6.3)]
