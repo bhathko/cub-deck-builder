@@ -1,8 +1,14 @@
 # freeform_playbook — 自由頁設計手冊(實驗B 專用)
 
 > 給 GPT 在 Code Interpreter 裡照抄的自由頁畫法。**硬規範不可違反,
-> 程式範式優先照抄再微調**;本檔的座標與作法已在本機實測產檔驗證過。
+> 程式範式優先照抄再微調**;繪製流程(layout、set_font 的 a:ea、move_slide、
+> QA-lite 掃描)已在本機實測產檔驗證過。
 > 適用範圍:實驗B 的中間內容頁(封面/目錄/封底一律走工具鏈,不歸本檔管)。
+>
+> **2026-08-05 起改用設計師視覺規範**:字級表、頁碼 28pt、標題區 H2/H6 與
+> 樣式邊界為新增硬規範,頁碼幾何/字級/顏色一律對齊模板 `manifest.json` 的
+> `page_number`。**這批新座標尚未實際產檔目檢**,首次產出請人眼確認標題區與
+> 頁碼視覺;`examples/demo_deck_expB.pptx` 是舊規範樣張,已不符本檔。
 
 ## 一、硬規範(每頁必須全部成立)
 
@@ -11,18 +17,44 @@
    目錄同位)。**禁止自己畫背景、禁止自己貼 logo**(會跟 layout 的重複),
    也不得用任何滿版形狀蓋住底圖或 logo 區。
 2. **logo 區保留**:y>6.9" 的左下帶(x<2.3")不放任何內容,logo 由 layout 顯示。
-3. **頁碼右下角**:11pt、次文字色、兩位數字(03、04…),right-align 於
-   left=12.3", top=6.95", w=0.7"。頁碼接續目錄頁(第一張自由頁是 03)。
+3. **頁碼右下角**:**28pt 粗體、主文字色 `344252`**,right-align 於
+   left=12.3", top=6.72", w=0.7", h=0.5"。這組數值 = 模板 `manifest.json` 的
+   `page_number`,**與工具鏈產的結構頁完全一致**,不得自訂。**數字不補零**
+   ——第三頁寫 `3` 不是 `03`(引擎產的目錄頁就是 `2`,補零會讓同一份檔出現
+   兩種頁碼格式)。頁碼接續目錄頁(第一張自由頁是 3)。封面/封底無頁碼。
 4. **品牌色只用六色**:深 `344252`(主文字)、次 `68727E`、綠 `58D494`、
-   紫 `848BF2`、藍 `4AB7F9`、線 `D8DEE4`;卡片底可用 `F7F9FB`。不得自創顏色。
+   紫 `848BF2`、藍 `4AB7F9`、線 `D8DEE4`;卡片底可用 `F7F9FB`,標籤/標題條上的
+   反白字可用 `FFFFFF`。不得自創顏色。**綠 `58D494` 是強調色,只用於關鍵數字
+   與重點標籤**,不得大面積鋪底。
 5. **字體一律 Microsoft JhengHei**,且 latin 與 East Asian 都要設(見 set_font 範式;
    只設 font.name 的話中文會 fallback 成別的字)。
-6. **安全區**:標題區 y 0.45–1.5";內容區 y 1.8–6.8";左右邊界 0.6"。
-   logo 與頁碼所在的 y>6.9" 帶不放內容。
-7. **標題區固定樣式**:綠色豎條(0.6", 0.55", 0.09"×0.5")+ 24pt 粗體深色標題
-   (0.85", 0.45")+ 13pt 次色副標(0.88", 1.05")。
-8. **全部可編輯物件**:只用文字框/形狀/圖片,禁止把文字轉成圖。
-9. **內容忠實**:槽進頁面的每一個字與數字都要出自使用者輸入;缺的寫「待補充」。
+6. **字級只准用字級表的值**,禁止自創中間值(如 13pt、15pt、22pt):
+
+   | 層級 | H1 | H1 Emphasis | H2 | H3 | H4 | H5 | H6 | p1 | p2 | Page Number |
+   | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+   | 字級 | 40 | 36 | 32 | 28 | 24 | 20 | 18 | 16 | 14 | 28 |
+
+   自由頁的用法固定:**頁面大標 H2(32)**、**核心訊息/副標 H6(18)**、
+   **內容標題 H4(24)**、**再下一層標題 H5(20)**、**內文 p1(16)或 p2(14)**。
+   **禁止任何內文低於 p2(14pt)**,包含卡片內說明、圖說、註記。
+   唯一例外:大數字 KPI 版型的**數值本身**沿用 60pt(字級表外,⚠ 待設計師確認)。
+   同頁**內容區**字級不超過 3 種(標題區與頁碼不計入)。
+7. **安全區**:標題區 y 0.45–1.55";內容區 y 1.9–6.6";左右邊界 0.6"。
+   底部兩塊淨空區不得放內容——左下 logo 區(y>6.9" 且 x<2.3")、
+   右下頁碼區(y>6.3" 且 x>11.2",數值取自 manifest 的 `clear_zone_in`)。
+8. **標題區固定樣式**:綠色豎條(0.6", 0.52", 0.09"×0.50")+ **H2 32pt 粗體**
+   深色標題(0.85", 0.45", w 9.5", h 0.75")+ **H6 18pt** 次色副標
+   (0.88", 1.15", w 9.5", h 0.45")。
+9. **樣式邊界(拼版紀律)**:卡片一律白底或 `F7F9FB`、`D8DEE4` 淺灰細線框
+   (0.75pt)、小圓角(`adjustments[0]=0.06`);要強調只能把 `58D494` /
+   `848BF2` / `4AB7F9` 用在細框、標籤或小面積底色。**禁止**:陰影(一律
+   `shadow.inherit=False`)、漸層、大圓角/膠囊圓角、3D 圖示、手繪插畫、
+   大面積裝飾圖、模板六色以外的新色系。留白、線寬、圓角、對齊要跟同頁其他
+   元件一致。
+10. **底圖不得再加底色**:背景一律由 layout 的 content_bg 提供,不得在其上鋪
+   任何滿版或大面積色塊/漸層當「背景色」。
+11. **全部可編輯物件**:只用文字框/形狀/圖片,禁止把文字轉成圖。
+12. **內容忠實**:槽進頁面的每一個字與數字都要出自使用者輸入;缺的寫「待補充」。
 
 ## 二、程式範式(照抄)
 
@@ -39,6 +71,11 @@ GREEN=RGBColor(0x58,0xD4,0x94); PURPLE=RGBColor(0x84,0x8B,0xF2)
 BLUE=RGBColor(0x4A,0xB7,0xF9); LINE=RGBColor(0xD8,0xDE,0xE4)
 CARD=RGBColor(0xF7,0xF9,0xFB); WHITE=RGBColor(0xFF,0xFF,0xFF)
 FONT="Microsoft JhengHei"; SLIDE_W,SLIDE_H=Inches(13.333),Inches(7.5)
+
+# 字級表(pt)——只准用這些常數,禁止寫死其他數字
+H1,H1E,H2,H3,H4,H5,H6,P1,P2 = 40,36,32,28,24,20,18,16,14
+PAGE_NO_PT = 28            # 與模板 manifest 的 page_number.size_pt 一致
+KPI_PT     = 60            # 字級表唯一例外:大數字 KPI 的數值本身(待設計師確認)
 
 def set_font(run, size, color, bold=False):          # 中文字體必用這支
     f=run.font; f.name=FONT; f.size=Pt(size); f.bold=bold; f.color.rgb=color
@@ -57,14 +94,15 @@ def textbox(slide,x,y,w,h,lines,align=PP_ALIGN.LEFT,anchor=MSO_ANCHOR.TOP):
 
 def page_base(slide,title,subtitle,page_no):          # 每頁第一件事就是呼叫它
     # 背景(content_bg)與左下 logo 由 layout「空白(白底)」自帶,這裡不畫
-    bar=slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,Inches(0.6),Inches(0.55),
-                               Inches(0.09),Inches(0.5))
+    bar=slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,Inches(0.6),Inches(0.52),
+                               Inches(0.09),Inches(0.50))
     bar.fill.solid(); bar.fill.fore_color.rgb=GREEN; bar.line.fill.background()
     bar.shadow.inherit=False
-    textbox(slide,Inches(0.85),Inches(0.45),Inches(9.5),Inches(0.6),[(title,24,DARK,True)])
-    textbox(slide,Inches(0.88),Inches(1.05),Inches(9.5),Inches(0.4),[(subtitle,13,MUTED,False)])
-    textbox(slide,Inches(12.3),Inches(6.95),Inches(0.7),Inches(0.35),
-            [(f"{page_no:02d}",11,MUTED,False)],align=PP_ALIGN.RIGHT)
+    textbox(slide,Inches(0.85),Inches(0.45),Inches(9.5),Inches(0.75),[(title,H2,DARK,True)])
+    textbox(slide,Inches(0.88),Inches(1.15),Inches(9.5),Inches(0.45),[(subtitle,H6,MUTED,False)])
+    # 頁碼:幾何/字級/顏色/粗體/不補零全部對齊模板 manifest,與結構頁同一個樣子
+    textbox(slide,Inches(12.3),Inches(6.72),Inches(0.7),Inches(0.5),
+            [(str(page_no),PAGE_NO_PT,DARK,True)],align=PP_ALIGN.RIGHT)
 
 def card(slide,x,y,w,h,fill=CARD):
     c=slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,x,y,w,h)
@@ -93,42 +131,88 @@ prs.save("/mnt/data/deck_final.pptx")
 ## 三、版面建議(不是硬規範,但先從這三種挑)
 
 - **並列卡片**(2–3 欄重點):`card` 等寬排列,欄距 0.3";卡內彩色圓角
-  標題條(白字 16pt 粗體)+ 「•  」列點 14pt,段後距 14pt。
-- **大數字 KPI**(2–3 個指標):60pt 粗體彩色數值置中 + 18pt 粗體標籤 +
-  13pt 次色說明;欄間放 1px 直線(LINE 色)。
+  標題條(白字 **H4 24pt** 粗體,條高至少 0.55";標題較長時降一級用
+  **H5 20pt**)+ 「•  」列點 **P2 14pt**,段後距 14pt。
+- **大數字 KPI**(2–3 個指標):**KPI_PT 60pt** 粗體彩色數值置中(字級表唯一
+  例外)+ **H6 18pt** 粗體標籤 + **P2 14pt** 次色說明;欄間放 1px 直線(LINE 色)。
 - **水平時間軸**(3–5 節點):LINE 色細橫條 + 彩色圓點(白邊 1.5pt)+
-  節點下 13pt 標籤;里程碑文字放軸上方;右下可加一張現況卡片。
+  節點下 **P2 14pt** 標籤;里程碑文字放軸上方;右下可加一張現況卡片。
 
-同頁字級不超過 3 種;一頁塞不下就拆兩頁,禁止縮字硬塞。
+同頁內容區字級不超過 3 種(標題區與頁碼不計);一頁塞不下就拆兩頁,
+**禁止縮字硬塞**——字級表最小就是 P2 14pt,再小一律改版面。
 
 ## 四、QA-lite(自由頁畫完必跑,紅字就修版重畫)
+
+掃四類:**溢出 / 文字重疊 / 字級與字體 / 品牌色**。任何一類紅字都要修版重畫。
 
 ```python
 import sys; sys.path.insert(0,"/mnt/data/tools")
 from pptx import Presentation
+from pptx.util import Inches
+from pptx.enum.dml import MSO_FILL
+from pptx.oxml.ns import qn
 import text_tools as tt
-prs=Presentation("/mnt/data/deck_final.pptx")
-bad=0
+
+FONT="Microsoft JhengHei"
+OK_PT={40,36,32,28,24,20,18,16,14,60}      # 字級表 + 60(大數字 KPI 例外)
+OK_HEX={"344252","68727E","58D494","848BF2","4AB7F9","D8DEE4","F7F9FB","FFFFFF"}
+
+prs=Presentation("/mnt/data/deck_final.pptx"); bad=0
 for i,slide in enumerate(prs.slides,1):
     if i in (1,2,len(prs.slides)):        # 結構頁(封面/目錄/封底)歸 qa_check 管
         continue
     for sh in tt.iter_text_shapes(slide.shapes):
         try: ov=tt.estimate_overflow(sh)
-        except Exception: continue
+        except Exception: ov=None
         if ov and ov.get("overflow"):
             bad+=1; print(f"p{i} 溢出 id={sh.shape_id}:{tt.shape_text(sh)[:15]}")
+        for para in sh.text_frame.paragraphs:
+            for r in para.runs:
+                if not r.text.strip(): continue
+                tag=f"p{i}「{r.text[:10]}」"
+                pt=r.font.size.pt if r.font.size else None
+                if pt not in OK_PT:
+                    bad+=1; print(f"{tag} 字級 {pt} 不在字級表")
+                if r.font.name!=FONT:
+                    bad+=1; print(f"{tag} 字體 {r.font.name}")
+                ea=r._r.get_or_add_rPr().find(qn("a:ea"))
+                if ea is None or ea.get("typeface")!=FONT:
+                    bad+=1; print(f"{tag} 缺 a:ea 中文字體")
+                try: hexc=str(r.font.color.rgb).upper()
+                except Exception: hexc=None
+                if hexc not in OK_HEX:
+                    bad+=1; print(f"{tag} 文字色 {hexc} 不在六色內")
+    for sh in slide.shapes:                # 形狀底色也只准用六色
+        try:
+            if sh.fill.type==MSO_FILL.SOLID:
+                h=str(sh.fill.fore_color.rgb).upper()
+                if h not in OK_HEX:
+                    bad+=1; print(f"p{i} 形狀底色 {h} 不在六色內")
+        except Exception: pass
+    pn=[s for s in tt.iter_text_shapes(slide.shapes)                 # 右下角頁碼
+        if tt.shape_text(s).strip().isdigit()
+        and s.left and s.left>Inches(11.2) and s.top and s.top>Inches(6.3)]
+    if len(pn)!=1:
+        bad+=1; print(f"p{i} 右下角頁碼數量={len(pn)}(應為 1)")
+    elif tt.shape_text(pn[0]).strip()!=str(i):
+        bad+=1; print(f"p{i} 頁碼 {tt.shape_text(pn[0]).strip()!r} 應為 {str(i)!r}(不補零)")
     for c in tt.text_collisions(slide):
         bad+=1; print(f"p{i} 文字重疊 area={c[0]:.2f}")
 print("QA-lite:", "PASS" if bad==0 else f"FAIL({bad})")
 ```
 
 修正最多三輪;三輪仍紅就換更簡單的版面(減欄、拆頁、縮短文字——改版面,
-不縮字級)。
+不縮字級)。**字級/字體/顏色/頁碼四類紅字沒有「改版面」的解法,一律直接改回
+規範值再重畫**;絕不可為了消溢出而把字調到 14pt 以下或改用表外字級。
 
 ## 五、交付前自我檢查清單
 
 - [ ] 每張自由頁:用「空白(白底)」layout(content_bg 底圖與左下 logo 自帶
-      且未被遮住)、頁碼右下、只用六色、JhengHei(含 a:ea)
+      且未被遮住)、只用六色、JhengHei(含 a:ea)
+- [ ] 頁碼右下 28pt 粗體 `344252` @(12.3", 6.72"),數字不補零且接續目錄頁
+- [ ] 字級全部落在字級表:大標 H2 32、副標 H6 18、內容標題 H4 24 / H5 20、
+      內文 P1 16 或 P2 14,無任何內文低於 14pt(KPI 數值 60pt 為唯一例外)
+- [ ] 無陰影、無漸層、無 3D/插畫/大面積裝飾;卡片為白底或 F7F9FB + 細灰線小圓角
 - [ ] 結構三頁 validator + qa_check 都 PASS(在插入自由頁**之前**跑)
 - [ ] QA-lite PASS,輸出已貼給使用者
 - [ ] 頁面上每個字與數字都能指回使用者輸入;缺料處寫「待補充」並列入待補清單

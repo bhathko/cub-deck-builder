@@ -25,7 +25,7 @@ shasum -a 256 gpts_experiment_b/dist/template_light.zip gpts_experiment_a/dist/t
 ## Step 1|Builder → 名稱、描述、開場白、Instructions
 
 **① Instructions**:貼上本資料夾 [`instructions.md`](instructions.md)
-**分隔線以下的全文**。第一行版本代號應為 `v1.0-expB-20260803` 開頭。
+**分隔線以下的全文**。第一行版本代號應為 `v1.1-expB-20260805` 開頭。
 
 **② Name**:
 
@@ -83,7 +83,9 @@ shasum -a 256 gpts_experiment_b/dist/template_light.zip gpts_experiment_a/dist/t
 你現在是哪一版?本次會用哪個模板包?
 ```
 
-預期:`v1.0-expB-20260803` + `light@2026-08-03.1`。
+預期:`v1.1-expB-20260805` + `light@2026-08-03.2-expA`
+(舊稿寫 `light@2026-08-03.1` 是錯的——`dist/template_light.zip` 內的
+manifest 實際版本是 `2026-08-03.2-expA`,照舊稿驗收會誤判成失敗)。
 
 **② 環境準備**
 
@@ -101,10 +103,16 @@ shasum -a 256 gpts_experiment_b/dist/template_light.zip gpts_experiment_a/dist/t
 ```
 
 預期:列章節與版面構想後直接續跑;結構三頁 validator + qa_check PASS 的輸出
-可見;自由頁畫完有 QA-lite 輸出;交付附頁面清單、待補清單與目檢提醒。
+可見;自由頁畫完有 QA-lite 輸出(必須是 `QA-lite: PASS`,只要有字級/字體/
+顏色/頁碼紅字就是沒照規範,退回重跑);交付附頁面清單、待補清單與目檢提醒。
 **開 PowerPoint 逐頁檢查**:每張中間頁背景都要是 content_bg 底圖(與實驗A
-中間頁相同)、logo 在左下角、頁碼右下、只用品牌色、中文字是微軟正黑體
-(不是明體 fallback)、文字都可編輯。
+中間頁相同)、logo 在左下角、只用品牌色、中文字是微軟正黑體(不是明體
+fallback)、文字都可編輯。**視覺規範重點抽查**:
+
+- 頁碼在右下、**28pt 粗體 #344252、不補零**,而且與目錄頁(工具鏈產的)
+  大小顏色格式**完全一樣**——兩者不一致是最容易復發的破口
+- 頁面大標 32pt、副標 18pt;卡片內說明、圖說、註記**沒有任何一處小於 14pt**
+- 卡片是白底/淺灰細線/小圓角,**沒有陰影、漸層、3D 圖示或大面積裝飾**
 
 **④ 結構頁閘門仍有效**
 
@@ -129,7 +137,9 @@ shasum -a 256 gpts_experiment_b/dist/template_light.zip gpts_experiment_a/dist/t
 
 - [ ] 五條驗收全過 → 把 GPT 連結給設計師,附 `examples/sample_outline.md`
       (請他同一份大綱各餵 實驗A 與 實驗B 一次,並排目檢比對)
-- [ ] `examples/demo_deck_expB.pptx` 是本流程預期產出的實測樣張,可先給設計師開檔
+- [ ] ⚠ `examples/demo_deck_expB.pptx` 是 2026-08-03 舊視覺規範的樣張,
+      **不符現行 playbook**(頁碼 11pt 補零、副標 13pt、時間軸 12/15pt),
+      **不要拿給設計師當視覺基準**;要給樣張請先用驗收 ③ 的產出替換它
 - [ ] 提醒設計師:實驗B **每次重跑版面都可能不同**,建議同一份大綱跑兩次,
       看穩定度也是評估項目
 - [ ] 試用回饋記進 [`../docs/FEEDBACK.md`](../docs/FEEDBACK.md)(附版本、指令、實際輸出)

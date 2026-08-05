@@ -2,8 +2,8 @@
 
 給設計師 A/B 試用的兩個實驗 GPT 之一。**實驗B = 需求方想要的「自由發揮」方向**:
 只有封面/目錄/封底走公司模板與工具鏈,中間內容頁由 GPT 用 python-pptx 自由設計
-——制式 content_bg 底圖與左下角 logo 由 layout 自帶,品牌六色與微軟正黑體照
-[`freeform_playbook.md`](freeform_playbook.md) 的硬規範。
+——制式 content_bg 底圖與左下角 logo 由 layout 自帶,品牌六色、微軟正黑體與
+**字級層級表**照 [`freeform_playbook.md`](freeform_playbook.md) 的硬規範。
 
 工具 zip 與正式版完全相同(本包不改任何工具);模板 zip 為 content_bg 底圖
 改版(`light@2026-08-03.2-expA`,**與實驗A 共用同一份**,改版細節見
@@ -18,7 +18,7 @@
 | 封面/目錄/封底 | 公司模板,引擎產 | 公司模板,引擎產(相同) |
 | 中間內容頁 | 內建頁型庫選版,渲染零隨機 | GPT 用 python-pptx 自由設計 |
 | 中間頁外觀 | content_bg 底圖 + logo 左下(模板 layout 統一給) | content_bg 底圖 + logo 左下(同一 layout,相同) |
-| 版面品質保證 | validator + qa_check 全程把關 | 僅 QA-lite(溢出/重疊掃描)+人工目檢 |
+| 版面品質保證 | validator + qa_check 全程把關 | QA-lite(溢出/重疊/字級/字體/品牌色/頁碼)+人工目檢 |
 | 內容不捏造 | 程式稽核(字數/數字/追溯) | 只靠 prompt 自律,**無程式稽核** |
 | 版面多樣性 | 受頁型庫限制 | 不受限,但品質隨模型發揮浮動 |
 | 同一輸入重跑 | 結果完全相同 | 每次版面可能不同 |
@@ -26,14 +26,20 @@
 ## 本機實測已驗證的部分
 
 `examples/demo_deck_expB.pptx` 是 2026-08-03 本機照本包流程實測的樣張
-(6 頁:模板封面/目錄/封底 + 三張自由頁:並列卡片、大數字 KPI、水平時間軸),
-playbook 的座標、字體(East Asian)、move_slide 插頁與 QA-lite 掃描都以它驗過:
+(6 頁:模板封面/目錄/封底 + 三張自由頁:並列卡片、大數字 KPI、水平時間軸)。
+**它驗的是流程,不是現行視覺規範**——playbook 的 layout 選用、字體
+(East Asian a:ea)、move_slide 插頁與 QA-lite 掃描機制都以它驗過:
 
 - 結構三頁 spec(`spec_structural.example.json`)validator + qa_check PASS
 - 三張自由頁 QA-lite(溢出/重疊)零紅字
 - qa_check 對自由頁**無法把關**(會誤判成量錯的模板槽位)——這是實驗B 的
   已知限制,也是兩版的本質差異,所以流程規定 qa_check 只在插入自由頁前的
   結構檔上跑
+
+> ⚠ **2026-08-05 起這份樣張已不符 playbook**:導入設計師視覺規範後,新版
+> QA-lite 打在它身上是 `FAIL(24)`——自由頁用了 11pt 補零頁碼(結構頁是
+> 28pt 粗體 `344252` 不補零)、副標 13pt、時間軸 12/15pt,全部低於或不在
+> 字級表內。**重產樣張前不要拿它當視覺基準**,只能當流程參考。
 
 ## 試用方式
 
@@ -45,8 +51,8 @@ playbook 的座標、字體(East Asian)、move_slide 插頁與 QA-lite 掃描都
 
 ## 檔案
 
-- `instructions.md` — 貼進 Builder 的指示全文(v1.0-expB-20260803)
-- `freeform_playbook.md` — 自由頁設計手冊(硬規範+可照抄程式範式+QA-lite),上傳 Knowledge
+- `instructions.md` — 貼進 Builder 的指示全文(v1.1-expB-20260805)
+- `freeform_playbook.md` — 自由頁設計手冊(硬規範+字級表+可照抄程式範式+QA-lite),上傳 Knowledge
 - `spec_structural.example.json` — 三頁結構 spec 範例,上傳 Knowledge
 - `DEPLOY.md` — 發版操作稿
 - `dist/` — tools.zip + template_light.zip(與 `gpts/dist/` 完全相同)
