@@ -5,11 +5,16 @@
 ——制式 content_bg 底圖與左下角 logo 由 layout 自帶,品牌六色、微軟正黑體與
 **字級層級表**照 [`freeform_playbook.md`](freeform_playbook.md) 的硬規範。
 
-工具 zip 與正式版完全相同(本包不改任何工具);模板 zip 為 content_bg 底圖
-改版(`light@2026-08-03.2-expA`,**與實驗A 共用同一份**,改版細節見
-`../gpts_experiment_a/README.md`)。結構三頁仍有 validator + qa_check 守門;
-中間頁只有 QA-lite(溢出/重疊掃描),**版面品質與內容忠實主要靠模型自律與
-人工目檢**。
+兩個 zip 都是**最小包**(`light@2026-08-03.2-expA-min`),由
+[`build_min_dist.py`](build_min_dist.py) 從正式來源裁切:模板只留
+cover/agenda/closing 三頁實頁,tools 只留 render_deck / qa_check 及其相依。
+**這是為了讓「自由發揮」名副其實**——完整包會把 60 頁模板實頁、52 個頁型
+契約與實驗A 的選版器一起塞進 Knowledge,模型看得到就會照著畫,結果就是
+中間頁跟實驗A 撞版(08-03 初版樣張三頁全中)。底圖沿用 content_bg 改版,
+細節見 `../gpts_experiment_a/README.md`。
+
+結構三頁仍有 validator + qa_check 守門;中間頁只有 QA-lite,**版面品質與
+內容忠實主要靠模型自律與人工目檢**。
 
 ## 兩個實驗版在比什麼
 
@@ -18,7 +23,8 @@
 | 封面/目錄/封底 | 公司模板,引擎產 | 公司模板,引擎產(相同) |
 | 中間內容頁 | 內建頁型庫選版,渲染零隨機 | GPT 用 python-pptx 自由設計 |
 | 中間頁外觀 | content_bg 底圖 + logo 左下(模板 layout 統一給) | content_bg 底圖 + logo 左下(同一 layout,相同) |
-| 版面品質保證 | validator + qa_check 全程把關 | QA-lite(溢出/重疊/字級/字體/品牌色/頁碼)+人工目檢 |
+| 看得到頁型庫嗎 | 是,52 個頁型是它的選單 | **否**,Knowledge 裡只有 3 頁模板 |
+| 版面品質保證 | validator + qa_check 全程把關 | QA-lite(溢出/重疊/字級/字體/品牌色/頁碼/安全區)+人工目檢 |
 | 內容不捏造 | 程式稽核(字數/數字/追溯) | 只靠 prompt 自律,**無程式稽核** |
 | 版面多樣性 | 受頁型庫限制 | 不受限,但品質隨模型發揮浮動 |
 | 同一輸入重跑 | 結果完全相同 | 每次版面可能不同 |
@@ -55,10 +61,11 @@
 
 ## 檔案
 
-- `instructions.md` — 貼進 Builder 的指示全文(v1.1-expB-20260805)
+- `instructions.md` — 貼進 Builder 的指示全文(v1.2-expB-20260805)
 - `freeform_playbook.md` — 自由頁設計手冊(硬規範+字級表+可照抄程式範式+QA-lite),上傳 Knowledge
 - `spec_structural.example.json` — 三頁結構 spec 範例,上傳 Knowledge
 - `DEPLOY.md` — 發版操作稿
-- `dist/` — tools.zip + template_light.zip(與 `gpts/dist/` 完全相同)
+- `build_min_dist.py` — 產生下面兩個最小包(可重現打包;含零殘留稽核)
+- `dist/` — tools.zip(7 支)+ template_light.zip(3 頁),**與 `gpts/dist/` 不同**
 - `examples/sample_outline.md` — 設計師試用的共同輸入大綱(與實驗A 同一份)
 - `examples/demo_deck_expB.pptx` — 本流程實測樣張

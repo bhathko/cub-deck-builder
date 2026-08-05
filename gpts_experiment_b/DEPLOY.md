@@ -9,23 +9,45 @@
 
 ## Step 0|本機確認 dist 內容
 
-- `tools.zip` 直接複製自 `gpts/dist/`(實驗B 不改任何工具),sha 應與正式版一致。
-- `template_light.zip` 是 **content_bg 底圖改版**(`light@2026-08-03.2-expA`,
-  **與實驗A 共用同一份**):內容頁 layout「只有標題」「空白(白底)」改為
-  content_bg 滿版底圖+左下角 logo,封面/目錄/封底未動;改版細節見
-  `../gpts_experiment_a/README.md`。
+實驗B 的兩個 zip 都是**最小包**,由 [`build_min_dist.py`](build_min_dist.py)
+從正式來源裁切產生,**與 `gpts/dist/` 及實驗A 的不同**(舊稿要你比對 sha
+是否一致,那個做法已不適用)。
+
+為什麼要裁:中間頁由 GPT 自由設計、不走頁型庫,但完整包會把整套頁型資訊
+帶進 Knowledge——`template.pptx` 60 頁每個頁型一頁實頁、`manifest.page_types`
+52 個契約、`page_map.md` 86 行對照表、`tools.zip` 裡還有實驗A 的選版器
+`make_skeleton.py`;而 Step 0 又要求印出 manifest,等於每次產檔前都打開那份
+頁型清單。只擋 `page_types*.md` 沒有用,資訊從 zip 整包進去了。
+
+| | 正式包 | 實驗B 最小包 |
+| --- | --- | --- |
+| `template.pptx` | 60 頁 | **3 頁**(cover/agenda/closing) |
+| `manifest.page_types` | 52 | **3** |
+| `bindings.fills` | 33 | **3** |
+| `page_map.md` | 86 行 | **不含** |
+| `tools.zip` | 13 支 / 64KB | **7 支 / 30KB** |
+
+版面配置(含自由頁用的「空白(白底)」與 content_bg 底圖、左下 logo)完整保留
+——layout 存在母片,不隨投影片裁切消失。
+
+重打與驗證:
 
 ```
-shasum -a 256 gpts_experiment_b/dist/tools.zip gpts/dist/tools.zip
-shasum -a 256 gpts_experiment_b/dist/template_light.zip gpts_experiment_a/dist/template_light.zip
+python gpts_experiment_b/build_min_dist.py
 ```
 
-第一組兩行相同、第二組兩行相同即可。
+輸出要看到「殘留頁型名稱稽核:PASS(零殘留)」。這支是可重現打包(固定時戳,
+含 pptx 內層),內容沒變重打兩次 sha 相同;sha 變了就代表來源真的改了。
+
+> **已知殘留**:Knowledge 另傳的 `validate_slide_spec_gpts.py` 內含 29 個頁型
+> 名稱。它是結構三頁的閘門(驗收 ④ 靠它),拿掉就沒有守門;要清得為實驗B 叉
+> 一份 engine 程式碼,validator 一改就漂,所以刻意保留。影響很小——B 有名字,
+> 但沒有綁定、沒有模板實頁、沒有選版器,產不出那些頁型。
 
 ## Step 1|Builder → 名稱、描述、開場白、Instructions
 
 **① Instructions**:貼上本資料夾 [`instructions.md`](instructions.md)
-**分隔線以下的全文**。第一行版本代號應為 `v1.1-expB-20260805` 開頭。
+**分隔線以下的全文**。第一行版本代號應為 `v1.2-expB-20260805` 開頭。
 
 **② Name**:
 
@@ -83,9 +105,8 @@ shasum -a 256 gpts_experiment_b/dist/template_light.zip gpts_experiment_a/dist/t
 你現在是哪一版?本次會用哪個模板包?
 ```
 
-預期:`v1.1-expB-20260805` + `light@2026-08-03.2-expA`
-(舊稿寫 `light@2026-08-03.1` 是錯的——`dist/template_light.zip` 內的
-manifest 實際版本是 `2026-08-03.2-expA`,照舊稿驗收會誤判成失敗)。
+預期:`v1.2-expB-20260805` + `light@2026-08-03.2-expA-min`。
+(字尾 `-min` 就是最小包的識別;沒有 `-min` 代表傳錯 zip,退回 Step 2 重傳。)
 
 **② 環境準備**
 
@@ -93,8 +114,10 @@ manifest 實際版本是 `2026-08-03.2-expA`,照舊稿驗收會誤判成失敗)�
 執行環境準備,貼出輸出。
 ```
 
-預期:解 tools.zip 到 /mnt/data/tools、解 template_light.zip 到
+預期:解 tools.zip 到 /mnt/data/tools(7 支)、解 template_light.zip 到
 /mnt/data/templates/light,印出 manifest 的 template_id 與 version。
+**模板只有 3 頁、manifest 只有 3 個頁型是正確的**;GPT 若把這個當成環境缺檔
+或工具鏈故障而停下,是它誤判,請貼這句話糾正它。
 
 **③ 一鍵大綱(設計師比對用的同一份輸入)**
 
